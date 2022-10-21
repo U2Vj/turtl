@@ -1,0 +1,19 @@
+image: alpine:latest
+
+deploy_test:
+  stage: deploy
+  before_script:
+  - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )' 
+  - eval $(ssh-agent -s)
+  - echo "$TURTL_SSH_PRIV_KEY" | tr -d '\r' | ssh-add -
+  - mkdir -p ~/.ssh
+  - chmod 700 ~/.ssh
+  - ssh-keyscan $TURTL_IP_ADDRESS >> ~/.ssh/known_hosts
+  - chmod 644 ~/.ssh/known_hosts
+  script:
+  - ssh $TURTL_USER_NAME@$TURTL_IP_ADDRESS "hostname && echo 'Welcome!!!' > welcome.txt"
+  artifacts:
+    paths:
+    - public
+  only:
+  - main
