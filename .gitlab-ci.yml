@@ -1,19 +1,24 @@
+default:
+  before_script:
+    # check key to allow access
+    - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )' 
+    - eval $(ssh-agent -s)
+    - echo "$TURTL_SSH_PRIV_KEY" | tr -d '\r' | ssh-add -
+    - mkdir -p ~/.ssh
+    - chmod 700 ~/.ssh
+    - ssh-keyscan $TURTL_IP_ADDRESS >> ~/.ssh/known_hosts
+    - chmod 644 ~/.ssh/known_hosts
+
+variables:
+  TURTL_DEPLOY_ADDRESS: "$TURTL_USER_NAME@$TURTL_IP_ADDRESS"
+  TURTL_DEPLOY_PATH: "~/app"
+
 image: alpine:latest
 
-deploy_test:
+Deploy:
   stage: deploy
-  before_script:
-  - 'command -v ssh-agent >/dev/null || ( apk add --update openssh )' 
-  - eval $(ssh-agent -s)
-  - echo "$TURTL_SSH_PRIV_KEY" | tr -d '\r' | ssh-add -
-  - mkdir -p ~/.ssh
-  - chmod 700 ~/.ssh
-  - ssh-keyscan $TURTL_IP_ADDRESS >> ~/.ssh/known_hosts
-  - chmod 644 ~/.ssh/known_hosts
   script:
-  - ssh $TURTL_USER_NAME@$TURTL_IP_ADDRESS "hostname && echo 'Welcome!!!' > welcome.txt"
-  artifacts:
-    paths:
-    - public
+    # check out new changes from main branch
+    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_DEPLOY_PATH && git fetch --quiet && git checkout $CI_COMMIT_SHA"
   only:
-  - main
+    - main
