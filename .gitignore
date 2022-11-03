@@ -28,7 +28,7 @@ media
 build/
 bin/
 .idea/
-lib64/
+lib64
 develop-eggs/
 dist/
 downloads/

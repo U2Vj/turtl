@@ -1,0 +1,50 @@
+<!-- shell/templates/shell/room.html -->
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <title>shell Room</title>
+</head>
+<body>
+    <textarea id="shell-log" cols="100" rows="20"></textarea><br>
+    <input id="shell-message-input" type="text" size="100"><br>
+    <input id="shell-message-submit" type="button" value="Send">
+    {{ room_name|json_script:"room-name" }}
+    <script>
+        const roomName = JSON.parse(document.getElementById('room-name').textContent);
+
+        const shellSocket = new WebSocket(
+            'ws://'
+            + window.location.host
+            + '/ws/shell/'
+            + roomName
+            + '/'
+        );
+
+        shellSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            document.querySelector('#shell-log').value += (data.message + '\n');
+        };
+
+        shellSocket.onclose = function(e) {
+            console.error('shell socket closed unexpectedly');
+        };
+
+        document.querySelector('#shell-message-input').focus();
+        document.querySelector('#shell-message-input').onkeyup = function(e) {
+            if (e.keyCode === 13) {  // enter, return
+                document.querySelector('#shell-message-submit').click();
+            }
+        };
+
+        document.querySelector('#shell-message-submit').onclick = function(e) {
+            const messageInputDom = document.querySelector('#shell-message-input');
+            const message = messageInputDom.value;
+            shellSocket.send(JSON.stringify({
+                'message': message
+            }));
+            messageInputDom.value = '';
+        };
+    </script>
+</body>
+</html>
