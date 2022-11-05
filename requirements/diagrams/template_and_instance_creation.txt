@@ -1,0 +1,29 @@
+title template_and_instance_creation (TXT file can be changed on sequencediagram.org)
+
+
+actor manager
+
+participant classroom template
+participant project template
+participant task template
+
+actor instructor
+
+participant classroom instance
+participant project instance
+participant task instance
+
+
+manager->*classroom template: <<create>>
+manager->*project template: <<create>>
+manager->*task template: <<create>>
+
+instructor->*classroom instance: <<create>>
+instructor->*project instance: <<create>>
+instructor->*task instance: <<create>>
+
+
+instructor->project instance: add project instance to classroom instance
+instructor->task instance: add task instance to project instance
+
+
