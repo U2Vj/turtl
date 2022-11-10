@@ -15,10 +15,37 @@ variables:
 
 image: alpine:latest
 
-Deploy:
-  stage: deploy
+stages: ["pull", "deploy"]
+
+Get new files:
+  stage: pull
   script:
-    # check out new changes from main branch
+    # Stop all processes
+    - pkill -f runserver
+    # Check out new changes from main branch
     - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_DEPLOY_PATH && git fetch --quiet && git checkout $CI_COMMIT_SHA"
   only:
     - main
+  
+Start backend:
+  stage: deploy
+  script:
+    # Migrate new changes
+    - python3 manage.py makemigrations
+    - python3 manage.py migrate
+    # Restart backend
+    - python3 manage.py runserver
+  only:
+    - main
+
+Start frontend:
+  stage: deploy
+  script:
+    # Update contents and dependencies
+    - npm install
+    - npm run build
+    # Restart frontend server
+    - systemctl restart nginx
+  only:
+    - main
+  needs: ["Start backend"]
