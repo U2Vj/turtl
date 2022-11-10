@@ -11,8 +11,6 @@ default:
 
 variables:
   TURTL_DEPLOY_ADDRESS: "$TURTL_USER_NAME@$TURTL_IP_ADDRESS"
-  TURTL_DEPLOY_PATH: "~/app"
-  TURTL_DEPLOY_PATH_FRONTEND: "~/app/frontend"
 
 image: alpine:latest
 
@@ -24,14 +22,14 @@ Get new files:
     # Stop all processes
     - echo TODO stop server processes
     # Check out new changes from main branch
-    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_DEPLOY_PATH && git fetch --quiet && git checkout $CI_COMMIT_SHA"
+    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && git fetch --quiet && git checkout $CI_COMMIT_SHA"
   only:
     - main
   
 Start backend:
   stage: deploy
   script:
-    - cd $TURTL_DEPLOY_PATH
+    - cd $TURTL_SRC_PATH
     # Migrate new changes
     - python3 manage.py makemigrations
     - python3 manage.py migrate
@@ -43,7 +41,7 @@ Start backend:
 Start frontend:
   stage: deploy
   script:
-    - cd $TURTL_DEPLOY_PATH_FRONTEND
+    - cd $TURTL_SRC_PATH_FRONTEND
     # Update contents and dependencies
     - npm install
     - npm run build
