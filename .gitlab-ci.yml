@@ -29,24 +29,23 @@ Get new files:
 Start backend:
   stage: deploy
   script:
-    - cd $TURTL_SRC_PATH
     # Migrate new changes
-    - python3 manage.py makemigrations
-    - python3 manage.py migrate
+    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && python3 manage.py makemigrations"
+    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && python3 manage.py migrate"
     # Restart backend
-    - python3 manage.py runserver
+    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && python3 manage.py runserver"
   only:
     - main
+  needs: ["Get new files"]
 
 Start frontend:
   stage: deploy
   script:
-    - cd $TURTL_SRC_PATH_FRONTEND
     # Update contents and dependencies
-    - npm install
-    - npm run build
+    - ssh $TURTL_DEPLOY_ADDRESS_FRONTEND "cd $TURTL_SRC_PATH && npm install"
+    - ssh $TURTL_DEPLOY_ADDRESS_FRONTEND "cd $TURTL_SRC_PATH && npm run build"
     # Restart frontend server
-    - systemctl restart nginx
+    - ssh $TURTL_DEPLOY_ADDRESS_FRONTEND "systemctl restart nginx"
   only:
     - main
   needs: ["Start backend"]
