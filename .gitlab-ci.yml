@@ -12,6 +12,7 @@ default:
 variables:
   TURTL_DEPLOY_ADDRESS: "$TURTL_USER_NAME@$TURTL_IP_ADDRESS"
   TURTL_DEPLOY_PATH: "~/app"
+  TURTL_DEPLOY_PATH_FRONTEND: "~/app/frontend"
 
 image: alpine:latest
 
@@ -30,6 +31,7 @@ Get new files:
 Start backend:
   stage: deploy
   script:
+    - cd $TURTL_DEPLOY_PATH
     # Migrate new changes
     - python3 manage.py makemigrations
     - python3 manage.py migrate
@@ -41,6 +43,7 @@ Start backend:
 Start frontend:
   stage: deploy
   script:
+    - cd $TURTL_DEPLOY_PATH_FRONTEND
     # Update contents and dependencies
     - npm install
     - npm run build
