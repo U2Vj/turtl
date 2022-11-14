@@ -20,7 +20,7 @@ Get new files:
   stage: pull
   script:
     # Stop all processes
-    - ssh $TURTL_DEPLOY_ADDRESS "systemctl stop backend-server.service"
+    - ssh $TURTL_DEPLOY_ADDRESS "sudo systemctl stop backend-server.service"
     # Check out new changes from main branch
     - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && git fetch --quiet && git checkout $CI_COMMIT_SHA"
   only:
@@ -33,7 +33,7 @@ Start backend:
     - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && python3 manage.py makemigrations"
     - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && python3 manage.py migrate"
     # Restart backend
-    - ssh $TURTL_DEPLOY_ADDRESS "systemctl start backend-server.service"
+    - ssh $TURTL_DEPLOY_ADDRESS "sudo systemctl start backend-server.service"
   only:
     - main
   needs: ["Get new files"]
