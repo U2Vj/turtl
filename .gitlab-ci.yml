@@ -33,7 +33,7 @@ Start backend:
     - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && python3 manage.py makemigrations"
     - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && python3 manage.py migrate"
     # Restart backend
-    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && python3 manage.py runserver &"
+    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH && nohup python3 manage.py runserver &"
   only:
     - main
   needs: ["Get new files"]
