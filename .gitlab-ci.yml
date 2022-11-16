@@ -42,8 +42,8 @@ Start frontend:
   stage: deploy
   script:
     # Update contents and dependencies
-    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH_FRONTEND && npm install"
-    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH_FRONTEND && npm run build"
+    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH_FRONTEND && yarn install"
+    - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH_FRONTEND && yarn run build"
     # Restart frontend server
     - ssh $TURTL_DEPLOY_ADDRESS "systemctl restart nginx &"
   only:
