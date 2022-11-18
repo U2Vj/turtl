@@ -1,7 +1,8 @@
 import axios from 'axios'
 
 const HOST = (process.env.NODE_ENV == 'production') ? '202.61.202.156' : 'localhost';
-const API_URL = 'http://' + HOST + ':8000/api/';
+const PORT = (process.env.NODE_ENV == 'production') ? '6060' : '8000';
+const API_URL = 'http://' + HOST + ':' + PORT + '/api/';
 
 // This service handle the all authentication logic.
 
