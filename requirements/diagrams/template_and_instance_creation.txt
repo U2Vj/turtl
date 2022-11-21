@@ -1,29 +1,41 @@
 title template_and_instance_creation (TXT file can be changed on sequencediagram.org)
 
 
-actor manager
+actor Manager
 
-participant classroom template
-participant project template
-participant task template
+participant ClassroomTemplate
+participant ProjectTemplate
+participant TaskTemplate
 
-actor instructor
+actor Instructor
 
-participant classroom instance
-participant project instance
-participant task instance
+participant ClassroomInstance
+participant ProjectInstance
+participant TaskInstance
 
+loop Mangager wants to create more ClassroomTemplates
+Manager -->>*ClassroomTemplate: <<create>>
+Manager->ClassroomTemplate:add project instance to classroom instance
 
-manager->*classroom template: <<create>>
-manager->*project template: <<create>>
-manager->*task template: <<create>>
+loop Mangager wants to create more ProjectTemplates
+ClassroomTemplate-->>*ProjectTemplate:<<create>>
+ClassroomTemplate->ClassroomTemplate:add ProjectTemplate
 
-instructor->*classroom instance: <<create>>
-instructor->*project instance: <<create>>
-instructor->*task instance: <<create>>
+loop Manager wants to create more Tasks
+Manager->ClassroomTemplate:add task instance to project instance
+ClassroomTemplate->ProjectTemplate:add task instance to project instance
+ProjectTemplate-->>*TaskTemplate:<<create>>
+ProjectTemplate->ProjectTemplate:add TaskInstance
+end
+end
+end
 
-
-instructor->project instance: add project instance to classroom instance
-instructor->task instance: add task instance to project instance
-
-
+loop Instructor wants to create more Classrooms
+Instructor-->>*ClassroomInstance:<<create>> from template
+loop ClassroomTemplate contains uncreated ProjectTemplates
+ClassroomInstance-->>*ProjectInstance:<<create>> from template 
+loop ProjectTemplate contains uncreated TaskTemplates
+ProjectInstance-->>*TaskInstance:<<create>> from template
+end
+end
+end

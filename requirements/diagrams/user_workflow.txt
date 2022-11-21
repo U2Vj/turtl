@@ -1,41 +1,49 @@
 title user_workflow (TXT file can be changed on sequencediagram.org)
 
-actor manager
+actor Manager
 
-actor instructor
+actor Instructor
 
 
-actor user
+actor Student
 
-ref over manager, instructor: template_and_instance_creation
 
-opt user does not exist
-instructor->user:<<create>>
+
+ref over Manager, Instructor: template_and_instance_creation
+
+
+
+
+create ClassroomInstance
+create ProjectInstance
+create TaskInstance
+
+opt Student does not exist
+Instructor-->>Student:<<create>>
+activate Student
 end
 
-participant classroom instance
-participant project instance
-participant task instance
-participant team
+Instructor->ClassroomInstance:adds Student to ClassroomInstance
 
-instructor->user: add user to classroom instance
+ClassroomInstance ->ClassroomInstance: adds Student to itself
+Instructor-->>*Team: <<create>>
 
-instructor->*team: <<create>>
+loop ClassroomInstances not done
+Student->ClassroomInstance: works on
 
-user->classroom instance: work on
+loop ProjectInstances not done
+Student->ProjectInstance: works on
 
-loop project instances done
-user->project instance: work on
-
-loop task instances done
+loop TaskInstances not done
 
 alt individual task
-user->task instance: work on
-else team task
-team->task instance: work on
+Student->TaskInstance: works on
+else Team task
+Team->TaskInstance: works on
 end 
 
 end
 
 end
 
+end
