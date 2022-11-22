@@ -44,6 +44,8 @@ Start frontend:
     # Update contents and dependencies
     - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH_FRONTEND && yarn install"
     - ssh $TURTL_DEPLOY_ADDRESS "cd $TURTL_SRC_PATH_FRONTEND && yarn run build"
+    # Copy favicon
+    - ssh $TURTL_DEPLOY_ADDRESS "cp -u $TURTL_SRC_PATH_FRONTEND/favicon.ico $TURTL_SRC_PATH_FRONTEND/dist/favicon.ico"
     # Restart frontend server
     - ssh $TURTL_DEPLOY_ADDRESS "systemctl restart nginx &"
   only:
