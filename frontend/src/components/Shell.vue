@@ -32,7 +32,9 @@ export default {
             rows: 20
         })
         this.term.open(terminalContainer)
-        this.terminalSocket = new WebSocket('ws://127.0.0.1:8000/shell')
+        const isLocalHost = window.location.host.includes('127.0.0.1') || window.location.host.includes('localhost')
+        const websocketAddress = (isLocalHost) ? 'ws://127.0.0.1:8000/shell' : 'ws://v2202210146936203014.bestsrv.de:8000/shell';
+        this.terminalSocket = new WebSocket(websocketAddress)
         const attachAddon = new AttachAddon(this.terminalSocket)
         const fitAddon = new FitAddon()
         this.term.loadAddon(fitAddon)
