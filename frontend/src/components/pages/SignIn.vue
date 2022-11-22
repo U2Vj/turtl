@@ -27,8 +27,10 @@
                 ></b-form-input>
             </b-form-group>
             <b-button size="lg" :disabled="!validInput" @click="handleLogin"  type="submit" variant="success" class="loginButton">Sign In</b-button>
+            <!--
             <hr/>
             <b-button size="sm" variant="outline-primary" @click="handleRegisterRedirect">New to TURTL? Register here!</b-button>
+            -->
         </b-form>
     </b-card>
     </b-jumbotron>
