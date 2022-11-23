@@ -14,7 +14,7 @@
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
 
         const shellSocket = new WebSocket(
-            'ws://'
+            'wss://'
             + window.location.host
             + '/ws/shell/'
             + roomName
