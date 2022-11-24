@@ -33,7 +33,7 @@ export default {
         })
         this.term.open(terminalContainer)
         const isLocalHost = window.location.host.includes('127.0.0.1') || window.location.host.includes('localhost')
-        const websocketAddress = (isLocalHost) ? 'wss://127.0.0.1:8000/shell' : 'wss://v2202210146936203014.bestsrv.de:8000/shell';
+        const websocketAddress = (isLocalHost) ? 'ws://127.0.0.1:8000/shell' : 'wss://v2202210146936203014.bestsrv.de:6060/shell';
         this.terminalSocket = new WebSocket(websocketAddress)
         const attachAddon = new AttachAddon(this.terminalSocket)
         const fitAddon = new FitAddon()

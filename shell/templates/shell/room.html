@@ -12,9 +12,9 @@
     {{ room_name|json_script:"room-name" }}
     <script>
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
-
+        const isLocalHost = window.location.host.includes('127.0.0.1') || window.location.host.includes('localhost');
         const shellSocket = new WebSocket(
-            'wss://'
+            (isLocalHost ? 'ws://' : 'wss://')
             + window.location.host
             + '/ws/shell/'
             + roomName
