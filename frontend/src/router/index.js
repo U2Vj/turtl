@@ -6,6 +6,8 @@ import SignIn from '@/components/pages/SignIn'
 import Register from '@/components/pages/Register'
 import Profile from '@/components/pages/Profile'
 import Classroom from '@/components/pages/Classroom'
+import Invitation from '@/components/pages/CreateAccountInvitation'
+import ResetPassword from '@/components/pages/ResetPassword'
 
 Vue.use(Router)
 
@@ -56,6 +58,19 @@ const router = new Router({
         {
             path: '/home',
             redirect: '/'
+        },
+        {
+            path: '/invitation',
+            name: 'Invitation',
+            component: Invitation
+        },
+        {
+            path: '/reset-password/:uidb64/:token/',
+            name: 'reset',
+            component: ResetPassword,
+            meta: {
+                public: true
+            }
         }
     ]
 })
