@@ -29,5 +29,6 @@ class Util:
         return User.objects.create_user(
             username=username,
             email=email,
-            password=password
+            password=password,
+            groups='Student'
         )

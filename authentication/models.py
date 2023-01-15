@@ -2,6 +2,7 @@ import jwt
 
 from datetime import datetime, timedelta
 
+import rules
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
@@ -142,3 +143,10 @@ class User(AbstractBaseUser, PermissionsMixin):
         }, settings.SECRET_KEY, algorithm='HS256')
 
         return token.decode('utf-8')
+
+    def role_is(group_name):
+        @rules.predicate
+        def user_has_role(user):
+            return user.groups.name == group_name
+
+        return user_has_role

@@ -26,13 +26,20 @@ import Navbar from '@/components/Navbar.vue'
 import axios from 'axios'
 
 export default {
+
     components: {
         Navbar
     },
     data () {
+        const columns = [
+            { label: 'Email', name: 'email_users' }
+        ]
+
         return {
             email: '',
-            errors: []
+            errors: [],
+            users: [],
+            columns: columns
         }
     },
     methods: {
@@ -56,6 +63,12 @@ export default {
                 })
                 this.showSuccessMessage()
             }
+        },
+        getUsers () {
+            axios.get('http://localhost:8000/api/users/get', { params: this.tableShow })
+                .then(response => {
+                    this.users = response.data
+                })
         }
     }
 }
