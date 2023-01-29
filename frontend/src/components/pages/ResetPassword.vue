@@ -6,7 +6,7 @@
         header-bg-variant="primary"
         header-text-variant="white"
         class="resetPassword">
-        <b-form>
+        <form v-on:submit.prevent="handleSubmit">
             <b-form-group id="input-group-password1" label="Password" label-for="input-password1">
                 <b-form-input
                     id="input-password1"
@@ -27,9 +27,9 @@
                     placeholder="Confirm your password"
                 ></b-form-input>
             </b-form-group>
-            <b-button size="lg" @click="handleSubmit"  type="submit" variant="success" >Submit</b-button>
+            <b-button size="lg"  type="submit" variant="success" >Submit</b-button>
             <hr/>
-        </b-form>
+        </form>
     </b-card>
     </b-jumbotron>
 </template>
@@ -48,22 +48,24 @@ export default {
     },
     methods: {
         async handleSubmit () {
-            var errorStatus
-            await axios.post('http://localhost:8000/api/password-reset-complete', {
-                password: this.password,
-                uidb64: this.$route.params.uidb64,
-                token: this.$route.params.token,
-                passwordConfirm: this.passwordConfirm
-            }).catch(function (error) {
-                if (error.response) {
-                    errorStatus = error.response.status
+            if (this.password) {
+                var errorStatus
+                await axios.post('http://localhost:8000/api/password-reset-complete', {
+                    password: this.password,
+                    uidb64: this.$route.params.uidb64,
+                    token: this.$route.params.token,
+                    passwordConfirm: this.passwordConfirm
+                }).catch(function (error) {
+                    if (error.response) {
+                        errorStatus = error.response.status
+                    }
+                })
+                if (errorStatus === 401) {
+                    this.showErrorMessage()
+                } else {
+                    this.showSuccessMessage()
+                    this.$router.push({ path: '/signin' })
                 }
-            })
-            if (errorStatus === 401) {
-                this.showErrorMessage()
-            } else {
-                this.showSuccessMessage()
-                this.$router.push({ path: '/signin' })
             }
         },
         showErrorMessage () {
