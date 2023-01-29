@@ -161,7 +161,7 @@ class UserSerializer(serializers.ModelSerializer):
 
         return instance
 
-class ResetPasswordEmailRequestSerializer(serializers.Serializer):
+class SendInvitationEmailSerializer(serializers.Serializer):
     email=serializers.EmailField(max_length=255)
 
     class Meta:

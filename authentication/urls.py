@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import (RegistrationAPIView, LoginAPIView, UserRetrieveUpdateAPIView, RequestPasswordResetEmailAPIView,
+from .views import (RegistrationAPIView, LoginAPIView, UserRetrieveUpdateAPIView, SendInvitationEmailAPIView,
                     SetNewPasswordAPIView)
 
 # This file maps the api endpoints to the corresponding URLs.
@@ -11,6 +11,6 @@ urlpatterns = [
     path('users/register', RegistrationAPIView.as_view()),
     path('users/login', LoginAPIView.as_view()),
     path('user', UserRetrieveUpdateAPIView.as_view()),
-    path('request-reset-email', RequestPasswordResetEmailAPIView.as_view(), name='request-reset-email'),
+    path('request-reset-email', SendInvitationEmailAPIView.as_view(), name='request-reset-email'),
     path('password-reset-complete', SetNewPasswordAPIView.as_view(), name='SetNewPassword')
 ]

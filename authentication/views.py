@@ -9,7 +9,7 @@ from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView
 
 from .models import User
-from .serializers import (LoginSerializer, RegistrationSerializer, UserSerializer, ResetPasswordEmailRequestSerializer,
+from .serializers import (LoginSerializer, RegistrationSerializer, UserSerializer, SendInvitationEmailSerializer,
                           SetNewPasswordSerializer)
 from .renderers import UserJSONRenderer
 
@@ -85,8 +85,8 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class RequestPasswordResetEmailAPIView(APIView):
-    serializer_class = ResetPasswordEmailRequestSerializer
+class SendInvitationEmailAPIView(APIView):
+    serializer_class = SendInvitationEmailSerializer
     def post(self, request):
         serializer = self.serializer_class(data=request.data)
         serializer.is_valid(raise_exception=True)
