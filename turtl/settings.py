@@ -37,7 +37,7 @@ AUTH_USER_MODEL = 'authentication.User'
 # Application definition
 
 INSTALLED_APPS = [
-    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -116,7 +116,7 @@ CHANNEL_LAYERS = {
         #"BACKEND": "channels.layers.InMemoryChannelLayer" #Do not use in Production!
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('172.19.0.2', 6379)],
+            'hosts': [('172.25.0.2', 6379)],
             # IP für Redis host mit Befehl ermitteln:
             # docker inspect -f  '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' turtl-redis-1
             # turtl-redis-1 ist der Docker Container Name
@@ -159,7 +159,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-#Closes #34
+# Closes #34
 
 TIME_ZONE = 'UTC'
 
@@ -182,3 +182,5 @@ CSRF_COOKIE_SECURE = True
 
 # URL für Uploads
 APPLICATION_URL = 'http://localhost:8000'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'

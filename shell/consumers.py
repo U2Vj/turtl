@@ -20,7 +20,7 @@ class ShellConsumer(AsyncWebsocketConsumer):
         # Hardcoded for prototyping
         client = docker.from_env()
         # Get container
-        container = client.containers.get("212d500779af")
+        container = client.containers.get("5336cbebd381")
         # Spawn shell
         result, socket = container.exec_run(cmd="/bin/bash", stdin=True, tty=True, socket=True)
         # Get the socket object and assign it to consumer
