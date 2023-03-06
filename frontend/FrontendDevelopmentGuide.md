@@ -42,5 +42,5 @@ If you have two components A and B and booth display a variable like a username,
 must be defined globally so changes to the username will be displayed in booth components.
 Otherwise component A will show the new username and component B the old one. 
 Vuex is a so called ```store``` to handle this problem. All components inside the application 
-can access and modify the ```store```.  It can be found inside the ```./store/index.js``` file.
+can access and modify the ```store```.  It can be found inside the ```./store/index.ts``` file.
 How Vuex works is explained inside their [documentation](https://vuex.vuejs.org/).
