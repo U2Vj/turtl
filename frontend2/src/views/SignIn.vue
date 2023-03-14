@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import logo from '@/assets/logo.svg'
 import { useUserStore } from '@/stores/UserStore'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -70,12 +69,12 @@ const validInput = computed(() => {
 </script>
 
 <template>
-  <div id="container" class="h-screen d-flex flex-column justify-center align-center">
+  <div id="container" class="d-flex flex-column justify-center align-center">
     <v-snackbar v-model="showSnackbar" :timeout="snackbar.timeout" :color="snackbar.color">
       {{ snackbar.text }}
     </v-snackbar>
     <div class="d-flex align-center">
-      <v-img :src="logo" width="150"></v-img>
+      <v-img src="@/assets/logo.svg" width="150"></v-img>
       <h1 class="text-h3 ml-5 font-weight-bold">Virtual Network Security Lab</h1>
     </div>
     <v-sheet class="pa-10 elevation-24 mt-10" width="500" max-width="100%">
@@ -104,17 +103,22 @@ const validInput = computed(() => {
 </template>
 
 <style>
+#container {
+  height:fit-content;
+  min-height: 100vh;
+}
+
 #container::before {
   content: '';
   position: absolute;
-  top: calc(50% + 10%);
+  top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
   width: 100%;
   height: 100%;
-  background-image: url(@/assets/logo.png);
+  background-image: url(@/assets/logo.svg);
   background-size: contain;
   background-repeat: space;
-  opacity: 0.6;
+  opacity: 0.2;
 }
 </style>
