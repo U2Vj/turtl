@@ -8,23 +8,23 @@ import './assets/main.css'
 
 import { createVuetify, type ThemeDefinition } from 'vuetify'
 import * as components from 'vuetify/components'
-import * as directives from "vuetify/directives"
+import * as directives from 'vuetify/directives'
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
 
 const turtlTheme: ThemeDefinition = {
   dark: false,
   colors: {
-    primary: '#333399',
+    primary: '#333399'
   }
 }
 
 const vuetify = createVuetify({
   components,
   directives,
-  theme:{
-    defaultTheme:"turtlTheme",
-    themes:{turtlTheme, }
+  theme: {
+    defaultTheme: 'turtlTheme',
+    themes: { turtlTheme }
   }
 })
 

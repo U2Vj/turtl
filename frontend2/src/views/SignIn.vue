@@ -104,7 +104,7 @@ const validInput = computed(() => {
 
 <style>
 #container {
-  height:fit-content;
+  height: fit-content;
   min-height: 100vh;
 }
 
