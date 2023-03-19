@@ -11,9 +11,6 @@ export default defineConfig({
   plugins: [
     vue({
       template: { transformAssetUrls }
-    }),
-    vuetify({
-      autoImport: true
     })
   ],
   resolve: {
