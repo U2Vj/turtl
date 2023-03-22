@@ -55,7 +55,7 @@ async function handlePasswordResetRequest () {
         ></v-text-field>
         <v-btn color="primary" block :disabled="!validInput" @click="handleLogin">Send password reset email</v-btn>
       </v-form>
-      <router-link class="d-block mt-5" to="/recover">Back to sign in</router-link>
+      <router-link class="d-block mt-5" to="/">Back to sign in</router-link>
     </v-sheet>
   </div>
 </template>
