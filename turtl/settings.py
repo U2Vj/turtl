@@ -54,8 +54,7 @@ INSTALLED_APPS = [
     'catalog',
     'dockerService',
     'shell',
-    'environment',
-    'classroom'
+    'environment'
 ]
 
 MIDDLEWARE = [
