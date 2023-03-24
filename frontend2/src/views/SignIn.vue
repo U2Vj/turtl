@@ -97,7 +97,7 @@ const validInput = computed(() => {
         ></v-text-field>
         <v-btn color="primary" block :disabled="!validInput" @click="handleLogin">Sign In</v-btn>
       </v-form>
-      <router-link class="d-block mt-5" to="/recover">Forgot your password?</router-link>
+      <router-link class="d-block mt-5" to="/forgot-password">Forgot your password?</router-link>
     </v-sheet>
   </div>
 </template>
