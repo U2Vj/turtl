@@ -1,14 +1,21 @@
-import Signin from '@/views/SignIn.vue'
+import SignIn from '@/views/SignIn.vue'
+import ClassroomEnroled from '@/views/ClassroomsEnroled.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
-      path: '/',
-      name: 'home',
-      component: Signin
-    } /* ,
+      path: '/signin',
+      name: 'signin',
+      component: SignIn
+    },
+    {
+      path: '/classrooms',
+      name: 'ClassroomTable',
+      component: ClassroomEnroled
+    }
+    /* ,
     {
       path: '/about',
       name: 'about',
