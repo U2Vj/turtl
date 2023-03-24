@@ -1,5 +1,6 @@
 import SignIn from '@/views/SignIn.vue'
 import ClassroomEnroled from '@/views/ClassroomsEnroled.vue'
+import ClassroomSingle from '@/views/ClassroomSingle.vue'
 import ForgotPassword from '@/views/ForgotPassword.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
@@ -15,6 +16,11 @@ const router = createRouter({
       path: '/classrooms',
       name: 'ClassroomTable',
       component: ClassroomEnroled
+    },
+    {
+      path: '/classrooms/:id',
+      name: 'ClassroomSingle',
+      component: ClassroomSingle
     },
     {
       path: '/forgot-password',
