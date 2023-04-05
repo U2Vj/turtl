@@ -2,6 +2,7 @@ import SignIn from '@/views/SignIn.vue'
 import ClassroomEnroled from '@/views/ClassroomsEnroled.vue'
 import ClassroomSingle from '@/views/ClassroomSingle.vue'
 import ForgotPassword from '@/views/ForgotPassword.vue'
+import Profile from '@/views/Profile.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const router = createRouter({
@@ -26,6 +27,11 @@ const router = createRouter({
       path: '/forgot-password',
       name: 'forgot-password',
       component: ForgotPassword
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: Profile
     }
     /* ,
     {
