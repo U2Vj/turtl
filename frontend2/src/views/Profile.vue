@@ -9,19 +9,21 @@ email.value = "abc.def@hij.de"
 const inputs = ref([
     {
         id: '1',
-        label: 'Enter your current password'
+        label: 'Enter your current password',
+        password: ''
     },
     {
         id: '2',
-        label: 'Enter your new password'
+        label: 'Enter your new password',
+        password: ''
     },
     {
         id: '2',
-        label: 'Confirm your new password'
+        label: 'Confirm your new password',
+        password: ''
     }
 ])
 
-const currentPassword = ref('')
 
 </script>
 
@@ -29,28 +31,44 @@ const currentPassword = ref('')
   <turtl-header></turtl-header>
   <v-main>
     <v-container fluid>
-        <div class="divMargins">
-            <h1 class="title">Profil</h1>
-            <div>
+        <v-row>
+            <v-col cols="12">
+            </v-col>
+            <v-col cols="12" sm="8" md="4" offset="1">
+                <h1 class="title">Profil</h1>
+            </v-col>
+        </v-row>
+        <v-row no-gutters>
+            <v-col cols="12" offset="1">
                 <h3 class="headlineTitle">E-Mail Adresse:</h3>
+            </v-col>
+            <v-col offset="1">
                 <p>{{email}}</p>
-            </div>
-            <div>
+            </v-col>
+        </v-row>
+        <v-row no-gutters>
+            <v-col cols="12" offset="1">
                 <h3 class="headlineTitle">Change your password</h3>
-                <v-sheet width="30%" class="mr-auto">
-                    <v-form @submit.prevent>
-                        <v-text-field v-for="input in inputs"
-                            :key="input.id"
-                            :label="input.label"
-                            v-model="currentPassword"
-                            variant="solo"
-                        ></v-text-field>
-                        <v-btn type="submit" variant="outlined">Change Password</v-btn>
-                    </v-form>
-                </v-sheet>
-            </div>
-            <v-btn variant="outlined">Permanently Delete Account</v-btn>
-        </div>
+            </v-col>
+            <v-col cols="12" sm="8" md="4" offset="1">
+                <v-sheet class="mr-auto">
+                <v-form @submit.prevent>
+                    <v-text-field v-for="input in inputs"
+                        :key="input.id"
+                        :label="input.label"
+                        v-model="input.password"
+                        variant="solo"
+                    ></v-text-field>
+                    <v-btn type="submit" variant="outlined">Change Password</v-btn>
+                </v-form>
+            </v-sheet>
+            </v-col>
+        </v-row>
+        <v-row justify="end">
+            <v-col cols="12" sm="6" md="3" offset="1">
+                <v-btn variant="outlined">Permanently Delete Account</v-btn>
+            </v-col>
+        </v-row>
     </v-container>
   </v-main>
 </template>
