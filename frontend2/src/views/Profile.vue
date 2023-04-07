@@ -31,10 +31,8 @@ const inputs = ref([
   <turtl-header></turtl-header>
   <v-main>
     <v-container fluid>
-        <v-row>
-            <v-col cols="12">
-            </v-col>
-            <v-col cols="12" sm="8" md="4" offset="1">
+        <v-row no-gutters>
+            <v-col cols="12" sm="8" md="4" offset="1" class="mt-8">
                 <h1 class="title">Profil</h1>
             </v-col>
         </v-row>
@@ -48,7 +46,7 @@ const inputs = ref([
         </v-row>
         <v-row no-gutters>
             <v-col cols="12" offset="1">
-                <h3 class="headlineTitle">Change your password</h3>
+                <h3 class="headlineTitle">Change your password:</h3>
             </v-col>
             <v-col cols="12" sm="8" md="4" offset="1">
                 <v-sheet class="mr-auto">
