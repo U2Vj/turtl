@@ -49,9 +49,9 @@ export const useUserStore = defineStore('UserStore', () => {
   }
 
   async function resetPasswordRequest(email: string) {
-    return axios.post(import.meta.env.VITE_API_URL+'/request-reset-email', {
-                    email: email
-                })
+    return axios.post(import.meta.env.VITE_API_URL + '/request-reset-email', {
+      email: email
+    })
   }
 
   async function logout() {
