@@ -42,7 +42,6 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const userStore = useUserStore()
-  console.log('logged in: ' + userStore.loggedIn)
   if (to.name !== 'signin' && to.name !== 'forgot-password' && !userStore.loggedIn) {
     return { name: 'signin' }
   }
