@@ -19,7 +19,7 @@ const userStore = useUserStore()
 
       <template v-slot:append>
         <v-menu>
-          <template v-slot:activatord="{ props }">
+          <template v-slot:activator="{ props }">
             <v-btn icon="mdi-dots-vertical" v-bind="props"> </v-btn>
           </template>
           <v-list>
