@@ -62,5 +62,24 @@ export const useUserStore = defineStore('UserStore', () => {
     return await axios.post(import.meta.env.VITE_API_URL + '/users/register', user)
   }
 
-  return { user, loggedIn, login, logout, resetPasswordRequest }
+  async function resetPassword(email: string, newPassword: string) {
+    console.log('hier')
+    return await axios
+      .post(import.meta.env.VITE_API_URL + '/reset-password', {
+        email: email,
+        newPassword: newPassword
+      })
+      .then((response) => {
+        // Erfolgreiche Passwortrücksetzung, handle die Antwort entsprechend
+        console.log('Passwort wurde erfolgreich zurückgesetzt:', response.data)
+        return true
+      })
+      .catch((error) => {
+        // Optional: Du kannst hier Fehlerbehandlung durchführen und entsprechende Fehler zurückgeben
+        console.error('Fehler beim Zurücksetzen des Passworts:', error)
+        throw error
+      })
+  }
+
+  return { user, loggedIn, login, logout, resetPasswordRequest, resetPassword }
 })

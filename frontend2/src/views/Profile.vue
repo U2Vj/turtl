@@ -16,7 +16,7 @@ type snackbarOptionsType = {
 const snackbarOptions = {
   error: {
     timeout: 2000,
-    text: 'E-Mail or currenrt Password incorrect!',
+    text: 'E-Mail or currenrt password incorrect!',
     color: 'error'
   },
   success: {
@@ -37,6 +37,11 @@ const snackbarOptions = {
   noUserLogedIn: {
     timeout: 2000,
     text: 'No user is currently logged in!',
+    color: 'error'
+    },
+  errorAtReset: {
+    timeout: 2000,
+    text: 'An error occured! The password cound not be reset! Try Again!',
     color: 'error'
   }
 }
@@ -62,6 +67,10 @@ function showNotAllTheSame() {
 }
 function showNoUserMessage() {
     snackbar.value = snackbarOptions.noUserLogedIn
+    showSnackbar.value = true
+}
+function showErrorReset() {
+    snackbar.value = snackbarOptions.errorAtReset
     showSnackbar.value = true
 }
 
@@ -97,8 +106,13 @@ async function resetPassword() {
         }
         const isCurrentPasswordValid = await userStore.login({ user: { email: user.value.email, password: inputs.value[0].password} })
         if (isCurrentPasswordValid) {
-            alert("Password sucesfully changed!")
-            showChangesPasswordMessage()
+            const successReset = await userStore.resetPassword(user.value.email, inputs.value[1].password)
+            if (successReset) {
+                alert("Password sucesfully changed!")
+                showChangesPasswordMessage()
+            } else if (!successReset) {
+                showErrorReset()
+            }
         } else if (!isCurrentPasswordValid) {
             showErrorMessage()
         }
