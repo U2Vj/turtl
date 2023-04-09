@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
-import { computed, ref } from 'vue'
+import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
 
-const email = ref('')
-email.value = "abc.def@hij.de"
+const userStore = useUserStore()
+const user = userStore.user ||  null
 
 const inputs = ref([
     {
@@ -41,7 +41,7 @@ const inputs = ref([
                 <h3 class="headlineTitle">E-Mail Adresse:</h3>
             </v-col>
             <v-col offset="1">
-                <p>{{email}}</p>
+                <p v-if="user">{{ user.email }}</p>
             </v-col>
         </v-row>
         <v-row no-gutters>
@@ -51,7 +51,7 @@ const inputs = ref([
             <v-col cols="12" sm="8" md="4" offset="1">
                 <v-sheet class="mr-auto">
                 <v-form @submit.prevent>
-                    <v-text-field v-for="input in inputs"
+                    <v-text-field type="password" v-for="input in inputs"
                         :key="input.id"
                         :label="input.label"
                         v-model="input.password"

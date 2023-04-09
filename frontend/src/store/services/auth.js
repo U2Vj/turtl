@@ -1,9 +1,12 @@
 import axios from 'axios'
 
-const HOST = (process.env.NODE_ENV == 'production') ? 'v2202210146936203014.bestsrv.de' : 'localhost';
-const PORT = (process.env.NODE_ENV == 'production') ? '6060' : '8000';
-const PROTOCOL = (process.env.NODE_ENV == 'production') ? 'https' : 'http';
-const API_URL = PROTOCOL + '://' + HOST + ':' + PORT + '/api/';
+const HOST =
+    process.env.NODE_ENV === 'production'
+        ? 'v2202210146936203014.bestsrv.de'
+        : 'localhost'
+const PORT = process.env.NODE_ENV === 'production' ? '6060' : '8000'
+const PROTOCOL = process.env.NODE_ENV === 'production' ? 'https' : 'http'
+const API_URL = PROTOCOL + '://' + HOST + ':' + PORT + '/api/'
 
 // This service handle the all authentication logic.
 

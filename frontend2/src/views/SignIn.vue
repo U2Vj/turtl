@@ -34,7 +34,7 @@ async function handleLogin() {
   const success = await userStore.login({ user: { email: email.value, password: password.value } })
   if (success) {
     showLoginMessage()
-    router.push({ path: '/home' })
+    router.push({ path: '/classrooms' })
   } else if (!success) {
     showErrorMessage()
   }
