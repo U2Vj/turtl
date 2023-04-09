@@ -4,7 +4,8 @@ import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
 
 const userStore = useUserStore()
-const user = userStore.user || null
+const user = ref(userStore.user || null)
+
 
 type snackbarOptionsType = {
   timeout: number
@@ -32,6 +33,11 @@ const snackbarOptions = {
     timeout: 2000,
     text: 'New passwords are not the same!',
     color: 'error'
+  },
+  noUserLogedIn: {
+    timeout: 2000,
+    text: 'No user is currently logged in!',
+    color: 'error'
   }
 }
 
@@ -54,6 +60,10 @@ function showNotAllTheSame() {
     snackbar.value = snackbarOptions.notTheSame
     showSnackbar.value = true
 }
+function showNoUserMessage() {
+    snackbar.value = snackbarOptions.noUserLogedIn
+    showSnackbar.value = true
+}
 
 const inputs = ref([
     {
@@ -74,7 +84,7 @@ const inputs = ref([
 ])
 
 async function resetPassword() {
-    if (user) {
+    if (user.value) {
         for (const input of inputs.value) {
             if (!input.password) {
                 showFillAllMessage()
@@ -85,12 +95,16 @@ async function resetPassword() {
             showNotAllTheSame()
             return;
         }
-        const isCurrentPasswordValid = await userStore.login({ user: { email: user.email, password: inputs.value[0].password} })
+        const isCurrentPasswordValid = await userStore.login({ user: { email: user.value.email, password: inputs.value[0].password} })
         if (isCurrentPasswordValid) {
+            alert("Password sucesfully changed!")
             showChangesPasswordMessage()
         } else if (!isCurrentPasswordValid) {
             showErrorMessage()
         }
+    }
+    else {
+        showNoUserMessage()
     }
 }
 </script>
