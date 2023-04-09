@@ -2,6 +2,7 @@ import axios from 'axios'
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
 import { useStorage, StorageSerializers } from '@vueuse/core'
+// importing router directly is recommended. See https://github.com/vuejs/pinia/discussions/1717
 import router from '@/router'
 
 type LoginData = {
