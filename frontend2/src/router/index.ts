@@ -3,6 +3,7 @@ import ClassroomEnroled from '@/views/ClassroomsEnroled.vue'
 import ClassroomSingle from '@/views/ClassroomSingle.vue'
 import ForgotPassword from '@/views/ForgotPassword.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import { useUserStore } from '@/stores/UserStore'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -37,6 +38,14 @@ const router = createRouter({
       component: () => import('../views/AboutView.vue')
     } */
   ]
+})
+
+router.beforeEach((to) => {
+  const userStore = useUserStore()
+  console.log('logged in: ' + userStore.loggedIn)
+  if (to.name !== 'signin' && to.name !== 'forgot-password' && !userStore.loggedIn) {
+    return { name: 'signin' }
+  }
 })
 
 export default router

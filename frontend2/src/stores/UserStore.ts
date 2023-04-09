@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { defineStore } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed } from 'vue'
+import { useStorage, StorageSerializers } from '@vueuse/core'
+import router from '@/router'
 
 type LoginData = {
   user: {
@@ -16,7 +18,10 @@ type User = {
 }
 
 export const useUserStore = defineStore('UserStore', () => {
-  const user = ref<User | null>(null)
+  // see https://github.com/vueuse/vueuse/issues/1307 and https://vueuse.org/core/useStorage/#custom-serialization
+  const user = useStorage<User | null>('user', null, undefined, {
+    serializer: StorageSerializers.object
+  })
   const loggedIn = computed(() => {
     return !!user.value
   })
@@ -26,9 +31,7 @@ export const useUserStore = defineStore('UserStore', () => {
       .post(import.meta.env.VITE_API_URL + '/users/login', logininData)
       .then((response) => {
         if (response.data.user.token) {
-          localStorage.setItem('user', JSON.stringify(response.data.user))
           user.value = response.data.user
-          console.log('true')
           return true
         }
         return false
@@ -55,7 +58,8 @@ export const useUserStore = defineStore('UserStore', () => {
   }
 
   async function logout() {
-    localStorage.removeItem('user')
+    user.value = null
+    router.push('/signin')
   }
 
   async function register(user: any) {
