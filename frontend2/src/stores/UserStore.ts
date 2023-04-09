@@ -2,8 +2,7 @@ import axios from 'axios'
 import { defineStore } from 'pinia'
 import { computed } from 'vue'
 import { useStorage, StorageSerializers } from '@vueuse/core'
-// importing router directly is recommended. See https://github.com/vuejs/pinia/discussions/1717
-import router from '@/router'
+import type { Router } from 'vue-router'
 
 type LoginData = {
   user: {
@@ -65,7 +64,9 @@ export const useUserStore = defineStore('UserStore', () => {
       })
   }
 
-  async function logout() {
+  // see https://github.com/vuejs/pinia/discussions/1092#discussioncomment-5408576.
+  // Cant use direct import because https://github.com/vitejs/vite/issues/4430#issuecomment-979013114.
+  async function logout(router: Router) {
     user.value = null
     router.push('/signin')
   }

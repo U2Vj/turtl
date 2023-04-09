@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const userStore = useUserStore()
 </script>
 
@@ -29,7 +31,7 @@ const userStore = useUserStore()
               </template>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="userStore.logout">
+            <v-list-item @click="userStore.logout(router)">
               <template v-slot:prepend>
                 <v-icon icon="mdi-logout"></v-icon>
               </template>
