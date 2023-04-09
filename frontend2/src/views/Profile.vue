@@ -4,7 +4,56 @@ import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
 
 const userStore = useUserStore()
-const user = userStore.user ||  null
+const user = userStore.user || null
+
+type snackbarOptionsType = {
+  timeout: number
+  text: string
+  color: string
+}
+
+const snackbarOptions = {
+  error: {
+    timeout: 2000,
+    text: 'E-Mail or currenrt Password incorrect!',
+    color: 'error'
+  },
+  success: {
+    timeout: 2000,
+    text: 'Password successfully changed!',
+    color: 'success'
+    },
+  fillAll: {
+    timeout: 2000,
+    text: 'Type in all passwords!',
+    color: 'error'
+  },
+  notTheSame: {
+    timeout: 2000,
+    text: 'New passwords are not the same!',
+    color: 'error'
+  }
+}
+
+const snackbar = ref<snackbarOptionsType>({ timeout: 0, text: '', color: '' })
+const showSnackbar = ref(false)
+
+function showErrorMessage() {
+  snackbar.value = snackbarOptions.error
+  showSnackbar.value = true
+}
+function showChangesPasswordMessage() {
+  snackbar.value = snackbarOptions.success
+  showSnackbar.value = true
+}
+function showFillAllMessage() {
+    snackbar.value = snackbarOptions.fillAll
+    showSnackbar.value = true
+}
+function showNotAllTheSame() {
+    snackbar.value = snackbarOptions.notTheSame
+    showSnackbar.value = true
+}
 
 const inputs = ref([
     {
@@ -18,19 +67,41 @@ const inputs = ref([
         password: ''
     },
     {
-        id: '2',
+        id: '3',
         label: 'Confirm your new password',
         password: ''
     }
 ])
 
-
+async function resetPassword() {
+    if (user) {
+        for (const input of inputs.value) {
+            if (!input.password) {
+                showFillAllMessage()
+                return;
+            }
+        }
+        if (inputs.value[1].password !== inputs.value[2].password) {
+            showNotAllTheSame()
+            return;
+        }
+        const isCurrentPasswordValid = await userStore.login({ user: { email: user.email, password: inputs.value[0].password} })
+        if (isCurrentPasswordValid) {
+            showChangesPasswordMessage()
+        } else if (!isCurrentPasswordValid) {
+            showErrorMessage()
+        }
+    }
+}
 </script>
 
 <template>
   <turtl-header></turtl-header>
   <v-main>
     <v-container fluid>
+        <v-snackbar v-model="showSnackbar" :timeout="snackbar.timeout" :color="snackbar.color">
+            {{ snackbar.text }}
+        </v-snackbar>
         <v-row no-gutters>
             <v-col cols="12" sm="8" md="4" offset="1" class="mt-8">
                 <h1 class="title">Profil</h1>
@@ -57,7 +128,7 @@ const inputs = ref([
                         v-model="input.password"
                         variant="solo"
                     ></v-text-field>
-                    <v-btn type="submit" variant="outlined">Change Password</v-btn>
+                    <v-btn type="submit" variant="outlined" @click="resetPassword">Change Password</v-btn>
                 </v-form>
             </v-sheet>
             </v-col>
