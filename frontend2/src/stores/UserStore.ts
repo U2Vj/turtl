@@ -52,9 +52,16 @@ export const useUserStore = defineStore('UserStore', () => {
   }
 
   async function resetPasswordRequest(email: string) {
-    return axios.post(import.meta.env.VITE_API_URL + '/request-reset-email', {
-      email: email
-    })
+    return await axios
+      .post(import.meta.env.VITE_API_URL + '/request-reset-email', {
+        email: email
+      })
+      .then(() => {
+        return true
+      })
+      .catch(() => {
+        return false
+      })
   }
 
   async function logout() {

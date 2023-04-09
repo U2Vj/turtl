@@ -1,59 +1,52 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
-import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useForm, useField } from 'vee-validate'
+import * as yup from 'yup'
+import { toTypedSchema } from '@vee-validate/yup'
 
-
-const email = ref('')
 const router = useRouter()
 const userStore = useUserStore()
 
-type snackbarOptionsType = {
-  timeout: number
-  text: string
-  color: string
-}
+const schema = toTypedSchema(
+  yup.object({
+    email: yup
+      .string()
+      .required('This field is required')
+      .email('Please enter a valid email address')
+  })
+)
 
-const snackbar = ref<snackbarOptionsType>({ timeout: 2000, text: 'Password reset email was send successful', color: 'success' })
+const { handleSubmit } = useForm({ validationSchema: schema })
 
-const showSnackbar = ref(false)
+const { value: emailValue, errorMessage: emailError } = useField('email', {})
 
-function showSuccessMessage() {
-  showSnackbar.value = true
-}
-
-async function handlePasswordResetRequest () {
-  if (email) {
-    showSuccessMessage()
-    await userStore.resetPasswordRequest(email.value)
+const submit = handleSubmit(async (values) => {
+  const success = await userStore.resetPasswordRequest(values.email)
+  if (success) {
     router.push({ path: '/signin' })
   }
-}
-
-
+})
 </script>
 
 <template>
   <div id="container" class="d-flex flex-column justify-center align-center">
-    <v-snackbar v-model="showSnackbar" :timeout="snackbar.timeout" :color="snackbar.color">
-      {{ snackbar.text }}
-    </v-snackbar>
     <div class="d-flex align-center">
       <v-img src="@/assets/logo.svg" width="150"></v-img>
       <h1 class="text-h3 ml-5 font-weight-bold">Virtual Network Security Lab</h1>
     </div>
     <v-sheet class="pa-10 elevation-24 mt-10" width="500" max-width="100%">
-      <v-form>
+      <v-form @submit="submit">
         <div class="text-h4 font-weight-bold text-center mb-4">Forgot Password</div>
         <v-text-field
-          id="input-email"
-          v-model="email"
+          v-model="emailValue"
+          :error-messages="emailError"
+          name="email"
           type="email"
           label="Email"
-          :state="validEmail"
           placeholder="john.doe@example.com"
         ></v-text-field>
-        <v-btn color="primary" block :disabled="!validInput" @click="handleLogin">Send password reset email</v-btn>
+        <v-btn type="submit" color="primary" block>Send password reset email</v-btn>
       </v-form>
       <router-link class="d-block mt-5" to="/">Back to sign in</router-link>
     </v-sheet>
