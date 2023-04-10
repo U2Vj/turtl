@@ -1,108 +1,78 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
-import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
+import { useField, useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/yup'
+import * as yup from 'yup'
 
-const email = ref('')
-const password = ref('')
 const router = useRouter()
 const userStore = useUserStore()
 
-type snackbarOptionsType = {
-  timeout: number
-  text: string
-  color: string
-}
+const schema = toTypedSchema(
+  yup.object({
+    email: yup
+      .string()
+      .required('This field is required')
+      .email('Please enter a valid email address'),
+    password: yup.string().required('This field is required')
+  })
+)
+const { handleSubmit } = useForm({ validationSchema: schema })
 
-const snackbarOptions = {
-  error: {
-    timeout: 2000,
-    text: 'E-Mail or Password incorrect!',
-    color: 'error'
-  },
-  success: {
-    timeout: 2000,
-    text: 'Signin successful',
-    color: 'success'
-  }
-}
+// validateOnValueUpdate cant be set on form level. See https://github.com/logaretm/vee-validate/issues/3771
+const { value: emailValue, errorMessage: emailError } = useField<string>(
+  'email',
+  {},
+  { validateOnValueUpdate: false }
+)
+const { value: passwordValue, errorMessage: passwordError } = useField<string>(
+  'password',
+  {},
+  { validateOnValueUpdate: false }
+)
 
-const snackbar = ref<snackbarOptionsType>({ timeout: 0, text: '', color: '' })
-const showSnackbar = ref(false)
-
-async function handleLogin() {
-  const success = await userStore.login({ user: { email: email.value, password: password.value } })
-  if (success) {
-    showLoginMessage()
-    router.push({ path: '/classrooms' })
-  } else if (!success) {
-    showErrorMessage()
-  }
-}
-
-function showErrorMessage() {
-  snackbar.value = snackbarOptions.error
-  showSnackbar.value = true
-}
-function showLoginMessage() {
-  snackbar.value = snackbarOptions.success
-  showSnackbar.value = true
-}
-
-function validateEmail(email: string) {
-  // eslint-disable-next-line no-useless-escape
-  const re =
-    /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/
-  return re.test(String(email).toLowerCase())
-}
-
-const validEmail = computed(() => {
-  return validateEmail(email.value)
-})
-
-const validPassword = computed(() => {
-  return password.value.length >= 3
-})
-const validInput = computed(() => {
-  return validEmail.value && validPassword.value
+const submit = handleSubmit(async (values) => {
+  const success = await userStore.login({
+    user: { email: values.email, password: values.password }
+  })
+  console.log(success)
+  router.push({ path: '/home' })
 })
 </script>
 
 <template>
   <div id="container" class="d-flex flex-column justify-center align-center">
-    <v-snackbar v-model="showSnackbar" :timeout="snackbar.timeout" :color="snackbar.color">
-      {{ snackbar.text }}
-    </v-snackbar>
     <div class="d-flex align-center">
       <v-img src="@/assets/logo.svg" width="150"></v-img>
       <h1 class="text-h3 ml-5 font-weight-bold">Virtual Network Security Lab</h1>
     </div>
     <v-sheet class="pa-10 elevation-24 mt-10" width="500" max-width="100%">
-      <v-form>
+      <v-form @submit="submit">
         <div class="text-h4 font-weight-bold text-center mb-4">Login</div>
         <v-text-field
-          id="input-email"
-          v-model="email"
+          v-model="emailValue"
+          :error-messages="emailError"
+          name="email"
           type="email"
           label="Email"
-          :state="validEmail"
           placeholder="john.doe@example.com"
         ></v-text-field>
         <v-text-field
-          id="input-name"
-          v-model="password"
+          v-model="passwordValue"
+          :error-messages="passwordError"
+          name="password"
           type="password"
           label="Password"
           placeholder="Password"
         ></v-text-field>
-        <v-btn color="primary" block :disabled="!validInput" @click="handleLogin">Sign In</v-btn>
+        <v-btn type="submit" color="primary" block>Sign In</v-btn>
       </v-form>
       <router-link class="d-block mt-5" to="/forgot-password">Forgot your password?</router-link>
     </v-sheet>
   </div>
 </template>
 
-<style>
+<style scoped>
 #container {
   height: fit-content;
   min-height: 100vh;
