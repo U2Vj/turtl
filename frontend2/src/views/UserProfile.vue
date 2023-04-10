@@ -1,135 +1,53 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
-import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import { useField } from 'vee-validate'
+import { useForm } from 'vee-validate'
+import { toTypedSchema } from '@vee-validate/yup'
+import * as yup from 'yup'
 
 const userStore = useUserStore()
-const user = ref(userStore.user || null)
 
-type snackbarOptionsType = {
-  timeout: number
-  text: string
-  color: string
-}
+const schema = toTypedSchema(
+  yup.object({
+    oldPassword: yup.string().required('This field is required'),
+    newPassword: yup
+      .string()
+      .required('This field is required')
+      .min(8, 'Password need to be 8 characters long')
+      .oneOf([yup.ref('newPasswordValidate')], 'Passwords need to be the same'),
+    newPasswordValidate: yup
+      .string()
+      .required('This field is required')
+      .min(8, 'Password need to be 8 characters long')
+      .oneOf([yup.ref('newPassword')], 'Passwords need to be the same')
+  })
+)
 
-const snackbarOptions = {
-  error: {
-    timeout: 2000,
-    text: 'E-Mail or currenrt password incorrect!',
-    color: 'error'
-  },
-  success: {
-    timeout: 2000,
-    text: 'Password successfully changed!',
-    color: 'success'
-  },
-  fillAll: {
-    timeout: 2000,
-    text: 'Type in all passwords!',
-    color: 'error'
-  },
-  notTheSame: {
-    timeout: 2000,
-    text: 'New passwords are not the same!',
-    color: 'error'
-  },
-  noUserLogedIn: {
-    timeout: 2000,
-    text: 'No user is currently logged in!',
-    color: 'error'
-  },
-  errorAtReset: {
-    timeout: 2000,
-    text: 'An error occured! The password cound not be reset! Try Again!',
-    color: 'error'
-  }
-}
+const { handleSubmit } = useForm({ validationSchema: schema })
 
-const snackbar = ref<snackbarOptionsType>({ timeout: 0, text: '', color: '' })
-const showSnackbar = ref(false)
+const { value: oldPasswordValue, errorMessage: oldPasswordError } = useField<string>(
+  'oldPassword',
+  {},
+  { validateOnValueUpdate: false }
+)
+const { value: newPasswordValue, errorMessage: newPasswordError } = useField<string>(
+  'newPassword',
+  {},
+  { validateOnValueUpdate: false }
+)
+const { value: newPasswordValidateValue, errorMessage: newPasswordValidateError } =
+  useField<string>('newPasswordValidate', {}, { validateOnValueUpdate: false })
 
-function showErrorMessage() {
-  snackbar.value = snackbarOptions.error
-  showSnackbar.value = true
-}
-function showChangesPasswordMessage() {
-  snackbar.value = snackbarOptions.success
-  showSnackbar.value = true
-}
-function showFillAllMessage() {
-  snackbar.value = snackbarOptions.fillAll
-  showSnackbar.value = true
-}
-function showNotAllTheSame() {
-  snackbar.value = snackbarOptions.notTheSame
-  showSnackbar.value = true
-}
-function showNoUserMessage() {
-  snackbar.value = snackbarOptions.noUserLogedIn
-  showSnackbar.value = true
-}
-function showErrorReset() {
-  snackbar.value = snackbarOptions.errorAtReset
-  showSnackbar.value = true
-}
-
-const inputs = ref([
-  {
-    id: '1',
-    label: 'Enter your current password',
-    password: ''
-  },
-  {
-    id: '2',
-    label: 'Enter your new password',
-    password: ''
-  },
-  {
-    id: '3',
-    label: 'Confirm your new password',
-    password: ''
-  }
-])
-
-async function resetPassword() {
-  if (user.value) {
-    for (const input of inputs.value) {
-      if (!input.password) {
-        showFillAllMessage()
-        return
-      }
-    }
-    if (inputs.value[1].password !== inputs.value[2].password) {
-      showNotAllTheSame()
-      return
-    }
-    const isCurrentPasswordValid = await userStore.login({
-      user: { email: user.value.email, password: inputs.value[0].password }
-    })
-    if (isCurrentPasswordValid) {
-      const successReset = await userStore.resetPassword(user.value.email, inputs.value[1].password)
-      if (successReset) {
-        alert('Password sucesfully changed!')
-        showChangesPasswordMessage()
-      } else if (!successReset) {
-        showErrorReset()
-      }
-    } else if (!isCurrentPasswordValid) {
-      showErrorMessage()
-    }
-  } else {
-    showNoUserMessage()
-  }
-}
+const submit = handleSubmit(async (values) => {
+  // TODO: Add backend route change Password
+})
 </script>
 
 <template>
   <turtl-header></turtl-header>
   <v-main>
     <v-container fluid>
-      <v-snackbar v-model="showSnackbar" :timeout="snackbar.timeout" :color="snackbar.color">
-        {{ snackbar.text }}
-      </v-snackbar>
       <v-row no-gutters>
         <v-col cols="12" sm="8" md="4" offset="1" class="mt-8">
           <h1 class="title">Profil</h1>
@@ -140,7 +58,7 @@ async function resetPassword() {
           <h3 class="headlineTitle">E-Mail Adresse:</h3>
         </v-col>
         <v-col offset="1">
-          <p v-if="user">{{ user.email }}</p>
+          <p>{{ userStore.user?.email }}</p>
         </v-col>
       </v-row>
       <v-row no-gutters>
@@ -149,16 +67,34 @@ async function resetPassword() {
         </v-col>
         <v-col cols="12" sm="8" md="4" offset="1">
           <v-sheet class="mr-auto">
-            <v-form @submit.prevent>
+            <v-form @submit="submit">
               <v-text-field
+                v-model="oldPasswordValue"
+                :error-messages="oldPasswordError"
+                name="oldPassword"
                 type="password"
-                v-for="input in inputs"
-                :key="input.id"
-                :label="input.label"
-                v-model="input.password"
-                variant="solo"
-              ></v-text-field>
-              <v-btn type="submit" variant="outlined" @click="resetPassword">Change Password</v-btn>
+                label="Enter current password"
+              >
+              </v-text-field>
+              <v-text-field
+                v-model="newPasswordValue"
+                :error-messages="newPasswordError"
+                name="newPassword"
+                type="password"
+                label="Enter new password"
+              >
+              </v-text-field>
+
+              <v-text-field
+                v-model="newPasswordValidateValue"
+                :error-messages="newPasswordValidateError"
+                name="newPasswordValidation"
+                type="password"
+                label="Confirm new password"
+              >
+              </v-text-field>
+
+              <v-btn type="submit" variant="outlined">Change Password</v-btn>
             </v-form>
           </v-sheet>
         </v-col>
