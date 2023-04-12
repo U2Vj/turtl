@@ -38,7 +38,7 @@ function handleRowClick(event: Event, item: { item: { raw } }) {
   // See https://stackoverflow.com/questions/31982407/prevent-onclick-event-when-selecting-text
   const selection = window.getSelection()
   if (selection?.toString().length === 0) {
-    router.push(`templates/${item.item.raw}`)
+    router.push(`templates/${item.item.raw.id}`)
   }
 }
 </script>
