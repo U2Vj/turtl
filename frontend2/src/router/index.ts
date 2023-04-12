@@ -5,6 +5,7 @@ import ForgotPassword from '@/views/ForgotPassword.vue'
 import Profile from '@/views/UserProfile.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/UserStore'
+import ClassroomTemplates from '@/views/ClassroomTemplates.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +34,11 @@ const router = createRouter({
       path: '/profile',
       name: 'profile',
       component: Profile
+    },
+    {
+      path: '/classroomtemplates',
+      name: 'ClassroomTemplates',
+      component: ClassroomTemplates
     }
     /* ,
     {

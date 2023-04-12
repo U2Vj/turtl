@@ -8,6 +8,7 @@ import './assets/main.css'
 
 import { createVuetify, type ThemeDefinition } from 'vuetify'
 import * as components from 'vuetify/components'
+import { VDataTable } from 'vuetify/labs/VDataTable'
 import * as directives from 'vuetify/directives'
 import 'vuetify/styles'
 import '@mdi/font/css/materialdesignicons.css'
@@ -20,7 +21,10 @@ const turtlTheme: ThemeDefinition = {
 }
 
 const vuetify = createVuetify({
-  components,
+  components: {
+    VDataTable,
+    ...components
+  },
   directives,
   theme: {
     defaultTheme: 'turtlTheme',
