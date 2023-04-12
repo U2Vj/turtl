@@ -55,7 +55,7 @@ function handleRowClick(event: Event, item: { item: { raw } }) {
           </div>
           <v-data-table :headers="headers" :items="values" @click:row="handleRowClick">
             <template v-slot:[`item.link`]="{ item }">
-              <router-link :to="`template/${item.raw.id}`">edit</router-link>
+              <router-link :to="`templates/${item.raw.id}`">edit</router-link>
             </template>
           </v-data-table>
         </v-col>
