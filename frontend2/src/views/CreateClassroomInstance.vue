@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import TurtlHeader from '@/components/TurtlHeader.vue'
 
 const classroomName = ref('')
 const selected = ref()
@@ -116,6 +117,8 @@ const classTemplates = [
 </script>
 
 <template>
+    <turtl-header></turtl-header>
+    <v-main>
     <div class="classroomInstanceDiv">
         <div class="inputMargins">
             <h1 class="title">Create Classroom</h1>
@@ -151,6 +154,7 @@ const classTemplates = [
                 <v-btn @click="createClassroom">Create Classroom</v-btn>
                 <!-- <p>Selected2: {{ selected }}</p> -->
     </div>
+    </v-main>
 </template>
 
 <style>
