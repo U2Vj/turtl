@@ -2,11 +2,13 @@ import SignIn from '@/views/SignIn.vue'
 import ClassroomEnroled from '@/views/ClassroomsEnroled.vue'
 import ClassroomSingle from '@/views/ClassroomSingle.vue'
 import ForgotPassword from '@/views/ForgotPassword.vue'
+import ResetPassword from '@/views/ResetPassword.vue'
 import Profile from '@/views/UserProfile.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/UserStore'
 import ClassroomTemplates from '@/views/ClassroomTemplates.vue'
-
+import CreateClassroomInstance from '@/views/CreateClassroomInstance.vue'
+import DashboardStudent from '@/views/DashboardStudent.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -31,6 +33,11 @@ const router = createRouter({
       component: ForgotPassword
     },
     {
+      path: '/reset-password',
+      name: 'reset-password',
+      component: ResetPassword,
+    },
+    {
       path: '/profile',
       name: 'profile',
       component: Profile
@@ -39,7 +46,27 @@ const router = createRouter({
       path: '/classroomtemplates',
       name: 'ClassroomTemplates',
       component: ClassroomTemplates
+    },
+    {
+      path: '/createclassroominstance',
+      name: 'CreateClassroomInstance',
+      component: CreateClassroomInstance
+    },
+    {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: DashboardStudent
     }
+      /*
+      component: () => {
+      if (userGroup === 'instructor') {
+         return InstructorDashboard
+      } else if (userGroup === 'manager') {
+          return ManagerDashboard
+      } else {
+          return StudentDashboard
+      }
+       */
     /* ,
     {
       path: '/about',
@@ -54,7 +81,7 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const userStore = useUserStore()
-  if (to.name !== 'signin' && to.name !== 'forgot-password' && !userStore.loggedIn) {
+  if (to.name !== 'signin' && to.name !== 'forgot-password' && to.name !== 'reset-password' && !userStore.loggedIn) {
     return { name: 'signin' }
   }
 })
