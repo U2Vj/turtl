@@ -8,7 +8,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/UserStore'
 import ClassroomTemplates from '@/views/ClassroomTemplates.vue'
 import CreateClassroomInstance from '@/views/CreateClassroomInstance.vue'
-
+import DashboardStudent from '@/views/DashboardStudent.vue'
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -51,7 +51,22 @@ const router = createRouter({
       path: '/createclassroominstance',
       name: 'CreateClassroomInstance',
       component: CreateClassroomInstance
+    },
+    {
+      path: '/dashboard',
+      name: 'Dashboard',
+      component: DashboardStudent
     }
+      /*
+      component: () => {
+      if (userGroup === 'instructor') {
+         return InstructorDashboard
+      } else if (userGroup === 'manager') {
+          return ManagerDashboard
+      } else {
+          return StudentDashboard
+      }
+       */
     /* ,
     {
       path: '/about',
