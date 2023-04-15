@@ -146,8 +146,6 @@ watch(selected, (newSelected) => {
             ></v-data-table>
             </div>
                 <v-btn @click="createClassroom">Create Classroom</v-btn>
-                <!-- <p>Selected2: {{ selected }}</p> -->
-                <p>Selected:{{ selected }}</p>
     </div>
     </v-main>
 </template>
