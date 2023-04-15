@@ -8,7 +8,6 @@ const selectedItemName = ref('')
 const search = ref(selectedItemName)
 
 function rowSelected() {
-    //selectedItemName.value = selected.value[0].name
     if (selected.value.length === 1) {
         selectedItemName.value = selected.value[0].name
     }
