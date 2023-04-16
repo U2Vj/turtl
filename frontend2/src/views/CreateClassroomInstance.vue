@@ -130,7 +130,7 @@ watch(selected, (newSelected) => {
                 clearable
                 label="Search Classroom Template"
                 v-model="search"
-                append-icon="mdi-magnify"
+                append-inner-icon="mdi-magnify"
                 variant="solo"
                 class="textFieldMargins"
             ></v-text-field>

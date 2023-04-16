@@ -9,6 +9,8 @@ import { useUserStore } from '@/stores/UserStore'
 import ClassroomTemplates from '@/views/ClassroomTemplates.vue'
 import CreateClassroomInstance from '@/views/CreateClassroomInstance.vue'
 import DashboardStudent from '@/views/DashboardStudent.vue'
+import EditTaskTemplate from '@/views/EditTaskTemplate.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -35,7 +37,7 @@ const router = createRouter({
     {
       path: '/reset-password',
       name: 'reset-password',
-      component: ResetPassword,
+      component: ResetPassword
     },
     {
       path: '/profile',
@@ -56,8 +58,13 @@ const router = createRouter({
       path: '/dashboard',
       name: 'Dashboard',
       component: DashboardStudent
+    },
+    {
+      path: '/edittasktemplate',
+      name: 'EditTaskTemplate',
+      component: EditTaskTemplate
     }
-      /*
+    /*
       component: () => {
       if (userGroup === 'instructor') {
          return InstructorDashboard
