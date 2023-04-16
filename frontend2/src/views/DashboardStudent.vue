@@ -1,20 +1,14 @@
 <script setup lang="ts">
-import TurtlHeader from "@/components/TurtlHeader.vue";
-import { ref } from "vue";
+import TurtlHeader from '@/components/TurtlHeader.vue'
+import { ref } from 'vue'
 
-
-
-const headers = [
-  {title: 'Task'},
-  {title: 'Classroom'},
-  {title: 'Visited At'}
-]
+const headers = [{ title: 'Task' }, { title: 'Classroom' }, { title: 'Visited At' }]
 
 const classrooms = ref([
-    {
+  {
     id: '1',
     room: 'Rechnernetze',
-    progress: 20,
+    progress: 20
   },
   {
     id: '2',
@@ -23,7 +17,6 @@ const classrooms = ref([
     completed: false
   }
 ])
-
 </script>
 
 <template>
@@ -40,7 +33,6 @@ const classrooms = ref([
             :headers="headers"
             :items="recentTasks"
           ></v-data-table>
-
         </v-col>
       </v-row>
     </v-container>
@@ -48,15 +40,23 @@ const classrooms = ref([
     <v-container fluid>
       <v-row>
         <div class="d-flex align-left">
-            <h1>Recently Visited Classrooms</h1>
-          </div>
-        <v-col id="classrooms" v-for="classroom in classrooms" :key="classroom.id" cols="12" sm="6" md="3">
-          <v-card
-            :key="classroom.id"
-            :title="classroom.room"
-          >
-
-            <v-progress-linear id="probar" color="primary" :height="20" :model-value="classroom.progress">
+          <h1>Recently Visited Classrooms</h1>
+        </div>
+        <v-col
+          id="classrooms"
+          v-for="classroom in classrooms"
+          :key="classroom.id"
+          cols="12"
+          sm="6"
+          md="3"
+        >
+          <v-card :key="classroom.id" :title="classroom.room">
+            <v-progress-linear
+              id="probar"
+              color="primary"
+              :height="20"
+              :model-value="classroom.progress"
+            >
               <template v-slot:default="{ value }">
                 <strong>{{ Math.ceil(classroom.progress) }}%</strong>
               </template>
@@ -65,7 +65,6 @@ const classrooms = ref([
               <v-btn variant="outlined">Go to Room</v-btn>
             </v-card-actions>
           </v-card>
-
         </v-col>
       </v-row>
     </v-container>
@@ -75,7 +74,6 @@ const classrooms = ref([
 <style scoped>
 #classrooms {
   margin-top: 3em;
-
 }
 
 #probar {
@@ -89,4 +87,3 @@ const classrooms = ref([
   width: 80%;
 }
 </style>
-

@@ -88,7 +88,12 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const userStore = useUserStore()
-  if (to.name !== 'signin' && to.name !== 'forgot-password' && to.name !== 'reset-password' && !userStore.loggedIn) {
+  if (
+    to.name !== 'signin' &&
+    to.name !== 'forgot-password' &&
+    to.name !== 'reset-password' &&
+    !userStore.loggedIn
+  ) {
     return { name: 'signin' }
   }
 })

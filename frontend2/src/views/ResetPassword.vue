@@ -2,17 +2,15 @@
 import { useUserStore } from '@/stores/UserStore'
 import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
-import axios from "axios";
-import {toTypedSchema} from "@vee-validate/yup";
-import * as yup from "yup";
-import {useField, useForm} from "vee-validate";
-
+import axios from 'axios'
+import { toTypedSchema } from '@vee-validate/yup'
+import * as yup from 'yup'
+import { useField, useForm } from 'vee-validate'
 
 const password = ref('')
 const repeatPassword = ref('')
 const router = useRouter()
 const userStore = useUserStore()
-
 
 const schema = toTypedSchema(
   yup.object({
@@ -35,8 +33,11 @@ const { value: newPassword, errorMessage: newPasswordError } = useField<string>(
   {},
   { validateOnValueUpdate: false }
 )
-const { value: newPasswordConfirm, errorMessage: newPasswordConfirmError } =
-  useField<string>('newPasswordConfirm', {}, { validateOnValueUpdate: false })
+const { value: newPasswordConfirm, errorMessage: newPasswordConfirmError } = useField<string>(
+  'newPasswordConfirm',
+  {},
+  { validateOnValueUpdate: false }
+)
 
 const submit = handleSubmit(async (values) => {
   //TODO:
@@ -67,7 +68,6 @@ const submit = handleSubmit(async (values) => {
 
 
 })*/
-
 </script>
 
 <template>
@@ -96,7 +96,7 @@ const submit = handleSubmit(async (values) => {
           :error-messages="newPasswordConfirmError"
           type="password"
           placeholder="Confirm your password"
-          ></v-text-field>
+        ></v-text-field>
         <v-btn type="submit" color="primary">Set new password</v-btn>
       </v-form>
       <router-link class="d-block mt-5" to="/">Back to sign in</router-link>
