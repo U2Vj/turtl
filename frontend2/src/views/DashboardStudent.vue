@@ -46,10 +46,11 @@ const classrooms = ref([
     </v-container>
 
     <v-container fluid>
-      <v-row>
-        <div class="d-flex align-left">
+      <div class="d-flex align-left">
             <h1>Recently Visited Classrooms</h1>
-          </div>
+      </div>
+      <v-row>
+
         <v-col id="classrooms" v-for="classroom in classrooms" :key="classroom.id" cols="12" sm="6" md="3">
           <v-card
             :key="classroom.id"
@@ -73,10 +74,7 @@ const classrooms = ref([
 </template>
 
 <style scoped>
-#classrooms {
-  margin-top: 3em;
 
-}
 
 #probar {
   margin: auto;
