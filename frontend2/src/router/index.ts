@@ -9,6 +9,8 @@ import { useUserStore } from '@/stores/UserStore'
 import ClassroomTemplates from '@/views/ClassroomTemplates.vue'
 import CreateClassroomInstance from '@/views/CreateClassroomInstance.vue'
 import DashboardStudent from '@/views/DashboardStudent.vue'
+import InstructorDashboard from '@/views/InstructorDashboard.vue'
+
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -56,6 +58,11 @@ const router = createRouter({
       path: '/dashboard',
       name: 'Dashboard',
       component: DashboardStudent
+    },
+    {
+      path: '/dashboard-prof', // TODO: change to /dashboard
+      name: 'InstructorDashboard',
+      component: InstructorDashboard
     }
       /*
       component: () => {
