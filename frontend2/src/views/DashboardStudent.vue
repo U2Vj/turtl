@@ -5,9 +5,25 @@ import { ref } from "vue";
 
 
 const headers = [
-  {title: 'Task'},
-  {title: 'Classroom'},
-  {title: 'Visited At'}
+  {title: 'Task', key:'name'},
+  {title: 'Classroom', key:'classroom'},
+  {title: 'Visited At', key:'visited'}
+]
+
+
+const values = [
+  {
+    name: 'Nftables Beginner',
+    classroom: 'Rechnernetze',
+    visited: '2023-10-02',
+    id: 1
+  },
+  {
+    name: 'Nmap Scans',
+    classroom: 'It-Sicherheit',
+    visited: '2023-09-01',
+    id: 2
+  }
 ]
 
 const classrooms = ref([
@@ -29,7 +45,7 @@ const classrooms = ref([
 <template>
   <turtl-header></turtl-header>
   <v-main>
-    <v-container fluid>
+    <v-container fluid class="tasks">
       <v-row>
         <v-col>
           <div class="d-flex align-left">
@@ -38,14 +54,14 @@ const classrooms = ref([
           <v-data-table
             v-model:items-per-page="itemsPerPage"
             :headers="headers"
-            :items="recentTasks"
+            :items="values"
           ></v-data-table>
 
         </v-col>
       </v-row>
     </v-container>
 
-    <v-container fluid>
+    <v-container fluid class="classroom">
       <div class="d-flex align-left">
             <h1>Recently Visited Classrooms</h1>
       </div>
@@ -81,10 +97,15 @@ const classrooms = ref([
   width: auto;
 }
 
-.cardgroup {
-  margin: auto;
-  margin-top: 2%;
-  width: 80%;
+.classroom {
+  margin-top: 100px;
 }
+
+.tasks {
+  width: 50%;
+  margin-left: 0px;
+}
+
+
 </style>
 
