@@ -13,10 +13,21 @@ const createdBy = ref('Max Muster')
 const modifiedOn = ref('2022.02.02')
 const modifiedBy = ref('Franz Muster')
 
+const allCriteria = [
+  { id: '1', type: 'Question', description: 'How many bytes does an IPv4 address consist of?' },
+  { id: '2', type: 'Question', description: 'How ?' },
+  { id: '3', type: 'Question', description: 'How many bytes does an IPv4 address consist of?' }
+]
+
+const allVirtual = [
+  { id: '1', type: 'Docker Container', title: 'kalilinux/kali-rolling', accesable: 'User Shell' },
+  { id: '2', type: 'Docker Container', title: 'ubuntu', accesable: 'User-accessible via IP' }
+]
+
 function toggleEdit() {
   if (onlyRead.value === true) {
     onlyRead.value = false
-    editLabel.value = 'Exit'
+    editLabel.value = 'Safe'
   } else if (onlyRead.value === false) {
     onlyRead.value = true
     editLabel.value = 'Edit'
@@ -29,7 +40,7 @@ function toggleEdit() {
   <v-main>
     <v-container fluid>
       <v-row>
-        <v-col cols="5">
+        <v-col cols="12" sm="8" md="5">
           <v-row no-gutters>
             <v-col>
               <h1>{{ taskName }}</h1>
@@ -65,18 +76,67 @@ function toggleEdit() {
             </v-col>
           </v-row>
           <v-row>
+            <v-col cols="12">
+              <v-list>
+                <v-list-item v-for="item in allCriteria" :key="item.id">
+                  <v-card :key="item.id" variant="outlined">
+                    <v-table density="compact">
+                      <tbody>
+                        <tr>
+                          <td width="2%">{{ item.id }}</td>
+                          <td width="5%">{{ item.type }}</td>
+                          <td width="40%">{{ item.description }}</td>
+                          <td width="7%"><v-btn variant="text">Edit</v-btn></td>
+                          <td width="10%">Move Up</td>
+                          <td width="10%">Move Down</td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </v-card>
+                </v-list-item>
+              </v-list>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-btn variant="outlined">+ Add new acceptance criterium</v-btn>
+            </v-col>
+          </v-row>
+          <v-row>
             <v-col>
               <h2>Virtualizations</h2>
             </v-col>
           </v-row>
+          <v-row>
+            <v-col cols="12">
+              <v-list>
+                <v-list-item v-for="item in allVirtual" :key="item.id">
+                  <v-card :key="item.id" variant="outlined">
+                    <v-table density="compact">
+                      <tbody>
+                        <tr>
+                          <td width="21%">{{ item.type }}</td>
+                          <td width="40%">{{ item.title }}</td>
+                          <td width="40%">{{ item.accesable }}</td>
+                          <td width="20%"><v-btn variant="text">Edit</v-btn></td>
+                        </tr>
+                      </tbody>
+                    </v-table>
+                  </v-card>
+                </v-list-item>
+              </v-list>
+            </v-col>
+            <v-col>
+              <v-btn variant="outlined">+ Add new virtualization</v-btn>
+            </v-col>
+          </v-row>
         </v-col>
-        <v-col cols="5" offset="2">
+        <v-col cols="12" sm="7" md="4" offset="2">
           <v-col>
-            <v-card>
+            <v-card variant="outlined">
               <v-card-item>
                 <v-card-title><h3>Information</h3></v-card-title>
               </v-card-item>
-
               <v-card-text>
                 <v-table density="compact">
                   <tbody>
@@ -102,7 +162,7 @@ function toggleEdit() {
             </v-card>
           </v-col>
           <v-col>
-            <v-card>
+            <v-card variant="outlined">
               <v-card-item>
                 <v-card-title><h3>Export</h3></v-card-title>
               </v-card-item>
@@ -112,7 +172,7 @@ function toggleEdit() {
             >
           </v-col>
           <v-col>
-            <v-card>
+            <v-card variant="outlined">
               <v-card-item>
                 <v-card-title><h3>Deletion</h3></v-card-title>
               </v-card-item>
