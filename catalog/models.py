@@ -1,13 +1,15 @@
 from django.db import models
-
+from rules.contrib.models import RulesModel
+from .predicates import manages_classroom_template
 from authentication.models import User
+from authentication.predicates import is_manager, is_administrator, is_instructor
 
 
 class ProjectTemplate(models.Model):
     pass
 
 
-class ClassroomTemplate(models.Model):
+class ClassroomTemplate(RulesModel):
     """
         A ClassroomTemplate has a title, a description, a created_at timestamp and an updated_at timestamp.
         It has a ManyToMany relationship (managers) to the User model and a ManyToMany relationship to the
@@ -29,6 +31,20 @@ class ClassroomTemplate(models.Model):
                                       through_fields=('classroom_template', 'manager'))
 
     project_templates = models.ManyToManyField(ProjectTemplate, related_name='classroom_templates')
+
+    # Permissions
+    class Meta:
+        rules_permissions = {
+            # Managers and administrators can create classroom templates in our application
+            "add": is_manager | is_administrator,
+            # Reading classroom templates is allowed for instructors, managers and administrators
+            "read": is_instructor | is_manager | is_administrator,
+            # To edit an existing classroom template, you must be able to create one and also manage the one you are
+            # trying to modify
+            "change": (is_manager | is_administrator) & manages_classroom_template,
+            # Additionally, administrators can always delete classroom templates
+            "delete": (is_manager & manages_classroom_template) | is_administrator
+        }
 
 
 class ClassroomTemplateManager(models.Model):

@@ -42,3 +42,4 @@ typing-extensions==4.5.0
 urllib3==1.26.4
 websocket-client==1.0.1
 zope.interface==5.5.2
+rules==3.3

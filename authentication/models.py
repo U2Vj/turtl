@@ -25,7 +25,7 @@ class UserManager(BaseUserManager):
     to create `User` objects.
     """
 
-    def create_user(self, username, email, password=None):
+    def create_user(self, username, email, password):
         """Create and return a `User` with an email, username and password."""
         if username is None:
             raise TypeError('Users must have a username.')
@@ -33,8 +33,51 @@ class UserManager(BaseUserManager):
         if email is None:
             raise TypeError('Users must have an email address.')
 
+        if password is None:
+            raise TypeError('Users must have a password.')
+
         user = self.model(username=username, email=self.normalize_email(email))
         user.set_password(password)
+        user.save()
+
+        return user
+
+    def create_student(self, username, email, password):
+        """
+            create and return a student
+        """
+        user = self.create_user(username, email, password)
+        user.role = user.Role.STUDENT
+        user.save()
+
+        return user
+
+    def create_instructor(self, username, email, password):
+        """
+            create and return an instructor
+        """
+        user = self.create_user(username, email, password)
+        user.role = user.Role.INSTRUCTOR
+        user.save()
+
+        return user
+
+    def create_manager(self, username, email, password):
+        """
+            create and return a student
+        """
+        user = self.create_user(username, email, password)
+        user.role = user.Role.MANAGER
+        user.save()
+
+        return user
+
+    def create_administrator(self, username, email, password):
+        """
+            create and return an administrator
+        """
+        user = self.create_user(username, email, password)
+        user.role = user.Role.ADMINISTRATOR
         user.save()
 
         return user
@@ -43,14 +86,8 @@ class UserManager(BaseUserManager):
         """
         Create and return a `User` with superuser (admin) permissions.
         """
-        if password is None:
-            raise TypeError('Superusers must have a password.')
 
-        user = self.create_user(username, email, password)
-        user.role = user.Role.ADMINISTRATOR
-        user.save()
-
-        return user
+        return self.create_administrator(username, email, password)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
