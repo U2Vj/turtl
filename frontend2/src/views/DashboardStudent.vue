@@ -51,7 +51,6 @@ const classrooms = ref([
             <h1>Recently Opened Tasks</h1>
           </div>
           <v-data-table
-            v-model:items-per-page="itemsPerPage"
             :headers="headers"
             :items="values"
           ></v-data-table>
