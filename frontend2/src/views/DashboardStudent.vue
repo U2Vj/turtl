@@ -2,7 +2,29 @@
 import TurtlHeader from '@/components/TurtlHeader.vue'
 import { ref } from 'vue'
 
-const headers = [{ title: 'Task' }, { title: 'Classroom' }, { title: 'Visited At' }]
+
+
+const headers = [
+  {title: 'Task', key:'name'},
+  {title: 'Classroom', key:'classroom'},
+  {title: 'Visited At', key:'visited'}
+]
+
+
+const values = [
+  {
+    name: 'Nftables Beginner',
+    classroom: 'Rechnernetze',
+    visited: '2023-10-02',
+    id: 1
+  },
+  {
+    name: 'Nmap Scans',
+    classroom: 'It-Sicherheit',
+    visited: '2023-09-01',
+    id: 2
+  }
+]
 
 const classrooms = ref([
   {
@@ -22,7 +44,7 @@ const classrooms = ref([
 <template>
   <turtl-header></turtl-header>
   <v-main>
-    <v-container fluid>
+    <v-container fluid class="tasks">
       <v-row>
         <v-col>
           <div class="d-flex align-left">
@@ -31,32 +53,25 @@ const classrooms = ref([
           <v-data-table
             v-model:items-per-page="itemsPerPage"
             :headers="headers"
-            :items="recentTasks"
+            :items="values"
           ></v-data-table>
         </v-col>
       </v-row>
     </v-container>
 
-    <v-container fluid>
+    <v-container fluid class="classroom">
+      <div class="d-flex align-left">
+            <h1>Recently Visited Classrooms</h1>
+      </div>
       <v-row>
-        <div class="d-flex align-left">
-          <h1>Recently Visited Classrooms</h1>
-        </div>
-        <v-col
-          id="classrooms"
-          v-for="classroom in classrooms"
-          :key="classroom.id"
-          cols="12"
-          sm="6"
-          md="3"
-        >
-          <v-card :key="classroom.id" :title="classroom.room">
-            <v-progress-linear
-              id="probar"
-              color="primary"
-              :height="20"
-              :model-value="classroom.progress"
-            >
+
+        <v-col id="classrooms" v-for="classroom in classrooms" :key="classroom.id" cols="12" sm="6" md="3">
+          <v-card
+            :key="classroom.id"
+            :title="classroom.room"
+          >
+
+            <v-progress-linear id="probar" color="primary" :height="20" :model-value="classroom.progress">
               <template v-slot:default="{ value }">
                 <strong>{{ Math.ceil(classroom.progress) }}%</strong>
               </template>
@@ -72,18 +87,21 @@ const classrooms = ref([
 </template>
 
 <style scoped>
-#classrooms {
-  margin-top: 3em;
-}
+
 
 #probar {
   margin: auto;
   width: auto;
 }
 
-.cardgroup {
-  margin: auto;
-  margin-top: 2%;
-  width: 80%;
+.classroom {
+  margin-top: 100px;
 }
+
+.tasks {
+  width: 50%;
+  margin-left: 0px;
+}
+
+
 </style>
