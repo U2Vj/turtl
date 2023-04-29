@@ -113,29 +113,46 @@ watch(selected, (newSelected) => {
 <template>
   <turtl-header></turtl-header>
   <v-main>
-    <div class="classroomInstanceDiv">
-      <div class="inputMargins">
-        <h1 class="title">Create Classroom</h1>
-        <p class="namesTitle">Classroom Name</p>
-        <v-text-field
+    <v-container fluid>
+      <v-row>
+        <v-col>
+          <h1>Create Classroom</h1>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <p>Classroom Name</p>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="5">
+          <v-text-field
           clearable
           label="Type in Classroom Name"
           v-model="classroomName"
           variant="solo"
-          class="textFieldMargins"
         ></v-text-field>
-        <p class="namesTitle">Classroom Template</p>
-        <v-text-field
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <p>Classroom Template</p>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="5">
+          <v-text-field
           clearable
           label="Search Classroom Template"
           v-model="search"
           append-inner-icon="mdi-magnify"
           variant="solo"
-          class="textFieldMargins"
         ></v-text-field>
-      </div>
-      <div>
-        <v-data-table
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="10">
+          <v-data-table
           :headers="headers"
           :items="classTemplates"
           :search="search"
@@ -143,31 +160,16 @@ watch(selected, (newSelected) => {
           item-value="classTemplates"
           show-select
         ></v-data-table>
-      </div>
-      <v-btn @click="createClassroom">Create Classroom</v-btn>
-    </div>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+            <v-btn @click="createClassroom">Create Classroom</v-btn>
+        </v-col>
+      </v-row>
+    </v-container>
   </v-main>
 </template>
 
 <style>
-.namesTitle {
-  font-weight: bold;
-  margin-bottom: 2%;
-}
-.title {
-  font-weight: bolder;
-  margin-bottom: 10%;
-}
-.classroomInstanceDiv {
-  text-align: left;
-  margin-left: 5%;
-  margin-top: 2.5%;
-  margin-right: 20%;
-}
-.inputMargins {
-  margin-right: 60%;
-}
-.textFieldMargins {
-  margin-bottom: 3%;
-}
 </style>
