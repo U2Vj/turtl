@@ -10,8 +10,9 @@ import ClassroomTemplates from '@/views/ClassroomTemplates.vue'
 import CreateClassroomInstance from '@/views/CreateClassroomInstance.vue'
 import DashboardStudent from '@/views/DashboardStudent.vue'
 import InstructorDashboard from '@/views/InstructorDashboard.vue'
-
+import StudentAllClassrooms from '@/views/StudentAllClassrooms.vue'
 import EditTaskTemplate from '@/views/EditTaskTemplate.vue'
+import test from '@/views/test.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -70,6 +71,16 @@ const router = createRouter({
       path: '/edittasktemplate',
       name: 'EditTaskTemplate',
       component: EditTaskTemplate
+    },
+    {
+      path: '/allclassrooms-stud', // TODO: change to allcllassrooms
+      name: 'StudentAllClassrooms',
+      component: StudentAllClassrooms
+    },
+    {
+      path: '/test', // TODO: delete
+      name: 'Test',
+      component: test
     }
     /*
       component: () => {
