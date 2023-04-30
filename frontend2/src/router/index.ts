@@ -35,7 +35,7 @@ const router = createRouter({
     {
       path: '/reset-password',
       name: 'reset-password',
-      component: ResetPassword,
+      component: ResetPassword
     },
     {
       path: '/profile',
@@ -57,7 +57,7 @@ const router = createRouter({
       name: 'Dashboard',
       component: DashboardStudent
     }
-      /*
+    /*
       component: () => {
       if (userGroup === 'instructor') {
          return InstructorDashboard
@@ -81,7 +81,12 @@ const router = createRouter({
 
 router.beforeEach((to) => {
   const userStore = useUserStore()
-  if (to.name !== 'signin' && to.name !== 'forgot-password' && to.name !== 'reset-password' && !userStore.loggedIn) {
+  if (
+    to.name !== 'signin' &&
+    to.name !== 'forgot-password' &&
+    to.name !== 'reset-password' &&
+    !userStore.loggedIn
+  ) {
     return { name: 'signin' }
   }
 })
