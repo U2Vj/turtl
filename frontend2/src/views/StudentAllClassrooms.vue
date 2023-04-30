@@ -3,28 +3,44 @@ import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
 
 const search = ref('')
+const dialog = ref(false)
 const headers = [
   { title: 'Name of Classroom', key: 'name_classroom' },
   { title: 'Manager', key: 'manager_name' },
+  { title: '', key: 'actions', width:'10%', sortable: false}
 ]
 
 const classrooms = [
-    {
-        name_classroom: 'Test Networks',
-        manager_name: 'John Doe'
-    },
-    {
-        name_classroom: 'Computer Networks',
-        manager_name: 'Tom Doe'
-    },
-    {
-        name_classroom: 'Secure Networks',
-        manager_name: 'Finn Doe'
-    }
+  {
+      name_classroom: 'Test Networks',
+      manager_name: 'John Doe'
+  },
+  {
+      name_classroom: 'Computer Networks',
+      manager_name: 'Tom Doe'
+  },
+  {
+      name_classroom: 'Secure Networks',
+      manager_name: 'Finn Doe'
+  }
 ]
 
-function joinClassroom(item:any) {
-    console.log(item)
+const selectedClassroom = ref({})
+
+const selectedClassroomName = ref('')
+
+function joinClassroomBtn(item: any) {
+  selectedClassroom.value = Object.assign({}, item)
+    selectedClassroomName.value = item.name_classroom
+  dialog.value = true
+}
+
+function close() {
+  dialog.value = false
+}
+
+function join(){
+  dialog.value = false
 }
 </script>
 
@@ -54,18 +70,68 @@ function joinClassroom(item:any) {
         </v-col>
       </v-row>
       <v-row>
-        <v-col>
+        <v-col cols="10">
             <v-data-table
                 :headers="headers"
                 :items="classrooms"
                 :search="search"
                 item-value="classTemplates"
             >
+            <template v-slot:top>
+        <v-dialog
+          v-model="dialog"
+          width="50%"
+        >
+          <v-card>
+            <v-card-title>
+              <h2> Join {{ selectedClassroomName }}</h2>
+            </v-card-title>
+
+            <v-card-text>
+              <v-container>
+                <v-row>
+                    <v-col>
+                        <p>Enter the code to join the classroom</p>
+                    </v-col>
+                </v-row>
+                <v-row>
+                    <v-col>
+                        Enter Code:
+                    </v-col>
+                </v-row>
+                <v-row>
+
+                </v-row>
+                <v-row>
+                  <v-col cols="8">
+                    <v-text-field
+                      label="Enter Code"
+                    ></v-text-field>
+                  </v-col>
+                </v-row>
+              </v-container>
+            </v-card-text>
+
+            <v-card-actions>
+              <v-spacer></v-spacer>
+              <v-btn
+                @click="close"
+              >
+                Cancel
+              </v-btn>
+              <v-btn
+                @click="join"
+              >
+                Join Classroom
+              </v-btn>
+            </v-card-actions>
+          </v-card>
+        </v-dialog>
+    </template>
             <template v-slot:item.actions="{ item }">
                 <v-btn
-                    size="small"
-                    @click="joinClassroom(item.raw)"
-                >Join classroom</v-btn>
+                  @click="joinClassroomBtn(item.raw)"
+                  >Join classroom</v-btn>
                 </template>
                 <template v-slot:no-data>
                 <p>No data</p>

@@ -188,7 +188,7 @@
         >
           <v-card>
             <v-card-title>
-              <h2> Join {{ formTitle }}</h2>
+              <h2> Join {{ editedItem.name }}</h2>
             </v-card-title>
 
             <v-card-text>
