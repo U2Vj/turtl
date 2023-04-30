@@ -48,24 +48,28 @@ const submit = handleSubmit(async (values) => {
   <turtl-header></turtl-header>
   <v-main>
     <v-container fluid>
-      <v-row no-gutters>
-        <v-col cols="12" sm="8" md="4" offset="1" class="mt-8">
-          <h1 class="title">Profil</h1>
+      <v-row>
+        <v-col>
+          <h1>Profil</h1>
         </v-col>
       </v-row>
-      <v-row no-gutters>
-        <v-col cols="12" offset="1">
-          <h3 class="headlineTitle">E-Mail Adresse:</h3>
+      <v-row>
+        <v-col>
+          <h3>E-Mail Adresse:</h3>
         </v-col>
-        <v-col offset="1">
+      </v-row>
+      <v-row>
+        <v-col>
           <p>{{ userStore.user?.email }}</p>
         </v-col>
       </v-row>
-      <v-row no-gutters>
-        <v-col cols="12" offset="1">
-          <h3 class="headlineTitle">Change your password:</h3>
-        </v-col>
-        <v-col cols="12" sm="8" md="4" offset="1">
+        <v-row>
+          <v-col>
+          <h3>Change your password:</h3>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="5">
           <v-sheet class="mr-auto">
             <v-form @submit="submit">
               <v-text-field
@@ -97,10 +101,10 @@ const submit = handleSubmit(async (values) => {
               <v-btn type="submit" variant="outlined">Change Password</v-btn>
             </v-form>
           </v-sheet>
-        </v-col>
+          </v-col>
       </v-row>
-      <v-row justify="end">
-        <v-col cols="12" sm="6" md="3" offset="1">
+      <v-row>
+        <v-col>
           <v-btn variant="outlined">Permanently Delete Account</v-btn>
         </v-col>
       </v-row>
@@ -109,19 +113,4 @@ const submit = handleSubmit(async (values) => {
 </template>
 
 <style>
-.divMargins {
-  text-align: left;
-  margin: auto;
-  margin-left: 5%;
-  margin-top: 2%;
-}
-.title {
-  font-weight: bolder;
-  margin-bottom: 2%;
-}
-.headlineTitle {
-  font-weight: bolder;
-  margin-top: 1%;
-  margin-bottom: 1%;
-}
 </style>
