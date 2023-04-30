@@ -4,16 +4,17 @@ from .predicates import manages_classroom_template
 from authentication.models import User
 from authentication.predicates import is_manager, is_administrator, is_instructor
 
+
 class TaskTemplate(models.Model):
     pass
 
-class ProjectBadge():
 
+class ProjectBadge(RulesModel):
     title = models.CharField(max_length=50)
 
-
-
     earned_by = models.ManyToManyField(User)
+
+    image = models.ImageField()
 
 
 class ProjectTemplate(RulesModel):
@@ -27,7 +28,7 @@ class ProjectTemplate(RulesModel):
 
     task_templates = models.ManyToManyField(TaskTemplate, related_name='project_templates')
 
-    projectBadge = models.ForeignKey(ProjectBadge)
+    project_badge = models.ForeignKey(ProjectBadge, on_delete=models.CASCADE)
 
     created_at = models.DateTimeField(auto_now_add=True)
 
@@ -89,8 +90,3 @@ class ClassroomTemplateManager(models.Model):
     # NULL (which is why it is nullable).
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
                                  related_name='classroomtemplatemanager_set_added_by')
-
-
-
-
-
