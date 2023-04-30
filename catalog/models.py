@@ -4,9 +4,34 @@ from .predicates import manages_classroom_template
 from authentication.models import User
 from authentication.predicates import is_manager, is_administrator, is_instructor
 
-
-class ProjectTemplate(models.Model):
+class TaskTemplate(models.Model):
     pass
+
+class ProjectBadge():
+
+    title = models.CharField(max_length=50)
+
+
+
+    earned_by = models.ManyToManyField(User)
+
+
+class ProjectTemplate(RulesModel):
+    title = models.CharField(max_length=120)
+
+    prerequisites = models.ManyToManyField("self", symmetrical=False, blank=True)
+
+    learning_outcome = models.TextField()
+
+    content = models.TextField()
+
+    task_templates = models.ManyToManyField(TaskTemplate, related_name='project_templates')
+
+    projectBadge = models.ForeignKey(ProjectBadge)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
 
 
 class ClassroomTemplate(RulesModel):
@@ -16,7 +41,7 @@ class ClassroomTemplate(RulesModel):
         ProjectTemplate model.
     """
     # A ClassroomTemplate has a title e.g.: Eternal Blue Exploit
-    title = models.CharField(max_length=120)
+    title = models.CharField(max_length=120, unique=True)
 
     # A ClassroomTemplate has a description e.g.: Eternal Blue is the exploit CVE-2017-0144
     description = models.TextField()
@@ -64,3 +89,8 @@ class ClassroomTemplateManager(models.Model):
     # NULL (which is why it is nullable).
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
                                  related_name='classroomtemplatemanager_set_added_by')
+
+
+
+
+
