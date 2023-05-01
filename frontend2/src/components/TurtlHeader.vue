@@ -10,8 +10,14 @@ const userStore = useUserStore()
   <div>
     <v-app-bar sticky>
       <div class="flex-grow-1">
-        <v-btn to="/dashboard">Dashboard</v-btn>
-        <v-btn to="/classrooms">Classrooms</v-btn>
+        <v-btn to="/dashboard-prof">Classroom I??</v-btn>
+        <v-btn to="/createclassroominstance">CreateClass I</v-btn>
+        <v-btn to="/classrooms">Classrooms I</v-btn>
+        <v-btn to="/studentclassrooms">MyClass S</v-btn>
+        <v-btn to="/allclassrooms-stud">AllClass S</v-btn>
+        <v-btn to="/dashboard">Dashboard S</v-btn>
+        <v-btn to="/edittasktemplate">EditTaskTemplate M</v-btn>
+        <v-btn to="/classroomtemplates">ClassTemplates M</v-btn>
       </div>
       <template v-slot:prepend>
         <router-link to="/">
