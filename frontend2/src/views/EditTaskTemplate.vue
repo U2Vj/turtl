@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
-import { boolean } from 'yup'
 const taskName = ref('What are IP Adresses?')
 const onlyRead = ref(true)
 const editLabel = ref('Edit')

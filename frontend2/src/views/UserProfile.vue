@@ -63,13 +63,13 @@ const submit = handleSubmit(async (values) => {
           <p>{{ userStore.user?.email }}</p>
         </v-col>
       </v-row>
-        <v-row>
-          <v-col>
+      <v-row>
+        <v-col>
           <h3>Change your password:</h3>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="5">
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="5">
           <v-sheet class="mr-auto">
             <v-form @submit="submit">
               <v-text-field
@@ -101,7 +101,7 @@ const submit = handleSubmit(async (values) => {
               <v-btn type="submit" variant="outlined">Change Password</v-btn>
             </v-form>
           </v-sheet>
-          </v-col>
+        </v-col>
       </v-row>
       <v-row>
         <v-col>
@@ -112,5 +112,4 @@ const submit = handleSubmit(async (values) => {
   </v-main>
 </template>
 
-<style>
-</style>
+<style></style>

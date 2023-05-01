@@ -127,11 +127,11 @@ watch(selected, (newSelected) => {
       <v-row>
         <v-col cols="5">
           <v-text-field
-          clearable
-          label="Type in Classroom Name"
-          v-model="classroomName"
-          variant="solo"
-        ></v-text-field>
+            clearable
+            label="Type in Classroom Name"
+            v-model="classroomName"
+            variant="solo"
+          ></v-text-field>
         </v-col>
       </v-row>
       <v-row>
@@ -142,34 +142,33 @@ watch(selected, (newSelected) => {
       <v-row>
         <v-col cols="5">
           <v-text-field
-          clearable
-          label="Search Classroom Template"
-          v-model="search"
-          append-inner-icon="mdi-magnify"
-          variant="solo"
-        ></v-text-field>
+            clearable
+            label="Search Classroom Template"
+            v-model="search"
+            append-inner-icon="mdi-magnify"
+            variant="solo"
+          ></v-text-field>
         </v-col>
       </v-row>
       <v-row>
         <v-col cols="10">
           <v-data-table
-          :headers="headers"
-          :items="classTemplates"
-          :search="search"
-          v-model="selected"
-          item-value="classTemplates"
-          show-select
-        ></v-data-table>
+            :headers="headers"
+            :items="classTemplates"
+            :search="search"
+            v-model="selected"
+            item-value="classTemplates"
+            show-select
+          ></v-data-table>
         </v-col>
       </v-row>
       <v-row>
         <v-col>
-            <v-btn @click="createClassroom">Create Classroom</v-btn>
+          <v-btn @click="createClassroom">Create Classroom</v-btn>
         </v-col>
       </v-row>
     </v-container>
   </v-main>
 </template>
 
-<style>
-</style>
+<style></style>

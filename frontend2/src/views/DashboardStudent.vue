@@ -2,14 +2,11 @@
 import TurtlHeader from '@/components/TurtlHeader.vue'
 import { ref } from 'vue'
 
-
-
 const headers = [
-  {title: 'Task', key:'name'},
-  {title: 'Classroom', key:'classroom'},
-  {title: 'Visited At', key:'visited'}
+  { title: 'Task', key: 'name' },
+  { title: 'Classroom', key: 'classroom' },
+  { title: 'Visited At', key: 'visited' }
 ]
-
 
 const values = [
   {
@@ -50,27 +47,31 @@ const classrooms = ref([
           <div class="d-flex align-left">
             <h1>Recently Opened Tasks</h1>
           </div>
-          <v-data-table
-            :headers="headers"
-            :items="values"
-          ></v-data-table>
+          <v-data-table :headers="headers" :items="values"></v-data-table>
         </v-col>
       </v-row>
     </v-container>
 
     <v-container fluid class="classroom">
       <div class="d-flex align-left">
-            <h1>Recently Visited Classrooms</h1>
+        <h1>Recently Visited Classrooms</h1>
       </div>
       <v-row>
-
-        <v-col id="classrooms" v-for="classroom in classrooms" :key="classroom.id" cols="12" sm="6" md="3">
-          <v-card
-            :key="classroom.id"
-            :title="classroom.room"
-          >
-
-            <v-progress-linear id="probar" color="primary" :height="20" :model-value="classroom.progress">
+        <v-col
+          id="classrooms"
+          v-for="classroom in classrooms"
+          :key="classroom.id"
+          cols="12"
+          sm="6"
+          md="3"
+        >
+          <v-card :key="classroom.id" :title="classroom.room">
+            <v-progress-linear
+              id="probar"
+              color="primary"
+              :height="20"
+              :model-value="classroom.progress"
+            >
               <template v-slot:default="{ value }">
                 <strong>{{ Math.ceil(classroom.progress) }}%</strong>
               </template>
@@ -86,8 +87,6 @@ const classrooms = ref([
 </template>
 
 <style scoped>
-
-
 #probar {
   margin: auto;
   width: auto;
@@ -101,6 +100,4 @@ const classrooms = ref([
   width: 50%;
   margin-left: 0px;
 }
-
-
 </style>
