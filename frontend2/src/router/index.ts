@@ -13,6 +13,7 @@ import InstructorDashboard from '@/views/InstructorDashboard.vue'
 import StudentAllClassrooms from '@/views/StudentAllClassrooms.vue'
 import EditTaskTemplate from '@/views/EditTaskTemplate.vue'
 import test from '@/views/test.vue'
+import StudentClassrooms from '@/views/StudentClassrooms.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -81,6 +82,11 @@ const router = createRouter({
       path: '/test', // TODO: delete
       name: 'Test',
       component: test
+    },
+    {
+      path: '/studentclassrooms',
+      name: 'StudentClassrooms',
+      component: StudentClassrooms
     }
     /*
       component: () => {

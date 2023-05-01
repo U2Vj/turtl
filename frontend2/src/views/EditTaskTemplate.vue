@@ -40,8 +40,8 @@ function toggleEdit() {
     <v-container fluid>
       <v-row>
         <v-col cols="12" sm="8" md="5">
-          <v-row no-gutters>
-            <v-col>
+          <v-row>
+            <v-col cols="auto">
               <h1>{{ taskName }}</h1>
               <v-text-field
                 v-if="onlyRead === false"
@@ -51,7 +51,7 @@ function toggleEdit() {
               >
               </v-text-field>
             </v-col>
-            <v-col cols="5" justify="end">
+            <v-col cols="auto">
               <v-btn @click="toggleEdit">{{ editLabel }}</v-btn>
             </v-col>
           </v-row>
