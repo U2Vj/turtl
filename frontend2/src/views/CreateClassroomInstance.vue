@@ -132,6 +132,11 @@ watch(selected, (newSelected) => {
             v-model="classroomName"
             variant="solo"
           ></v-text-field>
+            clearable
+            label="Type in Classroom Name"
+            v-model="classroomName"
+            variant="solo"
+          ></v-text-field>
         </v-col>
       </v-row>
       <v-row>
