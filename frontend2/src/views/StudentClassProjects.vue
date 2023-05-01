@@ -81,16 +81,21 @@ const items = ref([
                           Project Complete
                         </v-card-text>
                         <v-card-actions>
-                          <v-btn
-                            variant="outlined"
-                            :append-icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-                            @click="show = !show"
-                            >View Tasks</v-btn
-                          >
-                          <v-spacer></v-spacer>
-                          <v-btn variant="outlined" v-if="item.progress < 100"
-                            >Continue Working</v-btn
-                          >
+                          <v-row>
+                            <v-col>
+                              <v-btn
+                                variant="outlined"
+                                :append-icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
+                                @click="show = !show"
+                                >View Tasks</v-btn
+                              >
+                            </v-col>
+                            <v-col>
+                              <v-btn variant="outlined" v-if="item.progress < 100"
+                                >Continue Working</v-btn
+                              >
+                            </v-col>
+                          </v-row>
                         </v-card-actions>
                         <v-expand-transition>
                           <div v-show="show">
