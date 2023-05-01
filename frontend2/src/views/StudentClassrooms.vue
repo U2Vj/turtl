@@ -41,12 +41,10 @@ const items = ref([
   }
 ])
 
-const selectedClassroom = ref({})
 const dialog = ref(false)
-const selectedClassroomName = ref('')
 
 function joinClassroomBtn() {
-    // TODO: Add which classroom to join
+  // TODO: Add which classroom to join
   dialog.value = true
 }
 
@@ -122,13 +120,13 @@ function join() {
                 :model-value="item.progress"
                 rounded
               >
-                <template v-slot:default="{ value }">
+                <template v-slot:default>
                   <strong>{{ Math.ceil(item.progress) }}%</strong>
                 </template>
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <v-btn variant="outlined">Visit Classroom</v-btn>
+              <v-btn variant="outlined" to="StudentClassProjects">Visit Classroom</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>

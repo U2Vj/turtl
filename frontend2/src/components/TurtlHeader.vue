@@ -16,6 +16,7 @@ const userStore = useUserStore()
         <v-btn to="/studentclassrooms">MyClass S</v-btn>
         <v-btn to="/allclassrooms-stud">AllClass S</v-btn>
         <v-btn to="/dashboard">Dashboard S</v-btn>
+        <v-btn to="/studentclassprojects">ClassProjects S</v-btn>
         <v-btn to="/edittasktemplate">EditTaskTemplate M</v-btn>
         <v-btn to="/classroomtemplates">ClassTemplates M</v-btn>
       </div>

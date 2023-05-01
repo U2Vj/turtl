@@ -14,6 +14,7 @@ import StudentAllClassrooms from '@/views/StudentAllClassrooms.vue'
 import EditTaskTemplate from '@/views/EditTaskTemplate.vue'
 import test from '@/views/test.vue'
 import StudentClassrooms from '@/views/StudentClassrooms.vue'
+import StudentClassProjects from '@/views/StudentClassProjects.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -87,6 +88,11 @@ const router = createRouter({
       path: '/studentclassrooms',
       name: 'StudentClassrooms',
       component: StudentClassrooms
+    },
+    {
+      path: '/studentclassprojects',
+      name: 'StudentClassProjects',
+      component: StudentClassProjects
     }
     /*
       component: () => {
