@@ -4,7 +4,7 @@ import { ref } from 'vue'
 
 const tab = ref(null)
 const show = ref(false)
-
+const expandedItem = ref<{ id: string, expanded: boolean } | null>(null)
 const items = ref([
   {
     id: '1',
@@ -13,7 +13,9 @@ const items = ref([
     description: 'testtext',
     progress: 33,
     manager_name: 'Frank Doe',
-    completed: true
+    completed: true,
+    expanded: false,
+    tasks: ['Sieben Aufgabe', 'Acht Aufgabe', 'Neun Aufgabe', 'Zehn Aufgabe']
   },
   {
     id: '2',
@@ -22,7 +24,9 @@ const items = ref([
     description: 'testtext',
     progress: 33,
     manager_name: 'Jan Doe',
-    completed: false
+    completed: false,
+    expanded: false,
+    tasks: ['Erste Aufgabe', 'Zweite Aufgabe', 'Dritte Aufgabe', 'Vierte Aufgabe']
   },
   {
     id: '3',
@@ -31,7 +35,9 @@ const items = ref([
     description: 'testtext',
     progress: 100,
     manager_name: 'Tom Doe',
-    completed: false
+    completed: false,
+    expanded: false,
+    tasks: ['hl Aufgabe', 'asfd Aufgabe', 'asd Aufgabe', 'asdas Aufgabe']
   },
   {
     id: '4',
@@ -40,9 +46,27 @@ const items = ref([
     description: 'testtext',
     progress: 50,
     manager_name: 'John Doe',
-    completed: false
+    completed: false,
+    expanded: false,
+    tasks: ['sg Aufgabe', 'gdf Aufgabe', 'dfggfd Aufgabe', 'dfgdfg Aufgabe']
   }
 ])
+
+function toggleExpansion(item:any) {
+    if (expandedItem.value === item) {
+      item.expanded = !item.expanded;
+    } else {
+      if (expandedItem.value !== null) {
+        expandedItem.value.expanded = false;
+      }
+      item.expanded = true;
+      expandedItem.value = item;
+    }
+}
+
+function getExpandIcon(item:any) {
+    return item.expanded ? "mdi-chevron-up" : "mdi-chevron-down";
+  }
 </script>
 
 <template>
@@ -85,24 +109,22 @@ const items = ref([
                             <v-col>
                               <v-btn
                                 variant="outlined"
-                                :append-icon="show ? 'mdi-chevron-up' : 'mdi-chevron-down'"
-                                @click="show = !show"
+                                :append-icon="getExpandIcon(item)"
+                                @click="toggleExpansion(item)"
                                 >View Tasks</v-btn
                               >
                             </v-col>
+                            <v-spacer></v-spacer>
                             <v-col>
-                              <v-btn variant="outlined" v-if="item.progress < 100"
-                                >Continue Working</v-btn
-                              >
+                              <v-btn variant="outlined" v-if="item.progress < 100">Continue</v-btn>
                             </v-col>
                           </v-row>
                         </v-card-actions>
                         <v-expand-transition>
-                          <div v-show="show">
+                          <div v-show="item.expanded">
                             <v-divider></v-divider>
                             <v-card-text>
-                              1. Aufgabe eins <br />
-                              2. Aufgabe zwei
+                              {{ item.tasks }}
                             </v-card-text>
                           </div>
                         </v-expand-transition>
