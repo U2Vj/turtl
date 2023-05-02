@@ -176,7 +176,7 @@ function getExpandIcon(item:any) {
                           <div v-show="item.expanded">
                             <v-divider></v-divider>
                             <v-card-text>
-                              <v-list-item v-for="task in item.taskList">{{task.task}}
+                              <v-list-item v-for="(task, index) in item.taskList">{{index+1}}. {{task.task}}
                               <v-icon v-if="task.done===true" icon="mdi-check-circle-outline" color="success"></v-icon>
                               </v-list-item>
                             </v-card-text>
