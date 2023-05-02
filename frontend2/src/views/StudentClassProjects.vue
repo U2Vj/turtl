@@ -3,7 +3,7 @@ import TurtlHeader from '@/components/TurtlHeader.vue'
 import { ref } from 'vue'
 
 const tab = ref(null)
-const expandedItem = ref<{ id: string, expanded: boolean } | null>(null)
+const expandedItem = ref<{ id: string; expanded: boolean } | null>(null)
 
 const items = ref([
   {
@@ -27,7 +27,7 @@ const items = ref([
       {
         task: 'Neun Aufgabe',
         done: false
-      },
+      }
     ]
   },
   {
@@ -51,7 +51,7 @@ const items = ref([
       {
         task: 'Drei Aufgabe',
         done: false
-      },
+      }
     ]
   },
   {
@@ -75,7 +75,7 @@ const items = ref([
       {
         task: 'Sechs Aufgabe',
         done: false
-      },
+      }
     ]
   },
   {
@@ -99,25 +99,25 @@ const items = ref([
       {
         task: 'Dreizehn Aufgabe',
         done: true
-      },
+      }
     ]
   }
 ])
 
-function toggleExpansion(item:any) {
-    if (expandedItem.value === item) {
-      item.expanded = !item.expanded;
-    } else {
-      if (expandedItem.value !== null) {
-        expandedItem.value.expanded = false;
-      }
-      item.expanded = true;
-      expandedItem.value = item;
+function toggleExpansion(item: any) {
+  if (expandedItem.value === item) {
+    item.expanded = !item.expanded
+  } else {
+    if (expandedItem.value !== null) {
+      expandedItem.value.expanded = false
     }
+    item.expanded = true
+    expandedItem.value = item
+  }
 }
 
-function getExpandIcon(item:any) {
-    return item.expanded ? "mdi-chevron-up" : "mdi-chevron-down";
+function getExpandIcon(item: any) {
+  return item.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'
 }
 </script>
 
@@ -128,14 +128,14 @@ function getExpandIcon(item:any) {
       <v-row>
         <v-col>
           <h1>classroom name</h1>
-          <v-card elevation="0">
             <v-tabs v-model="tab" color="primary" align-tabs="start">
               <v-tab value="1">Projects</v-tab>
               <v-tab value="2">Information</v-tab>
             </v-tabs>
-            <v-card-text>
               <v-window v-model="tab">
                 <v-window-item value="1">
+                  <v-card elevation="0">
+                    <v-card-text>
                   <v-row>
                     <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="3">
                       <v-card :key="item.id" :title="item.room">
@@ -176,8 +176,13 @@ function getExpandIcon(item:any) {
                           <div v-show="item.expanded">
                             <v-divider></v-divider>
                             <v-card-text>
-                              <v-list-item v-for="(task, index) in item.taskList">{{index+1}}. {{task.task}}
-                              <v-icon v-if="task.done===true" icon="mdi-check-circle-outline" color="success"></v-icon>
+                              <v-list-item v-for="(task, index) in item.taskList"
+                                >{{ index + 1 }}. {{ task.task }}
+                                <v-icon
+                                  v-if="task.done === true"
+                                  icon="mdi-check-circle-outline"
+                                  color="success"
+                                ></v-icon>
                               </v-list-item>
                             </v-card-text>
                           </div>
@@ -185,16 +190,78 @@ function getExpandIcon(item:any) {
                       </v-card>
                     </v-col>
                   </v-row>
-                  <p>SPACER</p>
+                  </v-card-text>
+                  </v-card>
                 </v-window-item>
-
 
                 <v-window-item value="2">
-
+                  <v-card elevation="0">
+                    <v-card-text>
+                  <v-row>
+                    <v-col>
+                      <v-row>
+                        <v-col>
+                      <v-card>
+                        <v-card-title>Information</v-card-title>
+                        <v-card-text>
+                          Contact Indormation: <br>
+                          Manager: <br>
+                          Instructors: <br>
+                        </v-card-text>
+                      </v-card>
+                      </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col>
+                        <v-card>
+                        <v-card-title>Helpful Ressources:</v-card-title>
+                        <v-card-text>
+                          1. Moodle <br>
+                          2. Intro <br>
+                          3. Doku <br>
+                          4. Doku
+                        </v-card-text>
+                      </v-card>
+                      </v-col>
+                      </v-row>
+                    </v-col>
+                    <v-col>
+                    <v-col>
+                      <v-row>
+                        <v-col>
+                      <v-card>
+                        <v-card-title>My Progress:</v-card-title>
+                        <v-card-text>
+                          Tasks Done: <br>
+                          Projects Done:
+                        </v-card-text>
+                      </v-card>
+                      </v-col>
+                      </v-row>
+                    </v-col>
+                    <v-col>
+                      <v-row>
+                        <v-col>
+                       <v-card >
+                        <v-card-title>My Team</v-card-title>
+                        <v-card-text>
+                          <h3>Attacker</h3>
+                          Max (max.email) <br>
+                          Jan (jan.email)<br>
+                          <h3>Defender</h3>
+                          Hans (hans.email) <br>
+                          Sepp (sepp.email)
+                        </v-card-text>
+                      </v-card>
+                      </v-col>
+                      </v-row>
+                    </v-col>
+                    </v-col>
+                  </v-row>
+                  </v-card-text>
+                  </v-card>
                 </v-window-item>
               </v-window>
-            </v-card-text>
-          </v-card>
         </v-col>
       </v-row>
     </v-container>
