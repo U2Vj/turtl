@@ -187,7 +187,11 @@ function getExpandIcon(item:any) {
                   </v-row>
                   <p>SPACER</p>
                 </v-window-item>
-                <v-window-item value="2"> Information </v-window-item>
+
+
+                <v-window-item value="2">
+
+                </v-window-item>
               </v-window>
             </v-card-text>
           </v-card>

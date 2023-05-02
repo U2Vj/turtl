@@ -39,7 +39,7 @@ function toggleEdit() {
   <v-main>
     <v-container fluid>
       <v-row>
-        <v-col cols="12" sm="8" md="5">
+        <v-col justify="space-between">
           <v-row>
             <v-col cols="auto">
               <h1>{{ taskName }}</h1>
@@ -130,7 +130,7 @@ function toggleEdit() {
             </v-col>
           </v-row>
         </v-col>
-        <v-col cols="12" sm="7" md="4" offset="2">
+        <v-col sm="8" md="4" offset="1" justify="space-between">
           <v-col>
             <v-card variant="outlined">
               <v-card-item>
@@ -176,7 +176,7 @@ function toggleEdit() {
                 <v-card-title><h3>Deletion</h3></v-card-title>
               </v-card-item>
               <v-card-actions>
-                <v-btn variant="outlined">Permanently Delete Task Template</v-btn>
+                  <v-btn text variant="outlined">Permanently Delete<br />Task Template</v-btn>
               </v-card-actions></v-card
             >
           </v-col>
