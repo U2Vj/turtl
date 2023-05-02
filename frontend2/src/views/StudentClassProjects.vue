@@ -3,8 +3,8 @@ import TurtlHeader from '@/components/TurtlHeader.vue'
 import { ref } from 'vue'
 
 const tab = ref(null)
-const show = ref(false)
 const expandedItem = ref<{ id: string, expanded: boolean } | null>(null)
+
 const items = ref([
   {
     id: '1',
@@ -15,7 +15,20 @@ const items = ref([
     manager_name: 'Frank Doe',
     completed: true,
     expanded: false,
-    tasks: ['Sieben Aufgabe', 'Acht Aufgabe', 'Neun Aufgabe', 'Zehn Aufgabe']
+    taskList: [
+      {
+        task: 'Sieben Aufgabe',
+        done: false
+      },
+      {
+        task: 'Acht Aufgabe',
+        done: true
+      },
+      {
+        task: 'Neun Aufgabe',
+        done: false
+      },
+    ]
   },
   {
     id: '2',
@@ -26,7 +39,20 @@ const items = ref([
     manager_name: 'Jan Doe',
     completed: false,
     expanded: false,
-    tasks: ['Erste Aufgabe', 'Zweite Aufgabe', 'Dritte Aufgabe', 'Vierte Aufgabe']
+    taskList: [
+      {
+        task: 'Eins Aufgabe',
+        done: false
+      },
+      {
+        task: 'Zwei Aufgabe',
+        done: true
+      },
+      {
+        task: 'Drei Aufgabe',
+        done: false
+      },
+    ]
   },
   {
     id: '3',
@@ -37,7 +63,20 @@ const items = ref([
     manager_name: 'Tom Doe',
     completed: false,
     expanded: false,
-    tasks: ['hl Aufgabe', 'asfd Aufgabe', 'asd Aufgabe', 'asdas Aufgabe']
+    taskList: [
+      {
+        task: 'Vier Aufgabe',
+        done: true
+      },
+      {
+        task: 'Fünf Aufgabe',
+        done: false
+      },
+      {
+        task: 'Sechs Aufgabe',
+        done: false
+      },
+    ]
   },
   {
     id: '4',
@@ -48,7 +87,20 @@ const items = ref([
     manager_name: 'John Doe',
     completed: false,
     expanded: false,
-    tasks: ['sg Aufgabe', 'gdf Aufgabe', 'dfggfd Aufgabe', 'dfgdfg Aufgabe']
+    taskList: [
+      {
+        task: 'Elf Aufgabe',
+        done: false
+      },
+      {
+        task: 'Zwölf Aufgabe',
+        done: true
+      },
+      {
+        task: 'Dreizehn Aufgabe',
+        done: true
+      },
+    ]
   }
 ])
 
@@ -66,7 +118,7 @@ function toggleExpansion(item:any) {
 
 function getExpandIcon(item:any) {
     return item.expanded ? "mdi-chevron-up" : "mdi-chevron-down";
-  }
+}
 </script>
 
 <template>
@@ -124,7 +176,9 @@ function getExpandIcon(item:any) {
                           <div v-show="item.expanded">
                             <v-divider></v-divider>
                             <v-card-text>
-                              {{ item.tasks }}
+                              <v-list-item v-for="task in item.taskList">{{task.task}}
+                              <v-icon v-if="task.done===true" icon="mdi-check-circle-outline" color="success"></v-icon>
+                              </v-list-item>
                             </v-card-text>
                           </div>
                         </v-expand-transition>
