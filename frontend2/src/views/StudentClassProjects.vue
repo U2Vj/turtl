@@ -5,6 +5,55 @@ import { ref } from 'vue'
 const tab = ref(null)
 const expandedItem = ref<{ id: string; expanded: boolean } | null>(null)
 
+const information= ref([
+      {
+        contactInfo: 'example.com',
+        manager: [
+          {
+            managerName: 'John Doe',
+            managerMail: 'example.com'
+          }
+        ],
+        instructors: [
+          {
+            instructorName: 'Jane Doe',
+            instructorMail: 'example.com'
+          },
+          {
+            instructorName: 'Jane Doe',
+            instructorMail: 'example.com'
+          }
+    ]
+      }
+])
+
+const helpfulResources = ref(
+  [
+    {
+      resource: ['Moodle', 'Intro', 'Doku']
+    }
+  ]
+)
+
+const team = ref(
+  [
+    {
+      attacker: [
+        {
+          attackerName: 'max',
+          attackerEmail: 'exmplample.com'
+        }
+      ],
+      defender: [
+        {
+          defenderName: 'max',
+          defenderEmail: 'exmplample.com'
+        }
+      ]
+    }
+  ]
+)
+
 const items = ref([
   {
     id: '1',
