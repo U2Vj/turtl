@@ -235,8 +235,8 @@ function getExpandIcon(item: any) {
         <v-window-item value="2">
           <v-card elevation="0">
             <v-card-text>
-              <v-row>
-                <v-col>
+              <v-row justify="space-around">
+                <v-col cols="12" sm="8" md="5">
                   <div>
                     <v-card variant="outlined">
                       <v-card-title>Information</v-card-title>
@@ -270,7 +270,7 @@ function getExpandIcon(item: any) {
                     </v-card>
                   </div>
                 </v-col>
-                <v-col>
+                <v-col cols="12" sm="8" md="5">
                   <div>
                     <v-card variant="outlined">
                       <v-card-title>My Progress:</v-card-title>
