@@ -248,7 +248,7 @@ function getExpandIcon(item: any) {
                             </v-card-text>
                           </v-card>
                         </div>
-                        <div>
+                        <div class="mt-5">
                           <v-card variant="outlined">
                             <v-card-title>Helpful Ressources:</v-card-title>
                             <v-card-text>
@@ -270,7 +270,7 @@ function getExpandIcon(item: any) {
                               </v-card-text>
                             </v-card>
                           </div>
-                          <div>
+                          <div class="mt-5">
                             <v-card variant="outlined">
                               <v-card-title>My Team</v-card-title>
                               <v-card-text>
