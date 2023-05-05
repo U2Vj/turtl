@@ -4,53 +4,52 @@ import { ref } from 'vue'
 
 const tab = ref(null)
 const expandedItem = ref<{ id: string; expanded: boolean } | null>(null)
-
-const information = ref([
+const selectedClassroom = 0
+const classroom = ref(
   {
-    contactInfo: 'example.com',
-    manager: [
+    name: 'Networks',
+    information:
       {
-        managerName: 'John Doe',
-        managerMail: 'example.com'
-      }
-    ],
-    instructors: [
-      {
-        instructorName: 'Jane Doe',
-        instructorMail: 'example.com'
+        contactInfo: 'one.example@example.com',
+        manager:
+          {
+            managerName: 'John Doe',
+            managerMail: 'john.doe@example.com'
+          },
+        instructors: [
+          {
+            instructorName: 'Tom Night',
+            instructorMail: 'tom.night@example.com'
+          },
+          {
+            instructorName: 'Sepp Peter',
+            instructorMail: 'sepp.peter@example.com'
+          }
+        ]
       },
+    helpfulResources:
       {
-        instructorName: 'Jane Doe',
-        instructorMail: 'example.com'
-      }
-    ]
-  }
-])
-
-const helpfulResources = ref([
-  {
-    resource: ['Moodle', 'Intro', 'Doku']
-  }
-])
-
-const team = ref([
-  {
-    attacker: [
+        resource: ['Moodle', 'Intro', 'Doku']
+      },
+    team:
       {
-        attackerName: 'max',
-        attackerEmail: 'exmplample.com'
+        attacker: [
+          {
+            attackerName: 'max',
+            attackerEmail: 'exmplample.com'
+          }
+        ],
+        defender: [
+          {
+            defenderName: 'max',
+            defenderEmail: 'exmplample.com'
+          }
+        ]
       }
-    ],
-    defender: [
-      {
-        defenderName: 'max',
-        defenderEmail: 'exmplample.com'
-      }
-    ]
   }
-])
+)
 
-const items = ref([
+const projects = ref([
   {
     id: '1',
     room: 'Brute-Force',
@@ -170,125 +169,136 @@ function getExpandIcon(item: any) {
   <turtl-header></turtl-header>
   <v-main>
     <v-container fluid>
-          <h1>classroom name</h1>
-          <v-tabs v-model="tab" color="primary" align-tabs="start">
-            <v-tab value="1">Projects</v-tab>
-            <v-tab value="2">Information</v-tab>
-          </v-tabs>
-          <v-window v-model="tab">
-            <v-window-item value="1">
-              <v-card elevation="0">
-                <v-card-text>
-                  <div v-for="item in items" :key="item.id" cols="12" sm="6" md="3">
-                    <v-card :key="item.id" :title="item.room" variant="outlined">
-                      <v-card-text v-if="item.progress < 100">
-                        <v-progress-linear
-                          id="probar"
-                          :color="item.progress === 100 ? 'success' : 'grey'"
-                          :height="20"
-                          :model-value="item.progress"
-                          rounded
-                        >
-                          <template v-slot:default>
-                            <strong>{{ Math.ceil(item.progress) }}%</strong>
-                          </template>
-                        </v-progress-linear>
+      <h1>classroom name</h1>
+      <v-tabs v-model="tab" color="primary" align-tabs="start">
+        <v-tab value="1">Projects</v-tab>
+        <v-tab value="2">Information</v-tab>
+      </v-tabs>
+      <v-window v-model="tab">
+        <v-window-item value="1">
+          <v-card elevation="0">
+            <v-card-text>
+              <div v-for="item in projects" :key="item.id" cols="12" sm="6" md="3">
+                <v-card :key="item.id" :title="item.room" variant="outlined">
+                  <v-card-text v-if="item.progress < 100">
+                    <v-progress-linear
+                      id="probar"
+                      :color="item.progress === 100 ? 'success' : 'grey'"
+                      :height="20"
+                      :model-value="item.progress"
+                      rounded
+                    >
+                      <template v-slot:default>
+                        <strong>{{ Math.ceil(item.progress) }}%</strong>
+                      </template>
+                    </v-progress-linear>
+                  </v-card-text>
+                  <v-card-text class="text-success" v-else>
+                    <v-icon icon="mdi-check-circle-outline" color="success"></v-icon>
+                    Project Complete
+                  </v-card-text>
+                  <v-card-actions>
+                    <div>
+                      <v-btn
+                        variant="outlined"
+                        :append-icon="getExpandIcon(item)"
+                        @click="toggleExpansion(item)"
+                        >View Tasks</v-btn
+                      >
+                    </div>
+                    <v-spacer></v-spacer>
+                    <div>
+                      <v-btn variant="outlined" v-if="item.progress < 100">Continue</v-btn>
+                    </div>
+                  </v-card-actions>
+                  <v-expand-transition>
+                    <div v-show="item.expanded">
+                      <v-divider></v-divider>
+                      <v-card-text>
+                        <v-list-item v-for="(task, index) in item.taskList"
+                          >{{ index + 1 }}. {{ task.task }}
+                          <v-icon
+                            v-if="task.done === true"
+                            icon="mdi-check-circle-outline"
+                            color="success"
+                          ></v-icon>
+                        </v-list-item>
                       </v-card-text>
-                      <v-card-text class="text-success" v-else>
-                        <v-icon icon="mdi-check-circle-outline" color="success"></v-icon>
-                        Project Complete
+                    </div>
+                  </v-expand-transition>
+                </v-card>
+              </div>
+            </v-card-text>
+          </v-card>
+        </v-window-item>
+
+        <v-window-item value="2">
+          <v-card elevation="0">
+            <v-card-text>
+              <v-row>
+                <v-col>
+                  <div>
+                    <v-card variant="outlined">
+                      <v-card-title>Information</v-card-title>
+                      <v-card-text>
+                        <div class="d-flex">
+                          <div>
+                            <div>Contact Information:</div>
+                            <div class="mt-5">Manager:</div>
+                            <br>
+                            <div class="mt-5">Instructors:</div>
+                          </div>
+                          <div class="ml-auto">
+                            <div>{{ classroom.information.contactInfo }}</div>
+                            <div class="mt-5">{{ classroom.information.manager.managerName }} <br> {{ classroom.information.manager.managerMail }}</div>
+                            <div class="mt-5"></div>
+                            <div v-for="instructors in classroom.information.instructors">{{ instructors.instructorName }} <br> {{ instructors.instructorMail }}</div>
+                          </div>
+                        </div>
                       </v-card-text>
-                      <v-card-actions>
-                        <div>
-                          <v-btn
-                            variant="outlined"
-                            :append-icon="getExpandIcon(item)"
-                            @click="toggleExpansion(item)"
-                            >View Tasks</v-btn
-                          >
-                        </div>
-                        <v-spacer></v-spacer>
-                        <div>
-                          <v-btn variant="outlined" v-if="item.progress < 100">Continue</v-btn>
-                        </div>
-                      </v-card-actions>
-                      <v-expand-transition>
-                        <div v-show="item.expanded">
-                          <v-divider></v-divider>
-                          <v-card-text>
-                            <v-list-item v-for="(task, index) in item.taskList"
-                              >{{ index + 1 }}. {{ task.task }}
-                              <v-icon
-                                v-if="task.done === true"
-                                icon="mdi-check-circle-outline"
-                                color="success"
-                              ></v-icon>
-                            </v-list-item>
-                          </v-card-text>
-                        </div>
-                      </v-expand-transition>
                     </v-card>
                   </div>
-                </v-card-text>
-              </v-card>
-            </v-window-item>
-
-            <v-window-item value="2">
-              <v-card elevation="0">
-                <v-card-text>
-                  <v-row>
-                    <v-col>
-                        <div>
-                          <v-card variant="outlined">
-                            <v-card-title>Information</v-card-title>
-                            <v-card-text>
-                              Contact Indormation: <br />
-                              Manager: <br />
-                              Instructors: <br />
-                            </v-card-text>
-                          </v-card>
-                        </div>
-                        <div class="mt-5">
-                          <v-card variant="outlined">
-                            <v-card-title>Helpful Ressources:</v-card-title>
-                            <v-card-text>
-                              1. Moodle <br />
-                              2. Intro <br />
-                              3. Doku <br />
-                              4. Doku
-                            </v-card-text>
-                          </v-card>
-                        </div>
-                    </v-col>
-                    <v-col>
-                          <div>
-                            <v-card variant="outlined">
-                              <v-card-title>My Progress:</v-card-title>
-                              <v-card-text>
-                                Tasks Done: <br />
-                                Projects Done:
-                              </v-card-text>
-                            </v-card>
-                          </div>
-                          <div class="mt-5">
-                            <v-card variant="outlined">
-                              <v-card-title>My Team</v-card-title>
-                              <v-card-text>
-                                <h3>Attacker</h3>
-                                Max (max.email) <br />
-                                Jan (jan.email)<br />
-                                <h3>Defender</h3>
-                                Hans (hans.email) <br />
-                                Sepp (sepp.email)
-                              </v-card-text>
-                            </v-card>
-                          </div>
-                    </v-col>
-                  </v-row>
-                </v-card-text>
-              </v-card>
-            </v-window-item>
-          </v-window>
+                  <div class="mt-5">
+                    <v-card variant="outlined">
+                      <v-card-title>Helpful Ressources:</v-card-title>
+                      <v-card-text>
+                        1. Moodle <br />
+                        2. Intro <br />
+                        3. Doku <br />
+                        4. Doku
+                      </v-card-text>
+                    </v-card>
+                  </div>
+                </v-col>
+                <v-col>
+                  <div>
+                    <v-card variant="outlined">
+                      <v-card-title>My Progress:</v-card-title>
+                      <v-card-text>
+                        Tasks Done: <br />
+                        Projects Done:
+                      </v-card-text>
+                    </v-card>
+                  </div>
+                  <div class="mt-5">
+                    <v-card variant="outlined">
+                      <v-card-title>My Team</v-card-title>
+                      <v-card-text>
+                        <h3>Attacker</h3>
+                        Max (max.email) <br />
+                        Jan (jan.email)<br />
+                        <h3>Defender</h3>
+                        Hans (hans.email) <br />
+                        Sepp (sepp.email)
+                      </v-card-text>
+                    </v-card>
+                  </div>
+                </v-col>
+              </v-row>
+            </v-card-text>
+          </v-card>
+        </v-window-item>
+      </v-window>
     </v-container>
   </v-main>
 </template>
