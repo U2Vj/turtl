@@ -33,12 +33,12 @@ const values = [
 ]
 
 // TODO: find way to import DataTableItem from vuetify
-function handleRowClick(event: Event, item: { item: { raw } }) {
+function handleRowClick(event: Event, item: { item: { raw: any } }) {
   // Allow text selection.
   // See https://stackoverflow.com/questions/31982407/prevent-onclick-event-when-selecting-text
   const selection = window.getSelection()
   if (selection?.toString().length === 0) {
-    router.push(`templates/${item.item.raw.id}`)
+    router.push(`classroomtemplates/${item.item.raw.id}`)
   }
 }
 </script>

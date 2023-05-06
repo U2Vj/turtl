@@ -16,9 +16,11 @@
   "dependencies": {
     "@mdi/font": "^7.1.96",
     "@vee-validate/yup": "^4.8.4",
-    "@vueuse/core": "^9.13.0",
+    "@vueuse/core": "^10.1.0",
+    "@vueuse/integrations": "^10.1.0",
     "axios": "^1.3.4",
     "pinia": "^2.0.32",
+    "sortablejs": "^1.15.0",
     "vee-validate": "^4.8.4",
     "vite-plugin-vuetify": "^1.0.2",
     "vue": "^3.2.47",

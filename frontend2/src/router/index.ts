@@ -14,6 +14,7 @@ import StudentAllClassrooms from '@/views/StudentAllClassrooms.vue'
 import EditTaskTemplate from '@/views/EditTaskTemplate.vue'
 import test from '@/views/test.vue'
 import StudentClassrooms from '@/views/StudentClassrooms.vue'
+import ModifyTemplate from '@/views/ModifyTemplate.vue'
 import StudentClassProjects from '@/views/StudentClassProjects.vue'
 
 const router = createRouter({
@@ -50,9 +51,14 @@ const router = createRouter({
       component: Profile
     },
     {
-      path: '/classroomtemplates',
+      path: '/templates',
       name: 'ClassroomTemplates',
       component: ClassroomTemplates
+    },
+    {
+      path: '/templates/:id',
+      name: 'template',
+      component: ModifyTemplate
     },
     {
       path: '/createclassroominstance',
