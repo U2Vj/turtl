@@ -46,7 +46,7 @@ const classroom = ref({
 
 const projects = ref([
   {
-    id: '1',
+    id: 1,
     room: 'Brute-Force',
     role: 'Attack',
     description: 'testtext',
@@ -70,7 +70,7 @@ const projects = ref([
     ]
   },
   {
-    id: '2',
+    id: 2,
     room: 'Man in the middle',
     role: 'Defense',
     description: 'testtext',
@@ -80,7 +80,7 @@ const projects = ref([
     taskList: [
       {
         task: 'Eins Aufgabe',
-        done: false
+        done: true
       },
       {
         task: 'Zwei Aufgabe',
@@ -88,12 +88,16 @@ const projects = ref([
       },
       {
         task: 'Drei Aufgabe',
+        done: true
+      },
+      {
+        task: 'Viertel Aufgabe',
         done: false
       }
     ]
   },
   {
-    id: '3',
+    id: 3,
     room: 'Computer Networks',
     role: 'Attack',
     description: 'testtext',
@@ -111,12 +115,20 @@ const projects = ref([
       },
       {
         task: 'Sechs Aufgabe',
+        done: true
+      },
+      {
+        task: 'Drei Aufgabe',
+        done: true
+      },
+      {
+        task: 'Viertel Aufgabe',
         done: false
       }
     ]
   },
   {
-    id: '4',
+    id: 4,
     room: 'Firewall',
     role: 'Defense',
     description: 'testtext',
@@ -126,15 +138,15 @@ const projects = ref([
     taskList: [
       {
         task: 'Elf Aufgabe',
-        done: false
+        done: true
       },
       {
         task: 'Zwölf Aufgabe',
-        done: true
+        done: false
       },
       {
         task: 'Dreizehn Aufgabe',
-        done: true
+        done: false
       }
     ]
   }
@@ -153,7 +165,7 @@ function toggleExpansion(item: any) {
 }
 
 function getTasksDone() {
-  let completedTasks = 0;
+  let completedTasks = 0
 
   for (const project of projects.value) {
     for (const task of project.taskList) {
@@ -161,19 +173,62 @@ function getTasksDone() {
         completedTasks++
       }
     }
-}
+  }
   return completedTasks
 }
 
 function getAllTasks() {
-  let allTasks = 0;
+  let allTasks = 0
 
   for (const project of projects.value) {
     for (const task of project.taskList) {
-        allTasks++
+      allTasks++
     }
-}
+  }
   return allTasks
+}
+
+function getDoneTasksOfProject(id:number):number {
+  let completedTasks
+
+  let project = projects.value.find(p => p.id === id)
+  if (project)
+  {
+    completedTasks = project.taskList.filter(t => t.done).length
+  }
+  else {
+    completedTasks = 0
+  }
+  return completedTasks
+}
+
+function getAllTasksOfProject(id: number):number {
+  let allTasks
+  let project = projects.value.find(p => p.id === id)
+  if (project)
+  {
+    allTasks = project.taskList.length
+  }
+  else {
+    allTasks = 0
+  }
+  return allTasks
+}
+
+function getTaskProgress() {
+  return 100 * (getTasksDone() / getAllTasks())
+}
+
+function getTaskProgressOfProject(id: number):number
+{
+  let progress
+  if (getAllTasksOfProject(id) > 0) {
+    return 100 * (getDoneTasksOfProject(id) / getAllTasksOfProject(id))
+  }
+  else {
+    return 0
+  }
+
 }
 
 function getExpandIcon(item: any) {
@@ -196,16 +251,17 @@ function getExpandIcon(item: any) {
             <v-card-text>
               <div v-for="item in projects" :key="item.id" cols="12" sm="6" md="3">
                 <v-card :key="item.id" :title="item.room" variant="outlined">
-                  <v-card-text v-if="item.progress<100 ">
+                  <v-card-text v-if="getTaskProgressOfProject(item.id) < 100">
+                    <div>{{ getDoneTasksOfProject(item.id) }} / {{ getAllTasksOfProject(item.id) }} Tasks Done</div>
                     <v-progress-linear
                       id="probar"
-                      :color="item.progress === 100 ? 'success' : 'grey'"
+                      :color="getTaskProgressOfProject(item.id) === 100 ? 'success' : 'grey'"
                       :height="20"
-                      :model-value="item.progress"
+                      :model-value="getTaskProgressOfProject(item.id)"
                       rounded
                     >
                       <template v-slot:default>
-                        <strong>{{ Math.ceil(item.progress) }}%</strong>
+                        <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
                       </template>
                     </v-progress-linear>
                   </v-card-text>
@@ -289,8 +345,8 @@ function getExpandIcon(item: any) {
                           :key="index"
                           :href="resource.link"
                         >
-                          {{ index+1 }}. {{ resource.name }}<br>
-                      </a>
+                          {{ index + 1 }}. {{ resource.name }}<br />
+                        </a>
                       </v-card-text>
                     </v-card>
                   </div>
@@ -303,16 +359,16 @@ function getExpandIcon(item: any) {
                         <div>{{ getTasksDone() }}/{{ getAllTasks() }} Tasks Done:</div>
                         <div>
                           <v-progress-linear
-                      id="probar"
-                      :color="getTasksDone() === 100 ? 'success' : 'grey'"
-                      :height="20"
-                      :model-value="getTasksDone()"
-                      rounded
-                    >
-                      <template v-slot:default>
-                        <strong>{{ Math.ceil(getTasksDone()) }}%</strong>
-                      </template>
-                    </v-progress-linear>
+                            id="probar"
+                            :color="getTaskProgress() === 100 ? 'success' : 'grey'"
+                            :height="20"
+                            :model-value="getTaskProgress()"
+                            rounded
+                          >
+                            <template v-slot:default>
+                              <strong>{{ Math.ceil(getTaskProgress()) }}%</strong>
+                            </template>
+                          </v-progress-linear>
                         </div>
                         <div>Projects Done:</div>
                       </v-card-text>
