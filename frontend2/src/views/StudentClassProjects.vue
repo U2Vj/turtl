@@ -5,49 +5,44 @@ import { ref } from 'vue'
 const tab = ref(null)
 const expandedItem = ref<{ id: string; expanded: boolean } | null>(null)
 const selectedClassroom = 0
-const classroom = ref(
-  {
-    name: 'Networks',
-    information:
+const classroom = ref({
+  name: 'Networks',
+  information: {
+    contactInfo: 'one.example@example.com',
+    managers: {
+      managerName: 'John Doe',
+      managerMail: 'john.doe@example.com'
+    },
+    instructors: [
       {
-        contactInfo: 'one.example@example.com',
-        manager:
-          {
-            managerName: 'John Doe',
-            managerMail: 'john.doe@example.com'
-          },
-        instructors: [
-          {
-            instructorName: 'Tom Night',
-            instructorMail: 'tom.night@example.com'
-          },
-          {
-            instructorName: 'Sepp Peter',
-            instructorMail: 'sepp.peter@example.com'
-          }
-        ]
+        instructorName: 'Tom Night',
+        instructorMail: 'tom.night@example.com'
       },
-    helpfulResources:
       {
-        resource: ['Moodle', 'Intro', 'Doku']
-      },
-    team:
-      {
-        attacker: [
-          {
-            attackerName: 'max',
-            attackerEmail: 'exmplample.com'
-          }
-        ],
-        defender: [
-          {
-            defenderName: 'max',
-            defenderEmail: 'exmplample.com'
-          }
-        ]
+        instructorName: 'Sepp Peter',
+        instructorMail: 'sepp.peter@example.com'
       }
+    ]
+  },
+  helpfulResources: [
+    {
+      name: 'Moodle',
+      link: 'https://moodle.hs-duesseldorf.de/my/'
+    },
+    {
+      name: 'Intro',
+      link: 'https://de.wikipedia.org/wiki/Wiki'
+    },
+    {
+      name: 'Doku',
+      link: 'https://vuetifyjs.com/'
+    }
+  ],
+  team: {
+    attackers: ['exmpl@ample.com', 'tom@test.com'],
+    defenders: ['exmpl@ample.com', 'tom@test.com']
   }
-)
+})
 
 const projects = ref([
   {
@@ -245,14 +240,20 @@ function getExpandIcon(item: any) {
                           <div>
                             <div>Contact Information:</div>
                             <div class="mt-5">Manager:</div>
-                            <br>
+                            <br />
                             <div class="mt-5">Instructors:</div>
                           </div>
                           <div class="ml-auto">
                             <div>{{ classroom.information.contactInfo }}</div>
-                            <div class="mt-5">{{ classroom.information.manager.managerName }} <br> {{ classroom.information.manager.managerMail }}</div>
+                            <div class="mt-5">
+                              {{ classroom.information.managers.managerName }} <br />
+                              {{ classroom.information.managers.managerMail }}
+                            </div>
                             <div class="mt-5"></div>
-                            <div v-for="instructors in classroom.information.instructors">{{ instructors.instructorName }} <br> {{ instructors.instructorMail }}</div>
+                            <div v-for="instructors in classroom.information.instructors">
+                              {{ instructors.instructorName }} <br />
+                              {{ instructors.instructorMail }}
+                            </div>
                           </div>
                         </div>
                       </v-card-text>
@@ -262,10 +263,13 @@ function getExpandIcon(item: any) {
                     <v-card variant="outlined">
                       <v-card-title>Helpful Ressources:</v-card-title>
                       <v-card-text>
-                        1. Moodle <br />
-                        2. Intro <br />
-                        3. Doku <br />
-                        4. Doku
+                        <a
+                          v-for="(resource, index) in classroom.helpfulResources"
+                          :key="index"
+                          :href="resource.link"
+                        >
+                          {{ index+1 }}. {{ resource.name }}<br>
+                      </a>
                       </v-card-text>
                     </v-card>
                   </div>
@@ -284,12 +288,14 @@ function getExpandIcon(item: any) {
                     <v-card variant="outlined">
                       <v-card-title>My Team</v-card-title>
                       <v-card-text>
-                        <h3>Attacker</h3>
-                        Max (max.email) <br />
-                        Jan (jan.email)<br />
-                        <h3>Defender</h3>
-                        Hans (hans.email) <br />
-                        Sepp (sepp.email)
+                        <div><h3>Attacker</h3></div>
+                        <div v-for="attacker in classroom.team.attackers">
+                          {{ attacker }}
+                        </div>
+                        <div class="mt-5"><h3>Defender</h3></div>
+                        <div v-for="defnder in classroom.team.defenders">
+                          {{ defnder }}
+                        </div>
                       </v-card-text>
                     </v-card>
                   </div>
