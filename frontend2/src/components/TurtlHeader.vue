@@ -19,6 +19,7 @@ const userStore = useUserStore()
         <v-btn to="/studentclassprojects">ClassProjects S</v-btn>
         <v-btn to="/edittasktemplate">EditTaskTemplate M</v-btn>
         <v-btn to="/classroomtemplates">ClassTemplates M</v-btn>
+        <v-btn to="/classrooms/:id">Task S</v-btn>
       </div>
       <template v-slot:prepend>
         <router-link to="/">

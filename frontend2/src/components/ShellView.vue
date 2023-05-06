@@ -10,9 +10,7 @@ const socket = ref<WebSocket>()
 
 onMounted(() => {
   term.value = new Terminal({
-    cursorBlink: true,
-    cols: 60,
-    rows: 20
+    cursorBlink: true
   })
 
   socket.value = new WebSocket(import.meta.env.VITE_WS_URL)
