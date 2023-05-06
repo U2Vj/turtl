@@ -4,7 +4,6 @@ import { ref } from 'vue'
 
 const tab = ref(null)
 const expandedItem = ref<{ id: string; expanded: boolean } | null>(null)
-const selectedClassroom = 0
 const classroom = ref({
   name: 'Networks',
   information: {
@@ -54,14 +53,17 @@ const projects = ref([
     expanded: false,
     taskList: [
       {
+        id: 1,
         task: 'Sieben Aufgabe',
         done: true
       },
       {
+        id: 2,
         task: 'Acht Aufgabe',
         done: true
       },
       {
+        id: 3,
         task: 'Neun Aufgabe',
         done: true
       }
@@ -76,18 +78,22 @@ const projects = ref([
     expanded: false,
     taskList: [
       {
+        id: 1,
         task: 'Eins Aufgabe',
         done: true
       },
       {
+        id: 2,
         task: 'Zwei Aufgabe',
         done: true
       },
       {
+        id: 3,
         task: 'Drei Aufgabe',
         done: true
       },
       {
+        id: 4,
         task: 'Viertel Aufgabe',
         done: false
       }
@@ -102,22 +108,27 @@ const projects = ref([
     expanded: false,
     taskList: [
       {
+        id: 1,
         task: 'Vier Aufgabe',
         done: true
       },
       {
+        id: 2,
         task: 'Fünf Aufgabe',
         done: true
       },
       {
+        id: 3,
         task: 'Sechs Aufgabe',
         done: false
       },
       {
+        id: 4,
         task: 'Drei Aufgabe',
         done: true
       },
       {
+        id: 5,
         task: 'Viertel Aufgabe',
         done: true
       }
@@ -132,14 +143,17 @@ const projects = ref([
     expanded: false,
     taskList: [
       {
+        id: 1,
         task: 'Elf Aufgabe',
         done: true
       },
       {
+        id: 2,
         task: 'Zwölf Aufgabe',
         done: false
       },
       {
+        id: 3,
         task: 'Dreizehn Aufgabe',
         done: false
       }
@@ -183,28 +197,24 @@ function getAllTasks() {
   return allTasks
 }
 
-function getDoneTasksOfProject(id:number):number {
+function getDoneTasksOfProject(id: number): number {
   let completedTasks
 
-  let project = projects.value.find(p => p.id === id)
-  if (project)
-  {
-    completedTasks = project.taskList.filter(t => t.done).length
-  }
-  else {
+  let project = projects.value.find((p) => p.id === id)
+  if (project) {
+    completedTasks = project.taskList.filter((t) => t.done).length
+  } else {
     completedTasks = 0
   }
   return completedTasks
 }
 
-function getAllTasksOfProject(id: number):number {
+function getAllTasksOfProject(id: number): number {
   let allTasks
-  let project = projects.value.find(p => p.id === id)
-  if (project)
-  {
+  let project = projects.value.find((p) => p.id === id)
+  if (project) {
     allTasks = project.taskList.length
-  }
-  else {
+  } else {
     allTasks = 0
   }
   return allTasks
@@ -214,34 +224,30 @@ function getTaskProgress() {
   return 100 * (getTasksDone() / getAllTasks())
 }
 
-function getTaskProgressOfProject(id: number):number
-{
+function getTaskProgressOfProject(id: number): number {
   if (getAllTasksOfProject(id) > 0) {
-     return 100 * (getDoneTasksOfProject(id) / getAllTasksOfProject(id))
-  }
-  else {
-     return 0
+    return 100 * (getDoneTasksOfProject(id) / getAllTasksOfProject(id))
+  } else {
+    return 0
   }
 }
 
 function getNumberOfDoneProjects() {
-      let count = 0
-      for (const project of projects.value) {
-        let allTasksDone = true
-        for (const task of project.taskList) {
-          if (!task.done) {
-            allTasksDone = false
-            break
-          }
-        }
-        if (allTasksDone) {
-          count++
-        }
+  let count = 0
+  for (const project of projects.value) {
+    let allTasksDone = true
+    for (const task of project.taskList) {
+      if (!task.done) {
+        allTasksDone = false
+        break
       }
-      return count
+    }
+    if (allTasksDone) {
+      count++
+    }
+  }
+  return count
 }
-
-
 
 function getExpandIcon(item: any) {
   return item.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'
@@ -262,57 +268,62 @@ function getExpandIcon(item: any) {
           <v-card elevation="0">
             <v-card-text>
               <v-row>
-              <v-col v-for="item in projects" :key="item.id" cols="12" sm="8" md="5">
-                <v-card :key="item.id" :title="item.room" variant="outlined">
-                  <v-card-text v-if="getTaskProgressOfProject(item.id) < 100">
-                    <div>{{ getDoneTasksOfProject(item.id) }} / {{ getAllTasksOfProject(item.id) }} Tasks Done</div>
-                    <v-progress-linear
-                      :color="getTaskProgressOfProject(item.id) === 100 ? 'success' : 'grey'"
-                      :height="20"
-                      :model-value="getTaskProgressOfProject(item.id)"
-                      rounded
-                    >
-                      <template v-slot:default>
-                        <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
-                      </template>
-                    </v-progress-linear>
-                  </v-card-text>
-                  <v-card-text v-else class="text-success">
-                    <v-icon icon="mdi-check-circle-outline" color="success"></v-icon>
-                    Project Complete
-                  </v-card-text>
-                  <v-card-actions>
-                    <div>
-                      <v-btn
-                        variant="outlined"
-                        :append-icon="getExpandIcon(item)"
-                        @click="toggleExpansion(item)"
-                        >View Tasks</v-btn
+                <v-col v-for="item in projects" :key="item.id" cols="12" sm="8" md="5">
+                  <v-card :key="item.id" :title="item.room" variant="outlined">
+                    <v-card-text v-if="getTaskProgressOfProject(item.id) < 100">
+                      <div>
+                        {{ getDoneTasksOfProject(item.id) }} /
+                        {{ getAllTasksOfProject(item.id) }} Tasks Done
+                      </div>
+                      <v-progress-linear
+                        :color="getTaskProgressOfProject(item.id) === 100 ? 'success' : 'grey'"
+                        :height="20"
+                        :model-value="getTaskProgressOfProject(item.id)"
+                        rounded
                       >
-                    </div>
-                    <v-spacer></v-spacer>
-                    <div>
-                      <v-btn variant="outlined" v-if="getTaskProgressOfProject(item.id) < 100">Continue</v-btn>
-                    </div>
-                  </v-card-actions>
-                  <v-expand-transition>
-                    <div v-show="item.expanded">
-                      <v-divider></v-divider>
-                      <v-card-text>
-                        <v-list-item v-for="(task, index) in item.taskList"
-                          >{{ index + 1 }}. {{ task.task }}
-                          <v-icon
-                            v-if="task.done === true"
-                            icon="mdi-check-circle-outline"
-                            color="success"
-                          ></v-icon>
-                        </v-list-item>
-                      </v-card-text>
-                    </div>
-                  </v-expand-transition>
-                </v-card>
-              </v-col>
-            </v-row>
+                        <template v-slot:default>
+                          <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
+                        </template>
+                      </v-progress-linear>
+                    </v-card-text>
+                    <v-card-text v-else class="text-success">
+                      <v-icon icon="mdi-check-circle-outline" color="success"></v-icon>
+                      Project Complete
+                    </v-card-text>
+                    <v-card-actions>
+                      <div>
+                        <v-btn
+                          variant="outlined"
+                          :append-icon="getExpandIcon(item)"
+                          @click="toggleExpansion(item)"
+                          >View Tasks</v-btn
+                        >
+                      </div>
+                      <v-spacer></v-spacer>
+                      <div>
+                        <v-btn variant="outlined" v-if="getTaskProgressOfProject(item.id) < 100"
+                          >Continue</v-btn
+                        >
+                      </div>
+                    </v-card-actions>
+                    <v-expand-transition>
+                      <div v-show="item.expanded">
+                        <v-divider></v-divider>
+                        <v-card-text>
+                          <v-list-item v-for="(task, index) in item.taskList" :key="task.id"
+                            >{{ index + 1 }}. {{ task.task }}
+                            <v-icon
+                              v-if="task.done === true"
+                              icon="mdi-check-circle-outline"
+                              color="success"
+                            ></v-icon>
+                          </v-list-item>
+                        </v-card-text>
+                      </div>
+                    </v-expand-transition>
+                  </v-card>
+                </v-col>
+              </v-row>
             </v-card-text>
           </v-card>
         </v-window-item>
@@ -340,7 +351,10 @@ function getExpandIcon(item: any) {
                               {{ classroom.information.managers.managerMail }}
                             </div>
                             <div class="mt-5"></div>
-                            <div v-for="instructors in classroom.information.instructors">
+                            <div
+                              v-for="instructors in classroom.information.instructors"
+                              :key="instructors.instructorMail"
+                            >
                               {{ instructors.instructorName }} <br />
                               {{ instructors.instructorMail }}
                             </div>
@@ -382,15 +396,26 @@ function getExpandIcon(item: any) {
                             </template>
                           </v-progress-linear>
                         </div>
-                        <div>{{getNumberOfDoneProjects()}} / {{ projects.length }} Projects Done</div>
+                        <div>
+                          {{ getNumberOfDoneProjects() }} / {{ projects.length }} Projects Done
+                        </div>
                         <div>
                           <v-progress-linear
-                            :color="(getNumberOfDoneProjects() / projects.length === 100) ? 'success' : 'grey'"
+                            :color="
+                              getNumberOfDoneProjects() / projects.length === 100
+                                ? 'success'
+                                : 'grey'
+                            "
                             :height="20"
-                            :model-value="100* (getNumberOfDoneProjects() / projects.length)"
-                            rounded>
+                            :model-value="100 * (getNumberOfDoneProjects() / projects.length)"
+                            rounded
+                          >
                             <template v-slot:default>
-                              <strong>{{ Math.ceil(100* (getNumberOfDoneProjects() / projects.length)) }}%</strong>
+                              <strong
+                                >{{
+                                  Math.ceil(100 * (getNumberOfDoneProjects() / projects.length))
+                                }}%</strong
+                              >
                             </template>
                           </v-progress-linear>
                         </div>
