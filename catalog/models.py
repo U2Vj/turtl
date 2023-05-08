@@ -5,8 +5,79 @@ from authentication.models import User
 from authentication.predicates import is_manager, is_administrator, is_instructor
 
 
-class TaskTemplate(models.Model):
+class Question(models.Model):
+    question = models.CharField(max_length=200)
+
+    class QuestionnaireOption(models.Model):
+        option = models.CharField(max_length=200)
+
+    choices = models.ManyToManyField(QuestionnaireOption)
+
+    correct_answer = models.ForeignKey(QuestionnaireOption)
+
+
+class AcceptanceCriteria(models.Model):
     pass
+
+
+class AcceptanceCriteriaRegex(AcceptanceCriteria):
+    regex = models.CharField(max_length=200)
+
+
+class AcceptanceCriteriaManual(AcceptanceCriteria):
+    pass
+
+
+class AcceptanceCriteriaQuestionnaire(AcceptanceCriteria):
+    multiple_choice = models.ManyToManyField(Question)
+
+
+class AcceptanceCriteriaFlag(AcceptanceCriteria):
+    flag = models.CharField(max_length=50)
+
+
+class Virtualization(models.Model):
+    name = models.CharField(max_length=30)
+
+    description = models.TextField()
+
+    docker_compose_file = models.FileField(upload_to='')
+
+
+class TaskBadge(models.Model):
+    title = models.CharField(max_length=50)
+
+    earned_by = models.ManyToManyField(User)
+
+    image = models.ImageField()
+
+
+class TaskTemplate(models.Model):
+    title = models.CharField(max_length=50)
+
+    prerequisites = models.ManyToManyField("self", symmetrical=False, blank=True)
+
+    learning_outcome = models.TextField()
+
+    description = models.TextField()
+
+    virtualization = models.ForeignKey(Virtualization, related_name='virtualization')
+
+    task_badge = models.ForeignKey(TaskBadge, related_name='taskBadge')
+
+    BEGINNER = 0
+    INTERMEDIATE = 1
+    ADVANCED = 2
+
+    DIFFICULTY_CHOICES = [
+        (BEGINNER, "Beginner"),
+        (INTERMEDIATE, "Intermediate"),
+        (ADVANCED, "Advanced")
+    ]
+
+    difficulty = models.CharField(choices=DIFFICULTY_CHOICES)
+
+    acceptance_criteria = models.ForeignKey(AcceptanceCriteria)
 
 
 class ProjectBadge(RulesModel):
