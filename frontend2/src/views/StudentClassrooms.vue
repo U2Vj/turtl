@@ -43,11 +43,6 @@ const items = ref([
 
 const dialog = ref(false)
 
-function joinClassroomBtn() {
-  // TODO: Add which classroom to join
-  dialog.value = true
-}
-
 function close() {
   dialog.value = false
 }
@@ -66,33 +61,8 @@ function join() {
           <h1>My Classrooms</h1>
         </v-col>
         <v-col cols="auto">
-          <v-btn @click="joinClassroomBtn()">
+          <v-btn to="/allclassrooms-stud">
             Join Classroom
-            <v-dialog v-model="dialog" persistent width="50%">
-              <v-card>
-                <v-toolbar title="Join Classroom"> </v-toolbar>
-                <v-card-text>
-                  <v-container>
-                    <v-row>
-                      <v-col>
-                        <p>Enter the code to join the classroom.</p>
-                      </v-col>
-                    </v-row>
-                    <v-row> </v-row>
-                    <v-row>
-                      <v-col cols="8">
-                        <v-text-field label="Enter Code" variant="solo"></v-text-field>
-                      </v-col>
-                    </v-row>
-                  </v-container>
-                </v-card-text>
-                <v-card-actions>
-                  <v-spacer></v-spacer>
-                  <v-btn @click="close"> Cancel </v-btn>
-                  <v-btn @click="join"> Join Classroom </v-btn>
-                </v-card-actions>
-              </v-card>
-            </v-dialog>
           </v-btn>
         </v-col>
       </v-row>
