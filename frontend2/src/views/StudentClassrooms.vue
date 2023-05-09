@@ -61,9 +61,7 @@ function join() {
           <h1>My Classrooms</h1>
         </v-col>
         <v-col cols="auto">
-          <v-btn to="/allclassrooms-stud">
-            Join Classroom
-          </v-btn>
+          <v-btn to="/allclassrooms-stud"> Join Classroom </v-btn>
         </v-col>
       </v-row>
       <v-row>

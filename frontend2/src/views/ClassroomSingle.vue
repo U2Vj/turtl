@@ -16,14 +16,13 @@ const taskDescription = ref(
         <v-col cols="12" sm="8" md="4">
           <div><h1>Task 1</h1></div>
           <div>
-          <div class="mt-5">{{ taskDescription }}</div>
-          <div class="mt-5">
-            <v-textarea
-                label="Enter Your Code here"
-              ></v-textarea></div>
-              <div>
-                <v-btn class="mt-5">Verity Task</v-btn>
-              </div>
+            <div class="mt-5">{{ taskDescription }}</div>
+            <div class="mt-5">
+              <v-textarea label="Enter Your Code here"></v-textarea>
+            </div>
+            <div>
+              <v-btn class="mt-5">Verity Task</v-btn>
+            </div>
           </div>
         </v-col>
         <v-col>
