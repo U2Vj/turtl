@@ -56,9 +56,10 @@ const router = createRouter({
       component: ClassroomTemplates
     },
     {
-      path: '/templates/:id',
+      path: '/templates/:templateId',
       name: 'template',
-      component: ModifyTemplate
+      component: ModifyTemplate,
+      props: true
     },
     {
       path: '/createclassroominstance',

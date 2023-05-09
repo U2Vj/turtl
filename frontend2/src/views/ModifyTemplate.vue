@@ -1,69 +1,58 @@
 <script setup lang="ts">
 import TurtlHeader from '@/components/TurtlHeader.vue'
 import TemplateCard from '@/components/TemplateCard.vue'
-import { ref } from 'vue'
+import { ref, toRef } from 'vue'
 import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
 import { VDataTable } from 'vuetify/labs/VDataTable'
+import { useTemplateStore } from '@/stores/TemplateStore'
+import { watchEffect } from 'vue'
+
+const props = defineProps<{ templateId: string }>()
 
 const tab = ref(0)
 
-const templateData = ref({
-  name: 'Computer Networks',
-  projects: [
-    {
-      id: '0',
-      name: 'Computer Network Project 1',
-      tasks: [
-        { id: '0', name: 'task 1 name' },
-        { id: '1', name: 'task 2 name' }
-      ]
-    },
-    {
-      id: '1',
-      name: 'Computer Network Project 2',
-      tasks: [
-        { id: '0', name: 'task 1 name' },
-        { id: '1', name: 'task 2 name' }
-      ]
+const templateStore = useTemplateStore()
+
+let templateData = toRef(templateStore, 'template')
+templateStore.fetchTemplate(props.templateId)
+
+watchEffect(() => {
+  if (!templateData.value) return
+
+  useSortable('#cardWrapper', templateData.value.projects, {
+    animation: 300,
+    onUpdate: (event: any) => {
+      if (!templateData.value) return
+
+      moveArrayElement(templateData.value.projects, event.oldIndex, event.newIndex)
+      console.log(templateData)
     }
-  ],
-  generelInformation: {
-    id: '12',
-    classroomName: 'Computer Networks',
-    creationDate: '2022.01.11'
-  },
-  resources: [
-    { id: '0', name: 'moodle course', link: 'https://www.google.com' },
-    { id: '1', name: 'Introduction to DHCP', link: 'https://www.google.com' }
-  ],
-  instructors: [
-    { name: 'John Doe', email: 'john.doe@mailservice.com' },
-    { name: 'John Doe2', email: 'john.doe2@mailservice.com' }
-  ]
+  })
 })
 
 function handleUpdateTaskOrder(projectId: string, event: any) {
-  const project = templateData.value.projects.find((project) => {
-    return project.id === projectId
-  })
-  const tasks = project?.tasks
-  if (tasks) {
-    moveArrayElement(tasks, event.oldIndex, event.newIndex)
+  if (!templateData.value) {
+    return
   }
+  const project = templateData.value.projects.find((project) => {
+    if (project.id == projectId) {
+      return true
+    }
+  })
+  if (!project) {
+    return
+  }
+  moveArrayElement(project.tasks, event.oldIndex, event.newIndex)
 }
-
-useSortable('#cardWrapper', templateData.value.projects, {
-  animation: 300
-})
 </script>
 
 <template>
   <turtl-header></turtl-header>
-  <v-main>
+  <v-main v-if="templateData">
     <v-container fluid>
       <v-row>
         <v-col>
-          <h1>{{ templateData.name }}</h1>
+          <h1>{{ templateData.templateName }}</h1>
           <v-tabs v-model="tab" color="primary">
             <v-tab value="0">Projects and Settings</v-tab>
             <v-tab value="1">Information</v-tab>
@@ -98,14 +87,14 @@ useSortable('#cardWrapper', templateData.value.projects, {
                       <h3>Generell Information</h3>
                       <div class="d-flex">
                         <div>
-                          <div>Classroom Name:</div>
-                          <div>Classroom ID:</div>
+                          <div>Template Name:</div>
+                          <div>Template ID:</div>
                           <div>Created At:</div>
                         </div>
                         <div class="ml-auto">
-                          <div>{{ templateData.generelInformation.classroomName }}</div>
-                          <div>{{ templateData.generelInformation.id }}</div>
-                          <div>{{ templateData.generelInformation.creationDate }}</div>
+                          <div>{{ templateData.templateName }}</div>
+                          <div>{{ templateData.templateId }}</div>
+                          <div>{{ templateData.creationDate }}</div>
                         </div>
                       </div>
                     </v-card>
@@ -146,7 +135,7 @@ useSortable('#cardWrapper', templateData.value.projects, {
                 ]"
                 :items="templateData.instructors"
               >
-                <template v-slot:[`item.remove`]>
+                <template #[`item.remove`]>
                   <v-btn icon="mdi-trash-can-outline" variant="text" />
                 </template>
               </v-data-table>
