@@ -17,7 +17,7 @@ type User = {
   token: string
 }
 
-export const useUserStore = defineStore('UserStore', () => {
+export const useUserStore = defineStore('user', () => {
   // see https://github.com/vueuse/vueuse/issues/1307 and https://vueuse.org/core/useStorage/#custom-serialization
   const user = useStorage<User | null>('user', null, undefined, {
     serializer: StorageSerializers.object
