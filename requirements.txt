@@ -13,7 +13,7 @@ constantly==15.1.0
 cryptography==3.4.7
 daphne==4.0.0
 Django==4.1.7
-django-cors-headers==3.13.0
+django-cors-headers==3.14.0
 django-cors-middleware==1.5.0
 django-extensions==3.2.1
 django-rest-auth==0.9.5
