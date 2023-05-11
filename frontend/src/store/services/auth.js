@@ -24,7 +24,7 @@ class AuthService {
 
     async update (user) {
         return await axios
-            .post(API_URL + 'user', user)
+            .put(API_URL + 'user', user, { headers: authHeader() })
             .then(
                 response => {
                     if (response.data.user.token) {
@@ -51,7 +51,7 @@ export function authHeader () {
     const user = JSON.parse(localStorage.getItem('user'))
 
     if (user && user.token) {
-        return { Authorization: 'Bearer ' + user.token }
+        return { Authorization: 'Token ' + user.token }
     } else {
         return {}
     }
