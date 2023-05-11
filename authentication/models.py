@@ -126,27 +126,19 @@ class User(AbstractBaseUser, PermissionsMixin):
     # we can use these properties to check which role this user has
     @property
     def is_student(self):
-        if self.role == self.Role.STUDENT:
-            return True
-        return False
+        return self.role == self.Role.STUDENT
 
     @property
     def is_instructor(self):
-        if self.role == self.Role.INSTRUCTOR:
-            return True
-        return False
+        return self.role == self.Role.INSTRUCTOR
 
     @property
     def is_manager(self):
-        if self.role == self.Role.MANAGER:
-            return True
-        return False
+        return self.role == self.Role.MANAGER
 
     @property
     def is_administrator(self):
-        if self.role == self.Role.ADMINISTRATOR:
-            return True
-        return False
+        return self.role == self.Role.ADMINISTRATOR
 
     # Only administrators are superusers and only superusers can access the built-in django admin panel (i.e. are
     # members of staff)
