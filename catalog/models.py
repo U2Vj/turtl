@@ -11,9 +11,9 @@ class Question(models.Model):
     class QuestionnaireOption(models.Model):
         option = models.CharField(max_length=200)
 
-    choices = models.ManyToManyField(QuestionnaireOption)
+    choices = models.ManyToManyField(QuestionnaireOption, related_name='questionaireChoices')
 
-    correct_answer = models.ForeignKey(QuestionnaireOption)
+    correct_answer = models.ForeignKey(QuestionnaireOption,  on_delete=models.CASCADE, related_name='correctAnswer' )
 
 
 class AcceptanceCriteria(models.Model):
@@ -61,9 +61,9 @@ class TaskTemplate(models.Model):
 
     description = models.TextField()
 
-    virtualization = models.ForeignKey(Virtualization, related_name='virtualization')
+    virtualization = models.ForeignKey(Virtualization, related_name='virtualization',  on_delete=models.CASCADE)
 
-    task_badge = models.ForeignKey(TaskBadge, related_name='taskBadge')
+    task_badge = models.ForeignKey(TaskBadge, related_name='taskBadge',  on_delete=models.CASCADE)
 
     BEGINNER = 0
     INTERMEDIATE = 1
@@ -75,9 +75,9 @@ class TaskTemplate(models.Model):
         (ADVANCED, "Advanced")
     ]
 
-    difficulty = models.CharField(choices=DIFFICULTY_CHOICES)
+    difficulty = models.CharField(choices=DIFFICULTY_CHOICES, max_length=12)
 
-    acceptance_criteria = models.ForeignKey(AcceptanceCriteria)
+    acceptance_criteria = models.ForeignKey(AcceptanceCriteria,  on_delete=models.CASCADE)
 
 
 class ProjectBadge(RulesModel):
