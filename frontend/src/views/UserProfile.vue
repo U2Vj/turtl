@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 import { useField } from 'vee-validate'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
@@ -110,6 +111,7 @@ const submit = handleSubmit(async (values) => {
       </v-row>
     </v-container>
   </v-main>
+  <Footer></Footer>
 </template>
 
 <style></style>

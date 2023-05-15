@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 import { ref } from 'vue'
 
 const items = ref([
@@ -101,4 +102,5 @@ function join() {
       </v-row>
     </v-container>
   </v-main>
+  <Footer></Footer>
 </template>

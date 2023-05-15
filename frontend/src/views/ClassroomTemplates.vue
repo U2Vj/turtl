@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -62,4 +63,5 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
       </v-row>
     </v-container>
   </v-main>
+  <Footer></Footer>
 </template>

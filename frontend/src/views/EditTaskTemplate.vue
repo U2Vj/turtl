@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 const taskName = ref('What are IP Adresses?')
 const onlyRead = ref(true)
 const editLabel = ref('Edit')
@@ -184,6 +185,7 @@ function toggleEdit() {
       </v-row>
     </v-container>
   </v-main>
+  <Footer></Footer>
 </template>
 
 <style></style>

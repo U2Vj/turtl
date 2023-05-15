@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 import { ref } from 'vue'
 
 const classrooms = ref([
@@ -163,6 +164,7 @@ const classrooms = ref([
       </v-container>
     </div>
   </v-main>
+  <Footer></Footer>
 </template>
 
 <style scoped>

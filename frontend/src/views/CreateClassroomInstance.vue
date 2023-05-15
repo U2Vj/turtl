@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 import { watch } from 'vue'
 
 const classroomName = ref('')
@@ -169,6 +170,7 @@ watch(selected, (newSelected) => {
       </v-row>
     </v-container>
   </v-main>
+  <Footer></Footer>
 </template>
 
 <style></style>

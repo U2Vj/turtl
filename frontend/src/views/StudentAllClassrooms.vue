@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 
 const search = ref('')
 const dialog = ref(false)
@@ -111,6 +112,7 @@ function join() {
       </v-row>
     </v-container>
   </v-main>
+  <Footer></Footer>
 </template>
 
 <style></style>

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 const items = ref([
   {
     id: '1',
@@ -49,6 +50,7 @@ const items = ref([
       </v-row>
     </v-container>
   </v-main>
+      <Footer></Footer>
 </template>
 
 <style scoped>

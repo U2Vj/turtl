@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import TurtlHeader from '@/components/TurtlHeader.vue'
+import Footer from '@/components/Footer.vue'
 import TemplateCard from '@/components/TemplateCard.vue'
 import { ref, toRef } from 'vue'
 import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
@@ -145,4 +146,5 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
       </v-row>
     </v-container>
   </v-main>
+  <Footer></Footer>
 </template>
