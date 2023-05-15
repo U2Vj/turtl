@@ -42,18 +42,16 @@ const classrooms = ref([
 <template>
   <turtl-header></turtl-header>
   <v-main>
-    <v-container fluid class="tasks">
+    <v-container fluid>
       <v-row>
-        <v-col>
-          <div class="d-flex align-left">
-            <h1>Recently Opened Tasks</h1>
-          </div>
-          <v-data-table :headers="headers" :items="values"></v-data-table>
-        </v-col>
+        <div>
+          <h1>Recently Opened Tasks</h1>
+        </div>
+        <v-data-table :headers="headers" :items="values"></v-data-table>
       </v-row>
     </v-container>
 
-    <v-container fluid class="classroom">
+    <v-container fluid>
       <div class="d-flex align-left">
         <h1>Recently Visited Classrooms</h1>
       </div>

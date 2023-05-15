@@ -39,129 +39,98 @@ function toggleEdit() {
   <turtl-header></turtl-header>
   <v-main>
     <v-container fluid>
-      <v-row>
-        <v-col justify="space-between">
-          <v-row>
-            <v-col cols="auto">
-              <h1>{{ taskName }}</h1>
-              <v-text-field
-                v-if="onlyRead === false"
-                prepend-inner-icon="mdi-pencil"
-                type="edit"
-                v-model="taskName"
-              >
-              </v-text-field>
-            </v-col>
-            <v-col cols="auto">
-              <v-btn @click="toggleEdit">{{ editLabel }}</v-btn>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <h2>Task Description</h2>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-textarea
-                clearable
-                label="Write here the description"
-                v-model="taskDescription"
-              ></v-textarea>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <h2>Acceptance Criteria</h2>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <v-list>
-                <v-list-item v-for="item in allCriteria" :key="item.id">
-                  <v-card :key="item.id" variant="outlined">
-                    <v-table density="compact">
-                      <tbody>
-                        <tr>
-                          <td width="2%">{{ item.id }}</td>
-                          <td width="5%">{{ item.type }}</td>
-                          <td width="40%">{{ item.description }}</td>
-                          <td width="7%"><v-btn variant="text">Edit</v-btn></td>
-                          <td width="10%">Move Up</td>
-                          <td width="10%">Move Down</td>
-                        </tr>
-                      </tbody>
-                    </v-table>
-                  </v-card>
-                </v-list-item>
-              </v-list>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <v-btn variant="outlined">+ Add new acceptance criterium</v-btn>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col>
-              <h2>Virtualizations</h2>
-            </v-col>
-          </v-row>
-          <v-row>
-            <v-col cols="12">
-              <v-list>
-                <v-list-item v-for="item in allVirtual" :key="item.id">
-                  <v-card :key="item.id" variant="outlined">
-                    <v-table density="compact">
-                      <tbody>
-                        <tr>
-                          <td width="21%">{{ item.type }}</td>
-                          <td width="40%">{{ item.title }}</td>
-                          <td width="40%">{{ item.accesable }}</td>
-                          <td width="20%"><v-btn variant="text">Edit</v-btn></td>
-                        </tr>
-                      </tbody>
-                    </v-table>
-                  </v-card>
-                </v-list-item>
-              </v-list>
-            </v-col>
-            <v-col>
-              <v-btn variant="outlined">+ Add new virtualization</v-btn>
-            </v-col>
-          </v-row>
+      <v-row justify="space-between">
+        <v-col cols="12" sm="8" md="5">
+          <div>
+            <h1>{{ taskName }}</h1>
+            <v-text-field
+              v-if="onlyRead === false"
+              prepend-inner-icon="mdi-pencil"
+              type="edit"
+              v-model="taskName"
+            >
+            </v-text-field>
+            <v-btn @click="toggleEdit">{{ editLabel }}</v-btn>
+          </div>
+          <div class="mt-5">
+            <h2>Task Description</h2>
+          </div>
+          <div>
+            <v-textarea
+              clearable
+              label="Write here the description"
+              v-model="taskDescription"
+            ></v-textarea>
+          </div>
+          <div>
+            <h2>Acceptance Criteria</h2>
+          </div>
+          <div>
+            <v-list>
+              <v-list-item v-for="item in allCriteria" :key="item.id">
+                <v-card :key="item.id" variant="outlined">
+                  <v-table density="compact">
+                    <tbody>
+                      <tr>
+                        <td width="2%">{{ item.id }}</td>
+                        <td width="5%">{{ item.type }}</td>
+                        <td width="40%">{{ item.description }}</td>
+                        <td width="7%"><v-btn variant="text">Edit</v-btn></td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </v-card>
+              </v-list-item>
+            </v-list>
+          </div>
+          <div>
+            <v-btn variant="outlined">+ Add new acceptance criterium</v-btn>
+          </div>
+          <div class="mt-5">
+            <h2>Virtualizations</h2>
+          </div>
+          <div>
+            <v-list>
+              <v-list-item v-for="item in allVirtual" :key="item.id">
+                <v-card :key="item.id" variant="outlined">
+                  <v-table density="compact">
+                    <tbody>
+                      <tr>
+                        <td width="21%">{{ item.type }}</td>
+                        <td width="40%">{{ item.title }}</td>
+                        <td width="40%">{{ item.accesable }}</td>
+                        <td width="20%"><v-btn variant="text">Edit</v-btn></td>
+                      </tr>
+                    </tbody>
+                  </v-table>
+                </v-card>
+              </v-list-item>
+            </v-list>
+          </div>
+          <div>
+            <v-btn variant="outlined">+ Add new virtualization</v-btn>
+          </div>
         </v-col>
-        <v-col sm="8" md="4" offset="1" justify="space-between">
-          <v-col>
+
+        <v-col cols="12" sm="8" md="3">
+          <div>
             <v-card variant="outlined">
               <v-card-item>
                 <v-card-title><h3>Information</h3></v-card-title>
               </v-card-item>
               <v-card-text>
-                <v-table density="compact">
-                  <tbody>
-                    <tr>
-                      <td>Created On:</td>
-                      <td>{{ createdOn }}</td>
-                    </tr>
-                    <tr>
-                      <td>Created By:</td>
-                      <td>{{ createdBy }}</td>
-                    </tr>
-                    <tr>
-                      <td>Last modified on:</td>
-                      <td>{{ modifiedOn }}</td>
-                    </tr>
-                    <tr>
-                      <td>Last modified by:</td>
-                      <td>{{ modifiedBy }}</td>
-                    </tr>
-                  </tbody>
-                </v-table>
+                <div><h3>Created On:</h3></div>
+                <div>{{ createdOn }}</div>
+                <div class="mt-5"><h3>Created By:</h3></div>
+                <div>{{ createdBy }}</div>
+                <div class="mt-5"><h3>Last modified on:</h3></div>
+                <div>{{ modifiedOn }}</div>
+                <div class="mt-5"><h3>Last modified by:</h3></div>
+                <div>{{ modifiedBy }}</div>
               </v-card-text>
             </v-card>
-          </v-col>
-          <v-col>
+          </div>
+          <div class="mt-5">
             <v-card variant="outlined">
               <v-card-item>
                 <v-card-title><h3>Export</h3></v-card-title>
@@ -170,8 +139,8 @@ function toggleEdit() {
                 <v-btn variant="outlined">Export Task Template</v-btn>
               </v-card-actions></v-card
             >
-          </v-col>
-          <v-col>
+          </div>
+          <div class="mt-5">
             <v-card variant="outlined">
               <v-card-item>
                 <v-card-title><h3>Deletion</h3></v-card-title>
@@ -180,7 +149,7 @@ function toggleEdit() {
                 <v-btn text variant="outlined">Permanently Delete<br />Task Template</v-btn>
               </v-card-actions></v-card
             >
-          </v-col>
+          </div>
         </v-col>
       </v-row>
     </v-container>
