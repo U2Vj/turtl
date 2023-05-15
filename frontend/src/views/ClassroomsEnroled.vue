@@ -50,7 +50,7 @@ const items = ref([
       </v-row>
     </v-container>
   </v-main>
-      <Footer></Footer>
+  <Footer></Footer>
 </template>
 
 <style scoped>
