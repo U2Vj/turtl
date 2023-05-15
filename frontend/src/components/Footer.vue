@@ -2,30 +2,29 @@
 import { ref } from 'vue'
 </script>
 <template>
-    <v-card>
+    <v-card >
   <v-footer
-    color="primary"
   >
     <v-row
       justify="center"
       no-gutters
     >
       <v-btn
-        color="white"
+        color="primary"
         variant="text"
-        rounded="xl"
+        to="/privacypolicy"
       >
         Privacy Policy
       </v-btn>
       <v-btn
-        color="white"
+        color="primary"
         variant="text"
-        rounded="xl"
+        to="/imprint"
       >
         Imprint
       </v-btn>
       <v-col
-        class="primary lighten-2 text-center white--text"
+        class="text-center text-primary"
         cols="12"
       >
         {{ new Date().getFullYear() }} - <strong>TURTL</strong>

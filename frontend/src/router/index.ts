@@ -16,6 +16,8 @@ import test from '@/views/test.vue'
 import StudentClassrooms from '@/views/StudentClassrooms.vue'
 import ModifyTemplate from '@/views/ModifyTemplate.vue'
 import StudentClassProjects from '@/views/StudentClassProjects.vue'
+import PrivacyPolicy from '@/views/PrivacyPolicy.vue'
+import Imprint from '@/views/Imprint.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -100,6 +102,16 @@ const router = createRouter({
       path: '/studentclassprojects',
       name: 'StudentClassProjects',
       component: StudentClassProjects
+    },
+    {
+      path: '/privacypolicy',
+      name: 'PrivacyPolicy',
+      component: PrivacyPolicy
+    },
+    {
+      path: '/imprint',
+      name: 'Imprint',
+      component: Imprint
     }
     /*
       component: () => {
