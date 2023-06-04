@@ -36,34 +36,22 @@ class AcceptanceCriteriaFlag(AcceptanceCriteria):
     flag = models.CharField(max_length=50)
 
 
-class Virtualization(models.Model):
-    name = models.CharField(max_length=30)
-
-    description = models.TextField()
-
-    docker_compose_file = models.FileField(upload_to='')
-
-
-class TaskBadge(models.Model):
-    title = models.CharField(max_length=50)
-
-    earned_by = models.ManyToManyField(User)
-
-    image = models.ImageField()
-
-
 class TaskTemplate(models.Model):
     title = models.CharField(max_length=50)
 
-    prerequisites = models.ManyToManyField("self", symmetrical=False, blank=True)
-
-    learning_outcome = models.TextField()
-
     description = models.TextField()
 
-    virtualization = models.ForeignKey(Virtualization, related_name='virtualization',  on_delete=models.CASCADE)
+    NEUTRAL = 'N'
+    DEFENSE = 'DE'
+    ATTACK = 'AT'
 
-    task_badge = models.ForeignKey(TaskBadge, related_name='taskBadge',  on_delete=models.CASCADE)
+    TASKTYPE_CHOICES = [
+        (NEUTRAL, "Neutral"),
+        (DEFENSE, "Defense"),
+        (ATTACK, "Attack")
+    ]
+
+    difficulty = models.CharField(choices=TASKTYPE_CHOICES, max_length=12)
 
     BEGINNER = 0
     INTERMEDIATE = 1
@@ -79,31 +67,27 @@ class TaskTemplate(models.Model):
 
     acceptance_criteria = models.ForeignKey(AcceptanceCriteria,  on_delete=models.CASCADE)
 
+class Virtualization(models.Model):
+    name = models.CharField(max_length=30)
 
-class ProjectBadge(RulesModel):
-    title = models.CharField(max_length=50)
+    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='TaskTemplate')
 
-    earned_by = models.ManyToManyField(User)
+    USER_SHELL = 0
+    USER_ACCESSIBLE = 1
 
-    image = models.ImageField()
+    ROLE_CHOICES = [
+        (USER_SHELL, "User Shell"),
+        (USER_ACCESSIBLE, "User-accessible via IP"),
+    ]
 
+    virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=20)
+
+    docker_compose_file = models.FileField(upload_to='')
 
 class ProjectTemplate(RulesModel):
     title = models.CharField(max_length=120)
 
-    prerequisites = models.ManyToManyField("self", symmetrical=False, blank=True)
-
-    learning_outcome = models.TextField()
-
-    content = models.TextField()
-
-    task_templates = models.ManyToManyField(TaskTemplate, related_name='project_templates')
-
-    project_badge = models.ForeignKey(ProjectBadge, on_delete=models.CASCADE)
-
-    created_at = models.DateTimeField(auto_now_add=True)
-
-    updated_at = models.DateTimeField(auto_now=True)
+    models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='taskTemplate')
 
 
 class ClassroomTemplate(RulesModel):
