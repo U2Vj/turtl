@@ -6,88 +6,165 @@ from authentication.predicates import is_manager, is_administrator, is_instructo
 
 
 class Question(models.Model):
+    """
+        A question that the user has to answer to prove that they have completed the task.
+        Part of an AcceptanceCriteriaQuestionnaire.
+    """
+
+    # The question that the user has to answer to prove that they have completed the task
     question = models.CharField(max_length=200)
 
-    class QuestionnaireOption(models.Model):
-        option = models.CharField(max_length=200)
+    class QuestionChoice(models.Model):
+        """
+            A QuestionChoice is a possible answer to a question.
+        """
 
-    choices = models.ManyToManyField(QuestionnaireOption, related_name='questionaireChoices')
+        # A possible answer to the question
+        answer = models.CharField(max_length=200)
+        # Whether this answer is correct
+        is_correct = models.BooleanField(default=False)
 
-    correct_answer = models.ForeignKey(QuestionnaireOption,  on_delete=models.CASCADE, related_name='correctAnswer' )
+    # The possible choices for the question
+    choices = models.ManyToManyField(QuestionChoice, related_name='questionChoices')
+
+    SINGLE_CHOICE = 0    # Single choice question
+    MULTIPLE_CHOICE = 1  # Multiple choice question
+
+    # Possible choices for the question type
+    QUESTION_TYPE_CHOICES = [
+        (SINGLE_CHOICE, "Single choice"),
+        (MULTIPLE_CHOICE, "Multiple choice")
+    ]
+
+    # Type of the question, i.e. whether it is a single choice or multiple choice question
+    question_type = models.CharField(choices=QUESTION_TYPE_CHOICES, max_length=20)
 
 
 class AcceptanceCriteria(models.Model):
+    """
+        An AcceptanceCriteria is a set of rules that define how the user can prove that they have completed the task.
+        This is the superclass of all supported acceptance criteria types.
+    """
     pass
 
 
-class AcceptanceCriteriaRegex(AcceptanceCriteria):
-    regex = models.CharField(max_length=200)
-
-
 class AcceptanceCriteriaManual(AcceptanceCriteria):
+    """
+        The completion of the task is checked manually by an instructor.
+    """
     pass
 
 
 class AcceptanceCriteriaQuestionnaire(AcceptanceCriteria):
-    multiple_choice = models.ManyToManyField(Question)
+    """
+        A Questionnaire is a set of questions that the user has to answer to prove that they have completed the task.
+    """
+
+    # The questions that the user has to answer to prove that they have completed the task
+    questions = models.ManyToManyField(Question)
+
+
+class AcceptanceCriteriaRegex(AcceptanceCriteria):
+    """
+        A Regex is a regular expression that is checked automatically to prove that the user has completed the task.
+    """
+
+    # The regular expression that is checked automatically to prove that the user has completed the task
+    regex = models.CharField(max_length=200)
 
 
 class AcceptanceCriteriaFlag(AcceptanceCriteria):
+    """
+        A Flag is a string that the user has to submit to prove that they have completed the task.
+    """
+
+    # The flag that the user has to submit to prove that they have completed the task
     flag = models.CharField(max_length=50)
 
 
 class TaskTemplate(models.Model):
+    """
+        A TaskTemplate is a template that is used to create a Task.
+    """
+
+    # Title of the task
     title = models.CharField(max_length=50)
 
+    # Description of the task
     description = models.TextField()
 
-    NEUTRAL = 'N'
-    DEFENSE = 'DE'
-    ATTACK = 'AT'
+    NEUTRAL = 'N'  # Neutral type
+    DEFENSE = 'DE'  # Defense type
+    ATTACK = 'AT'  # Attack type
 
-    TASKTYPE_CHOICES = [
+    # Possible choices for the task type
+    TASK_TYPE_CHOICES = [
         (NEUTRAL, "Neutral"),
         (DEFENSE, "Defense"),
         (ATTACK, "Attack")
     ]
 
-    difficulty = models.CharField(choices=TASKTYPE_CHOICES, max_length=12)
+    # Type of the task, i.e. whether it is a neutral, defense or attack task
+    task_type = models.CharField(choices=TASK_TYPE_CHOICES, max_length=12)
 
-    BEGINNER = 0
-    INTERMEDIATE = 1
-    ADVANCED = 2
+    BEGINNER = 0      # Beginner difficulty
+    INTERMEDIATE = 1  # Intermediate difficulty
+    ADVANCED = 2      # Advanced difficulty
 
+    # Possible choices for the difficulty of a task
     DIFFICULTY_CHOICES = [
         (BEGINNER, "Beginner"),
         (INTERMEDIATE, "Intermediate"),
         (ADVANCED, "Advanced")
     ]
 
+    # Difficulty of the task
     difficulty = models.CharField(choices=DIFFICULTY_CHOICES, max_length=12)
 
-    acceptance_criteria = models.ForeignKey(AcceptanceCriteria,  on_delete=models.CASCADE)
+    # The acceptance criteria for this task, meaning how the user can prove that they have completed the task
+    acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
+
+    # The virtualization that is created for this task, if any
+    virtualization = models.ForeignKey('Virtualization', on_delete=models.CASCADE, null=True)
+
 
 class Virtualization(models.Model):
+    """
+        A Virtualization is a virtual machine that is created for a task.
+    """
+
+    # Name of the virtualization
     name = models.CharField(max_length=30)
 
+    # The task template that this virtualization belongs to
     template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='TaskTemplate')
 
-    USER_SHELL = 0
-    USER_ACCESSIBLE = 1
+    USER_SHELL = 0  # The user interacts with the virtualization via a shell
+    USER_ACCESSIBLE = 1  # The user interacts with the virtualization via an IP address
 
+    # Choices for the virtualization role (i.e. how the user interacts with the virtualization)
     ROLE_CHOICES = [
         (USER_SHELL, "User Shell"),
         (USER_ACCESSIBLE, "User-accessible via IP"),
     ]
 
+    # Role of virtualization (i.e. how the user interacts with the virtualization)
     virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=20)
 
+    # File of the docker-compose.yml that is used to create the virtualization
     docker_compose_file = models.FileField(upload_to='')
 
+
 class ProjectTemplate(RulesModel):
+    """
+        A ProjectTemplate is a template that is used to create a Project.
+    """
+
+    # Title of the project
     title = models.CharField(max_length=120)
 
-    models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='taskTemplate')
+    # Task templates that are part of this project
+    task_templates = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='taskTemplate')
 
 
 class ClassroomTemplate(RulesModel):
@@ -96,6 +173,7 @@ class ClassroomTemplate(RulesModel):
         It has a ManyToMany relationship (managers) to the User model and a ManyToMany relationship to the
         ProjectTemplate model.
     """
+
     # A ClassroomTemplate has a title e.g.: Eternal Blue Exploit
     title = models.CharField(max_length=120, unique=True)
 
