@@ -27,7 +27,7 @@ class Question(models.Model):
     # The possible choices for the question
     choices = models.ManyToManyField(QuestionChoice, related_name='questionChoices')
 
-    SINGLE_CHOICE = 0    # Single choice question
+    SINGLE_CHOICE = 0  # Single choice question
     MULTIPLE_CHOICE = 1  # Multiple choice question
 
     # Possible choices for the question type
@@ -82,91 +82,6 @@ class AcceptanceCriteriaFlag(AcceptanceCriteria):
     flag = models.CharField(max_length=50)
 
 
-class TaskTemplate(models.Model):
-    """
-        A TaskTemplate is a template that is used to create a Task.
-    """
-
-    # Title of the task
-    title = models.CharField(max_length=50)
-
-    # Description of the task
-    description = models.TextField()
-
-    NEUTRAL = 'N'  # Neutral type
-    DEFENSE = 'DE'  # Defense type
-    ATTACK = 'AT'  # Attack type
-
-    # Possible choices for the task type
-    TASK_TYPE_CHOICES = [
-        (NEUTRAL, "Neutral"),
-        (DEFENSE, "Defense"),
-        (ATTACK, "Attack")
-    ]
-
-    # Type of the task, i.e. whether it is a neutral, defense or attack task
-    task_type = models.CharField(choices=TASK_TYPE_CHOICES, max_length=12)
-
-    BEGINNER = 0      # Beginner difficulty
-    INTERMEDIATE = 1  # Intermediate difficulty
-    ADVANCED = 2      # Advanced difficulty
-
-    # Possible choices for the difficulty of a task
-    DIFFICULTY_CHOICES = [
-        (BEGINNER, "Beginner"),
-        (INTERMEDIATE, "Intermediate"),
-        (ADVANCED, "Advanced")
-    ]
-
-    # Difficulty of the task
-    difficulty = models.CharField(choices=DIFFICULTY_CHOICES, max_length=12)
-
-    # The acceptance criteria for this task, meaning how the user can prove that they have completed the task
-    acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
-
-    # The virtualization that is created for this task, if any
-    virtualization = models.ForeignKey('Virtualization', on_delete=models.CASCADE, null=True)
-
-
-class Virtualization(models.Model):
-    """
-        A Virtualization is a virtual machine that is created for a task.
-    """
-
-    # Name of the virtualization
-    name = models.CharField(max_length=30)
-
-    # The task template that this virtualization belongs to
-    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='TaskTemplate')
-
-    USER_SHELL = 0  # The user interacts with the virtualization via a shell
-    USER_ACCESSIBLE = 1  # The user interacts with the virtualization via an IP address
-
-    # Choices for the virtualization role (i.e. how the user interacts with the virtualization)
-    ROLE_CHOICES = [
-        (USER_SHELL, "User Shell"),
-        (USER_ACCESSIBLE, "User-accessible via IP"),
-    ]
-
-    # Role of virtualization (i.e. how the user interacts with the virtualization)
-    virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=20)
-
-    # File of the docker-compose.yml that is used to create the virtualization
-    docker_compose_file = models.FileField(upload_to='')
-
-
-class ProjectTemplate(RulesModel):
-    """
-        A ProjectTemplate is a template that is used to create a Project.
-    """
-
-    # Title of the project
-    title = models.CharField(max_length=120)
-
-    # Task templates that are part of this project
-    task_templates = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='taskTemplate')
-
-
 class ClassroomTemplate(RulesModel):
     """
         A ClassroomTemplate has a title, a description, a created_at timestamp and an updated_at timestamp.
@@ -188,8 +103,6 @@ class ClassroomTemplate(RulesModel):
 
     managers = models.ManyToManyField(User, related_name='classroom_templates', through="ClassroomTemplateManager",
                                       through_fields=('classroom_template', 'manager'))
-
-    project_templates = models.ManyToManyField(ProjectTemplate, related_name='classroom_templates')
 
     # Permissions
     class Meta:
@@ -223,3 +136,97 @@ class ClassroomTemplateManager(models.Model):
     # NULL (which is why it is nullable).
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
                                  related_name='classroomtemplatemanager_set_added_by')
+
+
+class HelpfulResource():
+    # Title of the HelpfulResource
+    title = models.CharField(max_length=120, unique=True)
+
+    url = models.URLField(max_length=200)
+
+    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
+                                           related_name="classroom_template")
+
+
+class ProjectTemplate(RulesModel):
+    """
+        A ProjectTemplate is a template that is used to create a Project.
+    """
+
+    # Title of the project
+    title = models.CharField(max_length=120)
+
+    classroom_templates = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='classroom_templates')
+
+
+class TaskTemplate(models.Model):
+    """
+        A TaskTemplate is a template that is used to create a Task.
+    """
+
+    # Title of the task
+    title = models.CharField(max_length=50)
+
+    # The project template that this task template belongs to
+    project_template = models.ForeignKey(ProjectTemplate, on_delete=models.CASCADE, name='ProjectTemplate')
+
+    # Description of the task
+    description = models.TextField()
+
+    NEUTRAL = 'N'  # Neutral type
+    DEFENSE = 'DE'  # Defense type
+    ATTACK = 'AT'  # Attack type
+
+    # Possible choices for the task type
+    TASK_TYPE_CHOICES = [
+        (NEUTRAL, "Neutral"),
+        (DEFENSE, "Defense"),
+        (ATTACK, "Attack")
+    ]
+
+    # Type of the task, i.e. whether it is a neutral, defense or attack task
+    task_type = models.CharField(choices=TASK_TYPE_CHOICES, max_length=12)
+
+    BEGINNER = 0  # Beginner difficulty
+    INTERMEDIATE = 1  # Intermediate difficulty
+    ADVANCED = 2  # Advanced difficulty
+
+    # Possible choices for the difficulty of a task
+    DIFFICULTY_CHOICES = [
+        (BEGINNER, "Beginner"),
+        (INTERMEDIATE, "Intermediate"),
+        (ADVANCED, "Advanced")
+    ]
+
+    # Difficulty of the task
+    difficulty = models.CharField(choices=DIFFICULTY_CHOICES, max_length=12)
+
+    # The acceptance criteria for this task, meaning how the user can prove that they have completed the task
+    acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
+
+
+class Virtualization(models.Model):
+    """
+        A Virtualization is a virtual machine that is created for a task.
+    """
+
+    # Name of the virtualization
+    name = models.CharField(max_length=30)
+
+    # The task template that this virtualization belongs to
+    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='TaskTemplate')
+
+    USER_SHELL = 0  # The user interacts with the virtualization via a shell
+    USER_ACCESSIBLE = 1  # The user interacts with the virtualization via an IP address
+
+    # Choices for the virtualization role (i.e. how the user interacts with the virtualization)
+    ROLE_CHOICES = [
+        (USER_SHELL, "User Shell"),
+        (USER_ACCESSIBLE, "User-accessible via IP"),
+    ]
+
+    # Role of virtualization (i.e. how the user interacts with the virtualization)
+    virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=20)
+
+    # File of the docker-compose.yml that is used to create the virtualization
+    docker_compose_file = models.FileField(upload_to='')
