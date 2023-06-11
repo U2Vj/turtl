@@ -23,6 +23,10 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     {
+      path: '/',
+      component: SignIn
+    },
+    {
       path: '/signin',
       name: 'signin',
       component: SignIn
