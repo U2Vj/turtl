@@ -2,21 +2,9 @@
 import TurtlHeader from '@/components/TurtlHeader.vue'
 import Footer from '@/components/Footer.vue'
 import { useRouter } from 'vue-router'
+import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
 
 const router = useRouter()
-
-// TODO: change mock data with api call
-const headers = [
-  {
-    title: 'Name',
-    align: 'start',
-    sortable: true,
-    key: 'name'
-  },
-  { title: 'Last Edited', align: 'end', key: 'lastedited' },
-  { title: 'Created At', align: 'end', key: 'createdat' },
-  { title: 'Use', align: 'end', key: 'link' }
-]
 
 const values = [
   {
@@ -52,9 +40,26 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
         <v-col>
           <div class="d-flex align-center">
             <h1>Classroom Templates</h1>
-            <v-btn color="primary ml-10" prepend-icon="mdi-plus">Create Template</v-btn>
+            <v-btn color="primary ml-10" prepend-icon="mdi-plus"
+              >Create Template
+              <CreateClassroomTemplateModal></CreateClassroomTemplateModal>
+            </v-btn>
           </div>
-          <v-data-table :headers="headers" :items="values" @click:row="handleRowClick">
+          <v-data-table
+            :headers="[
+              {
+                title: 'Name',
+                align: 'start',
+                sortable: true,
+                key: 'name'
+              },
+              { title: 'Last Edited', align: 'end', key: 'lastedited' },
+              { title: 'Created At', align: 'end', key: 'createdat' },
+              { title: 'Use', align: 'end', key: 'link' }
+            ]"
+            :items="values"
+            @click:row="handleRowClick"
+          >
             <template v-slot:[`item.link`]="{ item }">
               <router-link :to="`templates/${item.raw.id}`">edit</router-link>
             </template>

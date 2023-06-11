@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { defineStore } from 'pinia'
-import { ref, watchEffect } from 'vue'
+import { ref } from 'vue'
+import { useCloned } from '@vueuse/core'
 
 type BasicTemplateData = {
   templateId: string
@@ -10,6 +11,8 @@ type BasicTemplateData = {
 
 type Task = { id: string; name: string }
 
+export type Instructor = { instructorId: string; email: string }
+
 type AdditionalTemplateData = {
   projects: {
     id: string
@@ -17,31 +20,33 @@ type AdditionalTemplateData = {
     tasks: Task[]
   }[]
   resources: { id: string; name: string; link: string }[]
-  instructors: { name: string; email: string }[]
+  instructors: Instructor[]
 }
 
 export type TemplateData = BasicTemplateData & AdditionalTemplateData
 
 export const useTemplateStore = defineStore('template', () => {
-  const template = ref<TemplateData>()
+  const classroomTemplate = ref<TemplateData>()
   const basicTemplateData = ref<BasicTemplateData[]>()
 
   async function fetchTemplate(templateId: string) {
-    template.value = mockdata
-    //template.value = await axios.get(`${import.meta.env.VITE_API_URL}/templates/${templateId}`)
+    classroomTemplate.value = mockdata
+    classroomTemplate.value = await axios.get(
+      `${import.meta.env.VITE_API_URL}/templates/${templateId}`
+    )
 
-    return template
+    return classroomTemplate
   }
 
   async function changeTemplateData(templateId: string, templateData: TemplateData) {
-    /* template.value = await axios.post(
+    classroomTemplate.value = await axios.post(
       `${import.meta.env.VITE_API_URL}/templates/${templateId}`,
       templateData
-    ) */
-    return template
+    )
+    return classroomTemplate
   }
 
-  async function deleteTemplate(templateId: string) {
+  async function deleteClassroomTemplate(templateId: string) {
     await axios.delete(`${import.meta.env.VITE_API_URL}/templates/${templateId}`)
   }
 
@@ -50,13 +55,28 @@ export const useTemplateStore = defineStore('template', () => {
     return basicTemplateData
   }
 
+  async function createProjectTemplate(projectName: string) {
+    classroomTemplate.value = await axios.put(
+      `${import.meta.env.VITE_API_URL}/templates`,
+      projectName
+    )
+  }
+
+  async function addInstructor(instructorId: string, email: string) {
+    const { cloned } = useCloned(classroomTemplate)
+    cloned.value?.instructors.push({ instructorId, email })
+    classroomTemplate.value = await axios.put(`${import.meta.env.VITE_API_URL}/templates`, cloned)
+  }
+
   return {
-    template,
+    classroomTemplate,
     basicTemplateData,
     fetchTemplate,
     changeTemplateData,
-    deleteTemplate,
-    getBasicTemplateData
+    deleteClassroomTemplate,
+    getBasicTemplateData,
+    createProjectTemplate,
+    addInstructor
   }
 })
 
@@ -87,7 +107,7 @@ const mockdata: TemplateData = {
     { id: '1', name: 'Introduction to DHCP', link: 'https://www.google.com' }
   ],
   instructors: [
-    { name: 'John Doe', email: 'john.doe@mailservice.com' },
-    { name: 'John Doe2', email: 'john.doe2@mailservice.com' }
+    { instructorId: 'John Doe', email: 'john.doe@mailservice.com' },
+    { instructorId: 'John Doe2', email: 'john.doe2@mailservice.com' }
   ]
 }

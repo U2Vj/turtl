@@ -7,14 +7,17 @@ import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { watchEffect } from 'vue'
+import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
+import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
 
 const props = defineProps<{ templateId: string }>()
 
 const tab = ref(0)
+const showCreateModal = ref(false)
 
 const templateStore = useTemplateStore()
 
-let templateData = toRef(templateStore, 'template')
+let templateData = toRef(templateStore, 'classroomTemplate')
 templateStore.fetchTemplate(props.templateId)
 
 watchEffect(() => {
@@ -24,9 +27,9 @@ watchEffect(() => {
     animation: 300,
     onUpdate: (event: any) => {
       if (!templateData.value) return
-
-      moveArrayElement(templateData.value.projects, event.oldIndex, event.newIndex)
-      console.log(templateData)
+      const copyTemplateDataProjects = templateData.value.projects.slice()
+      moveArrayElement(copyTemplateDataProjects, event.oldIndex, event.newIndex)
+      templateData.value.projects = copyTemplateDataProjects
     }
   })
 })
@@ -63,8 +66,14 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
             <v-window-item eager value="0">
               <div class="d-flex">
                 <h2>Project Templates</h2>
-                <v-btn prepend-icon="mdi-plus" color="primary" class="ml-10">
+                <v-btn
+                  prepend-icon="mdi-plus"
+                  color="primary"
+                  class="ml-10"
+                  @click="showCreateModal = true"
+                >
                   Add Project Template
+                  <AddProjectTemplateModal></AddProjectTemplateModal>
                 </v-btn>
               </div>
               <div id="cardWrapper">
@@ -125,7 +134,8 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
               ><div class="d-flex">
                 <h2>Instructors</h2>
                 <v-btn prepend-icon="mdi-plus" color="primary" class="ml-10">
-                  Add Instructor
+                  Add Instructors
+                  <AddInstructorModal></AddInstructorModal>
                 </v-btn>
               </div>
               <v-data-table
