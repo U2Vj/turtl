@@ -23,23 +23,22 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
 </script>
 
 <template>
-  <v-card max-width="1000" color="grey-lighten-4" style="cursor: grab">
+  <v-card max-width="1000" variant="flat" color="cardColor" style="cursor: grab">
     <v-container fluid>
       <v-row>
         <v-col md="6">
           <div><v-icon icon="mdi-drag" />{{ name }}</div>
           <v-btn
             v-if="!showInformation"
-            color="primary"
             append-icon="mdi-chevron-down"
             @click="showInformation = true"
+            variant="tonal" color="primary"
           >
             Show information
           </v-btn>
           <v-btn
             v-if="showInformation"
-            color="primary"
-            variant="outlined"
+            variant="tonal" color="primary"
             append-icon="mdi-chevron-down"
             @click="showInformation = false"
           >
@@ -55,15 +54,11 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
               <v-icon icon="mdi-drag" />{{ task.name }}
             </div>
           </div>
-          <v-btn prepend-icon="mdi-plus" color="primary" variant="outlined">Add Task</v-btn>
+          <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary">Add Task</v-btn>
         </v-col>
         <v-col md="6">
-          <div>General Options</div>
-          <v-switch label="Active" color="primary"></v-switch>
-          <div>Description</div>
-          <v-textarea placeholder="Description of this Project" rows="3"></v-textarea>
           <div class="ml-auto" style="width: fit-content">
-            <v-btn color="error">Delete</v-btn>
+            <v-btn variant="tonal" color="error">Delete</v-btn>
           </div>
         </v-col>
       </v-row>

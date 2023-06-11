@@ -40,7 +40,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
         <v-col>
           <div class="d-flex align-center">
             <h1>Classroom Templates</h1>
-            <v-btn color="primary ml-10" prepend-icon="mdi-plus"
+            <v-btn variant="tonal" color="primary" class="ml-10" prepend-icon="mdi-plus"
               >Create Template
               <CreateClassroomTemplateModal></CreateClassroomTemplateModal>
             </v-btn>
@@ -61,7 +61,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
             @click:row="handleRowClick"
           >
             <template v-slot:[`item.link`]="{ item }">
-              <router-link :to="`templates/${item.raw.id}`">edit</router-link>
+              <v-btn variant="text" color="primary" to="`templates/${item.raw.id}`">Edit</v-btn>
             </template>
           </v-data-table>
         </v-col>

@@ -121,23 +121,15 @@ watch(selected, (newSelected) => {
         </v-col>
       </v-row>
       <v-row>
-        <v-col>
-          <p>Classroom Name</p>
-        </v-col>
-      </v-row>
-      <v-row>
         <v-col cols="5">
           <v-text-field
             clearable
             label="Type in Classroom Name"
             v-model="classroomName"
-            variant="solo"
+            variant="underlined"
+            base-color="primary"
+            color="primary"
           ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <p>Classroom Template</p>
         </v-col>
       </v-row>
       <v-row>
@@ -147,7 +139,9 @@ watch(selected, (newSelected) => {
             label="Search Classroom Template"
             v-model="search"
             append-inner-icon="mdi-magnify"
-            variant="solo"
+            variant="underlined"
+            base-color="primary"
+            color="primary"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -165,7 +159,7 @@ watch(selected, (newSelected) => {
       </v-row>
       <v-row>
         <v-col>
-          <v-btn @click="createClassroom">Create Classroom</v-btn>
+          <v-btn variant="tonal" color="primary" @click="createClassroom">Create Classroom</v-btn>
         </v-col>
       </v-row>
     </v-container>
@@ -173,4 +167,8 @@ watch(selected, (newSelected) => {
   <Footer></Footer>
 </template>
 
-<style></style>
+<style>
+.v-icon {
+  color: #333399 !important;
+}
+</style>

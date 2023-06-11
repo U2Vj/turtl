@@ -4,7 +4,6 @@ import Footer from '@/components/Footer.vue'
 import TemplateCard from '@/components/TemplateCard.vue'
 import { ref, toRef } from 'vue'
 import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
-import { VDataTable } from 'vuetify/labs/VDataTable'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { watchEffect } from 'vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
@@ -68,8 +67,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                 <h2>Project Templates</h2>
                 <v-btn
                   prepend-icon="mdi-plus"
-                  color="primary"
-                  class="ml-10"
+                  variant="tonal" color="primary" class="ml-10"
                   @click="showCreateModal = true"
                 >
                   Add Project Template
@@ -93,7 +91,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
               <v-container fluid class="pa-0">
                 <v-row>
                   <v-col md="3">
-                    <v-card color="grey-lighten-4" class="mt-5 pa-5">
+                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5">
                       <h3>Generell Information</h3>
                       <div class="d-flex">
                         <div>
@@ -108,7 +106,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                         </div>
                       </div>
                     </v-card>
-                    <v-card color="grey-lighten-4" class="mt-5 pa-5">
+                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5">
                       <h3>Helpful resources</h3>
                       <div v-for="(resource, index) in templateData.resources" :key="resource.id">
                         <a :href="resource.link">
@@ -118,13 +116,9 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                     </v-card>
                   </v-col>
                   <v-col md="3" offset-md="2">
-                    <v-card color="grey-lighten-4" class="mt-5 pa-5">
-                      <h3>Export</h3>
-                      <v-btn color="primary">Export Classroom Template</v-btn>
-                    </v-card>
-                    <v-card color="grey-lighten-4" class="mt-5 pa-5">
+                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5">
                       <h3>Delete</h3>
-                      <v-btn color="error">Permanently Delete Template</v-btn>
+                      <v-btn variant="tonal" color="error">Permanently Delete Template</v-btn>
                     </v-card>
                   </v-col>
                 </v-row>
@@ -133,7 +127,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
             <v-window-item value="2"
               ><div class="d-flex">
                 <h2>Instructors</h2>
-                <v-btn prepend-icon="mdi-plus" color="primary" class="ml-10">
+                <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" class="ml-10">
                   Add Instructors
                   <AddInstructorModal></AddInstructorModal>
                 </v-btn>

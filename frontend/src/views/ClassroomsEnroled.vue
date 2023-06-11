@@ -32,6 +32,8 @@ const items = ref([
             :key="item.id"
             :title="item.room"
             :border-variant="item.completed === true ? 'success' : 'danger'"
+            variant="flat"
+		        color="cardColor"
           >
             <v-card-text v-if="item.role === 'Attack'">
               <v-icon icon="mdi-sword"></v-icon>
@@ -43,7 +45,7 @@ const items = ref([
             </v-card-text>
             <v-card-text> Description: {{ item.description }} </v-card-text>
             <v-card-actions>
-              <v-btn variant="outlined">Go to Room</v-btn>
+              <v-btn  variant="text" color="primary">Go to Room</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>

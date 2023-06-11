@@ -14,7 +14,10 @@ import '@mdi/font/css/materialdesignicons.css'
 const turtlTheme: ThemeDefinition = {
   dark: false,
   colors: {
-    primary: '#333399'
+    primary: '#333399',
+    cardColor: '#f5f5fa',
+    finished: '#93E67A',
+    progress: '#9191E5'
   }
 }
 

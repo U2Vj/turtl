@@ -48,9 +48,13 @@ function toggleEdit() {
               prepend-inner-icon="mdi-pencil"
               type="edit"
               v-model="taskName"
+              clearable
+              variant="underlined"
+              base-color="primary"
+              color="primary"
             >
             </v-text-field>
-            <v-btn @click="toggleEdit">{{ editLabel }}</v-btn>
+            <v-btn variant="tonal" color="primary" @click="toggleEdit">{{ editLabel }}</v-btn>
           </div>
           <div class="mt-5">
             <h2>Task Description</h2>
@@ -60,6 +64,9 @@ function toggleEdit() {
               clearable
               label="Write here the description"
               v-model="taskDescription"
+              variant="underlined"
+              base-color="primary"
+              color="primary"
             ></v-textarea>
           </div>
           <div>
@@ -68,14 +75,14 @@ function toggleEdit() {
           <div>
             <v-list>
               <v-list-item v-for="item in allCriteria" :key="item.id">
-                <v-card :key="item.id" variant="outlined">
+                <v-card :key="item.id" variant="flat" color="cardColor">
                   <v-table density="compact">
                     <tbody>
                       <tr>
                         <td width="2%">{{ item.id }}</td>
                         <td width="5%">{{ item.type }}</td>
                         <td width="40%">{{ item.description }}</td>
-                        <td width="7%"><v-btn variant="text">Edit</v-btn></td>
+                        <td width="7%"><v-btn variant="text" color="primary">Edit</v-btn></td>
                       </tr>
                     </tbody>
                   </v-table>
@@ -84,7 +91,7 @@ function toggleEdit() {
             </v-list>
           </div>
           <div>
-            <v-btn variant="outlined">+ Add new acceptance criterium</v-btn>
+            <v-btn variant="tonal" color="primary">+ Add new acceptance criterium</v-btn>
           </div>
           <div class="mt-5">
             <h2>Virtualizations</h2>
@@ -92,14 +99,14 @@ function toggleEdit() {
           <div>
             <v-list>
               <v-list-item v-for="item in allVirtual" :key="item.id">
-                <v-card :key="item.id" variant="outlined">
-                  <v-table density="compact">
+                <v-card :key="item.id" variant="flat" color="cardColor">
+                  <v-table density="compact" >
                     <tbody>
                       <tr>
                         <td width="21%">{{ item.type }}</td>
                         <td width="40%">{{ item.title }}</td>
                         <td width="40%">{{ item.accesable }}</td>
-                        <td width="20%"><v-btn variant="text">Edit</v-btn></td>
+                        <td width="20%"><v-btn variant="text" color="primary">Edit</v-btn></td>
                       </tr>
                     </tbody>
                   </v-table>
@@ -108,13 +115,13 @@ function toggleEdit() {
             </v-list>
           </div>
           <div>
-            <v-btn variant="outlined">+ Add new virtualization</v-btn>
+            <v-btn variant="tonal" color="primary">+ Add new virtualization</v-btn>
           </div>
         </v-col>
 
         <v-col cols="12" sm="8" md="3">
           <div>
-            <v-card variant="outlined">
+            <v-card variant="flat" color="cardColor">
               <v-card-item>
                 <v-card-title><h3>Information</h3></v-card-title>
               </v-card-item>
@@ -131,22 +138,12 @@ function toggleEdit() {
             </v-card>
           </div>
           <div class="mt-5">
-            <v-card variant="outlined">
-              <v-card-item>
-                <v-card-title><h3>Export</h3></v-card-title>
-              </v-card-item>
-              <v-card-actions>
-                <v-btn variant="outlined">Export Task Template</v-btn>
-              </v-card-actions></v-card
-            >
-          </div>
-          <div class="mt-5">
-            <v-card variant="outlined">
+            <v-card variant="flat" color="cardColor">
               <v-card-item>
                 <v-card-title><h3>Deletion</h3></v-card-title>
               </v-card-item>
               <v-card-actions>
-                <v-btn text variant="outlined">Permanently Delete<br />Task Template</v-btn>
+                <v-btn variant="tonal" color="error">Permanently Delete<br />Task Template</v-btn>
               </v-card-actions></v-card
             >
           </div>

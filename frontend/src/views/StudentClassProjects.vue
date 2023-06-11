@@ -270,31 +270,26 @@ function getExpandIcon(item: any) {
             <v-card-text>
               <v-row>
                 <v-col v-for="item in projects" :key="item.id" cols="12" sm="8" md="5">
-                  <v-card :key="item.id" :title="item.room" variant="outlined">
-                    <v-card-text v-if="getTaskProgressOfProject(item.id) < 100">
-                      <div>
-                        {{ getDoneTasksOfProject(item.id) }} /
-                        {{ getAllTasksOfProject(item.id) }} Tasks Done
-                      </div>
+                  <v-card :key="item.id" :title="item.room" variant="flat" color="cardColor">
+                    <v-card-text>
                       <v-progress-linear
-                        :color="getTaskProgressOfProject(item.id) === 100 ? 'success' : 'grey'"
-                        :height="20"
-                        :model-value="getTaskProgressOfProject(item.id)"
+                        :color="getTaskProgressOfProject(item.id) === 100 ? 'finished' : 'progress'"
+                        :height="25"
                         rounded
+                        rounded-bar
+                        bg-color='#ffffff'
+                        bg-opacity='1'
+                        :model-value="getTaskProgressOfProject(item.id)"
                       >
                         <template v-slot:default>
                           <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
                         </template>
                       </v-progress-linear>
                     </v-card-text>
-                    <v-card-text v-else class="text-success">
-                      <v-icon icon="mdi-check-circle-outline" color="success"></v-icon>
-                      Project Complete
-                    </v-card-text>
                     <v-card-actions>
                       <div>
                         <v-btn
-                          variant="outlined"
+                          variant="text" color="primary"
                           :append-icon="getExpandIcon(item)"
                           @click="toggleExpansion(item)"
                           >View Tasks</v-btn
@@ -302,7 +297,7 @@ function getExpandIcon(item: any) {
                       </div>
                       <v-spacer></v-spacer>
                       <div>
-                        <v-btn variant="outlined" v-if="getTaskProgressOfProject(item.id) < 100"
+                        <v-btn variant="text" color="primary" v-if="getTaskProgressOfProject(item.id) < 100"
                           >Continue</v-btn
                         >
                       </div>
@@ -335,7 +330,7 @@ function getExpandIcon(item: any) {
               <v-row justify="space-around">
                 <v-col cols="12" sm="8" md="5">
                   <div>
-                    <v-card variant="outlined">
+                    <v-card variant="flat" color="cardColor">
                       <v-card-title>Information</v-card-title>
                       <v-card-text>
                         <div class="d-flex">
@@ -365,8 +360,8 @@ function getExpandIcon(item: any) {
                     </v-card>
                   </div>
                   <div class="mt-5">
-                    <v-card variant="outlined">
-                      <v-card-title>Helpful Ressources:</v-card-title>
+                    <v-card variant="flat" color="cardColor">
+                      <v-card-title>Helpful Ressources</v-card-title>
                       <v-card-text>
                         <a
                           v-for="(resource, index) in classroom.helpfulResources"
@@ -381,35 +376,39 @@ function getExpandIcon(item: any) {
                 </v-col>
                 <v-col cols="12" sm="8" md="5">
                   <div>
-                    <v-card variant="outlined">
-                      <v-card-title>My Progress:</v-card-title>
+                    <v-card variant="flat" color="cardColor">
+                      <v-card-title>My Progress</v-card-title>
                       <v-card-text>
-                        <div>{{ getTasksDone() }} / {{ getAllTasks() }} Tasks Done:</div>
-                        <div>
+                        {{ getTasksDone() }} / {{ getAllTasks() }} Tasks Done:
+
                           <v-progress-linear
-                            :color="getTaskProgress() === 100 ? 'success' : 'grey'"
-                            :height="20"
+                            :color="getTaskProgress() === 100 ? 'finished' : 'progress'"
+                            :height="25"
                             :model-value="getTaskProgress()"
                             rounded
+                            rounded-bar
+                            bg-color='#ffffff'
+                            bg-opacity='1'
                           >
                             <template v-slot:default>
                               <strong>{{ Math.ceil(getTaskProgress()) }}%</strong>
                             </template>
                           </v-progress-linear>
-                        </div>
-                        <div>
+
                           {{ getNumberOfDoneProjects() }} / {{ projects.length }} Projects Done
-                        </div>
-                        <div>
+
                           <v-progress-linear
+                          :height="25"
+                          rounded
+                          rounded-bar
+                          bg-color='#ffffff'
+                          bg-opacity='1'
                             :color="
                               getNumberOfDoneProjects() / projects.length === 100
-                                ? 'success'
-                                : 'grey'
+                                ? 'finished'
+                                : 'progress'
                             "
-                            :height="20"
                             :model-value="100 * (getNumberOfDoneProjects() / projects.length)"
-                            rounded
                           >
                             <template v-slot:default>
                               <strong
@@ -419,12 +418,11 @@ function getExpandIcon(item: any) {
                               >
                             </template>
                           </v-progress-linear>
-                        </div>
                       </v-card-text>
                     </v-card>
                   </div>
                   <div class="mt-5">
-                    <v-card variant="outlined">
+                    <v-card variant="flat" color="cardColor">
                       <v-card-title>My Team</v-card-title>
                       <v-card-text>
                         <div><h3>Attacker</h3></div>

@@ -62,7 +62,7 @@ function join() {
           <h1>My Classrooms</h1>
         </v-col>
         <v-col cols="auto">
-          <v-btn to="/allclassrooms-stud"> Join Classroom </v-btn>
+          <v-btn variant="tonal" color="primary" to="/allclassrooms-stud"> Join Classroom </v-btn>
         </v-col>
       </v-row>
       <v-row>
@@ -71,7 +71,8 @@ function join() {
             :key="item.id"
             :title="item.room"
             :subtitle="item.manager_name"
-            :border-variant="item.completed === true ? 'success' : 'danger'"
+            variant="flat"
+            color="cardColor"
           >
             <v-card-text v-if="item.role === 'Attack'">
               <v-icon icon="mdi-sword"></v-icon>
@@ -84,10 +85,13 @@ function join() {
             <v-card-text>
               <v-progress-linear
                 id="probar"
-                :color="item.progress === 100 ? 'success' : 'grey'"
-                :height="20"
+                :color="item.progress === 100 ? 'finished' : 'progress'"
+                :height="25"
                 :model-value="item.progress"
                 rounded
+                rounded-bar
+                bg-color="#ffffff"
+                bg-opacity="1"
               >
                 <template v-slot:default>
                   <strong>{{ Math.ceil(item.progress) }}%</strong>
@@ -95,7 +99,9 @@ function join() {
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <v-btn variant="outlined" to="StudentClassProjects">Visit Classroom</v-btn>
+              <v-btn variant="text" color="primary" to="StudentClassProjects"
+                >Visit Classroom</v-btn
+              >
             </v-card-actions>
           </v-card>
         </v-col>

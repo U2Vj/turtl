@@ -64,19 +64,25 @@ const classrooms = ref([
           sm="6"
           md="3"
         >
-          <v-card :key="classroom.id" :title="classroom.room">
+          <v-card :key="classroom.id" :title="classroom.room" variant="flat" color="cardColor">
+            <v-card-text>
             <v-progress-linear
               id="probar"
-              color="primary"
-              :height="20"
+              :color="classroom.progress === 100 ? 'finished' : 'progress'"
+              :height="25"
+              rounded
+              rounded-bar
+              bg-color='#ffffff'
+              bg-opacity='1'
               :model-value="classroom.progress"
             >
               <template v-slot:default="{ value }">
                 <strong>{{ Math.ceil(classroom.progress) }}%</strong>
               </template>
             </v-progress-linear>
+            </v-card-text>
             <v-card-actions>
-              <v-btn variant="outlined">Go to Room</v-btn>
+              <v-btn variant="text" color="primary">Go to Room</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>
