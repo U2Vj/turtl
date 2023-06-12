@@ -26,7 +26,7 @@ async function addProjectTemplate(title: string) {
 	base-color="primary"
 	color="primary" v-model="titleNewProject" label="Name of new project template"></v-text-field>
         <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
-        <v-btn variant="tonal" color="primary" class="elevation-2" @click="addProjectTemplate(titleNewProject)">Create</v-btn>
+        <v-btn variant="elevated" color="primary" class="elevation-2" @click="addProjectTemplate(titleNewProject)">Create</v-btn>
       </template>
     </v-card>
   </v-dialog>

@@ -29,7 +29,7 @@ async function createClassroomTemplate(title: string) {
           label="Name of new classroom template"
         ></v-text-field>
         <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
-        <v-btn variant="tonal" color="primary" class="elevation-2" @click="createClassroomTemplate(titleNewClassroom)">Create</v-btn>
+        <v-btn variant="elevated" color="primary" class="elevation-2" @click="createClassroomTemplate(titleNewClassroom)">Create</v-btn>
       </template>
     </v-card>
   </v-dialog>

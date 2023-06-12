@@ -100,7 +100,7 @@ function join() {
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn variant="text" color="primary" @click="close"> Cancel </v-btn>
-                    <v-btn variant="tonal" color="primary" class="elevation-2" @click="join"> Join Classroom </v-btn>
+                    <v-btn variant="elevated" color="primary" class="elevation-2" @click="join"> Join Classroom </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
