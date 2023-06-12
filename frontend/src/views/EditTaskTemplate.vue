@@ -143,7 +143,7 @@ function toggleEdit() {
                 <v-card-title><h3>Deletion</h3></v-card-title>
               </v-card-item>
               <v-card-actions>
-                <v-btn variant="tonal" color="error">Permanently Delete<br />Task Template</v-btn>
+                <v-btn variant="tonal" color="error" class="elevation-2">Permanently Delete<br />Task Template</v-btn>
               </v-card-actions></v-card
             >
           </div>

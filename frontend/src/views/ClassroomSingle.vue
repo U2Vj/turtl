@@ -25,7 +25,7 @@ const taskDescription = ref(
                 color="primary"></v-textarea>
             </div>
             <div>
-              <v-btn class="mt-5 elevation-2" variant="tonal" color="primary">Verity Task</v-btn>
+              <v-btn class="mt-5 elevation-2" variant="elevated" color="primary">Verify Task</v-btn>
             </div>
           </div>
         </v-col>

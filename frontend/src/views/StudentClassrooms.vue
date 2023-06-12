@@ -60,7 +60,7 @@ function join() {
       <v-row>
          <div class="d-flex flex-row mt-5 mb-5 align-center">
             <h1>My Classrooms</h1>
-            <v-btn class="ml-10 elevation-2" variant="tonal" color="primary" to="/allclassrooms-stud"> Join Classroom </v-btn>
+            <v-btn class="ml-10 elevation-2" variant="elevated" color="primary" to="/allclassrooms-stud"> Join Classroom </v-btn>
           </div>
       </v-row>
       <v-row>

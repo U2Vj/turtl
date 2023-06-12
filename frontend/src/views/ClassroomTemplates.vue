@@ -40,7 +40,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
         <v-col>
           <div class="d-flex align-center">
             <h1>Classroom Templates</h1>
-            <v-btn variant="tonal" color="primary" class="ml-10 elevation-2" prepend-icon="mdi-plus"
+            <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"
               >Create Template
               <CreateClassroomTemplateModal></CreateClassroomTemplateModal>
             </v-btn>
