@@ -162,17 +162,7 @@ const projects = ref([
   }
 ])
 
-function toggleExpansion(item: any) {
-  if (expandedItem.value === item) {
-    item.expanded = !item.expanded
-  } else {
-    if (expandedItem.value !== null) {
-      expandedItem.value.expanded = false
-    }
-    item.expanded = true
-    expandedItem.value = item
-  }
-}
+const showTask = ref(false)
 
 function getTasksDone() {
   let completedTasks = 0
@@ -286,36 +276,38 @@ function getExpandIcon(item: any) {
                       </v-progress-linear>
                     </v-card-text>
                     <v-card-actions>
-                      <div>
                         <v-btn
+                          v-if="!showTask"
+                          append-icon="mdi-chevron-down"
+                          @click="showTask = true"
                           variant="text" color="primary"
-                          :append-icon="getExpandIcon(item)"
-                          @click="toggleExpansion(item)"
-                          >View Tasks</v-btn
-                        >
-                      </div>
+                          >
+                          View Tasks
+                          </v-btn>
+                          <v-btn
+                            v-if="showTask"
+                            variant="text" color="primary"
+                            append-icon="mdi-chevron-down"
+                            @click="showTask = false">
+                              Hide Tasks
+                          </v-btn>
                       <v-spacer></v-spacer>
-                      <div>
                         <v-btn variant="tonal" color="primary" class="elevation-2" v-if="getTaskProgressOfProject(item.id) < 100"
                           >Continue</v-btn
                         >
-                      </div>
                     </v-card-actions>
-                    <v-expand-transition>
-                      <div v-show="item.expanded">
-                        <v-divider></v-divider>
-                        <v-card-text>
-                          <v-list-item v-for="(task, index) in item.taskList" :key="task.id"
-                            >{{ index + 1 }}. {{ task.task }}
+                        <v-card-text v-show="showTask">
+                          <div :id="`taskWrapper${item.id}`">
+                            <div v-for="(task, index) in item.taskList" :key="task.id">
+                             {{ index + 1 }}. {{ task.task }}
                             <v-icon
                               v-if="task.done === true"
                               icon="mdi-check-circle-outline"
                               color="success"
                             ></v-icon>
-                          </v-list-item>
+                            </div>
+                          </div>
                         </v-card-text>
-                      </div>
-                    </v-expand-transition>
                   </v-card>
                 </v-col>
               </v-row>
