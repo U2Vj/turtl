@@ -297,7 +297,7 @@ function getExpandIcon(item: any) {
                       </div>
                       <v-spacer></v-spacer>
                       <div>
-                        <v-btn variant="text" color="primary" v-if="getTaskProgressOfProject(item.id) < 100"
+                        <v-btn variant="tonal" color="primary" class="elevation-2" v-if="getTaskProgressOfProject(item.id) < 100"
                           >Continue</v-btn
                         >
                       </div>

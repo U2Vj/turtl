@@ -98,7 +98,7 @@ function join() {
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <v-btn variant="text" color="primary" to="StudentClassProjects" class="d-flex flex-fill"
+              <v-btn variant="tonal" color="primary" to="StudentClassProjects" class="d-flex flex-fill elevation-2"
                 >Visit Classroom</v-btn
               >
             </v-card-actions>

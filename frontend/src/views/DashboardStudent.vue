@@ -82,7 +82,7 @@ const classrooms = ref([
             </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <v-btn variant="text" color="primary" class="d-flex flex-fill">Go to Room</v-btn>
+              <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2">Go to Room</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>

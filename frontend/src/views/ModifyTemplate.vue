@@ -117,7 +117,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   <v-col md="3" offset-md="2">
                     <v-card variant="flat" color="cardColor" class="mt-5 pa-5 elevation-4">
                       <h3>Delete</h3>
-                      <v-btn variant="tonal" color="error">Permanently Delete Template</v-btn>
+                      <v-btn variant="tonal" color="error" class="elevation-2">Permanently Delete Template</v-btn>
                     </v-card>
                   </v-col>
                 </v-row>

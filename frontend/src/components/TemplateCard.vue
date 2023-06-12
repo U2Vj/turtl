@@ -32,13 +32,13 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
             v-if="!showInformation"
             append-icon="mdi-chevron-down"
             @click="showInformation = true"
-            variant="tonal" color="primary" class="elevation-2"
+            variant="text" color="primary"
           >
             Show information
           </v-btn>
           <v-btn
             v-if="showInformation"
-            variant="tonal" color="primary" class="elevation-2"
+            variant="text" color="primary"
             append-icon="mdi-chevron-down"
             @click="showInformation = false"
           >
