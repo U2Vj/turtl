@@ -16,8 +16,8 @@ const turtlTheme: ThemeDefinition = {
   colors: {
     primary: '#333399',
     cardColor: '#f5f5fa',
-    finished: '#93E67A',
-    progress: '#9191E5'
+    finished: '#cfdd61',
+    progress: '#7e86d0'
   }
 }
 
