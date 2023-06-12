@@ -64,7 +64,7 @@ const classrooms = ref([
           sm="6"
           md="3"
         >
-          <v-card :key="classroom.id" :title="classroom.room" variant="flat" color="cardColor">
+          <v-card :key="classroom.id" :title="classroom.room" variant="flat" color="cardColor" class="elevation-4">
             <v-card-text>
             <v-progress-linear
               id="probar"
@@ -82,7 +82,7 @@ const classrooms = ref([
             </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <v-btn variant="text" color="primary">Go to Room</v-btn>
+              <v-btn variant="text" color="primary" class="d-flex flex-fill">Go to Room</v-btn>
             </v-card-actions>
           </v-card>
         </v-col>

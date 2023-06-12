@@ -159,7 +159,7 @@ watch(selected, (newSelected) => {
       </v-row>
       <v-row>
         <v-col>
-          <v-btn variant="tonal" color="primary" @click="createClassroom">Create Classroom</v-btn>
+          <v-btn variant="tonal" color="primary" class="elevation-2" @click="createClassroom">Create Classroom</v-btn>
         </v-col>
       </v-row>
     </v-container>

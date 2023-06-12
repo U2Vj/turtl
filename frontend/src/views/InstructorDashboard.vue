@@ -109,7 +109,7 @@ const classrooms = ref([
     <div class="main-container mt-5 ml-3 mr-3">
       <div class="d-flex flex-row mb-2 align-center justify-space-between">
         <h1>My Classrooms</h1>
-        <v-btn prepend-icon="mdi-plus-box" size="large" variant="outlined" color="green-darken-4">
+        <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" class="elevation-2">
           Create Classroom
         </v-btn>
       </div>
@@ -123,7 +123,9 @@ const classrooms = ref([
             sm="6"
             md="4"
           >
-            <v-card :key="classroom.id" class="bg-grey-lighten-4">
+            <v-card :key="classroom.id" variant="flat"
+                color="cardColor"
+                class="elevation-4">
               <v-card-title :title="classroom.classroom">
                 {{ classroom.classroom }}
               </v-card-title>
@@ -154,7 +156,7 @@ const classrooms = ref([
                 ></p>
               </v-card-text>
               <v-card-actions>
-                <v-btn variant="outlined" class="d-flex flex-fill bg-grey-darken-3"
+                <v-btn variant="text" color="primary" class="d-flex flex-fill"
                   >Visit Classroom</v-btn
                 >
               </v-card-actions>

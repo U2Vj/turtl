@@ -67,7 +67,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                 <h2>Project Templates</h2>
                 <v-btn
                   prepend-icon="mdi-plus"
-                  variant="tonal" color="primary" class="ml-10"
+                  variant="tonal" color="primary" class="ml-10 elevation-2"
                   @click="showCreateModal = true"
                 >
                   Add Project Template
@@ -87,11 +87,10 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
               </div>
             </v-window-item>
             <v-window-item value="1">
-              <h2>Information</h2>
               <v-container fluid class="pa-0">
                 <v-row>
                   <v-col md="3">
-                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5">
+                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5 elevation-4">
                       <h3>Generell Information</h3>
                       <div class="d-flex">
                         <div>
@@ -106,7 +105,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                         </div>
                       </div>
                     </v-card>
-                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5">
+                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5 elevation-4">
                       <h3>Helpful resources</h3>
                       <div v-for="(resource, index) in templateData.resources" :key="resource.id">
                         <a :href="resource.link">
@@ -116,7 +115,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                     </v-card>
                   </v-col>
                   <v-col md="3" offset-md="2">
-                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5">
+                    <v-card variant="flat" color="cardColor" class="mt-5 pa-5 elevation-4">
                       <h3>Delete</h3>
                       <v-btn variant="tonal" color="error">Permanently Delete Template</v-btn>
                     </v-card>
@@ -127,7 +126,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
             <v-window-item value="2"
               ><div class="d-flex">
                 <h2>Instructors</h2>
-                <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" class="ml-10">
+                <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" class="ml-10 elevation-2">
                   Add Instructors
                   <AddInstructorModal></AddInstructorModal>
                 </v-btn>

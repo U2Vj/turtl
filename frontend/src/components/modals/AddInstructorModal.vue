@@ -29,7 +29,7 @@ const showDialog = ref(false)
           <template #[`item.add`]="{ item }">
             <v-btn
               icon="mdi-plus"
-              variant="text"
+              variant="text" color="primary"
               @click="
                 () => {
                   templateStore.addInstructor(item.raw.instructorId, item.raw.email)
@@ -38,7 +38,7 @@ const showDialog = ref(false)
             />
           </template>
         </v-data-table>
-        <v-btn @click="showDialog = false">Close</v-btn>
+        <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
       </template>
     </v-card>
   </v-dialog>

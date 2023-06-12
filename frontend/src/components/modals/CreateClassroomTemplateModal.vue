@@ -21,11 +21,15 @@ async function createClassroomTemplate(title: string) {
       <template #title>Create Classroom Template</template>
       <template #text>
         <v-text-field
+        clearable
+	variant="underlined"
+	base-color="primary"
+	color="primary"
           v-model="titleNewClassroom"
           label="Name of new classroom template"
         ></v-text-field>
-        <v-btn color="primary" @click="createClassroomTemplate(titleNewClassroom)">Create</v-btn>
-        <v-btn @click="showDialog = false">Close</v-btn>
+        <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
+        <v-btn variant="tonal" color="primary" class="elevation-2" @click="createClassroomTemplate(titleNewClassroom)">Create</v-btn>
       </template>
     </v-card>
   </v-dialog>

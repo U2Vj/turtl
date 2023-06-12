@@ -91,7 +91,7 @@ function toggleEdit() {
             </v-list>
           </div>
           <div>
-            <v-btn variant="tonal" color="primary">+ Add new acceptance criterium</v-btn>
+            <v-btn variant="tonal" color="primary" class="elevation-2">+ Add new acceptance criterium</v-btn>
           </div>
           <div class="mt-5">
             <h2>Virtualizations</h2>
@@ -115,13 +115,13 @@ function toggleEdit() {
             </v-list>
           </div>
           <div>
-            <v-btn variant="tonal" color="primary">+ Add new virtualization</v-btn>
+            <v-btn variant="tonal" color="primary" class="elevation-2">+ Add new virtualization</v-btn>
           </div>
         </v-col>
 
         <v-col cols="12" sm="8" md="3">
           <div>
-            <v-card variant="flat" color="cardColor">
+            <v-card variant="flat" color="cardColor" class="elevation-4">
               <v-card-item>
                 <v-card-title><h3>Information</h3></v-card-title>
               </v-card-item>
@@ -138,7 +138,7 @@ function toggleEdit() {
             </v-card>
           </div>
           <div class="mt-5">
-            <v-card variant="flat" color="cardColor">
+            <v-card variant="flat" color="cardColor" class="elevation-4">
               <v-card-item>
                 <v-card-title><h3>Deletion</h3></v-card-title>
               </v-card-item>

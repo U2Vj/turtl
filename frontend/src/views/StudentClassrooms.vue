@@ -58,12 +58,10 @@ function join() {
   <v-main>
     <v-container fluid>
       <v-row>
-        <v-col cols="auto">
-          <h1>My Classrooms</h1>
-        </v-col>
-        <v-col cols="auto">
-          <v-btn variant="tonal" color="primary" to="/allclassrooms-stud"> Join Classroom </v-btn>
-        </v-col>
+         <div class="d-flex flex-row mt-5 mb-5 align-center">
+            <h1>My Classrooms</h1>
+            <v-btn class="ml-10 elevation-2" variant="tonal" color="primary" to="/allclassrooms-stud"> Join Classroom </v-btn>
+          </div>
       </v-row>
       <v-row>
         <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="3">
@@ -71,7 +69,8 @@ function join() {
             :key="item.id"
             :title="item.room"
             :subtitle="item.manager_name"
-            variant="flat"
+            variant="elevated"
+            class="elevation-4"
             color="cardColor"
           >
             <v-card-text v-if="item.role === 'Attack'">
@@ -99,7 +98,7 @@ function join() {
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <v-btn variant="text" color="primary" to="StudentClassProjects"
+              <v-btn variant="text" color="primary" to="StudentClassProjects" class="d-flex flex-fill"
                 >Visit Classroom</v-btn
               >
             </v-card-actions>

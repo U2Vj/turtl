@@ -100,13 +100,13 @@ function join() {
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn variant="text" color="primary" @click="close"> Cancel </v-btn>
-                    <v-btn variant="tonal" color="primary" @click="join"> Join Classroom </v-btn>
+                    <v-btn variant="tonal" color="primary" class="elevation-2" @click="join"> Join Classroom </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
             </template>
             <template #item.actions="{ item }">
-              <v-btn variant="tonal" color="primary" @click="joinClassroomBtn(item.raw)">Join classroom</v-btn>
+              <v-btn variant="tonal" color="primary" class="elevation-2" @click="joinClassroomBtn(item.raw)">Join classroom</v-btn>
             </template>
             <template v-slot:no-data>
               <p>No data</p>

@@ -8,7 +8,7 @@ const userStore = useUserStore()
 
 <template>
   <div>
-    <v-app-bar sticky color="cardColor" flat="True">
+    <v-app-bar sticky color="cardColor" class="elevation-4">
       <div class="flex-grow-1">
         <v-btn to="/dashboard-prof">Classroom I??</v-btn>
         <v-btn to="/createclassroominstance">CreateClass I</v-btn>

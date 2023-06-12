@@ -270,7 +270,7 @@ function getExpandIcon(item: any) {
             <v-card-text>
               <v-row>
                 <v-col v-for="item in projects" :key="item.id" cols="12" sm="8" md="5">
-                  <v-card :key="item.id" :title="item.room" variant="flat" color="cardColor">
+                  <v-card :key="item.id" :title="item.room" variant="flat" color="cardColor" class="elevation-4">
                     <v-card-text>
                       <v-progress-linear
                         :color="getTaskProgressOfProject(item.id) === 100 ? 'finished' : 'progress'"
@@ -330,7 +330,7 @@ function getExpandIcon(item: any) {
               <v-row justify="space-around">
                 <v-col cols="12" sm="8" md="5">
                   <div>
-                    <v-card variant="flat" color="cardColor">
+                    <v-card variant="flat" color="cardColor" class="elevation-4">
                       <v-card-title>Information</v-card-title>
                       <v-card-text>
                         <div class="d-flex">
@@ -360,7 +360,7 @@ function getExpandIcon(item: any) {
                     </v-card>
                   </div>
                   <div class="mt-5">
-                    <v-card variant="flat" color="cardColor">
+                    <v-card variant="flat" color="cardColor" class="elevation-4">
                       <v-card-title>Helpful Ressources</v-card-title>
                       <v-card-text>
                         <a
@@ -376,7 +376,7 @@ function getExpandIcon(item: any) {
                 </v-col>
                 <v-col cols="12" sm="8" md="5">
                   <div>
-                    <v-card variant="flat" color="cardColor">
+                    <v-card variant="flat" color="cardColor" class="elevation-4">
                       <v-card-title>My Progress</v-card-title>
                       <v-card-text>
                         {{ getTasksDone() }} / {{ getAllTasks() }} Tasks Done:
@@ -422,7 +422,7 @@ function getExpandIcon(item: any) {
                     </v-card>
                   </div>
                   <div class="mt-5">
-                    <v-card variant="flat" color="cardColor">
+                    <v-card variant="flat" color="cardColor" class="elevation-4">
                       <v-card-title>My Team</v-card-title>
                       <v-card-text>
                         <div><h3>Attacker</h3></div>
