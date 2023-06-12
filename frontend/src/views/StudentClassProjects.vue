@@ -266,8 +266,7 @@ function getExpandIcon(item: any) {
       </v-tabs>
       <v-window v-model="tab">
         <v-window-item value="1">
-          <v-card elevation="0">
-            <v-card-text>
+          <v-container fluid>
               <v-row>
                 <v-col v-for="item in projects" :key="item.id" cols="12" sm="8" md="5">
                   <v-card :key="item.id" :title="item.room" variant="flat" color="cardColor" class="elevation-4">
@@ -320,8 +319,7 @@ function getExpandIcon(item: any) {
                   </v-card>
                 </v-col>
               </v-row>
-            </v-card-text>
-          </v-card>
+</v-container>
         </v-window-item>
 
         <v-window-item value="2">

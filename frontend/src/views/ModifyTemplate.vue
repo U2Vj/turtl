@@ -53,8 +53,6 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
   <turtl-header></turtl-header>
   <v-main v-if="templateData">
     <v-container fluid>
-      <v-row>
-        <v-col>
           <h1>{{ templateData.templateName }}</h1>
           <v-tabs v-model="tab" color="primary">
             <v-tab value="0">Projects and Settings</v-tab>
@@ -63,7 +61,8 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
           </v-tabs>
           <v-window v-model="tab" class="mt-5">
             <v-window-item eager value="0">
-              <div class="d-flex">
+              <v-container fluid>
+              <div class="d-flex mb-5">
                 <h2>Project Templates</h2>
                 <v-btn
                   prepend-icon="mdi-plus"
@@ -85,9 +84,10 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   class="mt-5"
                 ></template-card>
               </div>
+              </v-container>
             </v-window-item>
             <v-window-item value="1">
-              <v-container fluid class="pa-0">
+              <v-container fluid>
                 <v-row>
                   <v-col md="3">
                     <v-card variant="flat" color="cardColor" class="mt-5 pa-5 elevation-4">
@@ -123,8 +123,9 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                 </v-row>
               </v-container>
             </v-window-item>
-            <v-window-item value="2"
-              ><div class="d-flex">
+            <v-window-item value="2">
+              <v-container fluid>
+              <div class="d-flex">
                 <h2>Instructors</h2>
                 <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" class="ml-10 elevation-2">
                   Add Instructors
@@ -143,10 +144,9 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   <v-btn icon="mdi-trash-can-outline" variant="text" />
                 </template>
               </v-data-table>
+              </v-container>
             </v-window-item>
           </v-window>
-        </v-col>
-      </v-row>
     </v-container>
   </v-main>
   <Footer></Footer>
