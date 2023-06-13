@@ -77,9 +77,9 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                 <template-card
                   v-for="project in templateData.project_templates"
                   :key="project.id"
-                  :project-id="project.id"
-                  :name="project.title"
-                  :tasks="project.task_template"
+                  :id="project.id"
+                  :title="project.title"
+                  :task_template="project.task_template"
                   @update:task_template="handleUpdateTaskOrder"
                   class="mt-5"
                 ></template-card>

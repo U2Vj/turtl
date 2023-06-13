@@ -3,21 +3,21 @@ import { ref } from 'vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 
 const emit = defineEmits<{
-  (e: 'update:tasks', projectId: string, event: any): void
+  (e: 'update:task_template', id: string, event: any): void
 }>()
 
 const props = defineProps<{
-  projectId: string
-  name: string
-  tasks: { id: string; title: string }[]
+  id: string
+  title: string
+  task_template: { id: string; title: string }[]
 }>()
 
 const showInformation = ref(false)
 
-useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
+useSortable(`#taskWrapper${props.id}`, props.task_template, {
   animation: 150,
   onUpdate: (event: any) => {
-    emit('update:tasks', props.projectId, event)
+    emit('update:task_template', props.id, event)
   }
 })
 </script>
@@ -25,7 +25,7 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
 <template>
   <v-card max-width="1000" variant="flat" color="cardColor" class="elevation-4" style="cursor: grab">
       <v-card-title>
-              <v-icon icon="mdi-drag" />{{ name }}
+              <v-icon icon="mdi-drag" />{{ title }}
       </v-card-title>
       <v-card-actions>
           <v-btn
@@ -47,8 +47,8 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
           </v-card-actions>
       <v-card-text v-show="showInformation">
           Tasks
-          <div :id="`taskWrapper${props.projectId}`">
-            <div v-for="task in props.tasks" :key="task.id" style="cursor: grab">
+          <div :id="`taskWrapper${props.id}`">
+            <div v-for="task in props.task_template" :key="task.id" style="cursor: grab">
               <v-icon icon="mdi-drag" />{{ task.title }}
             </div>
           </div>
