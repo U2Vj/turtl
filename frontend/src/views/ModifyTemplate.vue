@@ -65,8 +65,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
               <div class="d-flex mb-5">
                 <h2>Project Templates</h2>
                 <v-btn
-                  prepend-icon="mdi-plus"
-                  variant="tonal" color="primary" class="ml-10 elevation-2"
+                  variant="elevated" color="primary" class="ml-10 elevation-2"
                   @click="showCreateModal = true"
                 >
                   Add Project Template
