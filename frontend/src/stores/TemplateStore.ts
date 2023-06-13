@@ -5,22 +5,56 @@ import { useCloned } from '@vueuse/core'
 
 type BasicTemplateData = {
   templateId: string
-  templateName: string
-  creationDate: string
+  title: string
+  created_at: string
+  updated_at: string
 }
 
-type Task = { id: string; name: string }
+type TaskTemplate = {
+  id: string
+  title: string
+  description: string
+  difficulty: string
+  type: string
+  virtualization: Virtualization[]
+  acceptance_criteria: AcceptanceCriteria[]
+}
 
-export type Instructor = { instructorId: string; email: string }
+type Virtualization = {
+  id: string
+  name: string
+  role: string
+  compose_file: string
+}
+
+type AcceptanceCriteria = {
+  acceptance_criteria_questionaire: AcceptanceCriteriaQuestionaire[]
+}
+
+type AcceptanceCriteriaQuestionaire = {
+  questions: Question[]
+}
+
+type Question = {
+  question: string
+  question_choice: QuestionChoice[]
+}
+
+type QuestionChoice = {
+  answer: string
+  is_correct: boolean
+}
+
+export type User = { instructorId: string; email: string }
 
 type AdditionalTemplateData = {
-  projects: {
+  project_templates: {
     id: string
-    name: string
-    tasks: Task[]
+    title: string
+    task_template: TaskTemplate[]
   }[]
-  resources: { id: string; name: string; link: string }[]
-  instructors: Instructor[]
+  helpful_resources: { id: string; title: string; url: string }[]
+  managers: User[]
 }
 
 export type TemplateData = BasicTemplateData & AdditionalTemplateData
@@ -64,7 +98,7 @@ export const useTemplateStore = defineStore('template', () => {
 
   async function addInstructor(instructorId: string, email: string) {
     const { cloned } = useCloned(classroomTemplate)
-    cloned.value?.instructors.push({ instructorId, email })
+    cloned.value?.managers.push({ instructorId, email })
     classroomTemplate.value = await axios.put(`${import.meta.env.VITE_API_URL}/templates`, cloned)
   }
 
@@ -82,32 +116,197 @@ export const useTemplateStore = defineStore('template', () => {
 
 const mockdata: TemplateData = {
   templateId: '12',
-  creationDate: '2022.01.11',
-  templateName: 'Computer Networks',
-  projects: [
+  title: 'Computer Networks',
+  created_at: '2022.01.11',
+  updated_at: '2023.03.06',
+  helpful_resources: [
+    { id: '0', title: 'moodle course', url: 'https://www.google.com' },
+    { id: '1', title: 'Introduction to DHCP', url: 'https://www.google.com' }
+  ],
+  managers: [
+    { instructorId: 'John Doe', email: 'john.doe@mailservice.com' },
+    { instructorId: 'John Doe2', email: 'john.doe2@mailservice.com' }
+  ],
+  project_templates: [
     {
       id: '0',
-      name: 'Computer Network Project 1',
-      tasks: [
-        { id: '0', name: 'task 1 name' },
-        { id: '1', name: 'task 2 name' }
+      title: 'Computer Network Project 1',
+      task_template: [
+        {
+          id: '0',
+          title: 'task 1 name',
+          description: 'Eine BEschreibung',
+          difficulty: 'Beginner',
+          type: 'Attack',
+          virtualization: [
+            {
+              id: '0',
+              name: 'Docker',
+              role: 'User Shell',
+              compose_file: 'file'
+            }
+          ],
+          acceptance_criteria: [
+            {
+              acceptance_criteria_questionaire: [
+                {
+                  questions: [
+                    {
+                      question: 'What is the IP Adress?',
+                      question_choice: [
+                        {
+                          answer: '123.456.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '333.232.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '234.333.242',
+                          is_correct: true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: '1',
+          title: 'task 2 name',
+          description: 'Eine Beschreibung',
+          difficulty: 'Advanced',
+          type: 'Attack',
+          virtualization: [
+            {
+              id: '0',
+              name: 'Docker',
+              role: 'User Shell',
+              compose_file: 'file'
+            }
+          ],
+          acceptance_criteria: [
+            {
+              acceptance_criteria_questionaire: [
+                {
+                  questions: [
+                    {
+                      question: 'What is the IP Adress?',
+                      question_choice: [
+                        {
+                          answer: '123.456.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '333.232.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '234.333.242',
+                          is_correct: true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
       ]
     },
     {
-      id: '1',
-      name: 'Computer Network Project 2',
-      tasks: [
-        { id: '0', name: 'task 1 name' },
-        { id: '1', name: 'task 2 name' }
+      id: '2',
+      title: '2 Computer Network Project 2',
+      task_template: [
+        {
+          id: '0',
+          title: '2 task 1 name',
+          description: 'Eine BEschreibung',
+          difficulty: 'Beginner',
+          type: 'Attack',
+          virtualization: [
+            {
+              id: '0',
+              name: 'Docker',
+              role: 'User Shell',
+              compose_file: 'file'
+            }
+          ],
+          acceptance_criteria: [
+            {
+              acceptance_criteria_questionaire: [
+                {
+                  questions: [
+                    {
+                      question: 'What is the IP Adress?',
+                      question_choice: [
+                        {
+                          answer: '123.456.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '333.232.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '234.333.242',
+                          is_correct: true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        },
+        {
+          id: '1',
+          title: 'task 2 name',
+          description: 'Eine Beschreibung',
+          difficulty: 'Advanced',
+          type: 'Attack',
+          virtualization: [
+            {
+              id: '0',
+              name: 'Docker',
+              role: 'User Shell',
+              compose_file: 'file'
+            }
+          ],
+          acceptance_criteria: [
+            {
+              acceptance_criteria_questionaire: [
+                {
+                  questions: [
+                    {
+                      question: 'What is the IP Adress?',
+                      question_choice: [
+                        {
+                          answer: '123.456.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '333.232.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '234.333.242',
+                          is_correct: true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
       ]
     }
-  ],
-  resources: [
-    { id: '0', name: 'moodle course', link: 'https://www.google.com' },
-    { id: '1', name: 'Introduction to DHCP', link: 'https://www.google.com' }
-  ],
-  instructors: [
-    { instructorId: 'John Doe', email: 'john.doe@mailservice.com' },
-    { instructorId: 'John Doe2', email: 'john.doe2@mailservice.com' }
   ]
 }
