@@ -9,7 +9,7 @@ const emit = defineEmits<{
 const props = defineProps<{
   projectId: string
   name: string
-  tasks: { id: string; name: string }[]
+  tasks: { id: string; title: string }[]
 }>()
 
 const showInformation = ref(false)
@@ -49,7 +49,7 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
           Tasks
           <div :id="`taskWrapper${props.projectId}`">
             <div v-for="task in props.tasks" :key="task.id" style="cursor: grab">
-              <v-icon icon="mdi-drag" />{{ task.name }}
+              <v-icon icon="mdi-drag" />{{ task.title }}
             </div>
           </div>
       <v-card-actions>

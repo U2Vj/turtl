@@ -22,13 +22,13 @@ templateStore.fetchTemplate(props.templateId)
 watchEffect(() => {
   if (!templateData.value) return
 
-  useSortable('#cardWrapper', templateData.value.projects, {
+  useSortable('#cardWrapper', templateData.value.project_templates, {
     animation: 300,
     onUpdate: (event: any) => {
       if (!templateData.value) return
-      const copyTemplateDataProjects = templateData.value.projects.slice()
+      const copyTemplateDataProjects = templateData.value.project_templates.slice()
       moveArrayElement(copyTemplateDataProjects, event.oldIndex, event.newIndex)
-      templateData.value.projects = copyTemplateDataProjects
+      templateData.value.project_templates = copyTemplateDataProjects
     }
   })
 })
@@ -37,15 +37,15 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
   if (!templateData.value) {
     return
   }
-  const project = templateData.value.projects.find((project) => {
-    if (project.id == projectId) {
+  const project = templateData.value.project_templates.find((project_templates) => {
+    if (project_templates.id == projectId) {
       return true
     }
   })
   if (!project) {
     return
   }
-  moveArrayElement(project.tasks, event.oldIndex, event.newIndex)
+  moveArrayElement(project.task_template, event.oldIndex, event.newIndex)
 }
 </script>
 
@@ -53,7 +53,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
   <turtl-header></turtl-header>
   <v-main v-if="templateData">
     <v-container fluid>
-          <h1>{{ templateData.templateName }}</h1>
+          <h1>{{ templateData.title }}</h1>
           <v-tabs v-model="tab" color="primary">
             <v-tab value="0">Projects and Settings</v-tab>
             <v-tab value="1">Information</v-tab>
@@ -75,12 +75,12 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
               </div>
               <div id="cardWrapper">
                 <template-card
-                  v-for="project in templateData.projects"
+                  v-for="project in templateData.project_templates"
                   :key="project.id"
                   :project-id="project.id"
-                  :name="project.name"
-                  :tasks="project.tasks"
-                  @update:tasks="handleUpdateTaskOrder"
+                  :name="project.title"
+                  :tasks="project.task_template"
+                  @update:task_template="handleUpdateTaskOrder"
                   class="mt-5"
                 ></template-card>
               </div>
@@ -97,19 +97,21 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                           <div>Template Name:</div>
                           <div>Template ID:</div>
                           <div>Created At:</div>
+                          <div>Updated At:</div>
                         </div>
                         <div class="ml-auto">
-                          <div>{{ templateData.templateName }}</div>
+                          <div>{{ templateData.title }}</div>
                           <div>{{ templateData.templateId }}</div>
-                          <div>{{ templateData.creationDate }}</div>
+                          <div>{{ templateData.created_at }}</div>
+                          <div>{{ templateData.updated_at }}</div>
                         </div>
                       </div>
                     </v-card>
                     <v-card variant="flat" color="cardColor" class="mt-5 pa-5 elevation-4">
                       <h3>Helpful resources</h3>
-                      <div v-for="(resource, index) in templateData.resources" :key="resource.id">
-                        <a :href="resource.link">
-                          {{ `${index + 1}. ${resource.name}` }}
+                      <div v-for="(resource, index) in templateData.helpful_resources" :key="resource.id">
+                        <a :href="resource.url">
+                          {{ `${index + 1}. ${resource.title}` }}
                         </a>
                       </div>
                     </v-card>
@@ -138,7 +140,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   { title: 'Name', key: 'name' },
                   { title: 'Remove', key: 'remove' }
                 ]"
-                :items="templateData.instructors"
+                :items="templateData.managers"
               >
                 <template #[`item.remove`]>
                   <v-btn icon="mdi-trash-can-outline" variant="text" />

@@ -215,6 +215,48 @@ const mockdata: TemplateData = {
               ]
             }
           ]
+        },
+        {
+          id: '2',
+          title: 'task 1 name',
+          description: 'Eine BEschreibung',
+          difficulty: 'Beginner',
+          type: 'Attack',
+          virtualization: [
+            {
+              id: '0',
+              name: 'Docker',
+              role: 'User Shell',
+              compose_file: 'file'
+            }
+          ],
+          acceptance_criteria: [
+            {
+              acceptance_criteria_questionaire: [
+                {
+                  questions: [
+                    {
+                      question: 'What is the IP Adress?',
+                      question_choice: [
+                        {
+                          answer: '123.456.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '333.232.789',
+                          is_correct: false
+                        },
+                        {
+                          answer: '234.333.242',
+                          is_correct: true
+                        }
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          ]
         }
       ]
     },
