@@ -4,7 +4,7 @@ import { ref } from 'vue'
 import { useCloned } from '@vueuse/core'
 
 type BasicTemplateData = {
-  templateId: string
+  id: string
   title: string
   created_at: string
   updated_at: string
@@ -63,25 +63,23 @@ export const useTemplateStore = defineStore('template', () => {
   const classroomTemplate = ref<TemplateData>()
   const basicTemplateData = ref<BasicTemplateData[]>()
 
-  async function fetchTemplate(templateId: string) {
+  async function fetchTemplate(id: string) {
     classroomTemplate.value = mockdata
-    classroomTemplate.value = await axios.get(
-      `${import.meta.env.VITE_API_URL}/templates/${templateId}`
-    )
+    classroomTemplate.value = await axios.get(`${import.meta.env.VITE_API_URL}/templates/${id}`)
 
     return classroomTemplate
   }
 
-  async function changeTemplateData(templateId: string, templateData: TemplateData) {
+  async function changeTemplateData(id: string, templateData: TemplateData) {
     classroomTemplate.value = await axios.post(
-      `${import.meta.env.VITE_API_URL}/templates/${templateId}`,
+      `${import.meta.env.VITE_API_URL}/templates/${id}`,
       templateData
     )
     return classroomTemplate
   }
 
-  async function deleteClassroomTemplate(templateId: string) {
-    await axios.delete(`${import.meta.env.VITE_API_URL}/templates/${templateId}`)
+  async function deleteClassroomTemplate(id: string) {
+    await axios.delete(`${import.meta.env.VITE_API_URL}/templates/${id}`)
   }
 
   async function getBasicTemplateData() {
@@ -115,7 +113,7 @@ export const useTemplateStore = defineStore('template', () => {
 })
 
 const mockdata: TemplateData = {
-  templateId: '12',
+  id: '12',
   title: 'Computer Networks',
   created_at: '2022.01.11',
   updated_at: '2023.03.06',

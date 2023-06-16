@@ -8,7 +8,7 @@ const titleNewProject = ref('')
 
 async function addProjectTemplate(title: string) {
   const templateStore = useTemplateStore()
-  const classroomTemplateId = templateStore.classroomTemplate?.templateId
+  const classroomTemplateId = templateStore.classroomTemplate?.id
   const response = await axios.post(`${import.meta.env.VITE_API_URL}/templates/classrooms`, {
     title,
     classroomTemplateId

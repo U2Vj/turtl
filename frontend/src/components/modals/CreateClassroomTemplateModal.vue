@@ -11,7 +11,7 @@ async function createClassroomTemplate(title: string) {
     title
   })
   const router = useRouter()
-  router.push(`/templates/${response.data.templateId}`)
+  router.push(`/templates/${response.data.id}`)
 }
 </script>
 

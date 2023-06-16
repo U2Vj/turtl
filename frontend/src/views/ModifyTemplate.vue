@@ -9,7 +9,7 @@ import { watchEffect } from 'vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
 
-const props = defineProps<{ templateId: string }>()
+const props = defineProps<{ id: string }>()
 
 const tab = ref(0)
 const showCreateModal = ref(false)
@@ -17,7 +17,7 @@ const showCreateModal = ref(false)
 const templateStore = useTemplateStore()
 
 let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate(props.templateId)
+templateStore.fetchTemplate(props.id)
 
 watchEffect(() => {
   if (!templateData.value) return
@@ -99,7 +99,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                         <div><h3>Template Name:</h3></div>
                         <div>{{ templateData.title }}</div>
                         <div class="mt-5"><h3>Template ID:</h3></div>
-                        <div>{{ templateData.templateId }}</div>
+                        <div>{{ templateData.id }}</div>
 
                         <div class="mt-5"><h3>Created At:</h3></div>
                         <div>{{ templateData.created_at }}</div>
