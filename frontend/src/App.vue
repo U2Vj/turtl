@@ -7,3 +7,13 @@ import { RouterView } from 'vue-router'
     <RouterView />
   </v-app>
 </template>
+
+<style>
+.v-icon {
+  color: #333399 !important;
+}
+.main-container {
+  min-width: 75%;
+  max-width: 960px;
+}
+</style>

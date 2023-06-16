@@ -129,9 +129,4 @@ function join() {
   <Footer></Footer>
 </template>
 
-<style>
-.main-container {
-  min-width: 75%;
-  max-width: 960px;
-}
-</style>
+<style></style>

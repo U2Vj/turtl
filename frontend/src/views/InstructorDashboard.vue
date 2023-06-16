@@ -166,11 +166,6 @@ const classrooms = ref([
 </template>
 
 <style scoped>
-.main-container {
-  min-width: 75%;
-  max-width: 960px;
-}
-
 .classroomDescription {
   display: -webkit-box;
   -webkit-box-orient: vertical;

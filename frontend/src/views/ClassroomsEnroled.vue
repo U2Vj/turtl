@@ -70,9 +70,4 @@ const items = ref([
   height: 20px;
   width: 20px;
 }
-
-.main-container {
-  min-width: 75%;
-  max-width: 960px;
-}
 </style>

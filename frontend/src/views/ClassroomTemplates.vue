@@ -69,9 +69,4 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
   <Footer></Footer>
 </template>
 
-<style scoped>
-.main-container {
-  min-width: 75%;
-  max-width: 960px;
-}
-</style>
+<style scoped></style>

@@ -440,9 +440,4 @@ function getExpandIcon(item: any) {
   <Footer></Footer>
 </template>
 
-<style scoped>
-.main-container {
-  min-width: 75%;
-  max-width: 960px;
-}
-</style>
+<style scoped></style>

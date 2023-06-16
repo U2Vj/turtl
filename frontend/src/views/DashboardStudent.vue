@@ -102,10 +102,6 @@ const classrooms = ref([
 </template>
 
 <style scoped>
-.main-container {
-  min-width: 75%;
-  max-width: 960px;
-}
 #probar {
   margin: auto;
   width: auto;
