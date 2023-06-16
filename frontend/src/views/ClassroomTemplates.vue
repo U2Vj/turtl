@@ -36,14 +36,14 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
   <turtl-header></turtl-header>
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
-      <div class="d-flex flex-row mb-2 align-center justify-space-between">
-        <h1>Classroom Templates</h1>
-        <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"
-          >Create Template
-          <CreateClassroomTemplateModal></CreateClassroomTemplateModal>
-        </v-btn>
-      </div>
       <v-container fluid>
+        <div class="d-flex flex-row mb-2 align-center justify-space-between">
+          <h1>Classroom Templates</h1>
+          <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"
+            >Create Template
+            <CreateClassroomTemplateModal></CreateClassroomTemplateModal>
+          </v-btn>
+        </div>
         <v-data-table
           :headers="[
             {

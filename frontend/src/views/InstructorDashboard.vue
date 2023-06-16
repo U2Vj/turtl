@@ -107,11 +107,11 @@ const classrooms = ref([
   <turtl-header></turtl-header>
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
-      <div class="d-flex flex-row mb-2 align-center justify-space-between">
-        <h1>My Classrooms</h1>
-        <v-btn variant="elevated" color="primary" class="elevation-2"> Create Classroom </v-btn>
-      </div>
       <v-container>
+        <div class="d-flex flex-row mb-2 align-center justify-space-between">
+          <h1>My Classrooms</h1>
+          <v-btn variant="elevated" color="primary" class="elevation-2"> Create Classroom </v-btn>
+        </div>
         <v-row>
           <v-col
             v-for="classroom in classrooms"

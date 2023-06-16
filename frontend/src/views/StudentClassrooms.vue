@@ -57,13 +57,13 @@ function join() {
   <turtl-header></turtl-header>
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
-      <div class="d-flex flex-row mb-2 align-center justify-space-between">
-        <h1>My Classrooms</h1>
-        <v-btn class="elevation-2" variant="elevated" color="primary" to="/allclassrooms-stud">
-          Join Classroom
-        </v-btn>
-      </div>
       <v-container fluid>
+        <div class="d-flex flex-row mb-2 align-center justify-space-between">
+          <h1>My Classrooms</h1>
+          <v-btn class="elevation-2" variant="elevated" color="primary" to="/allclassrooms-stud">
+            Join Classroom
+          </v-btn>
+        </div>
         <v-row>
           <v-col v-for="item in items" :key="item.id" cols="12" xs="12" sm="6" md="4">
             <v-card

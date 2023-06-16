@@ -13,8 +13,8 @@ const taskDescription = ref(
   <turtl-header></turtl-header>
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
-      <h1>Task 1</h1>
       <v-container fluid>
+        <h1>Task 1</h1>
         <v-row>
           <v-col cols="12">
             {{ taskDescription }}

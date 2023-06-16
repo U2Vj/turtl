@@ -49,8 +49,8 @@ function join() {
   <turtl-header></turtl-header>
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
-      <h1>All Classrooms</h1>
       <v-container fluid>
+        <h1>All Classrooms</h1>
         <v-row>
           <v-col cols="8">
             <v-text-field

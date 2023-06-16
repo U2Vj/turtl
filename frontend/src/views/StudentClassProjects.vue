@@ -249,8 +249,8 @@ function getExpandIcon(item: any) {
   <turtl-header></turtl-header>
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
-      <h1>The name of the classroom</h1>
       <v-container>
+        <h1>The name of the classroom</h1>
         <v-tabs v-model="tab" color="primary" align-tabs="start">
           <v-tab value="1">Projects</v-tab>
           <v-tab value="2">Information</v-tab>
