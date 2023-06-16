@@ -23,13 +23,7 @@ useSortable(`#taskWrapper${props.id}`, props.task_template, {
 </script>
 
 <template>
-  <v-card
-    max-width="1000"
-    variant="flat"
-    color="cardColor"
-    class="elevation-4"
-    style="cursor: grab"
-  >
+  <v-card variant="flat" color="cardColor" class="elevation-4" style="cursor: grab">
     <v-card-title> <v-icon icon="mdi-drag" />{{ title }} </v-card-title>
     <v-card-actions>
       <v-btn

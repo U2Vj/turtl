@@ -34,39 +34,44 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
 
 <template>
   <turtl-header></turtl-header>
-  <v-main>
-    <v-container fluid>
-      <v-row>
-        <v-col>
-          <div class="d-flex align-center">
-            <h1>Classroom Templates</h1>
-            <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"
-              >Create Template
-              <CreateClassroomTemplateModal></CreateClassroomTemplateModal>
-            </v-btn>
-          </div>
-          <v-data-table
-            :headers="[
-              {
-                title: 'Name',
-                align: 'start',
-                sortable: true,
-                key: 'name'
-              },
-              { title: 'Last Edited', align: 'end', key: 'lastedited' },
-              { title: 'Created At', align: 'end', key: 'createdat' },
-              { title: 'Use', align: 'end', key: 'link' }
-            ]"
-            :items="values"
-            @click:row="handleRowClick"
-          >
-            <template v-slot:[`item.link`]="{ item }">
-              <v-btn variant="text" color="primary" to="`templates/${item.raw.id}`">Edit</v-btn>
-            </template>
-          </v-data-table>
-        </v-col>
-      </v-row>
-    </v-container>
+  <v-main class="d-flex justify-center">
+    <div class="main-container mt-5 ml-3 mr-3">
+      <div class="d-flex flex-row mb-2 align-center justify-space-between">
+        <h1>Classroom Templates</h1>
+        <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"
+          >Create Template
+          <CreateClassroomTemplateModal></CreateClassroomTemplateModal>
+        </v-btn>
+      </div>
+      <v-container fluid>
+        <v-data-table
+          :headers="[
+            {
+              title: 'Name',
+              align: 'start',
+              sortable: true,
+              key: 'name'
+            },
+            { title: 'Last Edited', align: 'end', key: 'lastedited' },
+            { title: 'Created At', align: 'end', key: 'createdat' },
+            { title: 'Use', align: 'end', key: 'link' }
+          ]"
+          :items="values"
+          @click:row="handleRowClick"
+        >
+          <template v-slot:[`item.link`]="{ item }">
+            <v-btn variant="text" color="primary" to="`templates/${item.raw.id}`">Edit</v-btn>
+          </template>
+        </v-data-table>
+      </v-container>
+    </div>
   </v-main>
   <Footer></Footer>
 </template>
+
+<style scoped>
+.main-container {
+  min-width: 75%;
+  max-width: 960px;
+}
+</style>
