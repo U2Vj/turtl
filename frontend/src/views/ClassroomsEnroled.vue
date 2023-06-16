@@ -24,36 +24,38 @@ const items = ref([
 
 <template>
   <turtl-header></turtl-header>
-  <v-main>
-    <v-container fluid>
-      <v-row>
-        <v-col v-for="item in items" :key="item.id" cols="12" sm="6" md="3">
-          <v-card
-            :key="item.id"
-            :title="item.room"
-            :border-variant="item.completed === true ? 'success' : 'danger'"
-            variant="flat"
-            color="cardColor"
-            class="elevation-4"
-          >
-            <v-card-text v-if="item.role === 'Attack'">
-              <v-icon icon="mdi-sword"></v-icon>
-              Role: {{ item.role }}
-            </v-card-text>
-            <v-card-text v-else>
-              <v-icon icon="mdi-shield"></v-icon>
-              Role: {{ item.role }}
-            </v-card-text>
-            <v-card-text> Description: {{ item.description }} </v-card-text>
-            <v-card-actions>
-              <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2"
-                >Go to Room</v-btn
-              >
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+  <v-main class="d-flex justify-center">
+    <div class="main-container mt-5 ml-3 mr-3">
+      <v-container fluid>
+        <v-row>
+          <v-col v-for="item in items" :key="item.id" cols="12" xs="12" sm="6" md="4">
+            <v-card
+              :key="item.id"
+              :title="item.room"
+              :border-variant="item.completed === true ? 'success' : 'danger'"
+              variant="flat"
+              color="cardColor"
+              class="elevation-4"
+            >
+              <v-card-text v-if="item.role === 'Attack'">
+                <v-icon icon="mdi-sword"></v-icon>
+                Role: {{ item.role }}
+              </v-card-text>
+              <v-card-text v-else>
+                <v-icon icon="mdi-shield"></v-icon>
+                Role: {{ item.role }}
+              </v-card-text>
+              <v-card-text> Description: {{ item.description }} </v-card-text>
+              <v-card-actions>
+                <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2"
+                  >Go to Room</v-btn
+                >
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
   </v-main>
   <Footer></Footer>
 </template>
@@ -67,5 +69,10 @@ const items = ref([
 .customIcon {
   height: 20px;
   width: 20px;
+}
+
+.main-container {
+  min-width: 75%;
+  max-width: 960px;
 }
 </style>
