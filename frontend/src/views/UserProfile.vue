@@ -47,69 +47,59 @@ const submit = handleSubmit(async (values) => {
 
 <template>
   <turtl-header></turtl-header>
-  <v-main>
-    <v-container fluid>
-      <v-row>
-        <v-col>
-          <h1>Profil</h1>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <h3>E-Mail Adresse:</h3>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <p>{{ userStore.user?.email }}</p>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <h3>Change your password:</h3>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="5">
-          <v-sheet class="mr-auto">
-            <v-form @submit="submit">
-              <v-text-field
-                v-model="oldPasswordValue"
-                :error-messages="oldPasswordError"
-                name="oldPassword"
-                type="password"
-                label="Enter current password"
-              >
-              </v-text-field>
-              <v-text-field
-                v-model="newPasswordValue"
-                :error-messages="newPasswordError"
-                name="newPassword"
-                type="password"
-                label="Enter new password"
-              >
-              </v-text-field>
+  <v-main class="d-flex justify-center">
+    <div class="main-container mt-5 ml-3 mr-3">
+      <v-container fluid>
+        <h1>Profil</h1>
+        <div class="mt-5"><h2>E-Mail Adresse:</h2></div>
+        <div>{{ userStore.user?.email }}</div>
+        <div class="mt-5"><h2>Change your password:</h2></div>
+              <v-form @submit="submit">
+                <v-text-field
+                  v-model="oldPasswordValue"
+                  :error-messages="oldPasswordError"
+                  name="oldPassword"
+                  type="password"
+                  label="Enter current password"
+                  clearable
+	                variant="underlined"
+                  base-color="primary"
+                  color="primary"
+                >
+                </v-text-field>
+                <v-text-field
+                  v-model="newPasswordValue"
+                  :error-messages="newPasswordError"
+                  name="newPassword"
+                  type="password"
+                  label="Enter new password"
+                  clearable
+                  variant="underlined"
+                  base-color="primary"
+                  color="primary"
+                >
+                </v-text-field>
 
-              <v-text-field
-                v-model="newPasswordValidateValue"
-                :error-messages="newPasswordValidateError"
-                name="newPasswordValidation"
-                type="password"
-                label="Confirm new password"
-              >
-              </v-text-field>
+                <v-text-field
+                  v-model="newPasswordValidateValue"
+                  :error-messages="newPasswordValidateError"
+                  name="newPasswordValidation"
+                  type="password"
+                  label="Confirm new password"
+                  clearable
+                  variant="underlined"
+                  base-color="primary"
+                  color="primary"
+                >
+                </v-text-field>
 
-              <v-btn type="submit" variant="outlined">Change Password</v-btn>
-            </v-form>
-          </v-sheet>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-btn variant="outlined">Permanently Delete Account</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+                <v-btn type="submit" variant="elevated" color="primary" class="elevation-2">Change Password</v-btn>
+              </v-form>
+          <div class = "d-flex flex-row mt-5 align-center justify-end">
+            <v-btn variant="elevated" color="error" class="elevation-2">Permanently Delete Account</v-btn>
+          </div>
+      </v-container>
+    </div>
   </v-main>
   <Footer></Footer>
 </template>
