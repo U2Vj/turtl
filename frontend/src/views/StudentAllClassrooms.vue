@@ -47,88 +47,91 @@ function join() {
 
 <template>
   <turtl-header></turtl-header>
-  <v-main>
-    <v-container fluid>
-      <v-row>
-        <v-col>
-          <h1>All Classrooms</h1>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="5">
-          <v-text-field
-            clearable
-            label="Search Name of Classroom"
-            v-model="search"
-            append-inner-icon="mdi-magnify"
-            variant="underlined"
-            base-color="primary"
-            color="primary"
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="10">
-          <v-data-table
-            :headers="headers"
-            :items="classrooms"
-            :search="search"
-            item-value="classTemplates"
-          >
-            <template v-slot:top>
-              <v-dialog v-model="dialog" persistent width="50%">
-                <v-card>
-                  <v-toolbar :title="selectedClassroomName"> </v-toolbar>
-                  <v-card-text>
-                    <v-container>
-                      <v-row>
-                        <v-col>
-                          <p>Enter the code to join the classroom.</p>
-                        </v-col>
-                      </v-row>
-                      <v-row> </v-row>
-                      <v-row>
-                        <v-col cols="8">
-                          <v-text-field
-                            label="Enter Code"
-                            clearable
-                            variant="underlined"
-                            base-color="primary"
-                            color="primary"
-                          ></v-text-field>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
+  <v-main class="d-flex justify-center">
+    <div class="main-container mt-5 ml-3 mr-3">
+      <h1>All Classrooms</h1>
+      <v-container fluid>
+        <v-row>
+          <v-col cols="8">
+            <v-text-field
+              clearable
+              label="Search Name of Classroom"
+              v-model="search"
+              append-inner-icon="mdi-magnify"
+              variant="underlined"
+              base-color="primary"
+              color="primary"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" xs="12" sm="12" md="12">
+            <v-data-table
+              :headers="headers"
+              :items="classrooms"
+              :search="search"
+              item-value="classTemplates"
+            >
+              <template v-slot:top>
+                <v-dialog v-model="dialog" persistent width="50%">
+                  <v-card>
+                    <v-toolbar :title="selectedClassroomName"> </v-toolbar>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
+                          <v-col>
+                            <p>Enter the code to join the classroom.</p>
+                          </v-col>
+                        </v-row>
+                        <v-row> </v-row>
+                        <v-row>
+                          <v-col cols="8">
+                            <v-text-field
+                              label="Enter Code"
+                              clearable
+                              variant="underlined"
+                              base-color="primary"
+                              color="primary"
+                            ></v-text-field>
+                          </v-col>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
 
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn variant="text" color="primary" @click="close"> Cancel </v-btn>
-                    <v-btn variant="elevated" color="primary" class="elevation-2" @click="join">
-                      Join Classroom
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
-            </template>
-            <template #item.actions="{ item }">
-              <v-btn
-                variant="tonal"
-                color="primary"
-                class="elevation-2"
-                @click="joinClassroomBtn(item.raw)"
-                >Join classroom</v-btn
-              >
-            </template>
-            <template v-slot:no-data>
-              <p>No data</p>
-            </template>
-          </v-data-table>
-        </v-col>
-      </v-row>
-    </v-container>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn variant="text" color="primary" @click="close"> Cancel </v-btn>
+                      <v-btn variant="elevated" color="primary" class="elevation-2" @click="join">
+                        Join Classroom
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </template>
+              <template #item.actions="{ item }">
+                <v-btn
+                  variant="tonal"
+                  color="primary"
+                  class="elevation-2"
+                  @click="joinClassroomBtn(item.raw)"
+                  >Join classroom</v-btn
+                >
+              </template>
+              <template v-slot:no-data>
+                <p>No data</p>
+              </template>
+            </v-data-table>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
   </v-main>
   <Footer></Footer>
 </template>
 
-<style></style>
+<style>
+.main-container {
+  min-width: 75%;
+  max-width: 960px;
+}
+</style>

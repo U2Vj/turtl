@@ -41,66 +41,72 @@ const classrooms = ref([
 
 <template>
   <turtl-header></turtl-header>
-  <v-main>
-    <v-container fluid>
-      <v-row>
-        <div>
-          <h1>Recently Opened Tasks</h1>
-        </div>
-        <v-data-table :headers="headers" :items="values"></v-data-table>
-      </v-row>
-    </v-container>
+  <v-main class="d-flex justify-center">
+    <div class="main-container mt-5 ml-3 mr-3">
+      <h1>Recently Opened Tasks</h1>
 
-    <v-container fluid>
-      <div class="d-flex align-left">
-        <h1>Recently Visited Classrooms</h1>
-      </div>
-      <v-row>
-        <v-col
-          id="classrooms"
-          v-for="classroom in classrooms"
-          :key="classroom.id"
-          cols="12"
-          sm="6"
-          md="3"
-        >
-          <v-card
+      <v-container fluid>
+        <v-row>
+          <v-data-table :headers="headers" :items="values"></v-data-table>
+        </v-row>
+      </v-container>
+
+      <v-container fluid>
+        <div class="mb-5">
+          <h1>Recently Visited Classrooms</h1>
+        </div>
+        <v-row>
+          <v-col
+            id="classrooms"
+            v-for="classroom in classrooms"
             :key="classroom.id"
-            :title="classroom.room"
-            variant="flat"
-            color="cardColor"
-            class="elevation-4"
+            cols="12"
+            xs="12"
+            sm="6"
+            md="4"
           >
-            <v-card-text>
-              <v-progress-linear
-                id="probar"
-                :color="classroom.progress === 100 ? 'finished' : 'progress'"
-                :height="25"
-                rounded
-                rounded-bar
-                bg-color="#ffffff"
-                bg-opacity="1"
-                :model-value="classroom.progress"
-              >
-                <template v-slot:default="{ value }">
-                  <strong>{{ Math.ceil(classroom.progress) }}%</strong>
-                </template>
-              </v-progress-linear>
-            </v-card-text>
-            <v-card-actions>
-              <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2"
-                >Go to Room</v-btn
-              >
-            </v-card-actions>
-          </v-card>
-        </v-col>
-      </v-row>
-    </v-container>
+            <v-card
+              :key="classroom.id"
+              :title="classroom.room"
+              variant="flat"
+              color="cardColor"
+              class="elevation-4"
+            >
+              <v-card-text>
+                <v-progress-linear
+                  id="probar"
+                  :color="classroom.progress === 100 ? 'finished' : 'progress'"
+                  :height="25"
+                  rounded
+                  rounded-bar
+                  bg-color="#ffffff"
+                  bg-opacity="1"
+                  :model-value="classroom.progress"
+                >
+                  <template v-slot:default="{ value }">
+                    <strong>{{ Math.ceil(classroom.progress) }}%</strong>
+                  </template>
+                </v-progress-linear>
+              </v-card-text>
+              <v-card-actions>
+                <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2"
+                  >Go to Room</v-btn
+                >
+              </v-card-actions>
+            </v-card>
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
   </v-main>
   <Footer></Footer>
 </template>
 
 <style scoped>
+.main-container {
+  min-width: 75%;
+  max-width: 960px;
+}
 #probar {
   margin: auto;
   width: auto;
