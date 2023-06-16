@@ -109,12 +109,10 @@ const classrooms = ref([
     <div class="main-container mt-5 ml-3 mr-3">
       <div class="d-flex flex-row mb-2 align-center justify-space-between">
         <h1>My Classrooms</h1>
-        <v-btn variant="elevated" color="primary" class="elevation-2">
-          Create Classroom
-        </v-btn>
+        <v-btn variant="elevated" color="primary" class="elevation-2"> Create Classroom </v-btn>
       </div>
       <v-container>
-        <v-row equal-width>
+        <v-row>
           <v-col
             v-for="classroom in classrooms"
             :key="classroom.id"
@@ -123,9 +121,7 @@ const classrooms = ref([
             sm="6"
             md="4"
           >
-            <v-card :key="classroom.id" variant="flat"
-                color="cardColor"
-                class="elevation-4">
+            <v-card :key="classroom.id" variant="flat" color="cardColor" class="elevation-4">
               <v-card-title :title="classroom.classroom">
                 {{ classroom.classroom }}
               </v-card-title>
@@ -171,6 +167,7 @@ const classrooms = ref([
 
 <style scoped>
 .main-container {
+  min-width: 75%;
   max-width: 960px;
 }
 

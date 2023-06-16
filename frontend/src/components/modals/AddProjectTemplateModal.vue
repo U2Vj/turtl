@@ -21,12 +21,22 @@ async function addProjectTemplate(title: string) {
     <v-card>
       <template #title>Create Project Template</template>
       <template #text>
-        <v-text-field clearable
-	variant="underlined"
-	base-color="primary"
-	color="primary" v-model="titleNewProject" label="Name of new project template"></v-text-field>
+        <v-text-field
+          clearable
+          variant="underlined"
+          base-color="primary"
+          color="primary"
+          v-model="titleNewProject"
+          label="Name of new project template"
+        ></v-text-field>
         <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
-        <v-btn variant="elevated" color="primary" class="elevation-2" @click="addProjectTemplate(titleNewProject)">Create</v-btn>
+        <v-btn
+          variant="elevated"
+          color="primary"
+          class="elevation-2"
+          @click="addProjectTemplate(titleNewProject)"
+          >Create</v-btn
+        >
       </template>
     </v-card>
   </v-dialog>

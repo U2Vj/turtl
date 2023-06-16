@@ -257,61 +257,74 @@ function getExpandIcon(item: any) {
       <v-window v-model="tab">
         <v-window-item value="1">
           <v-container fluid>
-              <v-row>
-                <v-col v-for="item in projects" :key="item.id" cols="12" sm="8" md="5">
-                  <v-card :key="item.id" :title="item.room" variant="flat" color="cardColor" class="elevation-4">
-                    <v-card-text>
-                      <v-progress-linear
-                        :color="getTaskProgressOfProject(item.id) === 100 ? 'finished' : 'progress'"
-                        :height="25"
-                        rounded
-                        rounded-bar
-                        bg-color='#ffffff'
-                        bg-opacity='1'
-                        :model-value="getTaskProgressOfProject(item.id)"
-                      >
-                        <template v-slot:default>
-                          <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
-                        </template>
-                      </v-progress-linear>
-                    </v-card-text>
-                    <v-card-actions>
-                        <v-btn
-                          v-if="!showTask"
-                          append-icon="mdi-chevron-down"
-                          @click="showTask = true"
-                          variant="text" color="primary"
-                          >
-                          View Tasks
-                          </v-btn>
-                          <v-btn
-                            v-if="showTask"
-                            variant="text" color="primary"
-                            append-icon="mdi-chevron-down"
-                            @click="showTask = false">
-                              Hide Tasks
-                          </v-btn>
-                      <v-spacer></v-spacer>
-                        <v-btn variant="tonal" color="primary" class="elevation-2" v-if="getTaskProgressOfProject(item.id) < 100"
-                          >Continue</v-btn
-                        >
-                    </v-card-actions>
-                        <v-card-text v-show="showTask">
-                          <div :id="`taskWrapper${item.id}`">
-                            <div v-for="(task, index) in item.taskList" :key="task.id">
-                             {{ index + 1 }}. {{ task.task }}
-                            <v-icon
-                              v-if="task.done === true"
-                              icon="mdi-check-circle-outline"
-                              color="success"
-                            ></v-icon>
-                            </div>
-                          </div>
-                        </v-card-text>
-                  </v-card>
-                </v-col>
-              </v-row>
-</v-container>
+            <v-row>
+              <v-col v-for="item in projects" :key="item.id" cols="12" sm="8" md="5">
+                <v-card
+                  :key="item.id"
+                  :title="item.room"
+                  variant="flat"
+                  color="cardColor"
+                  class="elevation-4"
+                >
+                  <v-card-text>
+                    <v-progress-linear
+                      :color="getTaskProgressOfProject(item.id) === 100 ? 'finished' : 'progress'"
+                      :height="25"
+                      rounded
+                      rounded-bar
+                      bg-color="#ffffff"
+                      bg-opacity="1"
+                      :model-value="getTaskProgressOfProject(item.id)"
+                    >
+                      <template v-slot:default>
+                        <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
+                      </template>
+                    </v-progress-linear>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn
+                      v-if="!showTask"
+                      append-icon="mdi-chevron-down"
+                      @click="showTask = true"
+                      variant="text"
+                      color="primary"
+                    >
+                      View Tasks
+                    </v-btn>
+                    <v-btn
+                      v-if="showTask"
+                      variant="text"
+                      color="primary"
+                      append-icon="mdi-chevron-down"
+                      @click="showTask = false"
+                    >
+                      Hide Tasks
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      variant="tonal"
+                      color="primary"
+                      class="elevation-2"
+                      v-if="getTaskProgressOfProject(item.id) < 100"
+                      >Continue</v-btn
+                    >
+                  </v-card-actions>
+                  <v-card-text v-show="showTask">
+                    <div :id="`taskWrapper${item.id}`">
+                      <div v-for="(task, index) in item.taskList" :key="task.id">
+                        {{ index + 1 }}. {{ task.task }}
+                        <v-icon
+                          v-if="task.done === true"
+                          icon="mdi-check-circle-outline"
+                          color="success"
+                        ></v-icon>
+                      </div>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
         </v-window-item>
 
         <v-window-item value="2">
@@ -371,43 +384,43 @@ function getExpandIcon(item: any) {
                       <v-card-text>
                         {{ getTasksDone() }} / {{ getAllTasks() }} Tasks Done:
 
-                          <v-progress-linear
-                            :color="getTaskProgress() === 100 ? 'finished' : 'progress'"
-                            :height="25"
-                            :model-value="getTaskProgress()"
-                            rounded
-                            rounded-bar
-                            bg-color='#ffffff'
-                            bg-opacity='1'
-                          >
-                            <template v-slot:default>
-                              <strong>{{ Math.ceil(getTaskProgress()) }}%</strong>
-                            </template>
-                          </v-progress-linear>
+                        <v-progress-linear
+                          :color="getTaskProgress() === 100 ? 'finished' : 'progress'"
+                          :height="25"
+                          :model-value="getTaskProgress()"
+                          rounded
+                          rounded-bar
+                          bg-color="#ffffff"
+                          bg-opacity="1"
+                        >
+                          <template v-slot:default>
+                            <strong>{{ Math.ceil(getTaskProgress()) }}%</strong>
+                          </template>
+                        </v-progress-linear>
 
-                          {{ getNumberOfDoneProjects() }} / {{ projects.length }} Projects Done
+                        {{ getNumberOfDoneProjects() }} / {{ projects.length }} Projects Done
 
-                          <v-progress-linear
+                        <v-progress-linear
                           :height="25"
                           rounded
                           rounded-bar
-                          bg-color='#ffffff'
-                          bg-opacity='1'
-                            :color="
-                              getNumberOfDoneProjects() / projects.length === 100
-                                ? 'finished'
-                                : 'progress'
-                            "
-                            :model-value="100 * (getNumberOfDoneProjects() / projects.length)"
-                          >
-                            <template v-slot:default>
-                              <strong
-                                >{{
-                                  Math.ceil(100 * (getNumberOfDoneProjects() / projects.length))
-                                }}%</strong
-                              >
-                            </template>
-                          </v-progress-linear>
+                          bg-color="#ffffff"
+                          bg-opacity="1"
+                          :color="
+                            getNumberOfDoneProjects() / projects.length === 100
+                              ? 'finished'
+                              : 'progress'
+                          "
+                          :model-value="100 * (getNumberOfDoneProjects() / projects.length)"
+                        >
+                          <template v-slot:default>
+                            <strong
+                              >{{
+                                Math.ceil(100 * (getNumberOfDoneProjects() / projects.length))
+                              }}%</strong
+                            >
+                          </template>
+                        </v-progress-linear>
                       </v-card-text>
                     </v-card>
                   </div>

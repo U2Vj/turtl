@@ -19,10 +19,13 @@ const taskDescription = ref(
           <div>
             <div class="mt-5">{{ taskDescription }}</div>
             <div class="mt-5">
-              <v-textarea label="Enter Your Code here" clearable
+              <v-textarea
+                label="Enter Your Code here"
+                clearable
                 variant="underlined"
                 base-color="primary"
-                color="primary"></v-textarea>
+                color="primary"
+              ></v-textarea>
             </div>
             <div>
               <v-btn class="mt-5 elevation-2" variant="elevated" color="primary">Verify Task</v-btn>

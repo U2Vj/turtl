@@ -29,7 +29,8 @@ const showDialog = ref(false)
           <template #[`item.add`]="{ item }">
             <v-btn
               icon="mdi-plus"
-              variant="elevated" color="primary"
+              variant="elevated"
+              color="primary"
               @click="
                 () => {
                   templateStore.addInstructor(item.raw.instructorId, item.raw.email)

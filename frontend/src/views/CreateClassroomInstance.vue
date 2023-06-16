@@ -113,62 +113,66 @@ watch(selected, (newSelected) => {
 
 <template>
   <turtl-header></turtl-header>
-  <v-main>
-    <v-container fluid>
-      <v-row>
-        <v-col>
-          <h1>Create Classroom</h1>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="5">
-          <v-text-field
-            clearable
-            label="Type in Classroom Name"
-            v-model="classroomName"
-            variant="underlined"
-            base-color="primary"
-            color="primary"
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="5">
-          <v-text-field
-            clearable
-            label="Search Classroom Template"
-            v-model="search"
-            append-inner-icon="mdi-magnify"
-            variant="underlined"
-            base-color="primary"
-            color="primary"
-          ></v-text-field>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col cols="10">
-          <v-data-table
-            :headers="headers"
-            :items="classTemplates"
-            :search="search"
-            v-model="selected"
-            item-value="classTemplates"
-            show-select
-          ></v-data-table>
-        </v-col>
-      </v-row>
-      <v-row>
-        <v-col>
-          <v-btn variant="elevated" color="primary" class="elevation-2" @click="createClassroom">Create Classroom</v-btn>
-        </v-col>
-      </v-row>
-    </v-container>
+  <v-main class="d-flex justify-center">
+    <div class="main-container mt-5 ml-3 mr-3">
+      <h1>Create Classrooms</h1>
+      <v-container>
+        <v-row>
+          <v-col cols="8">
+            <v-text-field
+              clearable
+              label="Type in Classroom Name"
+              v-model="classroomName"
+              variant="underlined"
+              base-color="primary"
+              color="primary"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="8">
+            <v-text-field
+              clearable
+              label="Search Classroom Template"
+              v-model="search"
+              append-inner-icon="mdi-magnify"
+              variant="underlined"
+              base-color="primary"
+              color="primary"
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col cols="12" xs="12" sm="12" md="12">
+            <v-data-table
+              :headers="headers"
+              :items="classTemplates"
+              :search="search"
+              v-model="selected"
+              item-value="classTemplates"
+              show-select
+            ></v-data-table>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-btn variant="elevated" color="primary" class="elevation-2" @click="createClassroom"
+              >Create Classroom</v-btn
+            >
+          </v-col>
+        </v-row>
+      </v-container>
+    </div>
   </v-main>
   <Footer></Footer>
 </template>
 
-<style>
+<style scoped>
 .v-icon {
   color: #333399 !important;
+}
+.main-container {
+  min-width: 75%;
+  max-width: 960px;
 }
 </style>

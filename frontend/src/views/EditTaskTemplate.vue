@@ -91,7 +91,9 @@ function toggleEdit() {
             </v-list>
           </div>
           <div>
-            <v-btn variant="tonal" color="primary" class="elevation-2">Add new acceptance criterium</v-btn>
+            <v-btn variant="tonal" color="primary" class="elevation-2"
+              >Add new acceptance criterium</v-btn
+            >
           </div>
           <div class="mt-5">
             <h2>Virtualizations</h2>
@@ -100,7 +102,7 @@ function toggleEdit() {
             <v-list>
               <v-list-item v-for="item in allVirtual" :key="item.id">
                 <v-card :key="item.id" variant="flat" color="cardColor">
-                  <v-table density="compact" >
+                  <v-table density="compact">
                     <tbody>
                       <tr>
                         <td width="21%">{{ item.type }}</td>
@@ -115,7 +117,9 @@ function toggleEdit() {
             </v-list>
           </div>
           <div>
-            <v-btn variant="tonal" color="primary" class="elevation-2">Add new virtualization</v-btn>
+            <v-btn variant="tonal" color="primary" class="elevation-2"
+              >Add new virtualization</v-btn
+            >
           </div>
         </v-col>
 
@@ -143,7 +147,9 @@ function toggleEdit() {
                 <v-card-title><h3>Deletion</h3></v-card-title>
               </v-card-item>
               <v-card-actions>
-                <v-btn variant="tonal" color="error" class="elevation-2">Permanently Delete<br />Task Template</v-btn>
+                <v-btn variant="tonal" color="error" class="elevation-2"
+                  >Permanently Delete<br />Task Template</v-btn
+                >
               </v-card-actions></v-card
             >
           </div>

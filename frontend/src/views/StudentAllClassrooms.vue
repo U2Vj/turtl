@@ -62,8 +62,8 @@ function join() {
             v-model="search"
             append-inner-icon="mdi-magnify"
             variant="underlined"
-	          base-color="primary"
-	          color="primary"
+            base-color="primary"
+            color="primary"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -89,9 +89,13 @@ function join() {
                       <v-row> </v-row>
                       <v-row>
                         <v-col cols="8">
-                          <v-text-field label="Enter Code" clearable variant="underlined"
-	                          base-color="primary"
-	                          color="primary"></v-text-field>
+                          <v-text-field
+                            label="Enter Code"
+                            clearable
+                            variant="underlined"
+                            base-color="primary"
+                            color="primary"
+                          ></v-text-field>
                         </v-col>
                       </v-row>
                     </v-container>
@@ -100,13 +104,21 @@ function join() {
                   <v-card-actions>
                     <v-spacer></v-spacer>
                     <v-btn variant="text" color="primary" @click="close"> Cancel </v-btn>
-                    <v-btn variant="elevated" color="primary" class="elevation-2" @click="join"> Join Classroom </v-btn>
+                    <v-btn variant="elevated" color="primary" class="elevation-2" @click="join">
+                      Join Classroom
+                    </v-btn>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
             </template>
             <template #item.actions="{ item }">
-              <v-btn variant="tonal" color="primary" class="elevation-2" @click="joinClassroomBtn(item.raw)">Join classroom</v-btn>
+              <v-btn
+                variant="tonal"
+                color="primary"
+                class="elevation-2"
+                @click="joinClassroomBtn(item.raw)"
+                >Join classroom</v-btn
+              >
             </template>
             <template v-slot:no-data>
               <p>No data</p>
