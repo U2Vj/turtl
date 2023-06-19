@@ -13,7 +13,7 @@ const classroom = ref({
       managerName: 'John Doe',
       managerMail: 'john.doe@example.com'
     },
-    instructors: [
+    managers: [
       {
         instructorName: 'Tom Night',
         instructorMail: 'tom.night@example.com'

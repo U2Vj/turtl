@@ -9,7 +9,7 @@ import { useUserStore } from '@/stores/UserStore'
 import ClassroomTemplates from '@/views/ClassroomTemplates.vue'
 import CreateClassroomInstance from '@/views/CreateClassroomInstance.vue'
 import DashboardStudent from '@/views/DashboardStudent.vue'
-import InstructorDashboard from '@/views/InstructorDashboard.vue'
+import ManagerDashboard from '@/views/ManagerDashboard.vue'
 import StudentAllClassrooms from '@/views/StudentAllClassrooms.vue'
 import EditTaskTemplate from '@/views/EditTaskTemplate.vue'
 import test from '@/views/test.vue'
@@ -79,8 +79,8 @@ const router = createRouter({
     },
     {
       path: '/dashboard-prof', // TODO: change to /dashboard
-      name: 'InstructorDashboard',
-      component: InstructorDashboard
+      name: 'ManagerDashboard',
+      component: ManagerDashboard
     },
     {
       path: '/edittasktemplate',
@@ -117,25 +117,6 @@ const router = createRouter({
       name: 'Imprint',
       component: Imprint
     }
-    /*
-      component: () => {
-      if (userGroup === 'instructor') {
-         return InstructorDashboard
-      } else if (userGroup === 'manager') {
-          return ManagerDashboard
-      } else {
-          return StudentDashboard
-      }
-       */
-    /* ,
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue')
-    } */
   ]
 })
 

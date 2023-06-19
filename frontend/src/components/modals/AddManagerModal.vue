@@ -2,14 +2,12 @@
 import { ref } from 'vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { useAxios } from '@vueuse/integrations/useAxios'
-import type { Instructor } from '@/stores/TemplateStore'
+import type { User } from '@/stores/TemplateStore'
 
 const templateStore = useTemplateStore()
-const { data: AllInstructors } = useAxios<Instructor[]>(
-  `${import.meta.env.VITE_API_URL}/users/instructors`
-)
-const instructors = AllInstructors.value?.filter((element: Instructor) => {
-  return !templateStore.classroomTemplate?.instructors.includes(element)
+const { data: AllManagers } = useAxios<User[]>(`${import.meta.env.VITE_API_URL}/users/managers`)
+const managers = AllManagers.value?.filter((element: User) => {
+  return !templateStore.classroomTemplate?.managers.includes(element)
 })
 const showDialog = ref(false)
 </script>
@@ -17,14 +15,14 @@ const showDialog = ref(false)
 <template>
   <v-dialog v-model="showDialog" activator="parent">
     <v-card>
-      <template #title>Add Instructors</template>
+      <template #title>Add Managers</template>
       <template #text>
         <v-data-table
           :headers="[
             { title: 'E-Mail', key: 'email' },
             { title: 'Add', key: 'add' }
           ]"
-          :items="instructors"
+          :items="managers"
         >
           <template #[`item.add`]="{ item }">
             <v-btn
@@ -33,7 +31,7 @@ const showDialog = ref(false)
               color="primary"
               @click="
                 () => {
-                  templateStore.addInstructor(item.raw.instructorId, item.raw.email)
+                  templateStore.addManager(item.raw.id, item.raw.email)
                 }
               "
             />

@@ -45,7 +45,7 @@ type QuestionChoice = {
   is_correct: boolean
 }
 
-export type User = { instructorId: string; email: string }
+export type User = { id: string; email: string }
 
 type AdditionalTemplateData = {
   project_templates: {
@@ -94,9 +94,9 @@ export const useTemplateStore = defineStore('template', () => {
     )
   }
 
-  async function addInstructor(instructorId: string, email: string) {
+  async function addManager(id: string, email: string) {
     const { cloned } = useCloned(classroomTemplate)
-    cloned.value?.managers.push({ instructorId, email })
+    cloned.value?.managers.push({ id, email })
     classroomTemplate.value = await axios.put(`${import.meta.env.VITE_API_URL}/templates`, cloned)
   }
 
@@ -108,7 +108,7 @@ export const useTemplateStore = defineStore('template', () => {
     deleteClassroomTemplate,
     getBasicTemplateData,
     createProjectTemplate,
-    addInstructor
+    addManager
   }
 })
 
@@ -122,8 +122,8 @@ const mockdata: TemplateData = {
     { id: '1', title: 'Introduction to DHCP', url: 'https://www.google.com' }
   ],
   managers: [
-    { instructorId: 'John Doe', email: 'john.doe@mailservice.com' },
-    { instructorId: 'John Doe2', email: 'john.doe2@mailservice.com' }
+    { id: 'John Doe', email: 'john.doe@mailservice.com' },
+    { id: 'John Doe2', email: 'john.doe2@mailservice.com' }
   ],
   project_templates: [
     {

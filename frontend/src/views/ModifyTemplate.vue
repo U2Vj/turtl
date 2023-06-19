@@ -7,7 +7,7 @@ import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { watchEffect } from 'vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
-import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
+import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 
 const props = defineProps<{ id: string }>()
 
@@ -58,7 +58,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
         <v-tabs v-model="tab" color="primary">
           <v-tab value="0">Projects and Settings</v-tab>
           <v-tab value="1">Information</v-tab>
-          <v-tab value="2">Instructors</v-tab>
+          <v-tab value="2">Managers</v-tab>
         </v-tabs>
         <v-window v-model="tab" class="mt-5">
           <v-window-item eager value="0">
@@ -143,10 +143,10 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
           <v-window-item value="2">
             <v-container fluid>
               <div class="d-flex flex-row mb-2 align-center justify-space-between">
-                <h2>Instructors</h2>
+                <h2>Managers</h2>
                 <v-btn variant="elevated" color="primary" class="ml-10 elevation-2">
-                  Add Instructors
-                  <AddInstructorModal></AddInstructorModal>
+                  Add Managers
+                  <AddManagerModal />
                 </v-btn>
               </div>
               <v-data-table
