@@ -446,7 +446,7 @@ components:
             name:
               type: string
               example: "Kali linux for students"
-            virtualization_role:
+            role:
               type: string
               example: "User Shell"
             compose_file:
@@ -489,10 +489,10 @@ components:
           properties:
             title:
               type: string
-            question_type: 
+            type:
               type: string
               example: "Single Choice"
-            choices:
+            question_choice:
               type: array
               items:
                 type: object
@@ -513,8 +513,8 @@ components:
               }]
           example: [{
               "title": "What is the command to perform a SYN port scan with nmap?",
-              "question_type": "Single Choice",
-              "choices": [{
+              "type": "Single Choice",
+              "question_choice": [{
                 "answer": "nmap -sX [...]",
                 "is_correct": false
               },{
@@ -526,8 +526,8 @@ components:
               }]
             },{
               "title": "What can you do with nmap?",
-              "question_type": "Multiple Choice",
-              "choices": [{
+              "type": "Multiple Choice",
+              "question_choice": [{
                 "answer": "Port scans",
                 "is_correct": true
               },{
