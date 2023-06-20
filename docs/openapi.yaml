@@ -339,21 +339,29 @@ paths:
 components:
   schemas:
     TemplateAll:
-      type: object
-      properties:
-        data:
-         type: array
-         items:
-          type: object
-          properties:
-            id: 
-             type: integer
-            title:
-              type: string
-            created_at:
-              type: string
-            updated_at:
-              type: string
+      type: array
+      items:
+        type: object
+        properties:
+          id:
+            type: integer
+          title:
+            type: string
+          created_at:
+            type: string
+          updated_at:
+            type: string
+      example: [{
+        "id": 928,
+        "title": "Computer Networks",
+        "created_at": "2018-11-20 09:58",
+        "updated_at": "2018-11-20 09:58"
+      },{
+        "id": 929,
+        "title": "Hacking Challenges",
+        "created_at": "2018-11-21 19:58",
+        "updated_at": "2018-11-21 20:58"
+      }]
     ClassroomTemplate:
       type: object
       properties:
