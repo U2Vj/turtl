@@ -443,6 +443,9 @@ components:
         virtualization:
           type: object
           properties:
+            name:
+              type: string
+              example: "Kali linux for students"
             virtualization_role:
               type: string
               example: "User Shell"
