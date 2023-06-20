@@ -1,0 +1,570 @@
+openapi: 3.0.3
+info:
+  title: Turtl - API
+  description: |-
+    Turtl-Api
+    
+    Some useful links:
+    - [Docs for file format](https://swagger.io/docs/specification/basic-structure/)
+  version: 0.0.1
+tags:
+  - name: classrooms
+    description: classroom data
+  - name: projects
+    description: project data
+  - name: tasks
+    description: task data
+  - name: users
+    description: user data
+paths:
+  /templates/classrooms:
+    get:
+      tags:
+        - classrooms
+      summary: Get a list of all classroom templates
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TemplateAll'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+    post:
+      tags:
+        - classrooms
+      summary: Create ClassroomTemplate
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassroomTemplateNew'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /templates/classrooms/{id}:
+    get:
+      tags:
+        - classrooms
+      summary: Get ClassroomTemplate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: ID of ClassroomTemplate
+          explode: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+    delete:
+      tags:
+        - classrooms
+      summary: Delete ClassroomTemplate
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of ClassroomTemplate
+        explode: true
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+    put:
+      tags:
+        - classrooms
+      summary: Update ClassroomTemplate
+      parameters:
+      - name: id
+        in: path
+        required: true
+        description: ID of ClassroomTemplate
+        explode: true
+        schema:
+          type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ClassroomTemplate'
+        required: true
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ClassroomTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /templates/projects:
+    post:
+      tags:
+        - projects
+      summary: Create ProjectTemplate
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProjectTemplateNew'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTemplateNew'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /templates/projects/{id}:
+    get:
+      tags:
+        - projects
+      summary: Get ProjectTemplate by ID
+      parameters:
+        - name: id
+          in: path
+          description: ID of ProjectTemplate
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+    put:
+      tags:
+        - projects
+      summary: Update ProjectTemplate
+      parameters:
+        - name: id
+          in: path
+          description: ID of ProjectTemplate
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/ProjectTemplate' 
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+    delete:
+      tags:
+        - projects
+      summary: Delete ProjectTemplate
+      parameters:
+        - name: id
+          in: path
+          description: ID of ProjectTemplate
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProjectTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /templates/tasks:
+    post:
+      tags:
+        - tasks
+      summary: Create TaskTemplate
+      requestBody:
+        content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskTemplateNew'
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/TaskTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /templates/tasks/{id}:
+    get:
+      tags:
+        - tasks
+      summary: Get TaskTemplate by ID
+      parameters:
+        - name: id
+          description: ID of TaskTemplate
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TaskTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+    put:
+      tags:
+        - tasks
+      summary: Update TaskTemplate
+      parameters:
+        - name: id
+          description: ID of TaskTemplate
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/TaskTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+    delete:
+      tags:
+        - tasks
+      summary: Delete TaskTemplate
+      parameters:
+        - name: id
+          description: ID of TaskTemplate
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/TaskTemplate'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+  /users/managers:
+    get:
+      tags:
+        - users
+      summary: Get all Managers or Administrators (everyone who can manage a ClassroomTemplate)
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items: 
+                  $ref: '#/components/schemas/Manager'
+        '401':
+          $ref: "#/components/responses/Unauthorized"
+        '403':
+          $ref: "#/components/responses/Forbidden"
+components:
+  schemas:
+    TemplateAll:
+      type: object
+      properties:
+        data:
+         type: array
+         items:
+          type: object
+          properties:
+            id: 
+             type: integer
+            title:
+              type: string
+            created_at:
+              type: string
+            updated_at:
+              type: string
+    ClassroomTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+        project_templates:
+          type: array
+          items:
+            type: integer
+          example: [15,18,39]
+        information:
+          type: object
+          properties:
+            title:
+              type: string
+              example: "Computer Networks"
+            id:
+              type: integer
+              example: 928
+            created_at:
+              type: string
+              example: "2018-11-20 09:58"
+            updated_at:
+              type: string
+              example: "2018-11-20 15:07"
+        helpful_resources:
+          type: array
+          items:
+            type: object
+            properties:
+              title:
+                type: string
+                example: "Moodle course"
+              url:
+                type: string
+                example: "https://moodle.de/course/view.php?id=24"
+        managers:
+          type: array
+          items: 
+            $ref: "#/components/schemas/Manager"
+    ClassroomTemplateNew:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "IT Security"
+    ProjectTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 928
+        title:
+          type: string
+          example: "Introduction to firewalls"
+        task_templates:
+          type: array
+          items:
+            type: integer
+          example: [2,4,5]
+    ProjectTemplateNew:
+      type: object
+      properties:
+        title:
+          type: string
+          example: "Introduction to firewalls"
+        classroom_template_id:
+          type: integer
+          example: 928
+    TaskTemplate:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 592
+        title:
+          type: string
+          example: "Block incoming traffic using UFW"
+        virtualization:
+          type: object
+          properties:
+            virtualization_role:
+              type: string
+              example: "User Shell"
+            compose_file:
+              type: string
+        acceptance_criteria:
+          type: array
+          items:
+            oneOf:
+              - $ref: '#/components/schemas/AcceptanceCriteriaFlag'
+              - $ref: '#/components/schemas/AcceptanceCriteriaRegex'
+              - $ref: '#/components/schemas/AcceptanceCriteriaQuestionnaire'
+    AcceptanceCriteriaFlag:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "flag"
+        flag:
+          type: string
+          example: "you hacked me successfully :)"
+    AcceptanceCriteriaRegex:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "regex"
+        regex:
+          type: string
+          example: "^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+$"
+    AcceptanceCriteriaQuestionnaire:
+      type: object
+      properties:
+        type:
+          type: string
+          example: "questionnaire"
+        questions:
+          type: array
+          items:
+            type: object
+          properties:
+            title:
+              type: string
+            question_type: 
+              type: string
+              example: "Single Choice"
+            choices:
+              type: array
+              items:
+                type: object
+                properties:
+                  answer: 
+                    type: string
+                  is_correct: 
+                    type: boolean
+              example: [{
+                "answer": "nmap -sX [...]",
+                "is_correct": false
+              }, {
+                "answer": "nmap -sC [...]",
+                "is_correct": false
+              },{
+                "answer": "nmap -sS [...]",
+                "is_correct": true
+              }]
+          example: [{
+              "title": "What is the command to perform a SYN port scan with nmap?",
+              "question_type": "Single Choice",
+              "choices": [{
+                "answer": "nmap -sX [...]",
+                "is_correct": false
+              },{
+                "answer": "nmap -sC [...]",
+                "is_correct": false
+              },{
+                "answer": "nmap -sS [...]",
+                "is_correct": true
+              }]
+            },{
+              "title": "What can you do with nmap?",
+              "question_type": "Multiple Choice",
+              "choices": [{
+                "answer": "Port scans",
+                "is_correct": true
+              },{
+                "answer": "Exploiting",
+                "is_correct": false
+              },{
+                "answer": "Run a proxy",
+                "is_correct": false
+              },{
+                "answer": "OS detection",
+                "is_correct": true
+              }]
+            }]
+    TaskTemplateNew:
+      type: object
+      properties:
+        title:
+          type: string
+        description:
+          type: string
+        project_template_id:
+          type: integer
+    Manager:
+      type: object
+      properties:
+        id:
+          type: integer
+        username:
+          type: string
+          example: "John Doe"
+        email:
+          type: string
+          example: "john@doe.com"
+  responses:
+    Unauthorized:
+        description: unauthorized
+    Forbidden:
+      description: forbidden
+  securitySchemes:
+    petstore_auth:
+      type: oauth2
+      flows:
+        implicit:
+          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
+          scopes:
+            write:pets: modify pets in your account
+            read:pets: read your pets
+    api_key:
+      type: apiKey
+      name: api_key
+      in: header
