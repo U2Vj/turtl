@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import TurtlHeader from '@/components/TurtlHeader.vue'
-import Footer from '@/components/Footer.vue'
+import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import FooterTurtl from '@/components/FooterTurtl.vue'
 import { ref } from 'vue'
 
 const tab = ref(null)
@@ -13,7 +13,7 @@ const classroom = ref({
       managerName: 'John Doe',
       managerMail: 'john.doe@example.com'
     },
-    managers: [
+    instructors: [
       {
         instructorName: 'Tom Night',
         instructorMail: 'tom.night@example.com'
@@ -246,7 +246,7 @@ function getExpandIcon(item: any) {
 </script>
 
 <template>
-  <turtl-header></turtl-header>
+  <HeaderTurtl />
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
       <v-container>
@@ -437,7 +437,7 @@ function getExpandIcon(item: any) {
       </v-container>
     </div>
   </v-main>
-  <Footer></Footer>
+  <FooterTurtl />
 </template>
 
 <style scoped></style>

@@ -1,27 +1,71 @@
-import SignIn from '@/views/SignIn.vue'
-import ClassroomEnroled from '@/views/ClassroomsEnroled.vue'
-import ClassroomSingle from '@/views/ClassroomSingle.vue'
-import ForgotPassword from '@/views/ForgotPassword.vue'
-import ResetPassword from '@/views/ResetPassword.vue'
-import Profile from '@/views/UserProfile.vue'
+import SignIn from '@/views/general/SignIn.vue'
+import StudentClassroomsEnroled from '@/views/student/StudentClassroomsEnroled.vue'
+import StudentTask from '@/views/student/StudentTask.vue'
+import PasswordRecovery from '@/views/general/PasswordRecovery.vue'
+import PasswordChange from '@/views/general/PasswordChange.vue'
+import UserProfile from '@/views/general/UserProfile.vue'
+import AdminClassroomTemplatesOverview from '@/views/admin/AdminClassroomTemplatesOverview.vue'
+import AdminTemplateClassroom from '@/views/admin/AdminTemplateClassroom.vue'
+import StudentDashboard from '@/views/student/StudentDashboard.vue'
+import ManagerClassrooms from '@/views/manager/ManagerClassrooms.vue'
+import ManagerClassroomInstanceCreate from '@/views/manager/ManagerClassroomInstanceCreate.vue'
+import StudentClassroomsAll from '@/views/student/StudentClassroomsAll.vue'
+import StudentClassroom from '@/views/student/StudentClassroom.vue'
+import PrivacyPolicy from '@/views/general/PrivacyPolicy.vue'
+import ImprintTurtl from '@/views/general/ImprintTurtl.vue'
+
 import { createRouter, createWebHistory } from 'vue-router'
 import { useUserStore } from '@/stores/UserStore'
-import ClassroomTemplates from '@/views/ClassroomTemplates.vue'
-import CreateClassroomInstance from '@/views/CreateClassroomInstance.vue'
-import DashboardStudent from '@/views/DashboardStudent.vue'
-import ManagerDashboard from '@/views/ManagerDashboard.vue'
-import StudentAllClassrooms from '@/views/StudentAllClassrooms.vue'
-import EditTaskTemplate from '@/views/EditTaskTemplate.vue'
-import test from '@/views/test.vue'
-import StudentClassrooms from '@/views/StudentClassrooms.vue'
-import ModifyTemplate from '@/views/ModifyTemplate.vue'
-import StudentClassProjects from '@/views/StudentClassProjects.vue'
-import PrivacyPolicy from '@/views/PrivacyPolicy.vue'
-import Imprint from '@/views/Imprint.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
+    {
+      path: '/student/dashboard',
+      name: 'StudentDashboard',
+      component: StudentDashboard
+    },
+    {
+      path: '/student/classrooms',
+      name: 'StudentClassroomsEnroled',
+      component: StudentClassroomsEnroled
+    },
+    {
+      path: '/student/classrooms/:id',
+      name: 'ClassroomSingle',
+      component: StudentClassroom
+    },
+    {
+      path: '/student/tasks/:id',
+      name: 'StudentTask',
+      component: StudentTask
+    },
+    {
+      path: '/student/classrooms/all',
+      name: 'StudentClassroomsAll',
+      component: StudentClassroomsAll
+    },
+    {
+      path: '/admin/templates',
+      name: 'AdminClassroomTemplatesOverview',
+      component: AdminClassroomTemplatesOverview
+    },
+    {
+      path: '/admin/templates/:templateId',
+      name: 'AdminTemplateClassroom',
+      component: AdminTemplateClassroom,
+      props: true
+    },
+    {
+      path: '/manager/classrooms',
+      name: 'ManagerClassrooms',
+      component: ManagerClassrooms
+    },
+    {
+      path: '/mananager/classroom/create',
+      name: 'ManagerClassroomInstanceCreate',
+      component: ManagerClassroomInstanceCreate
+    },
     {
       path: '/',
       component: SignIn
@@ -32,80 +76,19 @@ const router = createRouter({
       component: SignIn
     },
     {
-      path: '/classrooms',
-      name: 'ClassroomTable',
-      component: ClassroomEnroled
-    },
-    {
-      path: '/classrooms/:id',
-      name: 'ClassroomSingle',
-      component: ClassroomSingle
-    },
-    {
       path: '/forgot-password',
       name: 'forgot-password',
-      component: ForgotPassword
+      component: PasswordRecovery
     },
     {
       path: '/reset-password',
       name: 'reset-password',
-      component: ResetPassword
+      component: PasswordChange
     },
     {
       path: '/profile',
       name: 'profile',
-      component: Profile
-    },
-    {
-      path: '/templates',
-      name: 'ClassroomTemplates',
-      component: ClassroomTemplates
-    },
-    {
-      path: '/templates/:templateId',
-      name: 'template',
-      component: ModifyTemplate,
-      props: true
-    },
-    {
-      path: '/createclassroominstance',
-      name: 'CreateClassroomInstance',
-      component: CreateClassroomInstance
-    },
-    {
-      path: '/dashboard',
-      name: 'Dashboard',
-      component: DashboardStudent
-    },
-    {
-      path: '/dashboard-prof', // TODO: change to /dashboard
-      name: 'ManagerDashboard',
-      component: ManagerDashboard
-    },
-    {
-      path: '/edittasktemplate',
-      name: 'EditTaskTemplate',
-      component: EditTaskTemplate
-    },
-    {
-      path: '/allclassrooms-stud', // TODO: change to allcllassrooms
-      name: 'StudentAllClassrooms',
-      component: StudentAllClassrooms
-    },
-    {
-      path: '/test', // TODO: delete
-      name: 'Test',
-      component: test
-    },
-    {
-      path: '/studentclassrooms',
-      name: 'StudentClassrooms',
-      component: StudentClassrooms
-    },
-    {
-      path: '/studentclassprojects',
-      name: 'StudentClassProjects',
-      component: StudentClassProjects
+      component: UserProfile
     },
     {
       path: '/privacypolicy',
@@ -115,7 +98,7 @@ const router = createRouter({
     {
       path: '/imprint',
       name: 'Imprint',
-      component: Imprint
+      component: ImprintTurtl
     }
   ]
 })

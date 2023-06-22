@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import TurtlHeader from '@/components/TurtlHeader.vue'
-import Footer from '@/components/Footer.vue'
+import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import FooterTurtl from '@/components/FooterTurtl.vue'
 import { ref } from 'vue'
 
 const classrooms = ref([
@@ -104,7 +104,7 @@ const classrooms = ref([
 </script>
 
 <template>
-  <turtl-header></turtl-header>
+  <HeaderTurtl />
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
       <v-container>
@@ -162,7 +162,7 @@ const classrooms = ref([
       </v-container>
     </div>
   </v-main>
-  <Footer></Footer>
+  <FooterTurtl />
 </template>
 
 <style scoped>

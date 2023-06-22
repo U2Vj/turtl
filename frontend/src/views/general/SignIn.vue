@@ -35,7 +35,7 @@ const submit = handleSubmit(async (values) => {
   const success = await userStore.login({
     user: { email: values.email, password: values.password }
   })
-  router.push({ path: '/home' })
+  router.push({ path: '/profile' })
 })
 </script>
 
