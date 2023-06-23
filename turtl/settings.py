@@ -54,8 +54,7 @@ INSTALLED_APPS = [
     'catalog',
     'dockerService',
     'shell',
-    'environment',
-    'classroom'
+    'environment'
 ]
 
 MIDDLEWARE = [
@@ -79,8 +78,6 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8000',
     'http://127.0.0.1:8080',
 )
-
-#Closes 34
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'authentication.exceptions.core_exception_handler',
@@ -152,6 +149,10 @@ AUTH_PASSWORD_VALIDATORS = [
         'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator',
     },
 ]
+
+AUTHENTICATION_BACKENDS = ('rules.permissions.ObjectPermissionBackend',
+                           'django.contrib.auth.backends.ModelBackend'
+                           )
 
 
 # Internationalization
