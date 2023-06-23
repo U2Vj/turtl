@@ -18,7 +18,10 @@ const userStore = useUserStore()
       </div>
       <template v-slot:prepend>
         <router-link to="/">
-          <v-img src="@/assets/logo.svg" width="75px"></v-img>
+          <!-- TODO: change img to v-img for consistency.
+          v-img did rerender the image on every page change tho.
+          Giving it eager did not help.-->
+          <img src="@/assets/logo.svg" width="75" />
         </router-link>
       </template>
 
