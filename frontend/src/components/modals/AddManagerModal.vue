@@ -1,0 +1,44 @@
+<script setup lang="ts">
+import { ref } from 'vue'
+import { useTemplateStore } from '@/stores/TemplateStore'
+import { useAxios } from '@vueuse/integrations/useAxios'
+import type { User } from '@/stores/TemplateStore'
+
+const templateStore = useTemplateStore()
+const { data: AllManagers } = useAxios<User[]>(`${import.meta.env.VITE_API_URL}/users/managers`)
+const managers = AllManagers.value?.filter((element: User) => {
+  return !templateStore.classroomTemplate?.managers.includes(element)
+})
+const showDialog = ref(false)
+</script>
+
+<template>
+  <v-dialog v-model="showDialog" activator="parent">
+    <v-card>
+      <template #title>Add Managers</template>
+      <template #text>
+        <v-data-table
+          :headers="[
+            { title: 'E-Mail', key: 'email' },
+            { title: 'Add', key: 'add' }
+          ]"
+          :items="managers"
+        >
+          <template #[`item.add`]="{ item }">
+            <v-btn
+              icon="mdi-plus"
+              variant="elevated"
+              color="primary"
+              @click="
+                () => {
+                  templateStore.addManager(item.raw.id, item.raw.email)
+                }
+              "
+            />
+          </template>
+        </v-data-table>
+        <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
+      </template>
+    </v-card>
+  </v-dialog>
+</template>
