@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from django.contrib.auth import authenticate, get_user_model
+from django.contrib.auth import authenticate
 
 from .models import User
 
@@ -36,6 +36,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         # Use the `create_user` method we wrote earlier to create a new user.
         user = User.objects.create_user(**validated_data)
         return user
+
 
 # LoginSerializer handles the login request for a user.
 # A new JWT Token will be returned if a user is logged in successfully.
@@ -99,6 +100,7 @@ class LoginSerializer(serializers.Serializer):
             'username': user.username,
             'token': user.token
         }
+
 
 # This serializers handles a update request for a user object.
 # Handles serialization and deserialization of User objects.
