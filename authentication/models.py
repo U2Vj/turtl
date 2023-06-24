@@ -175,13 +175,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         return self.email
 
-    @property
-    def token(self):
-        """
-        Returns this users JWT Token.
-        """
-        return Token.objects.get_or_create(user=self)[0].key
-
     def get_full_name(self):
         """
         This method is required by Django for things like handling emails.
