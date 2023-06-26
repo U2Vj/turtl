@@ -13,6 +13,10 @@ async function addProjectTemplate(title: string) {
     title,
     classroomTemplateId
   })
+
+  if (response.data.success) {
+    showDialog.value = false
+  }
 }
 </script>
 
