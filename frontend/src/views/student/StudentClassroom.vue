@@ -4,7 +4,6 @@ import FooterTurtl from '@/components/FooterTurtl.vue'
 import { ref } from 'vue'
 
 const tab = ref(null)
-const expandedItem = ref<{ id: string; expanded: boolean } | null>(null)
 const classroom = ref({
   name: 'Networks',
   information: {
@@ -181,9 +180,7 @@ function getAllTasks() {
   let allTasks = 0
 
   for (const project of projects.value) {
-    for (const task of project.taskList) {
-      allTasks++
-    }
+    allTasks += project.taskList.length
   }
   return allTasks
 }
@@ -238,10 +235,6 @@ function getNumberOfDoneProjects() {
     }
   }
   return count
-}
-
-function getExpandIcon(item: any) {
-  return item.expanded ? 'mdi-chevron-up' : 'mdi-chevron-down'
 }
 </script>
 
@@ -419,12 +412,12 @@ function getExpandIcon(item: any) {
                       <v-card-title>My Team</v-card-title>
                       <v-card-text>
                         <h3>Attacker</h3>
-                        <div v-for="attacker in classroom.team.attackers">
+                        <div v-for="attacker in classroom.team.attackers" :key="attacker">
                           {{ attacker }}
                         </div>
                         <div class="mt-5"><h3>Defender</h3></div>
-                        <div v-for="defnder in classroom.team.defenders">
-                          {{ defnder }}
+                        <div v-for="defender in classroom.team.defenders" :key="defender">
+                          {{ defender }}
                         </div>
                       </v-card-text>
                     </v-card>
