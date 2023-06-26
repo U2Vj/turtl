@@ -7,6 +7,8 @@ from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
 from django.db import models
+from django.utils.translation import gettext_lazy as _
+
 
 # This file defines the models used during authentication.
 # A model can be stored inside the database.
@@ -23,7 +25,7 @@ class UserManager(BaseUserManager):
     to create `User` objects.
     """
 
-    def create_user(self, username, email, password=None):
+    def create_user(self, username, email, password):
         """Create and return a `User` with an email, username and password."""
         if username is None:
             raise TypeError('Users must have a username.')
@@ -31,8 +33,51 @@ class UserManager(BaseUserManager):
         if email is None:
             raise TypeError('Users must have an email address.')
 
+        if password is None:
+            raise TypeError('Users must have a password.')
+
         user = self.model(username=username, email=self.normalize_email(email))
         user.set_password(password)
+        user.save()
+
+        return user
+
+    def create_student(self, username, email, password):
+        """
+            create and return a student
+        """
+        user = self.create_user(username, email, password)
+        user.role = user.Role.STUDENT
+        user.save()
+
+        return user
+
+    def create_instructor(self, username, email, password):
+        """
+            create and return an instructor
+        """
+        user = self.create_user(username, email, password)
+        user.role = user.Role.INSTRUCTOR
+        user.save()
+
+        return user
+
+    def create_manager(self, username, email, password):
+        """
+            create and return a student
+        """
+        user = self.create_user(username, email, password)
+        user.role = user.Role.MANAGER
+        user.save()
+
+        return user
+
+    def create_administrator(self, username, email, password):
+        """
+            create and return an administrator
+        """
+        user = self.create_user(username, email, password)
+        user.role = user.Role.ADMINISTRATOR
         user.save()
 
         return user
@@ -41,15 +86,8 @@ class UserManager(BaseUserManager):
         """
         Create and return a `User` with superuser (admin) permissions.
         """
-        if password is None:
-            raise TypeError('Superusers must have a password.')
 
-        user = self.create_user(username, email, password)
-        user.is_superuser = True
-        user.is_staff = True
-        user.save()
-
-        return user
+        return self.create_administrator(username, email, password)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
@@ -72,15 +110,50 @@ class User(AbstractBaseUser, PermissionsMixin):
     # but we can still analyze the data.
     is_active = models.BooleanField(default=True)
 
-    # The `is_staff` flag is expected by Django to determine who can and cannot
-    # log into the Django admin site. For most users this flag will always be
-    # false.
-    is_staff = models.BooleanField(default=False)
+    # Users can have four different roles within TURTL: administrator, manager, instructor and student.
+    class Role(models.TextChoices):
+        ADMINISTRATOR = 'ADMINISTRATOR', _('Administrator')
+        MANAGER = 'MANAGER', _('Manager')
+        INSTRUCTOR = 'INSTRUCTOR', _('Instructor')
+        STUDENT = 'STUDENT', _('Student')
+
+    role = models.CharField(
+        max_length=13,
+        choices=Role.choices,
+        default=Role.STUDENT,
+    )
+
+    # we can use these properties to check which role this user has
+    @property
+    def is_student(self):
+        return self.role == self.Role.STUDENT
+
+    @property
+    def is_instructor(self):
+        return self.role == self.Role.INSTRUCTOR
+
+    @property
+    def is_manager(self):
+        return self.role == self.Role.MANAGER
+
+    @property
+    def is_administrator(self):
+        return self.role == self.Role.ADMINISTRATOR
+
+    # Only administrators are superusers and only superusers can access the built-in django admin panel (i.e. are
+    # members of staff)
+    @property
+    def is_superuser(self):
+        return self.is_administrator
+
+    @property
+    def is_staff(self):
+        return self.is_superuser
 
     # A timestamp representing when this object was created.
     created_at = models.DateTimeField(auto_now_add=True)
 
-    # A timestamp reprensenting when this object was last updated.
+    # A timestamp representing when this object was last updated.
     updated_at = models.DateTimeField(auto_now=True)
 
     # More fields required by Django when specifying a custom user model.
@@ -102,17 +175,6 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         return self.email
 
-    @property
-    def token(self):
-        """
-        Allows us to get a user's token by calling `user.token` instead of
-        `user.generate_jwt_token().
-
-        The `@property` decorator above makes this possible. `token` is called
-        a "dynamic property".
-        """
-        return self._generate_jwt_token()
-
     def get_full_name(self):
         """
         This method is required by Django for things like handling emails.
@@ -128,17 +190,3 @@ class User(AbstractBaseUser, PermissionsMixin):
         the user's real name, we return their username instead.
         """
         return self.username
-
-    def _generate_jwt_token(self):
-        """
-        Generates a JSON Web Token that stores this user's ID and has an expiry
-        date set to 60 days into the future.
-        """
-        dt = datetime.now() + timedelta(days=60)
-
-        token = jwt.encode({
-            'id': self.pk,
-            'exp': int(dt.strftime('%S'))
-        }, settings.SECRET_KEY, algorithm='HS256')
-
-        return token.decode('utf-8')

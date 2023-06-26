@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from django.contrib.auth import authenticate, get_user_model
+from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 
 from .models import User
 
@@ -36,6 +37,7 @@ class RegistrationSerializer(serializers.ModelSerializer):
         # Use the `create_user` method we wrote earlier to create a new user.
         user = User.objects.create_user(**validated_data)
         return user
+
 
 # LoginSerializer handles the login request for a user.
 # A new JWT Token will be returned if a user is logged in successfully.
@@ -100,6 +102,7 @@ class LoginSerializer(serializers.Serializer):
             'token': user.token
         }
 
+
 # This serializers handles a update request for a user object.
 # Handles serialization and deserialization of User objects.
 class UserSerializer(serializers.ModelSerializer):
@@ -153,4 +156,16 @@ class UserSerializer(serializers.ModelSerializer):
         instance.save()
 
         return instance
+
+
+class CustomTokenObtainSerializer(TokenObtainPairSerializer):
+    @classmethod
+    def get_token(cls, user):
+        token = super().get_token(user)
+
+        token['username'] = user.username
+        token['role'] = user.role
+        token['email'] = user.email
+
+        return token
 
