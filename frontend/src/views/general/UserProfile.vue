@@ -6,6 +6,7 @@ import { useField } from 'vee-validate'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
+import { axiosInstance } from '@/stores/AxiosInstance'
 
 const userStore = useUserStore()
 
@@ -27,12 +28,12 @@ const schema = toTypedSchema(
 
 const { handleSubmit } = useForm({ validationSchema: schema })
 
-const { value: oldPasswordValue, errorMessage: oldPasswordError } = useField<string>(
+const { value: oldPassword, errorMessage: oldPasswordError } = useField<string>(
   'oldPassword',
   {},
   { validateOnValueUpdate: false }
 )
-const { value: newPasswordValue, errorMessage: newPasswordError } = useField<string>(
+const { value: newPassword, errorMessage: newPasswordError } = useField<string>(
   'newPassword',
   {},
   { validateOnValueUpdate: false }
@@ -41,7 +42,10 @@ const { value: newPasswordValidateValue, errorMessage: newPasswordValidateError 
   useField<string>('newPasswordValidate', {}, { validateOnValueUpdate: false })
 
 const submit = handleSubmit(async (values) => {
-  // TODO: Add backend route change Password
+  axiosInstance.post('/user/password/change', {
+    oldPassword: values.oldPassword,
+    newPassword: values.newPassword
+  })
 })
 </script>
 
@@ -56,7 +60,7 @@ const submit = handleSubmit(async (values) => {
         <div class="mt-5"><h2>Change your password:</h2></div>
         <v-form @submit="submit">
           <v-text-field
-            v-model="oldPasswordValue"
+            v-model="oldPassword"
             :error-messages="oldPasswordError"
             name="oldPassword"
             type="password"
@@ -68,7 +72,7 @@ const submit = handleSubmit(async (values) => {
           >
           </v-text-field>
           <v-text-field
-            v-model="newPasswordValue"
+            v-model="newPassword"
             :error-messages="newPasswordError"
             name="newPassword"
             type="password"
