@@ -3,6 +3,7 @@ import { defineStore } from 'pinia'
 import { computed } from 'vue'
 import { useStorage, StorageSerializers } from '@vueuse/core'
 import type { Router } from 'vue-router'
+import { axiosInstance } from './AxiosInstance'
 
 type LoginData = {
   user: {
@@ -27,28 +28,15 @@ export const useUserStore = defineStore('user', () => {
   })
 
   async function login(logininData: LoginData) {
-    return await axios
-      .post(import.meta.env.VITE_API_URL + '/users/login', logininData)
-      .then((response) => {
-        if (response.data.user.token) {
-          user.value = response.data.user
-          return true
-        }
-        return false
-      })
-      .catch(() => {
-        return false
-      })
+    const response = await axiosInstance.post('/users/login', {
+      email: logininData.user.email,
+      password: logininData.user.password
+    })
+    return response.status === 200
   }
 
-  async function update(user: any) {
-    return await axios.post(import.meta.env.VITE_API_URL + '/user', user).then((response) => {
-      if (response.data.user.token) {
-        localStorage.setItem('user', JSON.stringify(response.data.user))
-      }
-
-      return response.data
-    })
+  async function update(email: string, password: string) {
+    return await axiosInstance.post('/user', { email, password })
   }
 
   async function resetPasswordRequest(email: string) {
@@ -94,5 +82,5 @@ export const useUserStore = defineStore('user', () => {
       })
   }
 
-  return { user, loggedIn, login, logout, resetPasswordRequest, resetPassword }
+  return { user, loggedIn, login, logout, update, register, resetPasswordRequest, resetPassword }
 })
