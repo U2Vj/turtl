@@ -41,16 +41,6 @@ const items = ref([
     completed: false
   }
 ])
-
-const dialog = ref(false)
-
-function close() {
-  dialog.value = false
-}
-
-function join() {
-  dialog.value = false
-}
 </script>
 
 <template>
