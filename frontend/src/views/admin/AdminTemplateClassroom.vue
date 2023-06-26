@@ -9,15 +9,15 @@ import { watchEffect } from 'vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 
-const props = defineProps<{ id: string }>()
-
+const props = defineProps<{ templateId: string }>()
+console.log(props)
 const tab = ref(0)
 const showCreateModal = ref(false)
 
 const templateStore = useTemplateStore()
 
 let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate(props.id)
+templateStore.fetchTemplate(props.templateId)
 
 watchEffect(() => {
   if (!templateData.value) return
