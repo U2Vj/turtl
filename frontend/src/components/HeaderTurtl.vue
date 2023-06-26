@@ -16,7 +16,7 @@ const userStore = useUserStore()
         <v-btn to="/admin/templates">A Templates</v-btn>
         <v-btn to="/manager/classrooms">M Classrooms</v-btn>
       </div>
-      <template v-slot:prepend>
+      <template #prepend>
         <router-link to="/">
           <!-- TODO: change img to v-img for consistency.
           v-img did rerender the image on every page change tho.
@@ -25,20 +25,20 @@ const userStore = useUserStore()
         </router-link>
       </template>
 
-      <template v-slot:append>
+      <template #append>
         <v-menu>
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn icon="mdi-dots-vertical" v-bind="props"> </v-btn>
           </template>
           <v-list>
             <v-list-item to="/profile">
-              <template v-slot:prepend>
+              <template #prepend>
                 <v-icon icon="mdi-account"></v-icon>
               </template>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
             <v-list-item @click="userStore.logout(router)">
-              <template v-slot:prepend>
+              <template #prepend>
                 <v-icon icon="mdi-logout"></v-icon>
               </template>
               <v-list-item-title>Logout</v-list-item-title>

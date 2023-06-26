@@ -82,7 +82,7 @@ const classrooms = ref([
                   bg-opacity="1"
                   :model-value="classroom.progress"
                 >
-                  <template v-slot:default="{ value }">
+                  <template #default>
                     <strong>{{ Math.ceil(classroom.progress) }}%</strong>
                   </template>
                 </v-progress-linear>

@@ -93,7 +93,7 @@ function join() {
                   bg-color="#ffffff"
                   bg-opacity="1"
                 >
-                  <template v-slot:default>
+                  <template #default>
                     <strong>{{ Math.ceil(item.progress) }}%</strong>
                   </template>
                 </v-progress-linear>

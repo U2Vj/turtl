@@ -270,7 +270,7 @@ function getNumberOfDoneProjects() {
                         bg-opacity="1"
                         :model-value="getTaskProgressOfProject(item.id)"
                       >
-                        <template v-slot:default>
+                        <template #default>
                           <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
                         </template>
                       </v-progress-linear>
@@ -376,7 +376,7 @@ function getNumberOfDoneProjects() {
                           bg-color="#ffffff"
                           bg-opacity="1"
                         >
-                          <template v-slot:default>
+                          <template #default>
                             <strong>{{ Math.ceil(getTaskProgress()) }}%</strong>
                           </template>
                         </v-progress-linear>
@@ -396,7 +396,7 @@ function getNumberOfDoneProjects() {
                           "
                           :model-value="100 * (getNumberOfDoneProjects() / projects.length)"
                         >
-                          <template v-slot:default>
+                          <template #default>
                             <strong
                               >{{
                                 Math.ceil(100 * (getNumberOfDoneProjects() / projects.length))

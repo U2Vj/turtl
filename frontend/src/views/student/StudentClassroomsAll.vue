@@ -72,7 +72,7 @@ function join() {
               :search="search"
               item-value="classTemplates"
             >
-              <template v-slot:top>
+              <template #top>
                 <v-dialog v-model="dialog" persistent width="50%">
                   <v-card>
                     <v-toolbar :title="selectedClassroomName"> </v-toolbar>
@@ -108,7 +108,7 @@ function join() {
                   </v-card>
                 </v-dialog>
               </template>
-              <template #item.actions="{ item }">
+              <template #[`item.actions`]="{ item }">
                 <v-btn
                   variant="tonal"
                   color="primary"
@@ -117,7 +117,7 @@ function join() {
                   >Join classroom</v-btn
                 >
               </template>
-              <template v-slot:no-data>
+              <template #no-data>
                 <p>No data</p>
               </template>
             </v-data-table>
