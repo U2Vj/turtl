@@ -44,7 +44,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
   if (!project) {
     return
   }
-  moveArrayElement(project.task_template, event.oldIndex, event.newIndex)
+  moveArrayElement(project.task_templates, event.oldIndex, event.newIndex)
 }
 </script>
 
@@ -80,7 +80,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   :key="project.id"
                   :id="project.id"
                   :title="project.title"
-                  :task_template="project.task_template"
+                  :task_template="project.task_templates"
                   @update:task_template="handleUpdateTaskOrder"
                   class="mt-5"
                 ></template-card>
