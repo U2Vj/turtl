@@ -91,7 +91,10 @@ export const useTemplateStore = defineStore('template', () => {
   }
 
   function getTask(taskId: string) {
+    classroomTemplate.value = mockdata
+
     let task: TaskTemplate | undefined
+
     classroomTemplate.value?.project_templates.forEach((project) => {
       project.task_templates.forEach((task_template) => {
         if (task_template.id === taskId) {
