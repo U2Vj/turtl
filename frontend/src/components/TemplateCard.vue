@@ -7,17 +7,20 @@ const emit = defineEmits<{
 }>()
 
 const props = defineProps<{
-  id: string
+  templateId: string
+  projectId: string
   title: string
-  task_template: { id: string; title: string }[]
+  taskTemplates: { id: string; title: string }[]
 }>()
 
 const showInformation = ref(false)
+console.log(import.meta.env)
+console.log(import.meta)
 
-useSortable(`#taskWrapper${props.id}`, props.task_template, {
+useSortable(`#taskWrapper${props.projectId}`, props.taskTemplates, {
   animation: 150,
   onUpdate: (event: any) => {
-    emit('update:task_template', props.id, event)
+    emit('update:task_template', props.projectId, event)
   }
 })
 </script>
@@ -47,9 +50,11 @@ useSortable(`#taskWrapper${props.id}`, props.task_template, {
     </v-card-actions>
     <v-card-text v-show="showInformation">
       Tasks
-      <div :id="`taskWrapper${props.id}`">
-        <div v-for="task in props.task_template" :key="task.id" style="cursor: grab">
-          <v-icon icon="mdi-drag" />{{ task.title }}
+      <div :id="`taskWrapper${props.projectId}`">
+        <div v-for="task in props.taskTemplates" :key="task.id" style="cursor: grab">
+          <a :href="`/admin/templates/${props.templateId}/tasks/${task.id}`">
+            <v-icon icon="mdi-drag" />{{ task.title }}
+          </a>
         </div>
       </div>
       <v-card-actions>

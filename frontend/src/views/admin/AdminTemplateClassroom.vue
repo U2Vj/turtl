@@ -77,10 +77,11 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
               <div id="cardWrapper">
                 <template-card
                   v-for="project in templateData.project_templates"
+                  :template-id="props.templateId"
                   :key="project.id"
-                  :id="project.id"
+                  :project-id="project.id"
                   :title="project.title"
-                  :task_template="project.task_templates"
+                  :taskTemplates="project.task_templates"
                   @update:task_template="handleUpdateTaskOrder"
                   class="mt-5"
                 ></template-card>
