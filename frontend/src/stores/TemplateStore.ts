@@ -1,7 +1,7 @@
-import axios from 'axios'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useCloned } from '@vueuse/core'
+import { axiosInstance } from './AxiosInstance'
 
 type BasicTemplateData = {
   id: string
@@ -60,44 +60,37 @@ type AdditionalTemplateData = {
 export type TemplateData = BasicTemplateData & AdditionalTemplateData
 
 export const useTemplateStore = defineStore('template', () => {
-  const classroomTemplate = ref<TemplateData>()
+  const classroomTemplate = ref<TemplateData | undefined>()
   const basicTemplateData = ref<BasicTemplateData[]>()
 
   async function fetchTemplate(id: string) {
     classroomTemplate.value = mockdata
-    classroomTemplate.value = await axios.get(`${import.meta.env.VITE_API_URL}/templates/${id}`)
-
+    classroomTemplate.value = await axiosInstance.get(`/templates/${id}`)
     return classroomTemplate
   }
 
   async function changeTemplateData(id: string, templateData: TemplateData) {
-    classroomTemplate.value = await axios.post(
-      `${import.meta.env.VITE_API_URL}/templates/${id}`,
-      templateData
-    )
+    classroomTemplate.value = await axiosInstance.post(`/templates/${id}`, templateData)
     return classroomTemplate
   }
 
   async function deleteClassroomTemplate(id: string) {
-    await axios.delete(`${import.meta.env.VITE_API_URL}/templates/${id}`)
+    await axiosInstance.delete(`/templates/${id}`)
   }
 
   async function getBasicTemplateData() {
-    basicTemplateData.value = await axios.get(`${import.meta.env.VITE_API_URL}/templates`)
+    basicTemplateData.value = await axiosInstance.get(`/templates`)
     return basicTemplateData
   }
 
   async function createProjectTemplate(projectName: string) {
-    classroomTemplate.value = await axios.put(
-      `${import.meta.env.VITE_API_URL}/templates`,
-      projectName
-    )
+    classroomTemplate.value = await axiosInstance.put(`/templates`, projectName)
   }
 
   async function addManager(id: string, email: string) {
     const { cloned } = useCloned(classroomTemplate)
     cloned.value?.managers.push({ id, email })
-    classroomTemplate.value = await axios.put(`${import.meta.env.VITE_API_URL}/templates`, cloned)
+    classroomTemplate.value = await axiosInstance.put(`/templates`, cloned)
   }
 
   return {
