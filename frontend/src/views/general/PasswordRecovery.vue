@@ -30,26 +30,28 @@ const submit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <div id="container" class="d-flex flex-column justify-center align-center">
-    <div class="d-flex align-center">
-      <v-img src="@/assets/logo.svg" width="150"></v-img>
-      <h1 class="text-h3 ml-5 font-weight-bold">Virtual Network Security Lab</h1>
+  <div id="background">
+    <div id="container" class="d-flex flex-column justify-center align-center">
+      <div class="d-flex align-center">
+        <v-img src="@/assets/logo.svg" width="150"></v-img>
+        <h1 class="text-h3 ml-5 font-weight-bold">Virtual Network Security Lab</h1>
+      </div>
+      <v-sheet class="pa-10 elevation-24 mt-10" width="500" max-width="100%">
+        <v-form @submit="submit">
+          <div class="text-h4 font-weight-bold text-center mb-4">Forgot Password</div>
+          <v-text-field
+            v-model="emailValue"
+            :error-messages="emailError"
+            name="email"
+            type="email"
+            label="Email"
+            placeholder="john.doe@example.com"
+          ></v-text-field>
+          <v-btn type="submit" color="primary" block>Send password reset email</v-btn>
+        </v-form>
+        <router-link class="d-block mt-5" to="/">Back to sign in</router-link>
+      </v-sheet>
     </div>
-    <v-sheet class="pa-10 elevation-24 mt-10" width="500" max-width="100%">
-      <v-form @submit="submit">
-        <div class="text-h4 font-weight-bold text-center mb-4">Forgot Password</div>
-        <v-text-field
-          v-model="emailValue"
-          :error-messages="emailError"
-          name="email"
-          type="email"
-          label="Email"
-          placeholder="john.doe@example.com"
-        ></v-text-field>
-        <v-btn type="submit" color="primary" block>Send password reset email</v-btn>
-      </v-form>
-      <router-link class="d-block mt-5" to="/">Back to sign in</router-link>
-    </v-sheet>
   </div>
 </template>
 
@@ -57,9 +59,10 @@ const submit = handleSubmit(async (values) => {
 #container {
   height: fit-content;
   min-height: 100vh;
+  position: relative;
 }
 
-#container::before {
+#background::before {
   content: '';
   position: absolute;
   top: 50%;
