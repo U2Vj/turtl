@@ -120,7 +120,9 @@ const task = ref(templateStore.getTask(props.taskId))
           </v-row>
           <v-row>
             <v-col>
-              <v-btn variant="tonal" color="primary" class="elevation-2"> Add Question </v-btn>
+              <v-btn variant="tonal" color="primary" class="elevation-2">
+                Add Question <AddQuestionModal />
+              </v-btn>
             </v-col>
           </v-row>
           <v-row>
