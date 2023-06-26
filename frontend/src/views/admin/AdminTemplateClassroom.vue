@@ -10,7 +10,6 @@ import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 
 const props = defineProps<{ templateId: string }>()
-console.log(props)
 const tab = ref(0)
 const showCreateModal = ref(false)
 
