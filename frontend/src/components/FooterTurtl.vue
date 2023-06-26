@@ -1,6 +1,3 @@
-<script setup lang="ts">
-import { ref } from 'vue'
-</script>
 <template>
   <v-card variant="flat" color="cardColor" class="elevation-4">
     <v-footer color="cardColor">
