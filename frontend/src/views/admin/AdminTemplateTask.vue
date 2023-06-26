@@ -1,163 +1,149 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
-const taskName = ref('What are IP Adresses?')
-const onlyRead = ref(true)
-const editLabel = ref('Edit')
-const taskDescription = ref(
-  'Lorem ipsum dolor sit amet, consetetur sadipscing elitr, sed diam nonumy eirmod tempor invidunt ut labore et dolore magna aliquyam erat, sed diam voluptua. At vero eos et accusam et justo duo dolores et ea rebum.  Stet clita kasd gubergren, no sea takimata sanctus est.'
-)
-const createdOn = ref('2022.02.02')
-const createdBy = ref('Max Muster')
-const modifiedOn = ref('2022.02.02')
-const modifiedBy = ref('Franz Muster')
+import { ref, toRef } from 'vue'
+import { useTemplateStore } from '@/stores/TemplateStore'
 
-const allCriteria = [
-  { id: '1', type: 'Question', description: 'How many bytes does an IPv4 address consist of?' },
-  { id: '2', type: 'Question', description: 'How ?' },
-  { id: '3', type: 'Question', description: 'How many bytes does an IPv4 address consist of?' }
-]
+const props = defineProps<{ id: string }>()
 
-const allVirtual = [
-  { id: '1', type: 'Docker Container', title: 'kalilinux/kali-rolling', accesable: 'User Shell' },
-  { id: '2', type: 'Docker Container', title: 'ubuntu', accesable: 'User-accessible via IP' }
-]
+const tab = ref(0)
+const showCreateModal = ref(false)
 
-function toggleEdit() {
-  if (onlyRead.value === true) {
-    onlyRead.value = false
-    editLabel.value = 'Safe'
-  } else if (onlyRead.value === false) {
-    onlyRead.value = true
-    editLabel.value = 'Edit'
-  }
-}
+const templateStore = useTemplateStore()
+
+let templateData = toRef(templateStore, 'classroomTemplate')
+templateStore.fetchTemplate(props.id)
+
+// templateData.project_templates.task_template.acceptance_criteria.acceptance_criteria_questionaire.questions.question_choice.answer
 </script>
 
 <template>
   <HeaderTurtl />
-  <v-main>
-    <v-container fluid>
-      <v-row justify="space-between">
-        <v-col cols="12" sm="8" md="5">
-          <div>
-            <h1>{{ taskName }}</h1>
-            <v-text-field
-              v-if="onlyRead === false"
-              prepend-inner-icon="mdi-pencil"
-              type="edit"
-              v-model="taskName"
-              clearable
-              variant="underlined"
-              base-color="primary"
-              color="primary"
-            >
-            </v-text-field>
-            <v-btn variant="tonal" color="primary" @click="toggleEdit">{{ editLabel }}</v-btn>
-          </div>
-          <div class="mt-5">
-            <h2>Task Description</h2>
-          </div>
-          <div>
-            <v-textarea
-              clearable
-              label="Write here the description"
-              v-model="taskDescription"
-              variant="underlined"
-              base-color="primary"
-              color="primary"
-            ></v-textarea>
-          </div>
-          <div>
-            <h2>Acceptance Criteria</h2>
-          </div>
-          <div>
-            <v-list>
-              <v-list-item v-for="item in allCriteria" :key="item.id">
-                <v-card :key="item.id" variant="flat" color="cardColor">
-                  <v-table density="compact">
-                    <tbody>
-                      <tr>
-                        <td width="2%">{{ item.id }}</td>
-                        <td width="5%">{{ item.type }}</td>
-                        <td width="40%">{{ item.description }}</td>
-                        <td width="7%"><v-btn variant="text" color="primary">Edit</v-btn></td>
-                      </tr>
-                    </tbody>
-                  </v-table>
+  <v-main v-if="templateData" class="d-flex justify-center">
+    <div class="main-container mt-5 ml-3 mr-3">
+      <v-container fluid>
+        <v-form>
+          <v-text-field
+            label="Edit Title"
+            clearable
+            variant="underlined"
+            base-color="primary"
+            color="primary"
+          ></v-text-field>
+          <v-textarea
+            label="Task Description"
+            clearable
+            variant="underlined"
+            base-color="primary"
+            color="primary"
+          >
+          </v-textarea>
+          <v-row>
+            <v-col>
+              <!-- <h2>Difficulty</h2> -->
+              <v-select
+                label="Select Difficulty Level"
+                :items="['Beginner', 'Intermediate', 'Advanced']"
+                variant="underlined"
+                base-color="primary"
+                color="primary"
+              ></v-select>
+            </v-col>
+            <v-col>
+              <!-- <h2>Task Type</h2> -->
+              <v-select
+                label="Select Difficulty Level"
+                :items="['Neural', 'Attack', 'Defense']"
+                variant="underlined"
+                base-color="primary"
+                color="primary"
+              ></v-select>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6" v-for="project in templateData.project_templates">
+              <v-form>
+                <v-card :key="project.id" variant="flat" color="cardColor" class="elevation-4">
+                  <v-card-text>
+                    <v-text-field
+                      label="Edit Question"
+                      clearable
+                      variant="underlined"
+                      base-color="primary"
+                      color="primary"
+                    ></v-text-field>
+                    <v-row v-for="criteria in project.task_template">
+                      <v-col>
+                        <v-textarea
+                          label="Edit Answer"
+                          clearable
+                          variant="underlined"
+                          base-color="primary"
+                          color="primary"
+                        ></v-textarea>
+                      </v-col>
+                      <v-col>
+                        <v-select
+                          label="Correctness"
+                          :items="['True', 'False']"
+                          variant="underlined"
+                          base-color="primary"
+                          color="primary"
+                        ></v-select>
+                      </v-col>
+                    </v-row>
+                  </v-card-text>
                 </v-card>
-              </v-list-item>
-            </v-list>
-          </div>
-          <div>
-            <v-btn variant="tonal" color="primary" class="elevation-2"
-              >Add new acceptance criterium</v-btn
-            >
-          </div>
-          <div class="mt-5">
-            <h2>Virtualizations</h2>
-          </div>
-          <div>
-            <v-list>
-              <v-list-item v-for="item in allVirtual" :key="item.id">
-                <v-card :key="item.id" variant="flat" color="cardColor">
-                  <v-table density="compact">
-                    <tbody>
-                      <tr>
-                        <td width="21%">{{ item.type }}</td>
-                        <td width="40%">{{ item.title }}</td>
-                        <td width="40%">{{ item.accesable }}</td>
-                        <td width="20%"><v-btn variant="text" color="primary">Edit</v-btn></td>
-                      </tr>
-                    </tbody>
-                  </v-table>
+              </v-form>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-btn variant="tonal" color="primary" class="elevation-2"> Add Question </v-btn>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col cols="6" v-for="project in templateData.project_templates">
+              <v-form>
+                <v-card :key="project.id" variant="flat" color="cardColor" class="elevation-4">
+                  <v-card-text>
+                    <v-text-field
+                      label="Edit Name of Virtualization"
+                      clearable
+                      variant="underlined"
+                      base-color="primary"
+                      color="primary"
+                    ></v-text-field>
+                    <v-select
+                      label="Role"
+                      :items="['UserShell', 'IP']"
+                      variant="underlined"
+                      base-color="primary"
+                      color="primary"
+                    ></v-select>
+                    <v-file-input
+                      clearable
+                      label="Change File"
+                      variant="underlined"
+                      base-color="primary"
+                      color="primary"
+                    ></v-file-input>
+                  </v-card-text>
                 </v-card>
-              </v-list-item>
-            </v-list>
-          </div>
-          <div>
-            <v-btn variant="tonal" color="primary" class="elevation-2"
-              >Add new virtualization</v-btn
-            >
-          </div>
-        </v-col>
-
-        <v-col cols="12" sm="8" md="3">
-          <div>
-            <v-card variant="flat" color="cardColor" class="elevation-4">
-              <v-card-item>
-                <v-card-title><h3>Information</h3></v-card-title>
-              </v-card-item>
-              <v-card-text>
-                <div><h3>Created On:</h3></div>
-                <div>{{ createdOn }}</div>
-                <div class="mt-5"><h3>Created By:</h3></div>
-                <div>{{ createdBy }}</div>
-                <div class="mt-5"><h3>Last modified on:</h3></div>
-                <div>{{ modifiedOn }}</div>
-                <div class="mt-5"><h3>Last modified by:</h3></div>
-                <div>{{ modifiedBy }}</div>
-              </v-card-text>
-            </v-card>
-          </div>
-          <div class="mt-5">
-            <v-card variant="flat" color="cardColor" class="elevation-4">
-              <v-card-item>
-                <v-card-title><h3>Deletion</h3></v-card-title>
-              </v-card-item>
-              <v-card-actions>
-                <v-btn variant="tonal" color="error" class="elevation-2"
-                  >Permanently Delete<br />Task Template</v-btn
-                >
-              </v-card-actions></v-card
-            >
-          </div>
-        </v-col>
-      </v-row>
-    </v-container>
+              </v-form>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+                <v-btn variant="tonal" color="error" class="elevation-2"> Delete </v-btn>
+            </v-col>
+            <v-col>
+                <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"> Safe </v-btn>
+            </v-col>
+          </v-row>
+        </v-form>
+      </v-container>
+    </div>
   </v-main>
   <FooterTurtl />
 </template>
-
-<style></style>
