@@ -8,7 +8,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const props = defineProps<{ taskId: string }>()
+const props = defineProps<{ templateId: string, taskId: string }>()
 
 const tab = ref(0)
 const showCreateModal = ref(false)
@@ -19,6 +19,10 @@ let templateData = toRef(templateStore, 'classroomTemplate')
 templateStore.fetchTemplate(props.taskId)
 
 const task = ref(templateStore.getTask(props.taskId))
+
+function handleCloseTask() {
+  router.push(`/admin/templates/${props.templateId}`)
+}
 
 watch(task, () => {
   console.log('test')
@@ -180,7 +184,7 @@ watch(task, () => {
           </v-row>
           <v-row>
             <v-col>
-              <v-btn variant="text" color="primary" > Close </v-btn>
+              <v-btn variant="text" color="primary" @click="handleCloseTask"> Close </v-btn>
             </v-col>
             <v-col>
               <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"> Safe </v-btn>
