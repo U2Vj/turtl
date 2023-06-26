@@ -1,33 +1,17 @@
 <script setup lang="ts">
 import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
-import { ref, toRef } from 'vue'
+import { ref } from 'vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
-import { watch } from 'vue'
 import { useRouter } from 'vue-router'
+import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
+
+const props = defineProps<{ templateId: string; taskId: string }>()
 
 const router = useRouter()
 
-const props = defineProps<{ templateId: string, taskId: string }>()
-
-const tab = ref(0)
-const showCreateModal = ref(false)
-
 const templateStore = useTemplateStore()
-
-let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate(props.taskId)
-
 const task = ref(templateStore.getTask(props.taskId))
-
-function handleCloseTask() {
-  router.push(`/admin/templates/${props.templateId}`)
-}
-
-watch(task, () => {
-  console.log('test')
-})
-
 </script>
 
 <template>
@@ -39,9 +23,9 @@ watch(task, () => {
           <v-col>
             <h1>{{ task.title }}</h1>
           </v-col>
-            <v-col>
-              <v-btn variant="tonal" color="error" class="elevation-2"> Delete </v-btn>
-            </v-col>
+          <v-col>
+            <v-btn variant="tonal" color="error" class="elevation-2"> Delete </v-btn>
+          </v-col>
         </v-row>
         <v-form>
           <v-text-field
@@ -59,8 +43,7 @@ watch(task, () => {
             base-color="primary"
             color="primary"
             v-model="task.description"
-          >
-          </v-textarea>
+          ></v-textarea>
           <v-row>
             <v-col>
               <v-select
@@ -92,6 +75,7 @@ watch(task, () => {
             <v-col
               cols="12"
               v-for="question in task.acceptance_criteria.acceptance_criteria_questionaire"
+              :key="question.id"
             >
               <v-form>
                 <v-card variant="flat" color="cardColor" class="elevation-4">
@@ -104,7 +88,7 @@ watch(task, () => {
                       color="primary"
                       v-model="question.question"
                     ></v-text-field>
-                    <v-row v-for="choice in question.question_choice">
+                    <v-row v-for="choice in question.question_choice" :key="choice.answer">
                       <v-col>
                         <v-text-field
                           label="Edit Answer"
@@ -184,7 +168,13 @@ watch(task, () => {
           </v-row>
           <v-row>
             <v-col>
-              <v-btn variant="text" color="primary" @click="handleCloseTask"> Close </v-btn>
+              <v-btn
+                variant="text"
+                color="primary"
+                @click="router.push(`/admin/templates/${props.templateId}`)"
+              >
+                Close
+              </v-btn>
             </v-col>
             <v-col>
               <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"> Safe </v-btn>
