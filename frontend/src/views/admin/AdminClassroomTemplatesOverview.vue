@@ -60,7 +60,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
           @click:row="handleRowClick"
         >
           <template v-slot:[`item.link`]="{ item }">
-            <v-btn variant="text" color="primary" to="`templates/${item.raw.id}`">Edit</v-btn>
+            <v-btn variant="text" color="primary" :to="`templates/${item.raw.id}`">Edit</v-btn>
           </template>
         </v-data-table>
       </v-container>
