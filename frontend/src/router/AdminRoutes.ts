@@ -15,7 +15,7 @@ export const adminRoutes = [
     props: true
   },
   {
-    path: '/admin/templates/edit',
+    path: '/admin/tasks/:taskId',
     name: 'AdminTemplateTask',
     component: AdminTemplateTask,
     props: true
