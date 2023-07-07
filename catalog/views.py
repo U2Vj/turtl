@@ -6,8 +6,10 @@ from rest_framework.response import Response
 
 from rest_framework.views import APIView
 
-from catalog.models import ClassroomTemplate, TaskTemplate
-from catalog.serializers import ClassroomTemplateSerializer
+from catalog.models import ClassroomTemplate, TaskTemplate, ProjectTemplate
+from catalog.serializers import ClassroomTemplateSerializer, ProjectTemplateSerializer, TaskTemplateSerializer, \
+    ClassroomTemplateNewSerializer, ClassroomTemplateDetailSerializer
+
 
 class ClassroomTemplateList(APIView):
     def get(self, request):
@@ -16,7 +18,7 @@ class ClassroomTemplateList(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def post(self, request):
-        serializer = ClassroomTemplateSerializer(data=request.data)
+        serializer = ClassroomTemplateNewSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -31,7 +33,7 @@ class ClassroomTemplateDetail(APIView):
 
     def get(self, request, template_id):
         template = self.get_object(template_id)
-        serializer = ClassroomTemplateSerializer(template)
+        serializer = ClassroomTemplateDetailSerializer(template)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
     def put(self, request, template_id):

@@ -187,9 +187,9 @@ class TaskTemplate(models.Model):
     # Type of the task, i.e. whether it is a neutral, defense or attack task
     task_type = models.CharField(choices=TASK_TYPE_CHOICES, max_length=12)
 
-    BEGINNER = 0  # Beginner difficulty
-    INTERMEDIATE = 1  # Intermediate difficulty
-    ADVANCED = 2  # Advanced difficulty
+    BEGINNER = "Beginner"  # Beginner difficulty
+    INTERMEDIATE = "Intermediate" # Intermediate difficulty
+    ADVANCED = "Advanced" # Advanced difficulty
 
     # Possible choices for the difficulty of a task
     DIFFICULTY_CHOICES = [

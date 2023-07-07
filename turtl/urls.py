@@ -24,6 +24,7 @@ urlpatterns = [
    # path('docker/', include('dockerService.urls')),
     path('shell/', include('shell.urls')),
     path('api/', include('authentication.urls')),
+    path('templates/', include('catalog.urls'))
 ]
 
 
