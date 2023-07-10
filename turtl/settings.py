@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'rest_auth',
     'rest_auth.registration',
     'rest_framework',
-    'rest_framework.authtoken',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
     'authentication',
@@ -85,8 +84,6 @@ REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'authentication.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        #'rest_framework.authentication.TokenAuthentication',
-        #'authentication.backends.JWTAuthentication',
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
 }
