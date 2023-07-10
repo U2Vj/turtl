@@ -61,3 +61,11 @@ class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class TestProtectedView(APIView):
+    permission_classes = (IsAuthenticated,)
+    def get(self, request):
+
+        return Response({'token_valid': True})
+
