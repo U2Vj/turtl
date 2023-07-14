@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { useCloned } from '@vueuse/core'
-import { axiosInstance } from './AxiosInstance'
+import { makeAxiosRequest } from './AxiosInstance'
 
 type BasicTemplateData = {
   id: string
@@ -62,32 +62,45 @@ export const useTemplateStore = defineStore('template', () => {
 
   async function fetchTemplate(id: string) {
     classroomTemplate.value = mockdata
-    classroomTemplate.value = await axiosInstance.get(`/templates/${id}`)
+    const response = await makeAxiosRequest(`/templates/${id}`, 'GET', true, true)
+    if (response.success) {
+      classroomTemplate.value = response.data
+    }
     return classroomTemplate
   }
 
   async function changeTemplateData(id: string, templateData: TemplateData) {
-    classroomTemplate.value = await axiosInstance.post(`/templates/${id}`, templateData)
+    const response = await makeAxiosRequest(`/templates/${id}`, 'POST', true, true, templateData)
+    if (response.success) {
+      classroomTemplate.value = response.data
+    }
     return classroomTemplate
   }
 
   async function deleteClassroomTemplate(id: string) {
-    await axiosInstance.delete(`/templates/${id}`)
+    const response = await makeAxiosRequest(`/templates${id}`, 'DELETE', true, true)
+    return response.success
   }
 
   async function getBasicTemplateData() {
-    basicTemplateData.value = await axiosInstance.get(`/templates`)
+    const response = await makeAxiosRequest('/templates', 'GET', true, true)
+    if (response.success) {
+      basicTemplateData.value = response.data
+    }
     return basicTemplateData
   }
 
   async function createProjectTemplate(projectName: string) {
-    classroomTemplate.value = await axiosInstance.put(`/templates`, projectName)
+    await makeAxiosRequest('templates', 'PUT', true, true, projectName)
   }
 
   async function addManager(id: string, email: string) {
     const { cloned } = useCloned(classroomTemplate)
     cloned.value?.managers.push({ id, email })
-    classroomTemplate.value = await axiosInstance.put(`/templates`, cloned)
+    const response = await makeAxiosRequest('templates', 'PUT', true, true, cloned)
+    if (response.success) {
+      classroomTemplate.value = response.data
+    }
   }
 
   function getTask(taskId: string) {

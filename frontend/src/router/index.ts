@@ -19,12 +19,25 @@ const router = createRouter({
     ...managerRoutes,
     {
       path: '/',
-      component: SignIn
+      component: SignIn,
+      beforeEnter: async () => {
+        const userStore = useUserStore()
+        console.log(await userStore.userIsSignedIn())
+        if (await userStore.userIsSignedIn()) {
+          router.push('/profile')
+        }
+      }
     },
     {
       path: '/signin',
       name: 'signin',
-      component: SignIn
+      component: SignIn,
+      beforeEnter: async () => {
+        const userStore = useUserStore()
+        if (await userStore.userIsSignedIn()) {
+          router.push('/profile')
+        }
+      }
     },
     {
       path: '/forgot-password',
@@ -54,13 +67,14 @@ const router = createRouter({
   ]
 })
 
-router.beforeEach((to) => {
+// redirect to signin view if user is not signed in and route requires them to be logged in
+router.beforeEach(async (to) => {
   const userStore = useUserStore()
+  const allowedRouteNamesWhenNotSignedIn = ['signin', 'forgot-password', 'reset-password']
   if (
-    to.name !== 'signin' &&
-    to.name !== 'forgot-password' &&
-    to.name !== 'reset-password' &&
-    !userStore.loggedIn
+    !(await userStore.userIsSignedIn()) &&
+    to.name &&
+    !allowedRouteNamesWhenNotSignedIn.includes(to.name.toString())
   ) {
     return { name: 'signin' }
   }

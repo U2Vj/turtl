@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
-import { axiosInstance } from '@/stores/AxiosInstance'
+import { makeAxiosRequest } from '@/stores/AxiosInstance'
 
 const showDialog = ref(false)
 const newQuestion = ref('')
@@ -9,14 +9,13 @@ const newQuestion = ref('')
 async function addQuestion(title: string) {
   const templateStore = useTemplateStore()
   const classroomTemplateId = templateStore.classroomTemplate?.id
-  const response = await axiosInstance.post(
-    `${import.meta.env.VITE_API_URL}/templates/classrooms`,
-    {
-      title,
-      classroomTemplateId
-    }
-  )
-  if (response.data.success) {
+  const data = {
+    title,
+    classroomTemplateId
+  }
+
+  const response = await makeAxiosRequest('/templates/classrooms', 'POST', true, true, data)
+  if (response.success) {
     showDialog.value = false
   }
 }

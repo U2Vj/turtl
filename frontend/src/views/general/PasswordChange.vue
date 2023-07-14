@@ -2,7 +2,7 @@
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
 import { useField, useForm } from 'vee-validate'
-import { axiosInstance } from '@/stores/AxiosInstance'
+import { makeAxiosRequest } from '@/stores/AxiosInstance'
 
 const schema = toTypedSchema(
   yup.object({
@@ -32,10 +32,12 @@ const { value: newPasswordValidation, errorMessage: newPasswordValidationError }
 )
 
 const submit = handleSubmit(async (values) => {
-  axiosInstance.post('password/change', {
+  const data = {
     newPassword: values.newPassword,
     newPasswordValidation: values.newPasswordValidation
-  })
+  }
+
+  makeAxiosRequest('password/change', 'POST', true, false, data)
 })
 
 /*

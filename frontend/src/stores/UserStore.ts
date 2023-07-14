@@ -1,9 +1,12 @@
 import axios from 'axios'
-import { defineStore } from 'pinia'
+import { defineStore, storeToRefs } from 'pinia'
 import { computed } from 'vue'
 import { useStorage, StorageSerializers } from '@vueuse/core'
 import type { Router } from 'vue-router'
-import { axiosInstance } from './AxiosInstance'
+import { makeAxiosRequest } from './AxiosInstance'
+import jwt_decode from 'jwt-decode'
+import { type Ref } from 'vue'
+import { useAuthStore } from './AuthStore'
 
 type LoginData = {
   user: {
@@ -18,25 +21,70 @@ type User = {
   token: string
 }
 
+type RefreshTokenPayload = {
+  token_type: 'refresh'
+  exp: number
+  iat: number
+  jti: string
+  user_id: number
+  username: string
+  role: 'ADMINISTRATOR'
+  email: string
+}
+
 export const useUserStore = defineStore('user', () => {
+  const authStore = useAuthStore()
+  const { refreshToken, accessToken } = storeToRefs(authStore)
+
   // see https://github.com/vueuse/vueuse/issues/1307 and https://vueuse.org/core/useStorage/#custom-serialization
   const user = useStorage<User | null>('user', null, undefined, {
     serializer: StorageSerializers.object
   })
-  const loggedIn = computed(() => {
-    return !!user.value
+
+  const refreshTokenPayload: Ref<RefreshTokenPayload | null> = computed(() => {
+    try {
+      if (refreshToken.value) {
+        return jwt_decode(refreshToken.value)
+      }
+      return null
+    } catch (e) {
+      return null
+    }
   })
 
   async function login(logininData: LoginData) {
-    const response = await axiosInstance.post('/users/login', {
+    const data = {
       email: logininData.user.email,
       password: logininData.user.password
-    })
-    return response.status === 200
+    }
+
+    const response = await makeAxiosRequest('/users/login', 'POST', false, false, data)
+    if (response.success) {
+      refreshToken.value = response.data.refresh
+      accessToken.value = response.data.access
+      return true
+    }
+    return false
   }
 
-  async function update(email: string, password: string) {
-    return await axiosInstance.post('/user', { email, password })
+  async function getNewRefreshAndAccessToken() {
+    const data = {
+      refresh: refreshToken
+    }
+    const response = await makeAxiosRequest('/users/login/refresh', 'POST', false, true, data)
+    if (response.success && response.data.access && response.data.refresh) {
+      refreshToken.value = response.data.refresh
+      accessToken.value = response.data.access
+      return true
+    }
+    return false
+  }
+
+  async function userIsSignedIn() {
+    // token is in seconds while Date.now() returns timestamp in milliseconds
+    return refreshTokenPayload.value
+      ? refreshTokenPayload.value.exp > Math.floor(Date.now() / 1000)
+      : false
   }
 
   async function resetPasswordRequest(email: string) {
@@ -54,8 +102,11 @@ export const useUserStore = defineStore('user', () => {
 
   // see https://github.com/vuejs/pinia/discussions/1092#discussioncomment-5408576.
   // Cant use direct import because https://github.com/vitejs/vite/issues/4430#issuecomment-979013114.
-  async function logout(router: Router) {
-    user.value = null
+  async function signOut(router: Router) {
+    const data = { refresh: refreshToken.value }
+    await makeAxiosRequest('/users/logout', 'POST', true, true, data)
+    refreshToken.value = null
+    accessToken.value = null
     router.push('/signin')
   }
 
@@ -63,8 +114,11 @@ export const useUserStore = defineStore('user', () => {
     return await axios.post(import.meta.env.VITE_API_URL + '/users/register', user)
   }
 
+  async function testLogin() {
+    console.log(await makeAxiosRequest('users/login/test', 'GET', true, true))
+  }
+
   async function resetPassword(email: string, newPassword: string) {
-    console.log('hier')
     return await axios
       .post(import.meta.env.VITE_API_URL + '/reset-password', {
         email: email,
@@ -82,5 +136,16 @@ export const useUserStore = defineStore('user', () => {
       })
   }
 
-  return { user, loggedIn, login, logout, update, register, resetPasswordRequest, resetPassword }
+  return {
+    user,
+    login,
+    signOut,
+    register,
+    resetPasswordRequest,
+    resetPassword,
+    getNewRefreshAndAccessToken,
+    userIsSignedIn,
+    refreshTokenPayload,
+    testLogin
+  }
 })

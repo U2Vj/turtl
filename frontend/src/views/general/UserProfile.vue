@@ -6,7 +6,7 @@ import { useField } from 'vee-validate'
 import { useForm } from 'vee-validate'
 import { toTypedSchema } from '@vee-validate/yup'
 import * as yup from 'yup'
-import { axiosInstance } from '@/stores/AxiosInstance'
+import { makeAxiosRequest } from '@/stores/AxiosInstance'
 
 const userStore = useUserStore()
 
@@ -42,21 +42,25 @@ const { value: newPasswordValidateValue, errorMessage: newPasswordValidateError 
   useField<string>('newPasswordValidate', {}, { validateOnValueUpdate: false })
 
 const submit = handleSubmit(async (values) => {
-  axiosInstance.post('/user/password/change', {
+  const data = {
     oldPassword: values.oldPassword,
     newPassword: values.newPassword
-  })
+  }
+
+  makeAxiosRequest('/user/password/change', 'POST', true, true, data)
 })
 </script>
 
 <template>
   <HeaderTurtl />
   <v-main class="d-flex justify-center">
+    <button @click="userStore.testLogin">test login</button>
+
     <div class="main-container mt-5 ml-3 mr-3">
       <v-container fluid>
         <h1>Profil</h1>
         <div class="mt-5"><h2>E-Mail Adresse:</h2></div>
-        <div>{{ userStore.user?.email }}</div>
+        <div>{{ userStore.refreshTokenPayload?.email }}</div>
         <div class="mt-5"><h2>Change your password:</h2></div>
         <v-form @submit="submit">
           <v-text-field
