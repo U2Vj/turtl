@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
+import { useTemplateStore } from '@/stores/TemplateStore'
+import { ref } from 'vue'
 
 const showDialog = ref(false)
 const newQuestion = ref('')

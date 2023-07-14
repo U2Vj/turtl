@@ -1,13 +1,13 @@
 <script setup lang="ts">
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
+import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import TemplateCard from '@/components/TemplateCard.vue'
-import { ref, toRef } from 'vue'
-import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
-import { useTemplateStore } from '@/stores/TemplateStore'
-import { watchEffect } from 'vue'
-import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
+import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
+import { useTemplateStore } from '@/stores/TemplateStore'
+import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
+import { ref, toRef } from 'vue'
+import { watchEffect } from 'vue'
 
 const props = defineProps<{ templateId: string }>()
 const tab = ref(0)

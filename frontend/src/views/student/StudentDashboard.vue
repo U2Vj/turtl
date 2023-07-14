@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
+import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import { ref } from 'vue'
 
 const headers = [

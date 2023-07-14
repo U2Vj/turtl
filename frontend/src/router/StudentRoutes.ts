@@ -1,8 +1,8 @@
-import StudentClassroomsEnroled from '@/views/student/StudentClassroomsEnroled.vue'
-import StudentTask from '@/views/student/StudentTask.vue'
-import StudentDashboard from '@/views/student/StudentDashboard.vue'
-import StudentClassroomsAll from '@/views/student/StudentClassroomsAll.vue'
 import StudentClassroom from '@/views/student/StudentClassroom.vue'
+import StudentClassroomsAll from '@/views/student/StudentClassroomsAll.vue'
+import StudentClassroomsEnroled from '@/views/student/StudentClassroomsEnroled.vue'
+import StudentDashboard from '@/views/student/StudentDashboard.vue'
+import StudentTask from '@/views/student/StudentTask.vue'
 
 export const studentRoutes = [
   {

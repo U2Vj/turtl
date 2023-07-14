@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
+import { ref } from 'vue'
 
 const emit = defineEmits<{
   (e: 'update:task_template', id: string, event: any): void

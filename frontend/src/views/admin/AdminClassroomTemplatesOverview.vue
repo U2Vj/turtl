@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
-import { useRouter } from 'vue-router'
+import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
+import { useRouter } from 'vue-router'
 
 const router = useRouter()
 

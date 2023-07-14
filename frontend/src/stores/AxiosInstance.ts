@@ -1,5 +1,5 @@
-import axios, { type AxiosRequestConfig } from 'axios'
 import { useAuthStore } from './AuthStore'
+import axios, { type AxiosRequestConfig } from 'axios'
 import { storeToRefs } from 'pinia'
 
 type HTTPMethodName = 'GET' | 'POST' | 'PUT' | 'DELETE'

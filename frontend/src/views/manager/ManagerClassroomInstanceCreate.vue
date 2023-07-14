@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
+import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import { ref } from 'vue'
 import { watch } from 'vue'
 
 const classroomName = ref('')

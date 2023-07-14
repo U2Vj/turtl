@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { useTemplateStore } from '@/stores/TemplateStore'
 import axios from 'axios'
 import { ref } from 'vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
 
 const showDialog = ref(false)
 const titleNewProject = ref('')

@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import { Terminal } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
-import { AttachAddon } from 'xterm-addon-attach'
 import { ref } from 'vue'
 import { onMounted } from 'vue'
+import { Terminal } from 'xterm'
+import { AttachAddon } from 'xterm-addon-attach'
+import { FitAddon } from 'xterm-addon-fit'
 
 const term = ref<Terminal>()
 const socket = ref<WebSocket>()

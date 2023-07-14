@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
-import { ref } from 'vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
-import { useRouter } from 'vue-router'
+import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
+import { useTemplateStore } from '@/stores/TemplateStore'
+import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps<{ templateId: string; taskId: string }>()
 

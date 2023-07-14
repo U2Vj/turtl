@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
-import { useAxios } from '@vueuse/integrations/useAxios'
 import type { User } from '@/stores/TemplateStore'
+import { useAxios } from '@vueuse/integrations/useAxios'
+import { ref } from 'vue'
 
 const templateStore = useTemplateStore()
 const { data: AllManagers } = useAxios<User[]>(`${import.meta.env.VITE_API_URL}/users/managers`)

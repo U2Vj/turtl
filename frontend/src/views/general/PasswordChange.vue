@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import { toTypedSchema } from '@vee-validate/yup'
-import * as yup from 'yup'
-import { useField, useForm } from 'vee-validate'
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
+import { toTypedSchema } from '@vee-validate/yup'
+import { useField, useForm } from 'vee-validate'
+import * as yup from 'yup'
 
 const schema = toTypedSchema(
   yup.object({

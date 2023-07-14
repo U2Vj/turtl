@@ -1,12 +1,11 @@
 <script setup lang="ts">
-import { useUserStore } from '@/stores/UserStore'
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
-import { useField } from 'vee-validate'
-import { useForm } from 'vee-validate'
-import { toTypedSchema } from '@vee-validate/yup'
-import * as yup from 'yup'
+import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
+import { useUserStore } from '@/stores/UserStore'
+import { toTypedSchema } from '@vee-validate/yup'
+import { useField, useForm } from 'vee-validate'
+import * as yup from 'yup'
 
 const userStore = useUserStore()
 
