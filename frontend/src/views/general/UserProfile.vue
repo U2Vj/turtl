@@ -112,5 +112,3 @@ const submit = handleSubmit(async (values) => {
   </v-main>
   <FooterTurtl />
 </template>
-
-<style></style>
