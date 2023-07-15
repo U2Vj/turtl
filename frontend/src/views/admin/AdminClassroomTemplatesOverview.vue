@@ -2,24 +2,11 @@
 import FooterTurtl from '@/components/FooterTurtl.vue'
 import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
+import { useTemplateStore } from '@/stores/TemplateStore'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
-
-const values = [
-  {
-    name: 'Computer Networks',
-    lastedited: '2022-12-12',
-    createdat: '2021-01-02',
-    id: 1
-  },
-  {
-    name: 'Computer Networks',
-    lastedited: '2022-12-12',
-    createdat: '2021-01-02',
-    id: 2
-  }
-]
+const templateStore = useTemplateStore()
 
 // TODO: find way to import DataTableItem from vuetify
 function handleRowClick(event: Event, item: { item: { raw: any } }) {
@@ -52,11 +39,11 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
               sortable: true,
               key: 'name'
             },
-            { title: 'Last Edited', align: 'end', key: 'lastedited' },
-            { title: 'Created At', align: 'end', key: 'createdat' },
+            { title: 'Last Edited', align: 'end', key: 'updated_at' },
+            { title: 'Created At', align: 'end', key: 'created_at' },
             { title: 'Use', align: 'end', key: 'link' }
           ]"
-          :items="values"
+          :items="templateStore.basicTemplateData"
           @click:row="handleRowClick"
         >
           <template #[`item.link`]="{ item }">
@@ -68,5 +55,3 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
   </v-main>
   <FooterTurtl />
 </template>
-
-<style scoped></style>
