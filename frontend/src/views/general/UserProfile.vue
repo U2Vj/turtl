@@ -53,8 +53,6 @@ const submit = handleSubmit(async (values) => {
 <template>
   <HeaderTurtl />
   <v-main class="d-flex justify-center">
-    <button @click="userStore.testLogin">test login</button>
-
     <div class="main-container mt-5 ml-3 mr-3">
       <v-container fluid>
         <h1>Profil</h1>
