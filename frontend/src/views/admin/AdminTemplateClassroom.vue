@@ -5,9 +5,8 @@ import TemplateCard from '@/components/TemplateCard.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
-import { useSortable, moveArrayElement } from '@vueuse/integrations/useSortable'
-import { ref, toRef } from 'vue'
-import { watchEffect } from 'vue'
+import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
+import { ref, toRef, watchEffect } from 'vue'
 
 const props = defineProps<{ templateId: string }>()
 const tab = ref(0)

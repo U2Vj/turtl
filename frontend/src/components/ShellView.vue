@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
-import { onMounted } from 'vue'
+import { onMounted, ref } from 'vue'
 import { Terminal } from 'xterm'
 import { AttachAddon } from 'xterm-addon-attach'
 import { FitAddon } from 'xterm-addon-fit'

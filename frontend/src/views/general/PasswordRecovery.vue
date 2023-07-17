@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'
-import { useForm, useField } from 'vee-validate'
+import { useField, useForm } from 'vee-validate'
 import { useRouter } from 'vue-router'
 import * as yup from 'yup'
 

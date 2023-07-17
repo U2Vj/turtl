@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { useTemplateStore } from '@/stores/TemplateStore'
 import type { User } from '@/stores/TemplateStore'
+import { useTemplateStore } from '@/stores/TemplateStore'
 import { useAxios } from '@vueuse/integrations/useAxios'
 import { ref } from 'vue'
 
