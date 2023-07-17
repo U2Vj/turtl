@@ -1,6 +1,6 @@
+import { useAuthStore } from './AuthStore'
 import axios, { type AxiosRequestConfig } from 'axios'
 import { storeToRefs } from 'pinia'
-import { useAuthStore } from './AuthStore'
 
 type HTTPMethodName = 'GET' | 'POST' | 'PUT' | 'DELETE'
 

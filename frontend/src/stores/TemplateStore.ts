@@ -1,7 +1,7 @@
+import { makeAxiosRequest } from './AxiosInstance'
 import { useCloned } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
-import { makeAxiosRequest } from './AxiosInstance'
 
 type BasicTemplateData = {
   id: string

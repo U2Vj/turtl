@@ -4,17 +4,26 @@ import HeaderTurtl from '@/components/HeaderTurtl.vue'
 </script>
 <template>
   <HeaderTurtl />
-  <v-main>
-    <v-container fluid class="w-75 mt-5">
-      <div class="d-flex mb-2 align-center justify-space-between">
-        <h1>
-          <slot name="heading"></slot>
-        </h1>
-        <slot name="postHeadingButton"></slot>
-      </div>
+  <v-main class="d-flex justify-center">
+    <div class="main-container mt-5 ml-3 mr-3">
+      <v-container fluid class="mt-5">
+        <div class="d-flex mb-2 align-center justify-space-between">
+          <h1>
+            <slot name="heading"></slot>
+          </h1>
+          <slot name="postHeadingButton"></slot>
+        </div>
 
-      <slot name="default"></slot>
-    </v-container>
+        <slot name="default"></slot>
+      </v-container>
+    </div>
   </v-main>
   <FooterTurtl />
 </template>
+
+<style>
+.main-container {
+  min-width: 75%;
+  max-width: 960px;
+}
+</style>

@@ -1,3 +1,6 @@
+import { adminRoutes } from './AdminRoutes'
+import { managerRoutes } from './ManagerRoutes'
+import { studentRoutes } from './StudentRoutes'
 import { useUserStore } from '@/stores/UserStore'
 import ImprintTurtl from '@/views/general/ImprintTurtl.vue'
 import PasswordChange from '@/views/general/PasswordChange.vue'
@@ -6,9 +9,6 @@ import PrivacyPolicy from '@/views/general/PrivacyPolicy.vue'
 import SignIn from '@/views/general/SignIn.vue'
 import UserProfile from '@/views/general/UserProfile.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import { adminRoutes } from './AdminRoutes'
-import { managerRoutes } from './ManagerRoutes'
-import { studentRoutes } from './StudentRoutes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),

@@ -1,11 +1,11 @@
+import { useAuthStore } from './AuthStore'
+import { makeAxiosRequest } from './AxiosInstance'
 import { StorageSerializers, useStorage } from '@vueuse/core'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
 import { defineStore, storeToRefs } from 'pinia'
 import { computed, type Ref } from 'vue'
 import type { Router } from 'vue-router'
-import { useAuthStore } from './AuthStore'
-import { makeAxiosRequest } from './AxiosInstance'
 
 type LoginData = {
   user: {

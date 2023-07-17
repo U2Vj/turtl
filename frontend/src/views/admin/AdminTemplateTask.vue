@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import FooterTurtl from '@/components/FooterTurtl.vue'
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { ref } from 'vue'
@@ -15,18 +14,11 @@ const task = ref(templateStore.getTask(props.taskId))
 </script>
 
 <template>
-  <HeaderTurtl />
-  <v-main v-if="task" class="d-flex justify-center">
-    <div class="main-container mt-5 ml-3 mr-3">
-      <v-container fluid>
-        <v-row>
-          <v-col>
-            <h1>{{ task.title }}</h1>
-          </v-col>
-          <v-col>
+  <DefaultLayout v-if="task">
+    <template #heading>{{ task.title }}</template>
+        <template #postHeadingButton>
             <v-btn variant="tonal" color="error" class="elevation-2"> Delete </v-btn>
-          </v-col>
-        </v-row>
+    </template>
         <v-form>
           <v-text-field
             label="Edit Title"
@@ -168,8 +160,7 @@ const task = ref(templateStore.getTask(props.taskId))
               </v-form>
             </v-col>
           </v-row>
-          <v-row>
-            <v-col>
+        <div class="d-flex mt-5 mb-2 align-center justify-space-between">
               <v-btn
                 variant="text"
                 color="primary"
@@ -177,14 +168,8 @@ const task = ref(templateStore.getTask(props.taskId))
               >
                 Close
               </v-btn>
-            </v-col>
-            <v-col>
               <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"> Safe </v-btn>
-            </v-col>
-          </v-row>
-        </v-form>
-      </v-container>
-    </div>
-  </v-main>
-  <FooterTurtl />
+        </div>
+            </v-form>
+</DefaultLayout>
 </template>
