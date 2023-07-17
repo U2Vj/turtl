@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import FooterTurtl from '@/components/FooterTurtl.vue'
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import { ref } from 'vue'
 
 const classrooms = ref([
@@ -104,65 +103,47 @@ const classrooms = ref([
 </script>
 
 <template>
-  <HeaderTurtl />
-  <v-main class="d-flex justify-center">
-    <div class="main-container mt-5 ml-3 mr-3">
-      <v-container>
-        <div class="d-flex flex-row mb-2 align-center justify-space-between">
-          <h1>My Classrooms</h1>
-          <v-btn variant="elevated" color="primary" class="elevation-2"> Create Classroom </v-btn>
-        </div>
-        <v-row>
-          <v-col
-            v-for="classroom in classrooms"
-            :key="classroom.id"
-            cols="12"
-            xs="12"
-            sm="6"
-            md="4"
-          >
-            <v-card :key="classroom.id" variant="flat" color="cardColor" class="elevation-4">
-              <v-card-title :title="classroom.classroom">
-                {{ classroom.classroom }}
-              </v-card-title>
-              <v-card-text>
-                <p class="d-flex justify-space-between">
-                  <span class="d-flex align-center">
-                    <v-icon
-                      icon="mdi-sword"
-                      class="mr-1"
-                      v-if="classroom.role === 'Attack'"
-                    ></v-icon>
-                    <v-icon
-                      icon="mdi-shield"
-                      class="mr-1"
-                      v-else-if="classroom.role === 'Defense'"
-                    ></v-icon>
-                    <v-icon icon="mdi-school" class="mr-1" v-else></v-icon>
-                    Role: {{ classroom.role }}
-                  </span>
-                  <span class="d-flex align-center">
-                    <v-icon icon="mdi-account-group" class="mr-1"></v-icon>
-                    {{ classroom.memberCount }} members
-                  </span>
-                </p>
-                <p
-                  v-text="classroom.description"
-                  class="classroomDescription mt-4 text-justify"
-                ></p>
-              </v-card-text>
-              <v-card-actions>
-                <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2"
-                  >Visit Classroom</v-btn
-                >
-              </v-card-actions>
-            </v-card>
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
-  </v-main>
-  <FooterTurtl />
+  <DefaultLayout>
+    <template #heading>My Classrooms</template>
+    <template #postHeadingButton>
+      <v-btn variant="elevated" color="primary" class="elevation-2"> Create Classroom </v-btn>
+    </template>
+    <template #default>
+      <v-row class="mt-5">
+        <v-col v-for="classroom in classrooms" :key="classroom.id" cols="12" xs="12" sm="6" md="4">
+          <v-card :key="classroom.id" variant="flat" color="cardColor" class="elevation-4">
+            <v-card-title :title="classroom.classroom">
+              {{ classroom.classroom }}
+            </v-card-title>
+            <v-card-text>
+              <p class="d-flex justify-space-between">
+                <span class="d-flex align-center">
+                  <v-icon icon="mdi-sword" class="mr-1" v-if="classroom.role === 'Attack'"></v-icon>
+                  <v-icon
+                    icon="mdi-shield"
+                    class="mr-1"
+                    v-else-if="classroom.role === 'Defense'"
+                  ></v-icon>
+                  <v-icon icon="mdi-school" class="mr-1" v-else></v-icon>
+                  Role: {{ classroom.role }}
+                </span>
+                <span class="d-flex align-center">
+                  <v-icon icon="mdi-account-group" class="mr-1"></v-icon>
+                  {{ classroom.memberCount }} members
+                </span>
+              </p>
+              <p v-text="classroom.description" class="classroomDescription mt-4 text-justify"></p>
+            </v-card-text>
+            <v-card-actions>
+              <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2"
+                >Visit Classroom</v-btn
+              >
+            </v-card-actions>
+          </v-card>
+        </v-col>
+      </v-row>
+    </template>
+  </DefaultLayout>
 </template>
 
 <style scoped>

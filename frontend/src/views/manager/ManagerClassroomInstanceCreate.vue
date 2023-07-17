@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import FooterTurtl from '@/components/FooterTurtl.vue'
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import { ref, watch } from 'vue'
 
 const classroomName = ref('')
@@ -111,57 +110,53 @@ watch(selected, (newSelected) => {
 </script>
 
 <template>
-  <HeaderTurtl />
-  <v-main class="d-flex justify-center">
-    <div class="main-container mt-5 ml-3 mr-3">
-      <v-container>
-        <h1>Create Classrooms</h1>
-        <v-row>
-          <v-col cols="8">
-            <v-text-field
-              clearable
-              label="Type in Classroom Name"
-              v-model="classroomName"
-              variant="underlined"
-              base-color="primary"
-              color="primary"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="8">
-            <v-text-field
-              clearable
-              label="Search Classroom Template"
-              v-model="search"
-              append-inner-icon="mdi-magnify"
-              variant="underlined"
-              base-color="primary"
-              color="primary"
-            ></v-text-field>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col cols="12" xs="12" sm="12" md="12">
-            <v-data-table
-              :headers="headers"
-              :items="classTemplates"
-              :search="search"
-              v-model="selected"
-              item-value="classTemplates"
-              show-select
-            ></v-data-table>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-btn variant="elevated" color="primary" class="elevation-2" @click="createClassroom"
-              >Create Classroom</v-btn
-            >
-          </v-col>
-        </v-row>
-      </v-container>
-    </div>
-  </v-main>
-  <FooterTurtl />
+  <DefaultLayout>
+    <template #heading>Create Classrooms</template>
+    <template #default>
+      <v-row>
+        <v-col cols="8">
+          <v-text-field
+            clearable
+            label="Type in Classroom Name"
+            v-model="classroomName"
+            variant="underlined"
+            base-color="primary"
+            color="primary"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="8">
+          <v-text-field
+            clearable
+            label="Search Classroom Template"
+            v-model="search"
+            append-inner-icon="mdi-magnify"
+            variant="underlined"
+            base-color="primary"
+            color="primary"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col cols="12" xs="12" sm="12" md="12">
+          <v-data-table
+            :headers="headers"
+            :items="classTemplates"
+            :search="search"
+            v-model="selected"
+            item-value="classTemplates"
+            show-select
+          ></v-data-table>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-btn variant="elevated" color="primary" class="elevation-2" @click="createClassroom"
+            >Create Classroom</v-btn
+          >
+        </v-col>
+      </v-row>
+    </template>
+  </DefaultLayout>
 </template>
