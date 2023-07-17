@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import FooterTurtl from '@/components/FooterTurtl.vue'
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import { ref } from 'vue'
 
 const tab = ref(null)
@@ -239,198 +238,194 @@ function getNumberOfDoneProjects() {
 </script>
 
 <template>
-  <HeaderTurtl />
-  <v-main class="d-flex justify-center">
-    <div class="main-container mt-5 ml-3 mr-3">
-      <v-container>
-        <h1>The name of the classroom</h1>
-        <v-tabs v-model="tab" color="primary" align-tabs="start">
-          <v-tab value="1">Projects</v-tab>
-          <v-tab value="2">Information</v-tab>
-        </v-tabs>
-        <v-window v-model="tab">
-          <v-window-item value="1">
-            <v-container>
-              <v-row>
-                <v-col v-for="item in projects" :key="item.id" cols="12" xs="12" sm="6" md="4">
-                  <v-card
-                    :key="item.id"
-                    :title="item.room"
-                    variant="flat"
-                    color="cardColor"
-                    class="elevation-4"
-                  >
+  <DefaultLayout>
+    <template #heading>The name of the classroom</template>
+    <template #default>
+      <v-tabs v-model="tab" color="primary" align-tabs="start">
+        <v-tab value="1">Projects</v-tab>
+        <v-tab value="2">Information</v-tab>
+      </v-tabs>
+      <v-window v-model="tab">
+        <v-window-item value="1">
+          <v-container>
+            <v-row>
+              <v-col v-for="item in projects" :key="item.id" cols="12" xs="12" sm="6" md="4">
+                <v-card
+                  :key="item.id"
+                  :title="item.room"
+                  variant="flat"
+                  color="cardColor"
+                  class="elevation-4"
+                >
+                  <v-card-text>
+                    <v-progress-linear
+                      :color="getTaskProgressOfProject(item.id) === 100 ? 'finished' : 'progress'"
+                      :height="25"
+                      rounded
+                      rounded-bar
+                      bg-color="#ffffff"
+                      bg-opacity="1"
+                      :model-value="getTaskProgressOfProject(item.id)"
+                    >
+                      <template #default>
+                        <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
+                      </template>
+                    </v-progress-linear>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-btn
+                      v-if="!showTask"
+                      append-icon="mdi-chevron-down"
+                      @click="showTask = true"
+                      variant="text"
+                      color="primary"
+                    >
+                      View Tasks
+                    </v-btn>
+                    <v-btn
+                      v-if="showTask"
+                      variant="text"
+                      color="primary"
+                      append-icon="mdi-chevron-down"
+                      @click="showTask = false"
+                    >
+                      Hide Tasks
+                    </v-btn>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      variant="tonal"
+                      color="primary"
+                      class="elevation-2"
+                      v-if="getTaskProgressOfProject(item.id) < 100"
+                      >Continue</v-btn
+                    >
+                  </v-card-actions>
+                  <v-card-text v-show="showTask">
+                    <div :id="`taskWrapper${item.id}`">
+                      <div v-for="(task, index) in item.taskList" :key="task.id">
+                        {{ index + 1 }}. {{ task.task }}
+                        <v-icon
+                          v-if="task.done === true"
+                          icon="mdi-check-circle-outline"
+                          color="success"
+                        ></v-icon>
+                      </div>
+                    </div>
+                  </v-card-text>
+                </v-card>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-window-item>
+
+        <v-window-item value="2">
+          <v-container>
+            <v-row>
+              <v-col cols="6">
+                <div>
+                  <v-card variant="flat" color="cardColor" class="elevation-4">
+                    <v-card-title>Information</v-card-title>
                     <v-card-text>
+                      <div><h3>Contact Information</h3></div>
+                      <div>{{ classroom.information.contactInfo }}</div>
+                      <div class="mt-5"><h3>Manager</h3></div>
+                      {{ classroom.information.managers.managerName }} <br />
+                      {{ classroom.information.managers.managerMail }}
+                      <div class="mt-5"><h3>Instructors</h3></div>
+                      <div
+                        v-for="instructors in classroom.information.instructors"
+                        :key="instructors.instructorMail"
+                      >
+                        {{ instructors.instructorName }} <br />
+                        {{ instructors.instructorMail }}
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </div>
+                <div class="mt-5">
+                  <v-card variant="flat" color="cardColor" class="elevation-4">
+                    <v-card-title>Helpful Ressources</v-card-title>
+                    <v-card-text>
+                      <a
+                        v-for="(resource, index) in classroom.helpfulResources"
+                        :key="index"
+                        :href="resource.link"
+                      >
+                        {{ index + 1 }}. {{ resource.name }}<br />
+                      </a>
+                    </v-card-text>
+                  </v-card>
+                </div>
+              </v-col>
+              <v-col cols="6">
+                <div>
+                  <v-card variant="flat" color="cardColor" class="elevation-4">
+                    <v-card-title>My Progress</v-card-title>
+                    <v-card-text>
+                      {{ getTasksDone() }} / {{ getAllTasks() }} Tasks Done:
+
                       <v-progress-linear
-                        :color="getTaskProgressOfProject(item.id) === 100 ? 'finished' : 'progress'"
+                        :color="getTaskProgress() === 100 ? 'finished' : 'progress'"
+                        :height="25"
+                        :model-value="getTaskProgress()"
+                        rounded
+                        rounded-bar
+                        bg-color="#ffffff"
+                        bg-opacity="1"
+                      >
+                        <template #default>
+                          <strong>{{ Math.ceil(getTaskProgress()) }}%</strong>
+                        </template>
+                      </v-progress-linear>
+
+                      {{ getNumberOfDoneProjects() }} / {{ projects.length }} Projects Done
+
+                      <v-progress-linear
                         :height="25"
                         rounded
                         rounded-bar
                         bg-color="#ffffff"
                         bg-opacity="1"
-                        :model-value="getTaskProgressOfProject(item.id)"
+                        :color="
+                          getNumberOfDoneProjects() / projects.length === 100
+                            ? 'finished'
+                            : 'progress'
+                        "
+                        :model-value="100 * (getNumberOfDoneProjects() / projects.length)"
                       >
                         <template #default>
-                          <strong>{{ Math.ceil(getTaskProgressOfProject(item.id)) }}%</strong>
+                          <strong
+                            >{{
+                              Math.ceil(100 * (getNumberOfDoneProjects() / projects.length))
+                            }}%</strong
+                          >
                         </template>
                       </v-progress-linear>
                     </v-card-text>
-                    <v-card-actions>
-                      <v-btn
-                        v-if="!showTask"
-                        append-icon="mdi-chevron-down"
-                        @click="showTask = true"
-                        variant="text"
-                        color="primary"
-                      >
-                        View Tasks
-                      </v-btn>
-                      <v-btn
-                        v-if="showTask"
-                        variant="text"
-                        color="primary"
-                        append-icon="mdi-chevron-down"
-                        @click="showTask = false"
-                      >
-                        Hide Tasks
-                      </v-btn>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        variant="tonal"
-                        color="primary"
-                        class="elevation-2"
-                        v-if="getTaskProgressOfProject(item.id) < 100"
-                        >Continue</v-btn
-                      >
-                    </v-card-actions>
-                    <v-card-text v-show="showTask">
-                      <div :id="`taskWrapper${item.id}`">
-                        <div v-for="(task, index) in item.taskList" :key="task.id">
-                          {{ index + 1 }}. {{ task.task }}
-                          <v-icon
-                            v-if="task.done === true"
-                            icon="mdi-check-circle-outline"
-                            color="success"
-                          ></v-icon>
-                        </div>
+                  </v-card>
+                </div>
+                <div class="mt-5">
+                  <v-card variant="flat" color="cardColor" class="elevation-4">
+                    <v-card-title>My Team</v-card-title>
+                    <v-card-text>
+                      <h3>Attacker</h3>
+                      <div v-for="attacker in classroom.team.attackers" :key="attacker">
+                        {{ attacker }}
+                      </div>
+                      <div class="mt-5"><h3>Defender</h3></div>
+                      <div v-for="defender in classroom.team.defenders" :key="defender">
+                        {{ defender }}
                       </div>
                     </v-card-text>
                   </v-card>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-window-item>
-
-          <v-window-item value="2">
-            <v-container>
-              <v-row>
-                <v-col cols="6">
-                  <div>
-                    <v-card variant="flat" color="cardColor" class="elevation-4">
-                      <v-card-title>Information</v-card-title>
-                      <v-card-text>
-                        <div><h3>Contact Information</h3></div>
-                        <div>{{ classroom.information.contactInfo }}</div>
-                        <div class="mt-5"><h3>Manager</h3></div>
-                        {{ classroom.information.managers.managerName }} <br />
-                        {{ classroom.information.managers.managerMail }}
-                        <div class="mt-5"><h3>Instructors</h3></div>
-                        <div
-                          v-for="instructors in classroom.information.instructors"
-                          :key="instructors.instructorMail"
-                        >
-                          {{ instructors.instructorName }} <br />
-                          {{ instructors.instructorMail }}
-                        </div>
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                  <div class="mt-5">
-                    <v-card variant="flat" color="cardColor" class="elevation-4">
-                      <v-card-title>Helpful Ressources</v-card-title>
-                      <v-card-text>
-                        <a
-                          v-for="(resource, index) in classroom.helpfulResources"
-                          :key="index"
-                          :href="resource.link"
-                        >
-                          {{ index + 1 }}. {{ resource.name }}<br />
-                        </a>
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                </v-col>
-                <v-col cols="6">
-                  <div>
-                    <v-card variant="flat" color="cardColor" class="elevation-4">
-                      <v-card-title>My Progress</v-card-title>
-                      <v-card-text>
-                        {{ getTasksDone() }} / {{ getAllTasks() }} Tasks Done:
-
-                        <v-progress-linear
-                          :color="getTaskProgress() === 100 ? 'finished' : 'progress'"
-                          :height="25"
-                          :model-value="getTaskProgress()"
-                          rounded
-                          rounded-bar
-                          bg-color="#ffffff"
-                          bg-opacity="1"
-                        >
-                          <template #default>
-                            <strong>{{ Math.ceil(getTaskProgress()) }}%</strong>
-                          </template>
-                        </v-progress-linear>
-
-                        {{ getNumberOfDoneProjects() }} / {{ projects.length }} Projects Done
-
-                        <v-progress-linear
-                          :height="25"
-                          rounded
-                          rounded-bar
-                          bg-color="#ffffff"
-                          bg-opacity="1"
-                          :color="
-                            getNumberOfDoneProjects() / projects.length === 100
-                              ? 'finished'
-                              : 'progress'
-                          "
-                          :model-value="100 * (getNumberOfDoneProjects() / projects.length)"
-                        >
-                          <template #default>
-                            <strong
-                              >{{
-                                Math.ceil(100 * (getNumberOfDoneProjects() / projects.length))
-                              }}%</strong
-                            >
-                          </template>
-                        </v-progress-linear>
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                  <div class="mt-5">
-                    <v-card variant="flat" color="cardColor" class="elevation-4">
-                      <v-card-title>My Team</v-card-title>
-                      <v-card-text>
-                        <h3>Attacker</h3>
-                        <div v-for="attacker in classroom.team.attackers" :key="attacker">
-                          {{ attacker }}
-                        </div>
-                        <div class="mt-5"><h3>Defender</h3></div>
-                        <div v-for="defender in classroom.team.defenders" :key="defender">
-                          {{ defender }}
-                        </div>
-                      </v-card-text>
-                    </v-card>
-                  </div>
-                </v-col>
-              </v-row>
-            </v-container>
-          </v-window-item>
-        </v-window>
-      </v-container>
-    </div>
-  </v-main>
-  <FooterTurtl />
+                </div>
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-window-item>
+      </v-window>
+    </template>
+  </DefaultLayout>
 </template>
 
 <style scoped></style>

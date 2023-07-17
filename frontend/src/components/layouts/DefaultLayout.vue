@@ -6,7 +6,7 @@ import HeaderTurtl from '@/components/HeaderTurtl.vue'
   <HeaderTurtl />
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
-      <v-container fluid class="mt-5">
+      <v-container fluid>
         <div class="d-flex mb-2 align-center justify-space-between">
           <h1>
             <slot name="heading"></slot>
