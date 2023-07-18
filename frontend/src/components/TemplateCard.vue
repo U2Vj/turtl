@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import ErrorButton from './layouts/ErrorButton.vue'
 import SecundaryButton from './layouts/SecundaryButton.vue'
 import TextButton from '@/components/layouts/TextButton.vue'
-import ErrorButton from './layouts/ErrorButton.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { ref } from 'vue'
 
@@ -32,8 +32,18 @@ useSortable(`#taskWrapper${props.projectId}`, props.taskTemplates, {
   <v-card variant="flat" color="cardColor" class="elevation-4" style="cursor: grab">
     <v-card-title> <v-icon icon="mdi-drag" />{{ title }} </v-card-title>
     <v-card-actions>
-       <TextButton v-if="!showInformation" buttonName="Show information" @atClick="showInformation = true" appendIcon="mdi-chevron-down"></TextButton>
-       <TextButton v-if="showInformation" buttonName="Hide information" @atClick="showInformation = false" appendIcon="mdi-chevron-up"></TextButton>
+      <TextButton
+        v-if="!showInformation"
+        buttonName="Show information"
+        @atClick="showInformation = true"
+        appendIcon="mdi-chevron-down"
+      ></TextButton>
+      <TextButton
+        v-if="showInformation"
+        buttonName="Hide information"
+        @atClick="showInformation = false"
+        appendIcon="mdi-chevron-up"
+      ></TextButton>
     </v-card-actions>
     <v-card-text v-show="showInformation">
       Tasks
