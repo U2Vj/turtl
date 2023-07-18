@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
 import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
@@ -51,11 +53,9 @@ const submit = handleSubmit(async (values) => {
 </script>
 
 <template>
-  <HeaderTurtl />
-  <v-main class="d-flex justify-center">
-    <div class="main-container mt-5 ml-3 mr-3">
-      <v-container fluid>
-        <h1>Profil</h1>
+    <DefaultLayout>
+    <template #heading>Profil</template>
+    <template #default>
         <div class="mt-5"><h2>E-Mail Adresse:</h2></div>
         <div>{{ userStore.refreshTokenPayload?.email }}</div>
         <div class="mt-5"><h2>Change your password:</h2></div>
@@ -97,18 +97,14 @@ const submit = handleSubmit(async (values) => {
             color="primary"
           >
           </v-text-field>
-
-          <v-btn type="submit" variant="elevated" color="primary" class="elevation-2"
-            >Change Password</v-btn
-          >
+          <PrimaryButton buttonName="Change Password" buttonType="submit">
+          </PrimaryButton>
         </v-form>
         <div class="d-flex flex-row mt-5 align-center justify-end">
           <v-btn variant="elevated" color="error" class="elevation-2"
             >Permanently Delete Account</v-btn
           >
         </div>
-      </v-container>
-    </div>
-  </v-main>
-  <FooterTurtl />
+  </template>
+</DefaultLayout>
 </template>

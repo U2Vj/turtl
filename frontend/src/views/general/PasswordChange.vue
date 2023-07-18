@@ -2,6 +2,7 @@
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
 import { toTypedSchema } from '@vee-validate/yup'
 import { useField, useForm } from 'vee-validate'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
 import * as yup from 'yup'
 
 const schema = toTypedSchema(
@@ -92,7 +93,8 @@ const submit = handleSubmit(async (values) => {
             type="password"
             placeholder="Confirm your password"
           ></v-text-field>
-          <v-btn type="submit" color="primary">Set new password</v-btn>
+           <PrimaryButton buttonName="Set new password" buttonType="submit">
+          </PrimaryButton>
         </v-form>
         <router-link class="d-block mt-5" to="/">Back to sign in</router-link>
       </v-sheet>

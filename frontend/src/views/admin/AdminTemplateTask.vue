@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { ref } from 'vue'
@@ -169,7 +170,9 @@ const task = ref(templateStore.getTask(props.taskId))
           >
             Close
           </v-btn>
-          <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"> Safe </v-btn>
+          <PrimaryButton buttonName="Safe" >
+
+          </PrimaryButton>
         </div>
       </v-form>
     </template>

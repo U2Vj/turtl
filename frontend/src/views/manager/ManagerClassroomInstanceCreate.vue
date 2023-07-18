@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
 import { ref, watch } from 'vue'
 
 const classroomName = ref('')
@@ -152,9 +153,8 @@ watch(selected, (newSelected) => {
       </v-row>
       <v-row>
         <v-col>
-          <v-btn variant="elevated" color="primary" class="elevation-2" @click="createClassroom"
-            >Create Classroom</v-btn
-          >
+          <PrimaryButton buttonName="Create Classroom" @atClick="createClassroom">
+          </PrimaryButton>
         </v-col>
       </v-row>
     </template>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { useRouter } from 'vue-router'
@@ -22,10 +23,9 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
   <DefaultLayout>
     <template #heading>Classroom Templates</template>
     <template #postHeadingButton>
-      <v-btn variant="elevated" color="primary" class="ml-10 elevation-2"
-        >Create Template
-        <CreateClassroomTemplateModal></CreateClassroomTemplateModal>
-      </v-btn>
+      <PrimaryButton buttonName="Create Template" >
+                <CreateClassroomTemplateModal/>
+      </PrimaryButton>
     </template>
     <template #default>
       <v-data-table

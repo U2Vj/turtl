@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
 import { ref } from 'vue'
 
 const items = ref([
@@ -46,9 +47,8 @@ const items = ref([
   <DefaultLayout>
     <template #heading>My Classrooms</template>
     <template #postHeadingButton>
-      <v-btn class="elevation-2" variant="elevated" color="primary" to="/allclassrooms-stud">
-        Join Classroom
-      </v-btn>
+      <PrimaryButton buttonName="Join Classroom" goTo="/allclassrooms-stud">
+      </PrimaryButton>
     </template>
     <template #default>
       <v-row>

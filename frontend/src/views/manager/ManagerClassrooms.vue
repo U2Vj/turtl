@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
 import { ref } from 'vue'
 
 const classrooms = ref([
@@ -106,7 +107,8 @@ const classrooms = ref([
   <DefaultLayout>
     <template #heading>My Classrooms</template>
     <template #postHeadingButton>
-      <v-btn variant="elevated" color="primary" class="elevation-2"> Create Classroom </v-btn>
+      <PrimaryButton buttonName="Create Classroom">
+      </PrimaryButton>
     </template>
     <template #default>
       <v-row class="mt-5">
