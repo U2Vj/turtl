@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'
 import { useField, useForm } from 'vee-validate'
 import { useRouter } from 'vue-router'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
 import * as yup from 'yup'
 
 const router = useRouter()
@@ -48,8 +48,7 @@ const submit = handleSubmit(async (values) => {
             label="Email"
             placeholder="john.doe@example.com"
           ></v-text-field>
-          <PrimaryButton buttonName="Send password reset email">
-          </PrimaryButton>
+          <PrimaryButton buttonName="Send password reset email"> </PrimaryButton>
         </v-form>
         <router-link class="d-block mt-5" to="/">Back to sign in</router-link>
       </v-sheet>

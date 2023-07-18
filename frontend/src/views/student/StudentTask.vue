@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Shell from '@/components/ShellView.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { ref } from 'vue'
 
 const taskDescription = ref(
@@ -36,7 +36,7 @@ const taskDescription = ref(
       </v-row>
       <v-row class="mt-5">
         <v-col>
-          <PrimaryButton buttonName="Verify Task"/>
+          <PrimaryButton buttonName="Verify Task" />
         </v-col>
       </v-row>
     </template>

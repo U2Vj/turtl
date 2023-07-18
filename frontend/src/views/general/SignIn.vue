@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'
 import { useField, useForm } from 'vee-validate'
 import { useRouter } from 'vue-router'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
 import * as yup from 'yup'
 
 const router = useRouter()
@@ -68,8 +68,7 @@ const submit = handleSubmit(async (values) => {
             label="Password"
             placeholder="Password"
           ></v-text-field>
-          <PrimaryButton buttonName="Sign In" buttonType="submit">
-          </PrimaryButton>
+          <PrimaryButton buttonName="Sign In" buttonType="submit"> </PrimaryButton>
         </v-form>
         <router-link class="d-block mt-5" to="/forgot-password">Forgot your password?</router-link>
       </v-sheet>

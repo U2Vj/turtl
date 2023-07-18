@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import TemplateCard from '@/components/TemplateCard.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
@@ -61,9 +61,9 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
           <v-container fluid>
             <div class="d-flex flex-row mb-2 align-center justify-space-between">
               <h2>Project Templates</h2>
-                <PrimaryButton buttonName="Add Project Template" @atClick="showCreateModal = true">
-                  <AddProjectTemplateModal/>
-                </PrimaryButton>
+              <PrimaryButton buttonName="Add Project Template" @atClick="showCreateModal = true">
+                <AddProjectTemplateModal />
+              </PrimaryButton>
             </div>
             <div id="cardWrapper">
               <template-card
@@ -135,7 +135,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
           <v-container fluid>
             <div class="d-flex flex-row mb-2 align-center justify-space-between">
               <h2>Managers</h2>
-              <PrimaryButton buttonName="Add Managers" >
+              <PrimaryButton buttonName="Add Managers">
                 <AddManagerModal />
               </PrimaryButton>
             </div>

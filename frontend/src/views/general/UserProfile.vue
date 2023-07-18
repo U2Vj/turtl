@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
-import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import FooterTurtl from '@/components/FooterTurtl.vue'
 import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
 import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'
@@ -53,58 +53,57 @@ const submit = handleSubmit(async (values) => {
 </script>
 
 <template>
-    <DefaultLayout>
+  <DefaultLayout>
     <template #heading>Profil</template>
     <template #default>
-        <div class="mt-5"><h2>E-Mail Adresse:</h2></div>
-        <div>{{ userStore.refreshTokenPayload?.email }}</div>
-        <div class="mt-5"><h2>Change your password:</h2></div>
-        <v-form @submit="submit">
-          <v-text-field
-            v-model="oldPassword"
-            :error-messages="oldPasswordError"
-            name="oldPassword"
-            type="password"
-            label="Enter current password"
-            clearable
-            variant="underlined"
-            base-color="primary"
-            color="primary"
-          >
-          </v-text-field>
-          <v-text-field
-            v-model="newPassword"
-            :error-messages="newPasswordError"
-            name="newPassword"
-            type="password"
-            label="Enter new password"
-            clearable
-            variant="underlined"
-            base-color="primary"
-            color="primary"
-          >
-          </v-text-field>
+      <div class="mt-5"><h2>E-Mail Adresse:</h2></div>
+      <div>{{ userStore.refreshTokenPayload?.email }}</div>
+      <div class="mt-5"><h2>Change your password:</h2></div>
+      <v-form @submit="submit">
+        <v-text-field
+          v-model="oldPassword"
+          :error-messages="oldPasswordError"
+          name="oldPassword"
+          type="password"
+          label="Enter current password"
+          clearable
+          variant="underlined"
+          base-color="primary"
+          color="primary"
+        >
+        </v-text-field>
+        <v-text-field
+          v-model="newPassword"
+          :error-messages="newPasswordError"
+          name="newPassword"
+          type="password"
+          label="Enter new password"
+          clearable
+          variant="underlined"
+          base-color="primary"
+          color="primary"
+        >
+        </v-text-field>
 
-          <v-text-field
-            v-model="newPasswordValidateValue"
-            :error-messages="newPasswordValidateError"
-            name="newPasswordValidation"
-            type="password"
-            label="Confirm new password"
-            clearable
-            variant="underlined"
-            base-color="primary"
-            color="primary"
-          >
-          </v-text-field>
-          <PrimaryButton buttonName="Change Password" buttonType="submit">
-          </PrimaryButton>
-        </v-form>
-        <div class="d-flex flex-row mt-5 align-center justify-end">
-          <v-btn variant="elevated" color="error" class="elevation-2"
-            >Permanently Delete Account</v-btn
-          >
-        </div>
-  </template>
-</DefaultLayout>
+        <v-text-field
+          v-model="newPasswordValidateValue"
+          :error-messages="newPasswordValidateError"
+          name="newPasswordValidation"
+          type="password"
+          label="Confirm new password"
+          clearable
+          variant="underlined"
+          base-color="primary"
+          color="primary"
+        >
+        </v-text-field>
+        <PrimaryButton buttonName="Change Password" buttonType="submit"> </PrimaryButton>
+      </v-form>
+      <div class="d-flex flex-row mt-5 align-center justify-end">
+        <v-btn variant="elevated" color="error" class="elevation-2"
+          >Permanently Delete Account</v-btn
+        >
+      </div>
+    </template>
+  </DefaultLayout>
 </template>

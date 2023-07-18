@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue';
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { ref } from 'vue'
 
 const classrooms = ref([
@@ -107,8 +107,7 @@ const classrooms = ref([
   <DefaultLayout>
     <template #heading>My Classrooms</template>
     <template #postHeadingButton>
-      <PrimaryButton buttonName="Create Classroom">
-      </PrimaryButton>
+      <PrimaryButton buttonName="Create Classroom"> </PrimaryButton>
     </template>
     <template #default>
       <v-row class="mt-5">
