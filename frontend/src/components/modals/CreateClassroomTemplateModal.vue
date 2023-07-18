@@ -30,7 +30,7 @@ async function createClassroomTemplate(title: string) {
           v-model="titleNewClassroom"
           label="Name of new classroom template"
         ></v-text-field>
-          <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
+        <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
         <PrimaryButton buttonName="Create" @atClick="createClassroomTemplate(titleNewClassroom)">
         </PrimaryButton>
       </template>

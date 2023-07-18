@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import ErrorButton from '@/components/layouts/ErrorButton.vue'
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
 import TextButton from '@/components/layouts/TextButton.vue'
@@ -20,7 +21,7 @@ const task = ref(templateStore.getTask(props.taskId))
   <DefaultLayout v-if="task">
     <template #heading>{{ task.title }}</template>
     <template #postHeadingButton>
-      <v-btn variant="tonal" color="error" class="elevation-2"> Delete </v-btn>
+      <ErrorButton buttonName="Delete"></ErrorButton>
     </template>
     <template #default>
       <v-form>
@@ -165,7 +166,10 @@ const task = ref(templateStore.getTask(props.taskId))
           </v-col>
         </v-row>
         <div class="d-flex mt-5 mb-2 align-center justify-space-between">
-          <TextButton buttonName="Close" @atClick="router.push(`/admin/templates/${props.templateId}`)"></TextButton>
+          <TextButton
+            buttonName="Close"
+            @atClick="router.push(`/admin/templates/${props.templateId}`)"
+          ></TextButton>
           <PrimaryButton buttonName="Safe"> </PrimaryButton>
         </div>
       </v-form>

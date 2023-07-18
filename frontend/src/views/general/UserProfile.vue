@@ -1,7 +1,6 @@
 <script setup lang="ts">
-import FooterTurtl from '@/components/FooterTurtl.vue'
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import ErrorButton from '@/components/layouts/ErrorButton.vue'
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
 import { useUserStore } from '@/stores/UserStore'
@@ -100,9 +99,7 @@ const submit = handleSubmit(async (values) => {
         <PrimaryButton buttonName="Change Password" buttonType="submit"> </PrimaryButton>
       </v-form>
       <div class="d-flex flex-row mt-5 align-center justify-end">
-        <v-btn variant="elevated" color="error" class="elevation-2"
-          >Permanently Delete Account</v-btn
-        >
+        <ErrorButton buttonName="Permanently Delete Account"></ErrorButton>
       </div>
     </template>
   </DefaultLayout>

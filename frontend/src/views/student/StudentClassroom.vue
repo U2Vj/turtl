@@ -275,8 +275,18 @@ function getNumberOfDoneProjects() {
                     </v-progress-linear>
                   </v-card-text>
                   <v-card-actions>
-                    <TextButton v-if="!showTask" buttonName="View Tasks" @atClick="showTask = true" appendIcon="mdi-chevron-down"></TextButton>
-                    <TextButton v-if="showTask" buttonName="Hide Tasks" @atClick="showTask = false" appendIcon="mdi-chevron-up"></TextButton>
+                    <TextButton
+                      v-if="!showTask"
+                      buttonName="View Tasks"
+                      @atClick="showTask = true"
+                      appendIcon="mdi-chevron-down"
+                    ></TextButton>
+                    <TextButton
+                      v-if="showTask"
+                      buttonName="Hide Tasks"
+                      @atClick="showTask = false"
+                      appendIcon="mdi-chevron-up"
+                    ></TextButton>
                     <v-spacer></v-spacer>
                     <SecundaryButton
                       v-if="getTaskProgressOfProject(item.id) < 100"
