@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import TextButton from '@/components/layouts/TextButton.vue'
 import axios from 'axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -29,7 +30,7 @@ async function createClassroomTemplate(title: string) {
           v-model="titleNewClassroom"
           label="Name of new classroom template"
         ></v-text-field>
-        <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
+          <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
         <PrimaryButton buttonName="Create" @atClick="createClassroomTemplate(titleNewClassroom)">
         </PrimaryButton>
       </template>

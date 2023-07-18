@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
+import TextButton from '@/components/layouts/TextButton.vue'
 import { ref } from 'vue'
 
 const tab = ref(null)
@@ -274,24 +275,8 @@ function getNumberOfDoneProjects() {
                     </v-progress-linear>
                   </v-card-text>
                   <v-card-actions>
-                    <v-btn
-                      v-if="!showTask"
-                      append-icon="mdi-chevron-down"
-                      @click="showTask = true"
-                      variant="text"
-                      color="primary"
-                    >
-                      View Tasks
-                    </v-btn>
-                    <v-btn
-                      v-if="showTask"
-                      variant="text"
-                      color="primary"
-                      append-icon="mdi-chevron-down"
-                      @click="showTask = false"
-                    >
-                      Hide Tasks
-                    </v-btn>
+                    <TextButton v-if="!showTask" buttonName="View Tasks" @atClick="showTask = true" appendIcon="mdi-chevron-down"></TextButton>
+                    <TextButton v-if="showTask" buttonName="Hide Tasks" @atClick="showTask = false" appendIcon="mdi-chevron-up"></TextButton>
                     <v-spacer></v-spacer>
                     <SecundaryButton
                       v-if="getTaskProgressOfProject(item.id) < 100"

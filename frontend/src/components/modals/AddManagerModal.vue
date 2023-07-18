@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import type { User } from '@/stores/TemplateStore'
+import TextButton from '@/components/layouts/TextButton.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { useAxios } from '@vueuse/integrations/useAxios'
 import { ref } from 'vue'
@@ -37,7 +38,7 @@ const showDialog = ref(false)
             />
           </template>
         </v-data-table>
-        <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
+        <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
       </template>
     </v-card>
   </v-dialog>

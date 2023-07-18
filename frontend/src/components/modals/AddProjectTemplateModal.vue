@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import TextButton from '@/components/layouts/TextButton.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import axios from 'axios'
 import { ref } from 'vue'
@@ -34,7 +35,7 @@ async function addProjectTemplate(title: string) {
           v-model="titleNewProject"
           label="Name of new project template"
         ></v-text-field>
-        <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
+        <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
         <PrimaryButton buttonName="Create" @atClick="addProjectTemplate(titleNewProject)">
         </PrimaryButton>
       </template>

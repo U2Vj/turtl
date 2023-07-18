@@ -4,12 +4,14 @@ defineProps<{
   buttonName?: string
   goTo?: string
   buttonType?: string
+  singleIcon?: string
 }>()
 </script>
 
 <template>
   <v-btn
     variant="text"
+    :icon="singleIcon"
     color="primary"
     :append-icon="appendIcon"
     @click="$emit('atClick')"

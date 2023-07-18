@@ -2,6 +2,7 @@
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
+import TextButton from '@/components/layouts/TextButton.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { ref } from 'vue'
@@ -164,13 +165,7 @@ const task = ref(templateStore.getTask(props.taskId))
           </v-col>
         </v-row>
         <div class="d-flex mt-5 mb-2 align-center justify-space-between">
-          <v-btn
-            variant="text"
-            color="primary"
-            @click="router.push(`/admin/templates/${props.templateId}`)"
-          >
-            Close
-          </v-btn>
+          <TextButton buttonName="Close" @atClick="router.push(`/admin/templates/${props.templateId}`)"></TextButton>
           <PrimaryButton buttonName="Safe"> </PrimaryButton>
         </div>
       </v-form>

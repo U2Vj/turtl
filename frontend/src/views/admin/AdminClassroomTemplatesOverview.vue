@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import TextButton from '@/components/layouts/TextButton.vue'
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { useRouter } from 'vue-router'
@@ -60,7 +61,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
         @click:row="handleRowClick"
       >
         <template #[`item.link`]="{ item }">
-          <v-btn variant="text" color="primary" :to="`templates/${item.raw.id}`">Edit</v-btn>
+          <TextButton buttonName="Edit" :goTo="`templates/${item.raw.id}`"></TextButton>
         </template>
       </v-data-table>
     </template>

@@ -2,6 +2,7 @@
 import TemplateCard from '@/components/TemplateCard.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import TextButton from '@/components/layouts/TextButton.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
