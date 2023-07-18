@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
 import { useTemplateStore } from '@/stores/TemplateStore'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { ref } from 'vue'
 
 const showDialog = ref(false)
@@ -35,13 +36,8 @@ async function addQuestion(title: string) {
           label="New Question"
         ></v-text-field>
         <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
-        <v-btn
-          variant="elevated"
-          color="primary"
-          class="elevation-2"
-          @click="addQuestion(newQuestion)"
-          >Create</v-btn
-        >
+        <PrimaryButton buttonName="Create" @atClick=addQuestion(newQuestion)>
+      </PrimaryButton>
       </template>
     </v-card>
   </v-dialog>

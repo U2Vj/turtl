@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 
 const showDialog = ref(false)
 const titleNewClassroom = ref('')
@@ -29,13 +30,8 @@ async function createClassroomTemplate(title: string) {
           label="Name of new classroom template"
         ></v-text-field>
         <v-btn variant="text" color="primary" @click="showDialog = false">Close</v-btn>
-        <v-btn
-          variant="elevated"
-          color="primary"
-          class="elevation-2"
-          @click="createClassroomTemplate(titleNewClassroom)"
-          >Create</v-btn
-        >
+        <PrimaryButton buttonName="Create" @atClick=createClassroomTemplate(titleNewClassroom)>
+      </PrimaryButton>
       </template>
     </v-card>
   </v-dialog>
