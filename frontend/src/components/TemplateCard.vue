@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ErrorButton from './layouts/ErrorButton.vue'
 import SecundaryButton from './layouts/SecundaryButton.vue'
 import TextButton from '@/components/layouts/TextButton.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
@@ -31,8 +32,18 @@ useSortable(`#taskWrapper${props.projectId}`, props.taskTemplates, {
   <v-card variant="flat" color="cardColor" class="elevation-4" style="cursor: grab">
     <v-card-title> <v-icon icon="mdi-drag" />{{ title }} </v-card-title>
     <v-card-actions>
-       <TextButton v-if="!showInformation" buttonName="Show information" @atClick="showInformation = true" appendIcon="mdi-chevron-down"></TextButton>
-       <TextButton v-if="showInformation" buttonName="Hide information" @atClick="showInformation = false" appendIcon="mdi-chevron-up"></TextButton>
+      <TextButton
+        v-if="!showInformation"
+        buttonName="Show information"
+        @atClick="showInformation = true"
+        appendIcon="mdi-chevron-down"
+      ></TextButton>
+      <TextButton
+        v-if="showInformation"
+        buttonName="Hide information"
+        @atClick="showInformation = false"
+        appendIcon="mdi-chevron-up"
+      ></TextButton>
     </v-card-actions>
     <v-card-text v-show="showInformation">
       Tasks
@@ -46,7 +57,7 @@ useSortable(`#taskWrapper${props.projectId}`, props.taskTemplates, {
       <v-card-actions>
         <SecundaryButton buttonName="Add Task" prependIcon="mdi-plus"> </SecundaryButton>
         <v-spacer></v-spacer>
-        <v-btn variant="tonal" color="error" class="elevation-2">Delete Template</v-btn>
+        <ErrorButton buttonName="Delete Template"></ErrorButton>
       </v-card-actions>
     </v-card-text>
   </v-card>
