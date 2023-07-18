@@ -6,6 +6,22 @@ import { useTemplateStore } from '@/stores/TemplateStore'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
+
+const values = [
+  {
+    name: 'Computer Networks',
+    lastedited: '2022-12-12',
+    createdat: '2021-01-02',
+    id: 1
+  },
+  {
+    name: 'Computer Networks',
+    lastedited: '2022-12-12',
+    createdat: '2021-01-02',
+    id: 2
+  }
+]
+
 const templateStore = useTemplateStore()
 
 // TODO: find way to import DataTableItem from vuetify
@@ -40,7 +56,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
           { title: 'Created At', align: 'end', key: 'created_at' },
           { title: 'Use', align: 'end', key: 'link' }
         ]"
-        :items="templateStore.basicTemplateData"
+        :items="values"
         @click:row="handleRowClick"
       >
         <template #[`item.link`]="{ item }">

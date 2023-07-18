@@ -1,5 +1,8 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
+import TextButton from '@/components/layouts/TextButton.vue'
 import { ref } from 'vue'
 
 const search = ref('')
@@ -97,22 +100,15 @@ function join() {
 
                   <v-card-actions>
                     <v-spacer></v-spacer>
-                    <v-btn variant="text" color="primary" @click="close"> Cancel </v-btn>
-                    <v-btn variant="elevated" color="primary" class="elevation-2" @click="join">
-                      Join Classroom
-                    </v-btn>
+                    <TextButton buttonName="Cancel" @atClick="close"></TextButton>
+                    <PrimaryButton buttonName="Join Classroom" @atClick="join"> </PrimaryButton>
                   </v-card-actions>
                 </v-card>
               </v-dialog>
             </template>
             <template #[`item.actions`]="{ item }">
-              <v-btn
-                variant="tonal"
-                color="primary"
-                class="elevation-2"
-                @click="joinClassroomBtn(item.raw)"
-                >Join classroom</v-btn
-              >
+              <SecundaryButton buttonName="Join Classroom" @atClick="joinClassroomBtn(item.raw)">
+              </SecundaryButton>
             </template>
             <template #no-data>
               <p>No data</p>

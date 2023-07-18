@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
 import { ref } from 'vue'
 
 const tab = ref(null)
@@ -292,13 +293,11 @@ function getNumberOfDoneProjects() {
                       Hide Tasks
                     </v-btn>
                     <v-spacer></v-spacer>
-                    <v-btn
-                      variant="tonal"
-                      color="primary"
-                      class="elevation-2"
+                    <SecundaryButton
                       v-if="getTaskProgressOfProject(item.id) < 100"
-                      >Continue</v-btn
+                      buttonName="Continue"
                     >
+                    </SecundaryButton>
                   </v-card-actions>
                   <v-card-text v-show="showTask">
                     <div :id="`taskWrapper${item.id}`">

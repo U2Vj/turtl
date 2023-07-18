@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
 import { ref } from 'vue'
 
 const classrooms = ref([
@@ -107,7 +108,8 @@ const classrooms = ref([
   <DefaultLayout>
     <template #heading>My Classrooms</template>
     <template #postHeadingButton>
-      <PrimaryButton buttonName="Create Classroom"> </PrimaryButton>
+      <PrimaryButton buttonName="Create Classroom" goTo="/mananager/classroom/create">
+      </PrimaryButton>
     </template>
     <template #default>
       <v-row class="mt-5">
@@ -136,9 +138,8 @@ const classrooms = ref([
               <p v-text="classroom.description" class="classroomDescription mt-4 text-justify"></p>
             </v-card-text>
             <v-card-actions>
-              <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2"
-                >Visit Classroom</v-btn
-              >
+              <SecundaryButton buttonName="Visit Classroom" class="d-flex flex-fill elevation-2">
+              </SecundaryButton>
             </v-card-actions>
           </v-card>
         </v-col>

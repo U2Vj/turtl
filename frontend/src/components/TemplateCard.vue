@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import SecundaryButton from './layouts/SecundaryButton.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { ref } from 'vue'
 
@@ -58,9 +59,7 @@ useSortable(`#taskWrapper${props.projectId}`, props.taskTemplates, {
         </div>
       </div>
       <v-card-actions>
-        <v-btn prepend-icon="mdi-plus" variant="tonal" color="primary" class="elevation-2"
-          >Add Task</v-btn
-        >
+        <SecundaryButton buttonName="Add Task" prependIcon="mdi-plus"> </SecundaryButton>
         <v-spacer></v-spacer>
         <v-btn variant="tonal" color="error" class="elevation-2">Delete Template</v-btn>
       </v-card-actions>

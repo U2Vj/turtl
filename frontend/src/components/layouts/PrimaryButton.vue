@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { DefineStoreOptionsInPlugin } from 'pinia'
-
 defineProps<{
   appendIcon?: string
   buttonName?: string

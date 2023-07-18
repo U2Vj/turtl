@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
 import { ref } from 'vue'
 
 const headers = [
@@ -80,9 +81,8 @@ const classrooms = ref([
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <v-btn variant="tonal" color="primary" class="d-flex flex-fill elevation-2"
-                >Go to Room</v-btn
-              >
+              <SecundaryButton buttonName="Go to Room" class="d-flex flex-fill elevation-2">
+              </SecundaryButton>
             </v-card-actions>
           </v-card>
         </v-col>

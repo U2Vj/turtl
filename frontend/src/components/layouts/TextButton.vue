@@ -1,6 +1,6 @@
 <script setup lang="ts">
 defineProps<{
-  prependIcon?: string
+  appendIcon?: string
   buttonName?: string
   goTo?: string
   buttonType?: string
@@ -9,10 +9,9 @@ defineProps<{
 
 <template>
   <v-btn
-    class="elevation-2"
-    variant="tonal"
+    variant="text"
     color="primary"
-    :prepend-icon="prependIcon"
+    :append-icon="appendIcon"
     @click="$emit('atClick')"
     :to="goTo"
     :type="buttonType"

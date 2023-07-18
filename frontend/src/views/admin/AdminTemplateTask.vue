@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { ref } from 'vue'
@@ -114,9 +115,9 @@ const task = ref(templateStore.getTask(props.taskId))
         </v-row>
         <v-row>
           <v-col>
-            <v-btn variant="tonal" color="primary" class="elevation-2">
-              Add Question <AddQuestionModal />
-            </v-btn>
+            <SecundaryButton buttonName="Add Question">
+              <AddQuestionModal />
+            </SecundaryButton>
           </v-col>
         </v-row>
         <v-row>
