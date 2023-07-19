@@ -24,7 +24,7 @@ async function addQuestion(title: string) {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" activator="parent">
+  <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
       <v-card-title>Add Question</v-card-title>
       <v-card-text>

@@ -23,7 +23,7 @@ async function addProjectTemplate(title: string) {
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" activator="parent">
+  <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
       <v-card-title>Create Project Template</v-card-title>
       <v-card-text>
