@@ -26,8 +26,8 @@ async function addQuestion(title: string) {
 <template>
   <v-dialog v-model="showDialog" activator="parent">
     <v-card>
-      <template #title>Add Question</template>
-      <template #text>
+      <v-card-title>Add Question</v-card-title>
+      <v-card-text>
         <v-text-field
           clearable
           variant="underlined"
@@ -38,7 +38,7 @@ async function addQuestion(title: string) {
         ></v-text-field>
         <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
         <PrimaryButton buttonName="Create" @atClick="addQuestion(newQuestion)"> </PrimaryButton>
-      </template>
+      </v-card-text>
     </v-card>
   </v-dialog>
 </template>

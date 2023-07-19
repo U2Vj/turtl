@@ -16,8 +16,8 @@ const showDialog = ref(false)
 <template>
   <v-dialog v-model="showDialog" activator="parent">
     <v-card>
-      <template #title>Add Managers</template>
-      <template #text>
+      <v-card-title>Add Managers</v-card-title>
+      <v-card-text>
         <v-data-table
           :headers="[
             { title: 'E-Mail', key: 'email' },
@@ -39,7 +39,7 @@ const showDialog = ref(false)
           </template>
         </v-data-table>
         <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
-      </template>
+      </v-card-text>
     </v-card>
   </v-dialog>
 </template>

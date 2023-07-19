@@ -20,8 +20,8 @@ async function createClassroomTemplate(title: string) {
 <template>
   <v-dialog v-model="showDialog" activator="parent">
     <v-card>
-      <template #title>Create Classroom Template</template>
-      <template #text>
+      <v-card-title>Create Classroom Template</v-card-title>
+      <v-card-text>
         <v-text-field
           clearable
           variant="underlined"
@@ -33,7 +33,7 @@ async function createClassroomTemplate(title: string) {
         <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
         <PrimaryButton buttonName="Create" @atClick="createClassroomTemplate(titleNewClassroom)">
         </PrimaryButton>
-      </template>
+      </v-card-text>
     </v-card>
   </v-dialog>
 </template>

@@ -25,8 +25,8 @@ async function addProjectTemplate(title: string) {
 <template>
   <v-dialog v-model="showDialog" activator="parent">
     <v-card>
-      <template #title>Create Project Template</template>
-      <template #text>
+      <v-card-title>Create Project Template</v-card-title>
+      <v-card-text>
         <v-text-field
           clearable
           variant="underlined"
@@ -38,7 +38,7 @@ async function addProjectTemplate(title: string) {
         <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
         <PrimaryButton buttonName="Create" @atClick="addProjectTemplate(titleNewProject)">
         </PrimaryButton>
-      </template>
+      </v-card-text>
     </v-card>
   </v-dialog>
 </template>
