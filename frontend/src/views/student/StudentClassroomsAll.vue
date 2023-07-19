@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
-import TextButton from '@/components/layouts/TextButton.vue'
+import JoinClassroomModal from '@/components/modals/JoinClassroomModal.vue'
 import { ref } from 'vue'
 
 const search = ref('')
@@ -37,14 +36,6 @@ function joinClassroomBtn(item: any) {
   selectedClassroomName.value = item.name_classroom
   dialog.value = true
 }
-
-function close() {
-  dialog.value = false
-}
-
-function join() {
-  dialog.value = false
-}
 </script>
 
 <template>
@@ -73,41 +64,12 @@ function join() {
             item-value="classTemplates"
           >
             <template #top>
-              <v-dialog v-model="dialog" persistent width="50%">
-                <v-card>
-                  <v-toolbar :title="selectedClassroomName"> </v-toolbar>
-                  <v-card-text>
-                    <v-container>
-                      <v-row>
-                        <v-col>
-                          <p>Enter the code to join the classroom.</p>
-                        </v-col>
-                      </v-row>
-                      <v-row> </v-row>
-                      <v-row>
-                        <v-col cols="8">
-                          <v-text-field
-                            label="Enter Code"
-                            clearable
-                            variant="underlined"
-                            base-color="primary"
-                            color="primary"
-                          ></v-text-field>
-                        </v-col>
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
-
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <TextButton buttonName="Cancel" @atClick="close"></TextButton>
-                    <PrimaryButton buttonName="Join Classroom" @atClick="join"> </PrimaryButton>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
             </template>
             <template #[`item.actions`]="{ item }">
               <SecundaryButton buttonName="Join Classroom" @atClick="joinClassroomBtn(item.raw)">
+                <JoinClassroomModal>
+                  <template #classroomName>{{selectedClassroomName}}</template>
+                </JoinClassroomModal>
               </SecundaryButton>
             </template>
             <template #no-data>
