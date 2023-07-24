@@ -40,8 +40,8 @@ function join() {
       </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
-        <TextButton buttonName="Cancel" @atClick="close"></TextButton>
-        <PrimaryButton buttonName="Join Classroom" @atClick="join"> </PrimaryButton>
+        <TextButton buttonName="Cancel" @click="close"></TextButton>
+        <PrimaryButton buttonName="Join Classroom" @click="join"> </PrimaryButton>
       </v-card-actions>
     </v-card>
   </v-dialog>

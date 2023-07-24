@@ -15,7 +15,7 @@ defineProps<{
     color="error"
     class="elevation-2"
     :append-icon="appendIcon"
-    @click="$emit('atClick')"
+    @click="$emit('click')"
     :to="goTo"
     :type="buttonType"
   >

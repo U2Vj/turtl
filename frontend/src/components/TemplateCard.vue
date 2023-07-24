@@ -35,13 +35,13 @@ useSortable(`#taskWrapper${props.projectId}`, props.taskTemplates, {
       <TextButton
         v-if="!showInformation"
         buttonName="Show information"
-        @atClick="showInformation = true"
+        @click="showInformation = true"
         appendIcon="mdi-chevron-down"
       ></TextButton>
       <TextButton
         v-if="showInformation"
         buttonName="Hide information"
-        @atClick="showInformation = false"
+        @click="showInformation = false"
         appendIcon="mdi-chevron-up"
       ></TextButton>
     </v-card-actions>

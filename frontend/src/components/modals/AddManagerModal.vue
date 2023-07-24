@@ -38,7 +38,7 @@ const showDialog = ref(false)
             />
           </template>
         </v-data-table>
-        <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
+        <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
       </v-card-text>
     </v-card>
   </v-dialog>

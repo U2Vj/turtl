@@ -13,7 +13,7 @@ defineProps<{
     variant="elevated"
     color="primary"
     :append-icon="appendIcon"
-    @click="$emit('atClick')"
+    @click="$emit('click')"
     :to="goTo"
     :type="buttonType"
   >

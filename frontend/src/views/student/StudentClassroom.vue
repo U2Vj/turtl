@@ -278,13 +278,13 @@ function getNumberOfDoneProjects() {
                     <TextButton
                       v-if="!showTask"
                       buttonName="View Tasks"
-                      @atClick="showTask = true"
+                      @click="showTask = true"
                       appendIcon="mdi-chevron-down"
                     ></TextButton>
                     <TextButton
                       v-if="showTask"
                       buttonName="Hide Tasks"
-                      @atClick="showTask = false"
+                      @click="showTask = false"
                       appendIcon="mdi-chevron-up"
                     ></TextButton>
                     <v-spacer></v-spacer>

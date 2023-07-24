@@ -65,7 +65,7 @@ function joinClassroomBtn(item: any) {
           >
             <template #top> </template>
             <template #[`item.actions`]="{ item }">
-              <SecundaryButton buttonName="Join Classroom" @atClick="joinClassroomBtn(item.raw)">
+              <SecundaryButton buttonName="Join Classroom" @click="joinClassroomBtn(item.raw)">
                 <JoinClassroomModal>
                   <template #classroomName>{{ selectedClassroomName }}</template>
                 </JoinClassroomModal>

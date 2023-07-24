@@ -168,7 +168,7 @@ const task = ref(templateStore.getTask(props.taskId))
         <div class="d-flex mt-5 mb-2 align-center justify-space-between">
           <TextButton
             buttonName="Close"
-            @atClick="router.push(`/admin/templates/${props.templateId}`)"
+            @click="router.push(`/admin/templates/${props.templateId}`)"
           ></TextButton>
           <PrimaryButton buttonName="Safe"> </PrimaryButton>
         </div>

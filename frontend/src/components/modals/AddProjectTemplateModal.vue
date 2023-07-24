@@ -35,8 +35,8 @@ async function addProjectTemplate(title: string) {
           v-model="titleNewProject"
           label="Name of new project template"
         ></v-text-field>
-        <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Create" @atClick="addProjectTemplate(titleNewProject)">
+        <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
+        <PrimaryButton buttonName="Create" @click="addProjectTemplate(titleNewProject)">
         </PrimaryButton>
       </v-card-text>
     </v-card>

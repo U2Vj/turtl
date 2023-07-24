@@ -36,8 +36,8 @@ async function addQuestion(title: string) {
           v-model="newQuestion"
           label="New Question"
         ></v-text-field>
-        <TextButton buttonName="Close" @atClick="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Create" @atClick="addQuestion(newQuestion)"> </PrimaryButton>
+        <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
+        <PrimaryButton buttonName="Create" @click="addQuestion(newQuestion)"> </PrimaryButton>
       </v-card-text>
     </v-card>
   </v-dialog>

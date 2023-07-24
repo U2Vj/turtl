@@ -62,7 +62,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
           <v-container fluid>
             <div class="d-flex flex-row mb-2 align-center justify-space-between">
               <h2>Project Templates</h2>
-              <PrimaryButton buttonName="Add Project Template" @atClick="showCreateModal = true">
+              <PrimaryButton buttonName="Add Project Template" @click="showCreateModal = true">
                 <AddProjectTemplateModal />
               </PrimaryButton>
             </div>

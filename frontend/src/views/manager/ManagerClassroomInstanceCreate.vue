@@ -153,7 +153,7 @@ watch(selected, (newSelected) => {
       </v-row>
       <v-row>
         <v-col>
-          <PrimaryButton buttonName="Create Classroom" @atClick="createClassroom"> </PrimaryButton>
+          <PrimaryButton buttonName="Create Classroom" @click="createClassroom"> </PrimaryButton>
         </v-col>
       </v-row>
     </template>
