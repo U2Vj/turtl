@@ -4,26 +4,17 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
+import { toRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const values = [
-  {
-    name: 'Computer Networks',
-    lastedited: '2022-12-12',
-    createdat: '2021-01-02',
-    id: 1
-  },
-  {
-    name: 'Computer Networks',
-    lastedited: '2022-12-12',
-    createdat: '2021-01-02',
-    id: 2
-  }
-]
-
 const templateStore = useTemplateStore()
+
+const props = defineProps<{ templateId: string }>()
+
+let templateData = toRef(templateStore, 'classroomTemplate')
+templateStore.fetchTemplate(props.templateId)
 
 // TODO: find way to import DataTableItem from vuetify
 function handleRowClick(event: Event, item: { item: { raw: any } }) {
@@ -37,7 +28,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
 </script>
 
 <template>
-  <DefaultLayout>
+  <DefaultLayout v-if="templateData">
     <template #heading>Classroom Templates</template>
     <template #postHeadingButton>
       <PrimaryButton buttonName="Create Template">
@@ -45,19 +36,20 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
       </PrimaryButton>
     </template>
     <template #default>
+      <p>{{ templateData.updated_at }}</p>
       <v-data-table
         :headers="[
           {
             title: 'Name',
             align: 'start',
             sortable: true,
-            key: 'name'
+            key: 'title'
           },
           { title: 'Last Edited', align: 'end', key: 'updated_at' },
           { title: 'Created At', align: 'end', key: 'created_at' },
           { title: 'Use', align: 'end', key: 'link' }
         ]"
-        :items="values"
+        :items="[templateData]"
         @click:row="handleRowClick"
       >
         <template #[`item.link`]="{ item }">
