@@ -17,8 +17,6 @@ const props = defineProps<{
 }>()
 
 const showInformation = ref(false)
-console.log(import.meta.env)
-console.log(import.meta)
 
 useSortable(`#taskWrapper${props.projectId}`, props.taskTemplates, {
   animation: 150,
