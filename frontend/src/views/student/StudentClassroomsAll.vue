@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
 import JoinClassroomModal from '@/components/modals/JoinClassroomModal.vue'
 import { ref } from 'vue'
 
@@ -63,12 +63,11 @@ function joinClassroomBtn(item: any) {
             :search="search"
             item-value="classTemplates"
           >
-            <template #top>
-            </template>
+            <template #top> </template>
             <template #[`item.actions`]="{ item }">
               <SecundaryButton buttonName="Join Classroom" @atClick="joinClassroomBtn(item.raw)">
                 <JoinClassroomModal>
-                  <template #classroomName>{{selectedClassroomName}}</template>
+                  <template #classroomName>{{ selectedClassroomName }}</template>
                 </JoinClassroomModal>
               </SecundaryButton>
             </template>

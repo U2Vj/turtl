@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'
 import { useField, useForm } from 'vee-validate'

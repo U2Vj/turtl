@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
+import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
-import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
 import { ref } from 'vue'
 
 const classrooms = ref([

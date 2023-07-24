@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
-import TextButton from '@/components/layouts/TextButton.vue'
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { useRouter } from 'vue-router'

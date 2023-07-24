@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
 import { ref } from 'vue'
 
 const headers = [

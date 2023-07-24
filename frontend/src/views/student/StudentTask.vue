@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import Shell from '@/components/ShellView.vue'
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { ref } from 'vue'
 
 const taskDescription = ref(

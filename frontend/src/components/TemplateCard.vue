@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import ErrorButton from './layouts/ErrorButton.vue'
-import SecundaryButton from './layouts/SecundaryButton.vue'
-import TextButton from '@/components/layouts/TextButton.vue'
+import ErrorButton from '@/components/buttons/ErrorButton.vue'
+import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { ref } from 'vue'
 

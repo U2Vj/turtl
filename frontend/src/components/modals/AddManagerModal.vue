@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TextButton from '@/components/layouts/TextButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import type { User } from '@/stores/TemplateStore'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { useAxios } from '@vueuse/integrations/useAxios'

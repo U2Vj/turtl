@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import ErrorButton from '@/components/buttons/ErrorButton.vue'
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
+import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import ErrorButton from '@/components/layouts/ErrorButton.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
-import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
-import TextButton from '@/components/layouts/TextButton.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { ref } from 'vue'

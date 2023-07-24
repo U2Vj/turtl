@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import ErrorButton from '@/components/buttons/ErrorButton.vue'
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import ErrorButton from '@/components/layouts/ErrorButton.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
 import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'

@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import TemplateCard from '@/components/TemplateCard.vue'
+import ErrorButton from '@/components/buttons/ErrorButton.vue'
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import ErrorButton from '@/components/layouts/ErrorButton.vue'
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'

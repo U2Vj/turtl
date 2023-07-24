@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import SecundaryButton from '@/components/layouts/SecundaryButton.vue'
-import TextButton from '@/components/layouts/TextButton.vue'
 import { ref } from 'vue'
 
 const tab = ref(null)

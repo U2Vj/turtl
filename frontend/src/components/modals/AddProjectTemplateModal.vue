@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import PrimaryButton from '@/components/layouts/PrimaryButton.vue'
-import TextButton from '@/components/layouts/TextButton.vue'
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import axios from 'axios'
 import { ref } from 'vue'
