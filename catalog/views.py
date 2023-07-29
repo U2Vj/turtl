@@ -7,8 +7,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from catalog.models import ClassroomTemplate, TaskTemplate, ProjectTemplate
-from catalog.serializers import ClassroomTemplateSerializer, ProjectTemplateSerializer, TaskTemplateSerializer, \
-    ClassroomTemplateNewSerializer, ClassroomTemplateDetailSerializer
+from catalog.serializers import ClassroomTemplateSerializer, ProjectTemplateClassroomSerializer, TaskTemplateSerializer, \
+    ClassroomTemplateNewSerializer, ClassroomTemplateDetailSerializer, ProjectTemplateNewSerializer
 
 
 class ClassroomTemplateList(APIView):
@@ -38,7 +38,7 @@ class ClassroomTemplateDetail(APIView):
 
     def put(self, request, template_id):
         template = self.get_object(template_id)
-        serializer = ClassroomTemplateSerializer(template, data=request.data)
+        serializer = ClassroomTemplateDetailSerializer(template, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
@@ -51,7 +51,7 @@ class ClassroomTemplateDetail(APIView):
 
 class ProjectTemplateList(APIView):
     def post(self, request):
-        serializer = ProjectTemplateSerializer(data=request.data)
+        serializer = ProjectTemplateNewSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
@@ -61,7 +61,7 @@ class ProjectTemplateDetail(APIView):
     def get(self, request, project_id):
         try:
             template = ProjectTemplate.objects.get(id=project_id)
-            serializer = ProjectTemplateSerializer(template)
+            serializer = ProjectTemplateClassroomSerializer(template)
             return Response(serializer.data)
         except ProjectTemplate.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
@@ -69,11 +69,19 @@ class ProjectTemplateDetail(APIView):
     def put(self, request, project_id):
         try:
             template = ProjectTemplate.objects.get(id=project_id)
-            serializer = ProjectTemplateSerializer(template, data=request.data)
+            serializer = ProjectTemplateClassroomSerializer(template, data=request.data)
             if serializer.is_valid():
                 serializer.save()
                 return Response(serializer.data)
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except ProjectTemplate.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
+
+    def delete(self, request, project_id):
+        try:
+            template = ProjectTemplate.objects.get(id=project_id)
+            template.delete()
+            return Response(status=status.HTTP_200_OK)
         except ProjectTemplate.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
@@ -87,23 +95,22 @@ class TaskTemplateList(APIView):
 
 
 class TaskTemplateDetail(APIView):
-    class TaskTemplateDetail(APIView):
-        def get(self, request, task_id):
-            try:
-                template = TaskTemplate.objects.get(id=task_id)
-                serializer = TaskTemplateSerializer(template)
-                return Response(serializer.data)
-            except TaskTemplate.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
+    def get(self, request, task_id):
+        try:
+            template = TaskTemplate.objects.get(id=task_id)
+            serializer = TaskTemplateSerializer(template)
+            return Response(serializer.data)
+        except TaskTemplate.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 
-        def put(self, request, task_id):
-            try:
-                template = TaskTemplate.objects.get(id=task_id)
-                serializer = TaskTemplateSerializer(template, data=request.data)
-                if serializer.is_valid():
-                    serializer.save()
-                    return Response(serializer.data)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-            except TaskTemplate.DoesNotExist:
-                return Response(status=status.HTTP_404_NOT_FOUND)
+    def put(self, request, task_id):
+        try:
+            template = TaskTemplate.objects.get(id=task_id)
+            serializer = TaskTemplateSerializer(template, data=request.data)
+            if serializer.is_valid():
+                serializer.save()
+                return Response(serializer.data)
+            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        except TaskTemplate.DoesNotExist:
+            return Response(status=status.HTTP_404_NOT_FOUND)
 

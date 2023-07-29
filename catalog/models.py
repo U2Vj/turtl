@@ -138,14 +138,15 @@ class ClassroomTemplateManager(models.Model):
                                  related_name='classroomtemplatemanager_set_added_by')
 
 
-class HelpfulResource():
-    # Title of the HelpfulResource
+class HelpfulResource(models.Model):
     title = models.CharField(max_length=120, unique=True)
 
     url = models.URLField(max_length=200)
 
     classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
                                            related_name="classroom_template")
+
+
 
 
 class ProjectTemplate(RulesModel):
@@ -156,7 +157,7 @@ class ProjectTemplate(RulesModel):
     # Title of the project
     title = models.CharField(max_length=120)
 
-    classroom_templates = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='classroom_templates')
+    classroom_templates = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='project_templates')
 
 
 class TaskTemplate(models.Model):
@@ -168,7 +169,7 @@ class TaskTemplate(models.Model):
     title = models.CharField(max_length=50)
 
     # The project template that this task template belongs to
-    project_template = models.ForeignKey(ProjectTemplate, on_delete=models.CASCADE, name='ProjectTemplate')
+    project_template = models.ForeignKey(ProjectTemplate, on_delete=models.CASCADE, related_name='task_templates')
 
     # Description of the task
     description = models.TextField()
@@ -216,8 +217,8 @@ class Virtualization(models.Model):
     # The task template that this virtualization belongs to
     template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='TaskTemplate')
 
-    USER_SHELL = 0  # The user interacts with the virtualization via a shell
-    USER_ACCESSIBLE = 1  # The user interacts with the virtualization via an IP address
+    USER_SHELL = "User Shell"  # The user interacts with the virtualization via a shell
+    USER_ACCESSIBLE = "User-accessible via IP" # The user interacts with the virtualization via an IP address
 
     # Choices for the virtualization role (i.e. how the user interacts with the virtualization)
     ROLE_CHOICES = [
@@ -226,7 +227,7 @@ class Virtualization(models.Model):
     ]
 
     # Role of virtualization (i.e. how the user interacts with the virtualization)
-    virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=20)
+    virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=30)
 
     # File of the docker-compose.yml that is used to create the virtualization
     docker_compose_file = models.FileField(upload_to='')
