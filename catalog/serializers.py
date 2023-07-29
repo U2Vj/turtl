@@ -2,47 +2,20 @@ from rest_framework import serializers
 
 from authentication.models import User
 from catalog.models import ClassroomTemplate, ProjectTemplate, ClassroomTemplateManager, HelpfulResource, TaskTemplate, \
-    Virtualization, AcceptanceCriteria, AcceptanceCriteriaFlag, AcceptanceCriteriaRegex, AcceptanceCriteriaQuestionnaire
+    Virtualization, AcceptanceCriteria
 
 
-class AcceptanceCriteriaSerializer(serializers.Serializer):
+class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
     class Meta:
         model = AcceptanceCriteria
-
-
-class AcceptanceCriteriaFlagSerializer(AcceptanceCriteriaSerializer):
-    type = serializers.CharField()
-    flag = serializers.CharField()
-
-    class Meta:
-        model = AcceptanceCriteriaFlag
-        fields = ['type', 'flag']
-
-
-
-class AcceptanceCriteriaRegexSerializer(serializers.Serializer):
-    type = serializers.CharField()
-    regex = serializers.CharField()
-
-    class Meta:
-        model = AcceptanceCriteriaRegex
-        fields = ['type', 'regex']
-
-
-class AcceptanceCriteriaQuestionnaireSerializer(serializers.Serializer):
-    type = serializers.CharField()
-    questions = serializers.ListField(child=serializers.DictField())
-
-    class Meta:
-        model = AcceptanceCriteriaQuestionnaire
-        fields = ['type', 'questions']
+        fields = '__all__'
 
 
 class TaskTemplateSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
     virtualization = serializers.SerializerMethodField()
-    acceptance_criteria = serializers.SerializerMethodField()
+    acceptance_criteria = AcceptanceCriteriaSerializer()
 
     class Meta:
         model = TaskTemplate
@@ -53,18 +26,9 @@ class TaskTemplateSerializer(serializers.Serializer):
         virtualization_serializer = VirtualizationSerializer(virtualization, many=True)
         return virtualization_serializer.data
 
-    def get_acceptance_criteria(self, task_template):
-        acceptance_criteria = task_template.objects.filter(task_template_id=task_template.id)
-        acceptance_criteria_serializer = AcceptanceCriteriaSerializer(acceptance_criteria, many=True)
-        return acceptance_criteria_serializer.data
 
-    def get_acceptance_criteria(self, obj):
-        if isinstance(obj.acceptance_criteria, AcceptanceCriteriaFlag):
-            serializer = AcceptanceCriteriaFlagSerializer(obj.acceptance_criteria)
-        elif isinstance(obj.acceptance_criteria, AcceptanceCriteriaRegex):
-            serializer = AcceptanceCriteriaRegexSerializer(obj.acceptance_criteria)
-        elif isinstance(obj.acceptance_criteria, AcceptanceCriteriaQuestionnaire):
-            serializer = AcceptanceCriteriaQuestionnaireSerializer(obj.acceptance_criteria)
+
+
 
 
 class VirtualizationSerializer(serializers.Serializer):

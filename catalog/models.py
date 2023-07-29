@@ -42,44 +42,38 @@ class Question(models.Model):
 
 class AcceptanceCriteria(models.Model):
     """
-        An AcceptanceCriteria is a set of rules that define how the user can prove that they have completed the task.
-        This is the superclass of all supported acceptance criteria types.
-    """
-    pass
-
-
-class AcceptanceCriteriaManual(AcceptanceCriteria):
-    """
-        The completion of the task is checked manually by an instructor.
-    """
-    pass
-
-
-class AcceptanceCriteriaQuestionnaire(AcceptanceCriteria):
-    """
-        A Questionnaire is a set of questions that the user has to answer to prove that they have completed the task.
+    An AcceptanceCriteria is a set of rules that define how the user can prove that they have completed the task.
+    This is the superclass of all supported acceptance criteria types.
     """
 
-    # The questions that the user has to answer to prove that they have completed the task
-    questions = models.ManyToManyField(Question)
+    MANUAL = 'manual'
+    QUESTIONNAIRE = 'questionnaire'
+    REGEX = 'regex'
+    FLAG = 'flag'
 
+    CRITERIA_TYPE_CHOICES = [
+        (MANUAL, 'Manual'),
+        (QUESTIONNAIRE, 'Questionnaire'),
+        (REGEX, 'Regex'),
+        (FLAG, 'Flag'),
+    ]
 
-class AcceptanceCriteriaRegex(AcceptanceCriteria):
-    """
-        A Regex is a regular expression that is checked automatically to prove that the user has completed the task.
-    """
+    criteria_type = models.CharField(
+        choices=CRITERIA_TYPE_CHOICES,
+        default=MANUAL,
+        max_length=20
+    )
 
-    # The regular expression that is checked automatically to prove that the user has completed the task
-    regex = models.CharField(max_length=200)
+    # Additional fields for each criteria type, if necessary
+    questions = models.ManyToManyField(Question, blank=True)
+    regex = models.CharField(max_length=200, blank=True)
+    flag = models.CharField(max_length=50, blank=True)
 
+    # Add any other common fields for all criteria types here
 
-class AcceptanceCriteriaFlag(AcceptanceCriteria):
-    """
-        A Flag is a string that the user has to submit to prove that they have completed the task.
-    """
+    def __str__(self):
+        return f"{self.get_criteria_type_display()} Acceptance Criteria"
 
-    # The flag that the user has to submit to prove that they have completed the task
-    flag = models.CharField(max_length=50)
 
 
 class ClassroomTemplate(RulesModel):
