@@ -26,8 +26,73 @@ class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
         model = AcceptanceCriteria
         fields = '__all__'
 
+    def create(self, validated_data):
+        questions_data = validated_data.pop('questions')
+        acceptance_criteria = AcceptanceCriteria.objects.create(**validated_data)
+        for question_data in questions_data:
+            choices_data = question_data.pop('choices')
+            question = Question.objects.create(**question_data)
+            acceptance_criteria.questions.add(question)
+            for choice_data in choices_data:
+                Question.QuestionChoice.objects.create(question=question, **choice_data)
+        return acceptance_criteria
 
-class TaskTemplateSerializer(serializers.ModelSerializer):
+    def update(self, instance, validated_data):
+        instance.criteria_type = validated_data.get('criteria_type', instance.criteria_type)
+        if instance.criteria_type == AcceptanceCriteria.MANUAL:
+            instance.questions.clear()
+            instance.regex = ""
+            instance.flag = ""
+        elif instance.criteria_type == AcceptanceCriteria.QUESTIONNAIRE:
+            questions_data = validated_data.pop('questions', None)
+            new_questions = []
+            if questions_data:
+                for question_data in questions_data:
+                    question_id = question_data.pop('id', None)
+                    if question_id:
+                        question = Question.objects.get(id=question_id)
+                        for key, value in question_data.items():
+                            setattr(question, key, value)
+                        question.save()
+                    else:
+                        question = Question.objects.create(**question_data)
+                    new_questions.append(question)
+            instance.questions.set(new_questions)  # Use set() here
+            instance.regex = ""
+            instance.flag = ""
+        elif instance.criteria_type == AcceptanceCriteria.REGEX:
+            instance.questions.clear()
+            instance.regex = validated_data.get('regex', instance.regex)
+            instance.flag = ""
+        elif instance.criteria_type == AcceptanceCriteria.FLAG:
+            instance.questions.clear()
+            instance.flag = validated_data.get('flag', instance.flag)
+            instance.regex = ""
+
+        instance.save()
+        return instance
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+
+        if instance.criteria_type == AcceptanceCriteria.MANUAL:
+            data.pop('questions', None)
+            data.pop('regex', None)
+            data.pop('flag', None)
+        elif instance.criteria_type == AcceptanceCriteria.QUESTIONNAIRE:
+            data.pop('regex', None)
+            data.pop('flag', None)
+        elif instance.criteria_type == AcceptanceCriteria.REGEX:
+            data.pop('questions', None)
+            data.pop('flag', None)
+        elif instance.criteria_type == AcceptanceCriteria.FLAG:
+            data.pop('questions', None)
+            data.pop('regex', None)
+
+        return data
+
+
+class TaskTemplateSerializer(serializers.Serializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
     virtualization = serializers.SerializerMethodField()
@@ -66,8 +131,6 @@ class TaskTemplateSerializer(serializers.ModelSerializer):
         return instance
 
 
-
-
 class VirtualizationSerializer(serializers.Serializer):
     name = serializers.CharField()
     virtualization_role = serializers.CharField()
@@ -87,12 +150,18 @@ class ProjectTemplateDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'classroom_template_id']
 
 
-class ProjectTemplateClassroomSerializer(serializers.ModelSerializer):
+class ProjectTemplateClassroomSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    title = serializers.CharField()
     task_templates = TaskTemplateSerializer(many=True)
 
     class Meta:
         model = ProjectTemplate
         fields = ['id', 'title', 'task_templates']
+
+    def get_task_templates(self, project_template):
+        task_templates = ProjectTemplate.objects.filter(project_template=project_template)
+        return TaskTemplateSerializer(task_templates, many=True).data
 
     def update(self, instance, validated_data):
         task_templates_data = validated_data.pop('task_templates', [])
@@ -157,8 +226,12 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField()
     updated_at = serializers.DateTimeField()
     project_templates = ProjectTemplateClassroomSerializer(many=True)
-    helpful_resources = HelpfulResourceSerializer(many=True)
+    helpful_resources = serializers.SerializerMethodField()
     managers = serializers.SerializerMethodField()
+
+    def get_project_templates(self, classroom_template):
+        project_templates = ProjectTemplate.objects.filter(classroom_template=classroom_template)
+        return ProjectTemplateClassroomSerializer(project_templates, many=True).data
 
     def get_managers(self, classroom_template_id):
         classroom_template_managers = ClassroomTemplateManager.objects.filter(classroom_template=classroom_template_id)
@@ -166,9 +239,13 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
                                                                                    many=True)
         return classroom_template_manager_serializer.data
 
+    def get_helpful_resources(self, classroom_template_id):
+        helpful_resources = HelpfulResource.objects.filter(classroom_template_id=classroom_template_id)
+        helpful_resource_serializer = HelpfulResourceSerializer(helpful_resources, many=True)
+        return helpful_resource_serializer.data
+
     def update(self, instance, validated_data):
         project_templates_data = validated_data.pop('project_templates', [])
-        helpful_resources_data = validated_data.pop('helpful_resources', [])
         instance = super().update(instance, validated_data)
 
         # Handle existing project templates

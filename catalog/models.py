@@ -137,7 +137,9 @@ class HelpfulResource(models.Model):
     url = models.URLField(max_length=200)
 
     classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
-                                           related_name="helpful_resources")
+                                           related_name="classroom_template")
+
+
 
 
 class ProjectTemplate(RulesModel):
@@ -148,8 +150,7 @@ class ProjectTemplate(RulesModel):
     # Title of the project
     title = models.CharField(max_length=120)
 
-    classroom_templates = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
-                                            related_name='project_templates')
+    classroom_templates = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='project_templates')
 
 
 class TaskTemplate(models.Model):
@@ -207,7 +208,7 @@ class Virtualization(models.Model):
     name = models.CharField(max_length=30)
 
     # The task template that this virtualization belongs to
-    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='virtualizations')
+    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='TaskTemplate')
 
     USER_SHELL = "User Shell"  # The user interacts with the virtualization via a shell
     USER_ACCESSIBLE = "User-accessible via IP"  # The user interacts with the virtualization via an IP address
