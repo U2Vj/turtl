@@ -2,16 +2,32 @@ from rest_framework import serializers
 
 from authentication.models import User
 from catalog.models import ClassroomTemplate, ProjectTemplate, ClassroomTemplateManager, HelpfulResource, TaskTemplate, \
-    Virtualization, AcceptanceCriteria
+    Virtualization, AcceptanceCriteria, Question
+
+
+class QuestionChoiceSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Question.QuestionChoice
+        fields = '__all__'
+
+
+class QuestionSerializer(serializers.ModelSerializer):
+    choices = QuestionChoiceSerializer(many=True, read_only=False)
+
+    class Meta:
+        model = Question
+        fields = '__all__'
 
 
 class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
+    questions = QuestionSerializer(many=True, read_only=False)
+
     class Meta:
         model = AcceptanceCriteria
         fields = '__all__'
 
 
-class TaskTemplateSerializer(serializers.Serializer):
+class TaskTemplateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
     virtualization = serializers.SerializerMethodField()
@@ -19,7 +35,7 @@ class TaskTemplateSerializer(serializers.Serializer):
 
     class Meta:
         model = TaskTemplate
-        fields = ['id', 'title', 'virtualization', 'acceptance_criteria', 'type', 'regex', 'flag', 'questions']
+        fields = ['id', 'title', 'virtualization', 'acceptance_criteria']
 
     def get_virtualization(self, task_template):
         virtualization = Virtualization.objects.filter(template=task_template.id)
@@ -50,6 +66,8 @@ class TaskTemplateSerializer(serializers.Serializer):
         return instance
 
 
+
+
 class VirtualizationSerializer(serializers.Serializer):
     name = serializers.CharField()
     virtualization_role = serializers.CharField()
@@ -69,18 +87,12 @@ class ProjectTemplateDetailSerializer(serializers.ModelSerializer):
         fields = ['id', 'title', 'classroom_template_id']
 
 
-class ProjectTemplateClassroomSerializer(serializers.Serializer):
-    id = serializers.IntegerField()
-    title = serializers.CharField()
+class ProjectTemplateClassroomSerializer(serializers.ModelSerializer):
     task_templates = TaskTemplateSerializer(many=True)
 
     class Meta:
         model = ProjectTemplate
         fields = ['id', 'title', 'task_templates']
-
-    def get_task_templates(self, project_template):
-        task_templates = ProjectTemplate.objects.filter(project_template=project_template)
-        return TaskTemplateSerializer(task_templates, many=True).data
 
     def update(self, instance, validated_data):
         task_templates_data = validated_data.pop('task_templates', [])
@@ -125,8 +137,8 @@ class ClassroomTemplateManagerSerializer(serializers.Serializer):
         model = ClassroomTemplateManager
         fields = ['manager', 'added_at']
 
-    def get_User(self, manager_id):
-        user = User.objects.get(id=manager_id)
+    def get_manager(self, obj):
+        user = obj.manager
         user_serializer = UserSerializer(user)
         return user_serializer.data
 
@@ -145,12 +157,8 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField()
     updated_at = serializers.DateTimeField()
     project_templates = ProjectTemplateClassroomSerializer(many=True)
-    helpful_resources = serializers.SerializerMethodField()
+    helpful_resources = HelpfulResourceSerializer(many=True)
     managers = serializers.SerializerMethodField()
-
-    def get_project_templates(self, classroom_template):
-        project_templates = ProjectTemplate.objects.filter(classroom_template=classroom_template)
-        return ProjectTemplateClassroomSerializer(project_templates, many=True).data
 
     def get_managers(self, classroom_template_id):
         classroom_template_managers = ClassroomTemplateManager.objects.filter(classroom_template=classroom_template_id)
@@ -158,13 +166,9 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
                                                                                    many=True)
         return classroom_template_manager_serializer.data
 
-    def get_helpful_resources(self, classroom_template_id):
-        helpful_resources = HelpfulResource.objects.filter(classroom_template_id=classroom_template_id)
-        helpful_resource_serializer = HelpfulResourceSerializer(helpful_resources, many=True)
-        return helpful_resource_serializer.data
-
     def update(self, instance, validated_data):
         project_templates_data = validated_data.pop('project_templates', [])
+        helpful_resources_data = validated_data.pop('helpful_resources', [])
         instance = super().update(instance, validated_data)
 
         # Handle existing project templates
