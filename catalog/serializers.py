@@ -256,15 +256,16 @@ class UserSerializer(serializers.Serializer):
 
 
 class ClassroomTemplateManagerSerializer(serializers.Serializer):
-    manager = serializers.SerializerMethodField()
+    id = serializers.IntegerField(required=False)
+    user = UserSerializer()
     added_at = serializers.DateTimeField()
 
     class Meta:
         model = ClassroomTemplateManager
-        fields = ['manager', 'added_at']
+        fields = ['id', 'user', 'added_at']
 
     def get_manager(self, obj):
-        user = obj.manager
+        user = obj.user
         user_serializer = UserSerializer(user)
         return user_serializer.data
 
@@ -286,7 +287,7 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
     updated_at = serializers.DateTimeField()
     project_templates = ProjectTemplateClassroomSerializer(many=True)
     helpful_resources = HelpfulResourceSerializer(many=True)
-    managers = serializers.SerializerMethodField()
+    managers = ClassroomTemplateManagerSerializer(many=True)
 
     def get_project_templates(self, classroom_template):
         project_templates = ProjectTemplate.objects.filter(classroom_template=classroom_template)
@@ -306,6 +307,7 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         project_templates_data = validated_data.pop('project_templates', [])
         helpful_resources_data = validated_data.pop('helpful_resources', [])
+        managers_data = validated_data.pop('managers', [])
         instance = super().update(instance, validated_data)
 
         # Handle project templates
@@ -335,6 +337,24 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
             else:
                 resource_data['classroom_template'] = instance
                 HelpfulResource.objects.create(**resource_data)
+
+        # Handle managers
+        for manager_data in managers_data:
+            manager_id = manager_data.get('id', None)
+            if manager_id:
+                manager_instance = ClassroomTemplateManager.objects.get(id=manager_id)
+                manager_user_data = manager_data.pop('user', {})
+                for key, value in manager_data.items():
+                    setattr(manager_instance, key, value)
+                manager_instance.save()
+                user_instance = manager_instance.user
+                for key, value in manager_user_data.items():
+                    setattr(user_instance, key, value)
+                user_instance.save()
+            else:
+                user = User.objects.get(username=manager_data['user']['username'])
+                manager_data['user'] = user
+                ClassroomTemplateManager.objects.create(classroom_template=instance, **manager_data)
 
         return instance
 

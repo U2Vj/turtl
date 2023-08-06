@@ -94,9 +94,6 @@ class ClassroomTemplate(RulesModel):
     # A timestamp representing when this object was last updated.
     updated_at = models.DateTimeField(auto_now=True)
 
-    managers = models.ManyToManyField(User, related_name='classroom_templates', through="ClassroomTemplateManager",
-                                      through_fields=('classroom_template', 'manager'))
-
     # Permissions
     class Meta:
         rules_permissions = {
@@ -119,8 +116,8 @@ class ClassroomTemplateManager(models.Model):
         ClassroomTemplate. It also contains an added_by field which references the user who added the manager to the
         ClassroomTemplate.
     """
-    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE)
-    manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='classroomtemplatemanager_set_manager')
+    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='managers')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='classroomtemplatemanager_set_manager')
     added_at = models.DateTimeField(auto_now_add=True)
 
     # Please note that it is possible for a user to delete their account. When manager A added another manager B but
