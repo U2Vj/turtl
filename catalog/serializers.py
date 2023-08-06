@@ -25,6 +25,21 @@ class QuestionSerializer(serializers.ModelSerializer):
         model = Question
         fields = '__all__'
 
+    def create(self, validated_data):
+        # Extract choices data from the validated_data
+        choices_data = validated_data.pop('choices', [])
+
+        # Create the Question instance
+        question = Question.objects.create(**validated_data)
+
+        # Create related QuestionChoice instances
+        for choice_data in choices_data:
+            if 'id' in choice_data:
+                choice_data.pop('id')
+            QuestionChoice.objects.create(question=question, **choice_data)
+
+        return question
+
     def update(self, instance, validated_data):
         choices_data = validated_data.pop('choices', None)
 
@@ -78,20 +93,21 @@ class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
             instance.regex = ""
             instance.flag = ""
         elif instance.criteria_type == AcceptanceCriteria.QUESTIONNAIRE:
-            questions_data = validated_data.pop('questions', None)
-            if questions_data:
-                for question_data in questions_data:
-                    question_id = question_data.pop('id', None)
-                    if question_id:
-                        question_instance = Question.objects.get(id=question_id)
-                        question_serializer = QuestionSerializer(question_instance, data=question_data)
-                        if question_serializer.is_valid():
-                            question_serializer.save()
-                    else:
-                        question = Question.objects.create(**question_data)
-                        instance.questions.add(question)
-                        for choice_data in question_data.pop('choices', []):
-                            QuestionChoice.objects.create(question=question, **choice_data)
+            questions_data = validated_data.pop('questions', [])
+
+            for question_data in questions_data:
+                question_id = question_data.pop('id', None)
+
+                if question_id:
+                    question_instance = Question.objects.get(id=question_id)
+                    question_serializer = QuestionSerializer(question_instance, data=question_data)
+                else:
+                    # Use the nested serializer to handle both Question and its Choices creation
+                    question_serializer = QuestionSerializer(data=question_data)
+
+                # This will handle both creation of new Questions and updating existing ones
+                if question_serializer.is_valid():
+                    question_serializer.save()
             instance.regex = ""
             instance.flag = ""
         elif instance.criteria_type == AcceptanceCriteria.REGEX:
