@@ -270,12 +270,13 @@ class ClassroomTemplateManagerSerializer(serializers.Serializer):
 
 
 class HelpfulResourceSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=False)
     title = serializers.CharField()
     url = serializers.CharField()
 
     class Meta:
         model = HelpfulResource
-        fields = ['title', 'url']
+        fields = ['id', 'title', 'url']
 
 
 class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
@@ -284,7 +285,7 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
     created_at = serializers.DateTimeField()
     updated_at = serializers.DateTimeField()
     project_templates = ProjectTemplateClassroomSerializer(many=True)
-    helpful_resources = serializers.SerializerMethodField()
+    helpful_resources = HelpfulResourceSerializer(many=True)
     managers = serializers.SerializerMethodField()
 
     def get_project_templates(self, classroom_template):
@@ -304,9 +305,10 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         project_templates_data = validated_data.pop('project_templates', [])
+        helpful_resources_data = validated_data.pop('helpful_resources', [])
         instance = super().update(instance, validated_data)
 
-        # Handle existing project templates
+        # Handle project templates
         for project_template_data in project_templates_data:
             project_template_id = project_template_data.get('id', None)
             if project_template_id:
@@ -316,13 +318,23 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
                                                                                  partial=True)
                 if project_template_serializer.is_valid():
                     project_template_serializer.save()
-                else:
-                    print(project_template_serializer.errors)
             else:
                 project_template_data['classroom_template'] = instance
                 project_template_serializer = ProjectTemplateClassroomSerializer(data=project_template_data)
                 if project_template_serializer.is_valid():
                     project_template_serializer.save()
+
+        # Handle helpful resources
+        for resource_data in helpful_resources_data:
+            resource_id = resource_data.get('id', None)
+            if resource_id:
+                resource_instance = HelpfulResource.objects.get(id=resource_id)
+                for key, value in resource_data.items():
+                    setattr(resource_instance, key, value)
+                resource_instance.save()
+            else:
+                resource_data['classroom_template'] = instance
+                HelpfulResource.objects.create(**resource_data)
 
         return instance
 

@@ -137,7 +137,7 @@ class HelpfulResource(models.Model):
     url = models.URLField(max_length=200)
 
     classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
-                                           related_name="classroom_template")
+                                           related_name="helpful_resources")
 
 
 class ProjectTemplate(RulesModel):
