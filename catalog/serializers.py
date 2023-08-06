@@ -2,18 +2,24 @@ from rest_framework import serializers
 
 from authentication.models import User
 from catalog.models import ClassroomTemplate, ProjectTemplate, ClassroomTemplateManager, HelpfulResource, TaskTemplate, \
-    Virtualization, AcceptanceCriteria, Question
+    Virtualization, AcceptanceCriteria, Question, QuestionChoice
 
 
 class QuestionChoiceSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
+    answer = serializers.CharField()
+    is_correct = serializers.BooleanField()
+
     class Meta:
-        model = Question.QuestionChoice
-        fields = '__all__'
+        model = QuestionChoice
+        fields = ['id', 'answer', 'is_correct']
 
 
 class QuestionSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
-    choices = QuestionChoiceSerializer(many=True, read_only=False)
+    choices = QuestionChoiceSerializer(required=False, many=True, read_only=False)
+    question = serializers.CharField()
+    question_type = serializers.ChoiceField(choices=Question.QUESTION_TYPE_CHOICES, default=Question.SINGLE_CHOICE)
 
     class Meta:
         model = Question
@@ -22,7 +28,6 @@ class QuestionSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         choices_data = validated_data.pop('choices', None)
 
-        # Update the question's attributes excluding the choices field
         for key, value in validated_data.items():
             setattr(instance, key, value)
         instance.save()
@@ -33,15 +38,13 @@ class QuestionSerializer(serializers.ModelSerializer):
             for choice_data in choices_data:
                 choice_id = choice_data.pop('id', None)
                 if choice_id:
-                    # If the choice exists, update it
-                    choice_instance = Question.QuestionChoice.objects.get(id=choice_id)
+                    choice_instance = QuestionChoice.objects.get(id=choice_id)
                     for k, v in choice_data.items():
                         setattr(choice_instance, k, v)
                     choice_instance.save()
                 else:
-                    # If it's a new choice, create it
-                    choice_instance = Question.QuestionChoice.objects.create(**choice_data)
-                new_choices.append(choice_instance)
+                    choice_instance = QuestionChoice.objects.create(question=instance, **choice_data)
+                    new_choices.append(choice_instance)
 
             # Update the question's choices
             instance.choices.set(new_choices)
@@ -50,6 +53,7 @@ class QuestionSerializer(serializers.ModelSerializer):
 
 
 class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     questions = QuestionSerializer(many=True, read_only=False, required=False)
 
     class Meta:
@@ -64,7 +68,7 @@ class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
             question = Question.objects.create(**question_data)
             acceptance_criteria.questions.add(question)
             for choice_data in choices_data:
-                Question.QuestionChoice.objects.create(question=question, **choice_data)
+                QuestionChoice.objects.create(question=question, **choice_data)
         return acceptance_criteria
 
     def update(self, instance, validated_data):
@@ -84,7 +88,10 @@ class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
                         if question_serializer.is_valid():
                             question_serializer.save()
                     else:
-                        Question.objects.create(**question_data)
+                        question = Question.objects.create(**question_data)
+                        instance.questions.add(question)
+                        for choice_data in question_data.pop('choices', []):
+                            QuestionChoice.objects.create(question=question, **choice_data)
             instance.regex = ""
             instance.flag = ""
         elif instance.criteria_type == AcceptanceCriteria.REGEX:
@@ -151,7 +158,7 @@ class VirtualizationSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'virtualization_role', 'docker_compose_file']
 
 
-class TaskTemplateSerializer(serializers.Serializer):
+class TaskTemplateSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=True)
     title = serializers.CharField()
     description = serializers.CharField()
@@ -162,7 +169,7 @@ class TaskTemplateSerializer(serializers.Serializer):
 
     class Meta:
         model = TaskTemplate
-        fields = ['id', 'title', 'virtualizations', 'acceptance_criteria']
+        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'virtualizations', 'acceptance_criteria']
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
@@ -175,7 +182,8 @@ class TaskTemplateSerializer(serializers.Serializer):
         for virtualization_data in virtualizations_data:
             virtualization_id = virtualization_data.get('id')
             virtualization_instance = Virtualization.objects.get(id=virtualization_id)
-            virtualization_serializer = VirtualizationSerializer(virtualization_instance, data=virtualization_data, partial=True)
+            virtualization_serializer = VirtualizationSerializer(virtualization_instance, data=virtualization_data,
+                                                                 partial=True)
 
             if virtualization_serializer.is_valid():
                 virtualization_serializer.save(template=instance)
@@ -195,14 +203,13 @@ class TaskTemplateSerializer(serializers.Serializer):
 
 class ProjectTemplateDetailSerializer(serializers.ModelSerializer):
     title = serializers.CharField()
-    classroom_template_id = serializers.IntegerField()
 
     class Meta:
         model = ProjectTemplate
-        fields = ['id', 'title', 'classroom_template_id']
+        fields = ['id', 'title']
 
 
-class ProjectTemplateClassroomSerializer(serializers.Serializer):
+class ProjectTemplateClassroomSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     title = serializers.CharField()
     task_templates = TaskTemplateSerializer(many=True)
@@ -221,22 +228,15 @@ class ProjectTemplateClassroomSerializer(serializers.Serializer):
         # Handle existing and new task templates
         for task_template_data in task_templates_data:
             task_template_id = task_template_data.get('id', None)
-            if task_template_id:
-                task_template = instance.task_templates.get(id=task_template_id)
-                task_template_serializer = TaskTemplateSerializer(task_template, data=task_template_data, partial=True)
-                if task_template_serializer.is_valid():
-                    task_template_serializer.save()
-            else:
-                # Create new task template
-                task_template_data['project_template'] = instance
-                task_template_serializer = TaskTemplateSerializer(data=task_template_data)
-                if task_template_serializer.is_valid():
-                    task_template_serializer.save()
+            task_template = instance.task_templates.get(id=task_template_id)
+            task_template_serializer = TaskTemplateSerializer(task_template, data=task_template_data, partial=True)
+            if task_template_serializer.is_valid():
+                task_template_serializer.save()
 
         return instance
 
 
-class UserSerializer(serializers.Serializer):
+class UserSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     username = serializers.CharField()
     email = serializers.CharField()
@@ -246,8 +246,8 @@ class UserSerializer(serializers.Serializer):
         fields = ['id', 'username', 'email']
 
 
-class ClassroomTemplateManagerSerializer(serializers.Serializer):
-    id = serializers.IntegerField(required=False)
+class ClassroomTemplateManagerSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField()
     user = UserSerializer()
     added_at = serializers.DateTimeField()
 
@@ -256,7 +256,7 @@ class ClassroomTemplateManagerSerializer(serializers.Serializer):
         fields = ['id', 'user', 'added_at']
 
 
-class HelpfulResourceSerializer(serializers.Serializer):
+class HelpfulResourceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(required=False)
     title = serializers.CharField()
     url = serializers.CharField()
@@ -284,18 +284,12 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
         # Handle project templates
         for project_template_data in project_templates_data:
             project_template_id = project_template_data.get('id', None)
-            if project_template_id:
-                project_template = instance.project_templates.get(id=project_template_id)
-                project_template_serializer = ProjectTemplateClassroomSerializer(project_template,
-                                                                                 data=project_template_data,
-                                                                                 partial=True)
-                if project_template_serializer.is_valid():
-                    project_template_serializer.save()
-            else:
-                project_template_data['classroom_template'] = instance
-                project_template_serializer = ProjectTemplateClassroomSerializer(data=project_template_data)
-                if project_template_serializer.is_valid():
-                    project_template_serializer.save()
+            project_template = instance.project_templates.get(id=project_template_id)
+            project_template_serializer = ProjectTemplateClassroomSerializer(project_template,
+                                                                             data=project_template_data,
+                                                                             partial=True)
+            if project_template_serializer.is_valid():
+                project_template_serializer.save()
 
         # Handle helpful resources
         for resource_data in helpful_resources_data:
@@ -331,7 +325,8 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClassroomTemplate
-        fields = ['id', 'title', 'description', 'created_at', 'updated_at', 'project_templates', 'helpful_resources', 'managers']
+        fields = ['id', 'title', 'description', 'created_at', 'updated_at', 'project_templates', 'helpful_resources',
+                  'managers']
 
 
 class ClassroomTemplateSerializer(serializers.ModelSerializer):

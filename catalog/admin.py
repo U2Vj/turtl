@@ -1,6 +1,6 @@
 from django.contrib import admin
 from .models import (ClassroomTemplate, ClassroomTemplateManager, ProjectTemplate, TaskTemplate, \
-                     AcceptanceCriteria, Question, HelpfulResource, Virtualization)
+                     AcceptanceCriteria, Question, QuestionChoice, HelpfulResource, Virtualization)
 
 # Register your models here.
 admin.site.register(ClassroomTemplate)
@@ -15,7 +15,7 @@ admin.site.register(AcceptanceCriteria)
 
 admin.site.register(Question)
 
-admin.site.register(Question.QuestionChoice)
+admin.site.register(QuestionChoice)
 
 admin.site.register(HelpfulResource)
 

@@ -7,25 +7,12 @@ from authentication.predicates import is_manager, is_administrator, is_instructo
 
 class Question(models.Model):
     """
-        A question that the user has to answer to prove that they have completed the task.
-        Part of an AcceptanceCriteriaQuestionnaire.
+    A question that the user has to answer to prove that they have completed the task.
+    Part of an AcceptanceCriteriaQuestionnaire.
     """
 
     # The question that the user has to answer to prove that they have completed the task
     question = models.CharField(max_length=200)
-
-    class QuestionChoice(models.Model):
-        """
-            A QuestionChoice is a possible answer to a question.
-        """
-
-        # A possible answer to the question
-        answer = models.CharField(max_length=200)
-        # Whether this answer is correct
-        is_correct = models.BooleanField(default=False)
-
-    # The possible choices for the question
-    choices = models.ManyToManyField(QuestionChoice, related_name='questionChoices')
 
     SINGLE_CHOICE = "single_choice"  # Single choice question
     MULTIPLE_CHOICE = "multiple_choice"  # Multiple choice question
@@ -38,6 +25,19 @@ class Question(models.Model):
 
     # Type of the question, i.e. whether it is a single choice or multiple choice question
     question_type = models.CharField(choices=QUESTION_TYPE_CHOICES, default=SINGLE_CHOICE, max_length=20)
+
+
+class QuestionChoice(models.Model):
+    """
+    A QuestionChoice is a possible answer to a question.
+    """
+
+    # A possible answer to the question
+    answer = models.CharField(max_length=200)
+    # Whether this answer is correct
+    is_correct = models.BooleanField(default=False)
+    # Linking each choice to a question
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
 
 
 class AcceptanceCriteria(models.Model):
@@ -145,7 +145,7 @@ class ProjectTemplate(RulesModel):
     # Title of the project
     title = models.CharField(max_length=120)
 
-    classroom_templates = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
+    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
                                             related_name='project_templates')
 
 
