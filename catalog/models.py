@@ -140,8 +140,6 @@ class HelpfulResource(models.Model):
                                            related_name="classroom_template")
 
 
-
-
 class ProjectTemplate(RulesModel):
     """
         A ProjectTemplate is a template that is used to create a Project.
@@ -150,7 +148,8 @@ class ProjectTemplate(RulesModel):
     # Title of the project
     title = models.CharField(max_length=120)
 
-    classroom_templates = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='project_templates')
+    classroom_templates = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
+                                            related_name='project_templates')
 
 
 class TaskTemplate(models.Model):
@@ -167,9 +166,9 @@ class TaskTemplate(models.Model):
     # Description of the task
     description = models.TextField()
 
-    NEUTRAL = 'N'  # Neutral type
-    DEFENSE = 'DE'  # Defense type
-    ATTACK = 'AT'  # Attack type
+    NEUTRAL = 'neutral'  # Neutral type
+    DEFENSE = 'defense'  # Defense type
+    ATTACK = 'attack'  # Attack type
 
     # Possible choices for the task type
     TASK_TYPE_CHOICES = [
@@ -181,9 +180,9 @@ class TaskTemplate(models.Model):
     # Type of the task, i.e. whether it is a neutral, defense or attack task
     task_type = models.CharField(choices=TASK_TYPE_CHOICES, max_length=12)
 
-    BEGINNER = "Beginner"  # Beginner difficulty
-    INTERMEDIATE = "Intermediate"  # Intermediate difficulty
-    ADVANCED = "Advanced"  # Advanced difficulty
+    BEGINNER = "beginner"  # Beginner difficulty
+    INTERMEDIATE = "intermediate"  # Intermediate difficulty
+    ADVANCED = "advanced"  # Advanced difficulty
 
     # Possible choices for the difficulty of a task
     DIFFICULTY_CHOICES = [
@@ -208,10 +207,10 @@ class Virtualization(models.Model):
     name = models.CharField(max_length=30)
 
     # The task template that this virtualization belongs to
-    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='TaskTemplate')
+    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='virtualizations')
 
-    USER_SHELL = "User Shell"  # The user interacts with the virtualization via a shell
-    USER_ACCESSIBLE = "User-accessible via IP"  # The user interacts with the virtualization via an IP address
+    USER_SHELL = "user_shell"  # The user interacts with the virtualization via a shell
+    USER_ACCESSIBLE = "user_accessible"  # The user interacts with the virtualization via an IP address
 
     # Choices for the virtualization role (i.e. how the user interacts with the virtualization)
     ROLE_CHOICES = [

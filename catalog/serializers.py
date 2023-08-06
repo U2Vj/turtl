@@ -140,15 +140,29 @@ class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
         return data
 
 
-class TaskTemplateSerializer(serializers.Serializer):
+class VirtualizationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
+    name = serializers.CharField()
+    virtualization_role = serializers.CharField()
+    docker_compose_file = serializers.FileField(read_only=True)
+
+    class Meta:
+        model = Virtualization
+        fields = ['id', 'name', 'virtualization_role', 'docker_compose_file']
+
+
+class TaskTemplateSerializer(serializers.Serializer):
+    id = serializers.IntegerField(required=True)
     title = serializers.CharField()
-    virtualization = serializers.SerializerMethodField()
+    description = serializers.CharField()
+    task_type = serializers.ChoiceField(choices=TaskTemplate.TASK_TYPE_CHOICES)
+    difficulty = serializers.ChoiceField(choices=TaskTemplate.DIFFICULTY_CHOICES)
+    virtualizations = VirtualizationSerializer(many=True)
     acceptance_criteria = AcceptanceCriteriaSerializer()
 
     class Meta:
         model = TaskTemplate
-        fields = ['id', 'title', 'virtualization', 'acceptance_criteria']
+        fields = ['id', 'title', 'virtualizations', 'acceptance_criteria']
 
     def get_virtualization(self, task_template):
         virtualization = Virtualization.objects.filter(template=task_template.id)
@@ -157,14 +171,19 @@ class TaskTemplateSerializer(serializers.Serializer):
 
     def update(self, instance, validated_data):
         instance.title = validated_data.get('title', instance.title)
+        instance.description = validated_data.get('description', instance.description)
+        instance.task_type = validated_data.get('task_type', instance.task_type)
+        instance.difficulty = validated_data.get('difficulty', instance.difficulty)
 
         # Handle virtualization update
-        virtualization_data = validated_data.pop('virtualization', [])
-        for item_data in virtualization_data:
-            virtualization_instance = Virtualization.objects.get(id=item_data['id'])
-            virtualization_serializer = VirtualizationSerializer(virtualization_instance, data=item_data)
+        virtualizations_data = validated_data.pop('virtualizations', [])
+        for virtualization_data in virtualizations_data:
+            virtualization_id = virtualization_data.get('id')
+            virtualization_instance = Virtualization.objects.get(id=virtualization_id)
+            virtualization_serializer = VirtualizationSerializer(virtualization_instance, data=virtualization_data, partial=True)
+
             if virtualization_serializer.is_valid():
-                virtualization_serializer.save()
+                virtualization_serializer.save(template=instance)
 
         # Handle acceptance criteria update
         acceptance_criteria_data = validated_data.pop('acceptance_criteria', None)
@@ -177,16 +196,6 @@ class TaskTemplateSerializer(serializers.Serializer):
 
         instance.save()
         return instance
-
-
-class VirtualizationSerializer(serializers.Serializer):
-    name = serializers.CharField()
-    virtualization_role = serializers.CharField()
-    docker_compose_file = serializers.FileField()
-
-    class Meta:
-        model = Virtualization
-        fields = ['name', 'virtualization_role', 'docker_compose_file']
 
 
 class ProjectTemplateDetailSerializer(serializers.ModelSerializer):
@@ -271,6 +280,7 @@ class HelpfulResourceSerializer(serializers.Serializer):
 
 class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
     title = serializers.CharField()
+    description = serializers.CharField()
     created_at = serializers.DateTimeField()
     updated_at = serializers.DateTimeField()
     project_templates = ProjectTemplateClassroomSerializer(many=True)
@@ -306,6 +316,8 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
                                                                                  partial=True)
                 if project_template_serializer.is_valid():
                     project_template_serializer.save()
+                else:
+                    print(project_template_serializer.errors)
             else:
                 project_template_data['classroom_template'] = instance
                 project_template_serializer = ProjectTemplateClassroomSerializer(data=project_template_data)
@@ -316,7 +328,7 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClassroomTemplate
-        fields = ['id', 'title', 'created_at', 'updated_at', 'project_templates', 'helpful_resources', 'managers']
+        fields = ['id', 'title', 'description', 'created_at', 'updated_at', 'project_templates', 'helpful_resources', 'managers']
 
 
 class ClassroomTemplateSerializer(serializers.ModelSerializer):
