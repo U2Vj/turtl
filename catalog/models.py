@@ -27,8 +27,8 @@ class Question(models.Model):
     # The possible choices for the question
     choices = models.ManyToManyField(QuestionChoice, related_name='questionChoices')
 
-    SINGLE_CHOICE = 0  # Single choice question
-    MULTIPLE_CHOICE = 1  # Multiple choice question
+    SINGLE_CHOICE = "single_choice"  # Single choice question
+    MULTIPLE_CHOICE = "multiple_choice"  # Multiple choice question
 
     # Possible choices for the question type
     QUESTION_TYPE_CHOICES = [
@@ -37,7 +37,7 @@ class Question(models.Model):
     ]
 
     # Type of the question, i.e. whether it is a single choice or multiple choice question
-    question_type = models.IntegerField(choices=QUESTION_TYPE_CHOICES, default=SINGLE_CHOICE)
+    question_type = models.CharField(choices=QUESTION_TYPE_CHOICES, default=SINGLE_CHOICE, max_length=20)
 
 
 class AcceptanceCriteria(models.Model):

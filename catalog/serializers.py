@@ -12,15 +12,45 @@ class QuestionChoiceSerializer(serializers.ModelSerializer):
 
 
 class QuestionSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(required=False)
     choices = QuestionChoiceSerializer(many=True, read_only=False)
 
     class Meta:
         model = Question
         fields = '__all__'
 
+    def update(self, instance, validated_data):
+        choices_data = validated_data.pop('choices', None)
+
+        # Update the question's attributes excluding the choices field
+        for key, value in validated_data.items():
+            setattr(instance, key, value)
+        instance.save()
+
+        # Handle choices
+        if choices_data:
+            new_choices = []
+            for choice_data in choices_data:
+                choice_id = choice_data.pop('id', None)
+                if choice_id:
+                    # If the choice exists, update it
+                    choice_instance = Question.QuestionChoice.objects.get(id=choice_id)
+                    for k, v in choice_data.items():
+                        setattr(choice_instance, k, v)
+                    choice_instance.save()
+                else:
+                    # If it's a new choice, create it
+                    choice_instance = Question.QuestionChoice.objects.create(**choice_data)
+                new_choices.append(choice_instance)
+
+            # Update the question's choices
+            instance.choices.set(new_choices)
+
+        return instance
+
 
 class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
-    questions = QuestionSerializer(many=True, read_only=False)
+    questions = QuestionSerializer(many=True, read_only=False, required=False)
 
     class Meta:
         model = AcceptanceCriteria
@@ -45,19 +75,16 @@ class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
             instance.flag = ""
         elif instance.criteria_type == AcceptanceCriteria.QUESTIONNAIRE:
             questions_data = validated_data.pop('questions', None)
-            new_questions = []
             if questions_data:
                 for question_data in questions_data:
                     question_id = question_data.pop('id', None)
                     if question_id:
-                        question = Question.objects.get(id=question_id)
-                        for key, value in question_data.items():
-                            setattr(question, key, value)
-                        question.save()
+                        question_instance = Question.objects.get(id=question_id)
+                        question_serializer = QuestionSerializer(question_instance, data=question_data)
+                        if question_serializer.is_valid():
+                            question_serializer.save()
                     else:
-                        question = Question.objects.create(**question_data)
-                    new_questions.append(question)
-            instance.questions.set(new_questions)  # Use set() here
+                        Question.objects.create(**question_data)
             instance.regex = ""
             instance.flag = ""
         elif instance.criteria_type == AcceptanceCriteria.REGEX:
@@ -88,6 +115,27 @@ class AcceptanceCriteriaSerializer(serializers.ModelSerializer):
         elif instance.criteria_type == AcceptanceCriteria.FLAG:
             data.pop('questions', None)
             data.pop('regex', None)
+
+        return data
+
+    def validate(self, data):
+        criteria_type = data.get('criteria_type')
+
+        if criteria_type == AcceptanceCriteria.MANUAL:
+            if data.get('questions') or data.get('regex') or data.get('flag'):
+                raise serializers.ValidationError("For MANUAL type, questions, regex, and flag should not be provided.")
+
+        elif criteria_type == AcceptanceCriteria.QUESTIONNAIRE:
+            if not data.get('questions') or data.get('regex') or data.get('flag'):
+                raise serializers.ValidationError("For QUESTIONNAIRE type, only questions should be provided.")
+
+        elif criteria_type == AcceptanceCriteria.REGEX:
+            if data.get('questions') or not data.get('regex') or data.get('flag'):
+                raise serializers.ValidationError("For REGEX type, only regex should be provided.")
+
+        elif criteria_type == AcceptanceCriteria.FLAG:
+            if data.get('questions') or data.get('regex') or not data.get('flag'):
+                raise serializers.ValidationError("For FLAG type, only flag should be provided.")
 
         return data
 
