@@ -5,8 +5,74 @@ from authentication.models import User
 from authentication.predicates import is_manager, is_administrator, is_instructor
 
 
-class ProjectTemplate(models.Model):
-    pass
+class Question(models.Model):
+    """
+    A question that the user has to answer to prove that they have completed the task.
+    Part of an AcceptanceCriteriaQuestionnaire.
+    """
+
+    # The question that the user has to answer to prove that they have completed the task
+    question = models.CharField(max_length=200)
+
+    SINGLE_CHOICE = "single_choice"  # Single choice question
+    MULTIPLE_CHOICE = "multiple_choice"  # Multiple choice question
+
+    # Possible choices for the question type
+    QUESTION_TYPE_CHOICES = [
+        (SINGLE_CHOICE, "Single choice"),
+        (MULTIPLE_CHOICE, "Multiple choice")
+    ]
+
+    # Type of the question, i.e. whether it is a single choice or multiple choice question
+    question_type = models.CharField(choices=QUESTION_TYPE_CHOICES, default=SINGLE_CHOICE, max_length=20)
+
+
+class QuestionChoice(models.Model):
+    """
+    A QuestionChoice is a possible answer to a question.
+    """
+
+    # A possible answer to the question
+    answer = models.CharField(max_length=200)
+    # Whether this answer is correct
+    is_correct = models.BooleanField(default=False)
+    # Linking each choice to a question
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name='choices')
+
+
+class AcceptanceCriteria(models.Model):
+    """
+    An AcceptanceCriteria is a set of rules that define how the user can prove that they have completed the task.
+    This is the superclass of all supported acceptance criteria types.
+    """
+
+    MANUAL = 'manual'
+    QUESTIONNAIRE = 'questionnaire'
+    REGEX = 'regex'
+    FLAG = 'flag'
+
+    CRITERIA_TYPE_CHOICES = [
+        (MANUAL, 'Manual'),
+        (QUESTIONNAIRE, 'Questionnaire'),
+        (REGEX, 'Regex'),
+        (FLAG, 'Flag'),
+    ]
+
+    criteria_type = models.CharField(
+        choices=CRITERIA_TYPE_CHOICES,
+        default=MANUAL,
+        max_length=20
+    )
+
+    # Additional fields for each criteria type, if necessary
+    questions = models.ManyToManyField(Question, blank=True)
+    regex = models.CharField(max_length=200, blank=True)
+    flag = models.CharField(max_length=50, blank=True)
+
+    # Add any other common fields for all criteria types here
+
+    def __str__(self):
+        return f"{self.get_criteria_type_display()} Acceptance Criteria"
 
 
 class ClassroomTemplate(RulesModel):
@@ -15,8 +81,9 @@ class ClassroomTemplate(RulesModel):
         It has a ManyToMany relationship (managers) to the User model and a ManyToMany relationship to the
         ProjectTemplate model.
     """
+
     # A ClassroomTemplate has a title e.g.: Eternal Blue Exploit
-    title = models.CharField(max_length=120)
+    title = models.CharField(max_length=120, unique=True)
 
     # A ClassroomTemplate has a description e.g.: Eternal Blue is the exploit CVE-2017-0144
     description = models.TextField()
@@ -26,11 +93,6 @@ class ClassroomTemplate(RulesModel):
 
     # A timestamp representing when this object was last updated.
     updated_at = models.DateTimeField(auto_now=True)
-
-    managers = models.ManyToManyField(User, related_name='classroom_templates', through="ClassroomTemplateManager",
-                                      through_fields=('classroom_template', 'manager'))
-
-    project_templates = models.ManyToManyField(ProjectTemplate, related_name='classroom_templates')
 
     # Permissions
     class Meta:
@@ -67,8 +129,8 @@ class ClassroomTemplateManager(models.Model):
         ClassroomTemplate. It also contains an added_by field which references the user who added the manager to the
         ClassroomTemplate.
     """
-    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE)
-    manager = models.ForeignKey(User, on_delete=models.CASCADE, related_name='classroomtemplatemanager_set_manager')
+    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='managers')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='classroomtemplatemanager_set_manager')
     added_at = models.DateTimeField(auto_now_add=True)
 
     # Please note that it is possible for a user to delete their account. When manager A added another manager B but
@@ -77,3 +139,97 @@ class ClassroomTemplateManager(models.Model):
     # NULL (which is why it is nullable).
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
                                  related_name='classroomtemplatemanager_set_added_by')
+
+
+class HelpfulResource(models.Model):
+    title = models.CharField(max_length=120, unique=True)
+
+    url = models.URLField(max_length=200)
+
+    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
+                                           related_name="helpful_resources")
+
+
+class ProjectTemplate(RulesModel):
+    """
+        A ProjectTemplate is a template that is used to create a Project.
+    """
+
+    # Title of the project
+    title = models.CharField(max_length=120)
+
+    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
+                                            related_name='project_templates')
+
+
+class TaskTemplate(models.Model):
+    """
+        A TaskTemplate is a template that is used to create a Task.
+    """
+
+    # Title of the task
+    title = models.CharField(max_length=50)
+
+    # The project template that this task template belongs to
+    project_template = models.ForeignKey(ProjectTemplate, on_delete=models.CASCADE, related_name='task_templates')
+
+    # Description of the task
+    description = models.TextField()
+
+    NEUTRAL = 'neutral'  # Neutral type
+    DEFENSE = 'defense'  # Defense type
+    ATTACK = 'attack'  # Attack type
+
+    # Possible choices for the task type
+    TASK_TYPE_CHOICES = [
+        (NEUTRAL, "Neutral"),
+        (DEFENSE, "Defense"),
+        (ATTACK, "Attack")
+    ]
+
+    # Type of the task, i.e. whether it is a neutral, defense or attack task
+    task_type = models.CharField(choices=TASK_TYPE_CHOICES, max_length=12)
+
+    BEGINNER = "beginner"  # Beginner difficulty
+    INTERMEDIATE = "intermediate"  # Intermediate difficulty
+    ADVANCED = "advanced"  # Advanced difficulty
+
+    # Possible choices for the difficulty of a task
+    DIFFICULTY_CHOICES = [
+        (BEGINNER, "Beginner"),
+        (INTERMEDIATE, "Intermediate"),
+        (ADVANCED, "Advanced")
+    ]
+
+    # Difficulty of the task
+    difficulty = models.CharField(choices=DIFFICULTY_CHOICES, max_length=12)
+
+    # The acceptance criteria for this task, meaning how the user can prove that they have completed the task
+    acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
+
+
+class Virtualization(models.Model):
+    """
+        A Virtualization is a virtual machine that is created for a task.
+    """
+
+    # Name of the virtualization
+    name = models.CharField(max_length=30)
+
+    # The task template that this virtualization belongs to
+    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='virtualizations')
+
+    USER_SHELL = "user_shell"  # The user interacts with the virtualization via a shell
+    USER_ACCESSIBLE = "user_accessible"  # The user interacts with the virtualization via an IP address
+
+    # Choices for the virtualization role (i.e. how the user interacts with the virtualization)
+    ROLE_CHOICES = [
+        (USER_SHELL, "User Shell"),
+        (USER_ACCESSIBLE, "User-accessible via IP"),
+    ]
+
+    # Role of virtualization (i.e. how the user interacts with the virtualization)
+    virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=30)
+
+    # File of the docker-compose.yml that is used to create the virtualization
+    docker_compose_file = models.FileField(upload_to='')
