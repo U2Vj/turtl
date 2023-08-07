@@ -109,19 +109,6 @@ class ClassroomTemplate(RulesModel):
         }
 
 
-class HelpfulResource(models.Model):
-    """
-        This model is used for the list of links that managers can add to a ClassroomTemplate. They are intended to
-        provide helpful resources for classroom participants.
-    """
-    # Each helpful resource has exactly one ClassroomTemplate
-    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='helpful_resources')
-    # they consist of exactly one title which can be NULL
-    title = models.CharField(max_length=48, blank=True, null=True)
-    # and a URL to the Resource
-    url = models.TextField()
-
-
 class ClassroomTemplateManager(models.Model):
     """
         This model defines the relationship between a ClassroomTemplate and a User (i.e. a manager). It consists of the
