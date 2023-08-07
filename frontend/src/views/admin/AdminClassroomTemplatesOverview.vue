@@ -3,8 +3,10 @@ import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
+import { makeAxiosRequest } from '@/stores/AxiosInstance'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { toRef } from 'vue'
+import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
@@ -23,6 +25,18 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
   const selection = window.getSelection()
   if (selection?.toString().length === 0) {
     router.push(`templates/${item.item.raw.id}`)
+  }
+}
+
+const fetchedData = ref(null)
+
+const fetchData = async () => {
+  const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
+
+  if (response.success) {
+    fetchedData.value = response.data
+  } else {
+    console.error('An error occurred:', response.message)
   }
 }
 </script>
@@ -56,6 +70,10 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
           <TextButton buttonName="Edit" :goTo="`templates/${item.raw.id}`"></TextButton>
         </template>
       </v-data-table>
+      <PrimaryButton buttonName="Fetch Data" @click="fetchData"></PrimaryButton>
+      <div v-if="fetchedData">
+        <p>{{ fetchedData }}</p>
+      </div>
     </template>
   </DefaultLayout>
 </template>
