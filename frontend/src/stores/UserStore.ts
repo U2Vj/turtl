@@ -31,12 +31,12 @@ type RefreshTokenPayload = {
   email: string
 }
 
-export const useUserStore = defineStore('user', () => {
+export const useUserStore = defineStore('api/user', () => {
   const authStore = useAuthStore()
   const { refreshToken, accessToken } = storeToRefs(authStore)
 
   // see https://github.com/vueuse/vueuse/issues/1307 and https://vueuse.org/core/useStorage/#custom-serialization
-  const user = useStorage<User | null>('user', null, undefined, {
+  const user = useStorage<User | null>('api/user', null, undefined, {
     serializer: StorageSerializers.object
   })
 
@@ -57,7 +57,7 @@ export const useUserStore = defineStore('user', () => {
       password: logininData.user.password
     }
 
-    const response = await makeAxiosRequest('/users/login', 'POST', false, false, data)
+    const response = await makeAxiosRequest('api/users/login', 'POST', false, false, data)
     if (response.success) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
@@ -70,10 +70,11 @@ export const useUserStore = defineStore('user', () => {
     const data = {
       refresh: refreshToken
     }
-    const response = await makeAxiosRequest('/users/login/refresh', 'POST', false, true, data)
+    const response = await makeAxiosRequest('/api/users/login/refresh', 'POST', false, true, data)
     if (response.success && response.data.access && response.data.refresh) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
+      console.log('help')
       return true
     }
     return false
@@ -88,7 +89,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function resetPasswordRequest(email: string) {
     return await axios
-      .post(import.meta.env.VITE_API_URL + '/request-reset-email', {
+      .post(import.meta.env.VITE_API_URL + 'api/request-reset-email', {
         email: email
       })
       .then(() => {
@@ -103,23 +104,23 @@ export const useUserStore = defineStore('user', () => {
   // Cant use direct import because https://github.com/vitejs/vite/issues/4430#issuecomment-979013114.
   async function signOut(router: Router) {
     const data = { refresh: refreshToken.value }
-    await makeAxiosRequest('/users/logout', 'POST', true, true, data)
+    await makeAxiosRequest('api/users/logout', 'POST', true, true, data)
     refreshToken.value = null
     accessToken.value = null
     router.push('/signin')
   }
 
   async function register(user: any) {
-    return await axios.post(import.meta.env.VITE_API_URL + '/users/register', user)
+    return await axios.post(import.meta.env.VITE_API_URL + 'api/users/register', user)
   }
 
   async function testLogin() {
-    console.log(await makeAxiosRequest('users/login/test', 'GET', true, true))
+    console.log(await makeAxiosRequest('api/users/login/test', 'GET', true, true))
   }
 
   async function resetPassword(email: string, newPassword: string) {
     return await axios
-      .post(import.meta.env.VITE_API_URL + '/reset-password', {
+      .post(import.meta.env.VITE_API_URL + 'api/reset-password', {
         email: email,
         newPassword: newPassword
       })

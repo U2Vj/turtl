@@ -55,7 +55,7 @@ export async function makeAxiosRequest(
     if (tryToUpdateTokenWhenUnauthorized) {
       const data = { refresh: refreshToken.value }
       const responseToRefreshRequest = await makeAxiosRequest(
-        'users/login/refresh',
+        'api/users/login/refresh',
         'POST',
         false,
         false,
