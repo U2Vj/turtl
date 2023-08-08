@@ -60,9 +60,17 @@ export const useTemplateStore = defineStore('template', () => {
   const classroomTemplate = ref<TemplateData | undefined>()
   const basicTemplateData = ref<BasicTemplateData[]>()
 
-  async function fetchTemplate() {
+  async function fetchBasicTemplate() {
     // classroomTemplate.value = mockdata
     const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
+    if (response.success) {
+      basicTemplateData.value = response.data
+    }
+    return classroomTemplate
+  }
+
+  async function fetchTemplate(id: string) {
+    const response = await makeAxiosRequest(`/templates/${id}`, 'GET', true, true)
     if (response.success) {
       classroomTemplate.value = response.data
     }
@@ -122,6 +130,7 @@ export const useTemplateStore = defineStore('template', () => {
     classroomTemplate,
     basicTemplateData,
     fetchTemplate,
+    fetchBasicTemplate,
     changeTemplateData,
     deleteClassroomTemplate,
     getBasicTemplateData,

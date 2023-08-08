@@ -14,8 +14,8 @@ const templateStore = useTemplateStore()
 
 const props = defineProps<{ templateId: string }>()
 
-let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate()
+let templateData = toRef(templateStore, 'basicTemplateData')
+templateStore.getBasicTemplateData()
 
 // TODO: find way to import DataTableItem from vuetify
 function handleRowClick(event: Event, item: { item: { raw: any } }) {
@@ -24,15 +24,6 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
   const selection = window.getSelection()
   if (selection?.toString().length === 0) {
     router.push(`templates/${item.item.raw.id}`)
-  }
-}
-
-const fetchData = async () => {
-  const test = await templateStore.getBasicTemplateData()
-  if (test) {
-    console.log(templateData.value)
-  } else {
-    console.log('Error')
   }
 }
 
@@ -77,7 +68,6 @@ const fetchData = async () => {
           <TextButton buttonName="Edit" :goTo="`templates/${item.raw.id}`"></TextButton>
         </template>
       </v-data-table>
-      <PrimaryButton buttonName="Fetch Data" @click="fetchData"></PrimaryButton>
       <p>{{ templateData }}</p>
       <div v-for="item in templateData" :key="item.id">
         {{ item.title }}
