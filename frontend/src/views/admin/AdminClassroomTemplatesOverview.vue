@@ -3,7 +3,6 @@ import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
-import { makeAxiosRequest } from '@/stores/AxiosInstance'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { toRef } from 'vue'
 import { ref } from 'vue'
@@ -16,7 +15,7 @@ const templateStore = useTemplateStore()
 const props = defineProps<{ templateId: string }>()
 
 let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate(props.templateId)
+templateStore.fetchTemplate()
 
 // TODO: find way to import DataTableItem from vuetify
 function handleRowClick(event: Event, item: { item: { raw: any } }) {
@@ -28,17 +27,26 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
   }
 }
 
-const fetchedData = ref(null)
-
 const fetchData = async () => {
-  const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
-
-  if (response.success) {
-    fetchedData.value = response.data
+  const test = await templateStore.getBasicTemplateData()
+  if (test) {
+    console.log(templateData.value)
   } else {
-    console.error('An error occurred:', response.message)
+    console.log('Error')
   }
 }
+
+// const fetchedData = ref(null)
+
+// const fetchData = async () => {
+//   const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
+
+//   if (response.success) {
+//     fetchedData.value = response.data
+//   } else {
+//     console.error('An error occurred:', response.message)
+//   }
+// }
 </script>
 
 <template>
@@ -50,7 +58,6 @@ const fetchData = async () => {
       </PrimaryButton>
     </template>
     <template #default>
-      <p>{{ templateData.updated_at }}</p>
       <v-data-table
         :headers="[
           {
@@ -71,8 +78,9 @@ const fetchData = async () => {
         </template>
       </v-data-table>
       <PrimaryButton buttonName="Fetch Data" @click="fetchData"></PrimaryButton>
-      <div v-if="fetchedData">
-        <p>{{ fetchedData }}</p>
+      <p>{{ templateData }}</p>
+      <div v-for="item in templateData" :key="item.id">
+        {{ item.title }}
       </div>
     </template>
   </DefaultLayout>

@@ -60,9 +60,9 @@ export const useTemplateStore = defineStore('template', () => {
   const classroomTemplate = ref<TemplateData | undefined>()
   const basicTemplateData = ref<BasicTemplateData[]>()
 
-  async function fetchTemplate(id: string) {
-    classroomTemplate.value = mockdata
-    const response = await makeAxiosRequest(`/templates/${id}`, 'GET', true, true)
+  async function fetchTemplate() {
+    // classroomTemplate.value = mockdata
+    const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
     if (response.success) {
       classroomTemplate.value = response.data
     }
@@ -83,7 +83,7 @@ export const useTemplateStore = defineStore('template', () => {
   }
 
   async function getBasicTemplateData() {
-    const response = await makeAxiosRequest('/templates', 'GET', true, true)
+    const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
     if (response.success) {
       basicTemplateData.value = response.data
     }
@@ -104,7 +104,7 @@ export const useTemplateStore = defineStore('template', () => {
   }
 
   function getTask(taskId: string) {
-    classroomTemplate.value = mockdata
+    // classroomTemplate.value = mockdata
 
     let task: TaskTemplate | undefined
 
@@ -131,242 +131,242 @@ export const useTemplateStore = defineStore('template', () => {
   }
 })
 
-const mockdata: TemplateData = {
-  id: '12',
-  title: 'Computer Networks',
-  created_at: '2022.01.11',
-  updated_at: '2023.03.06',
-  helpful_resources: [
-    { id: '0', title: 'moodle course', url: 'https://www.google.com' },
-    { id: '1', title: 'Introduction to DHCP', url: 'https://www.google.com' }
-  ],
-  managers: [
-    { id: 'John Doe', email: 'john.doe@mailservice.com' },
-    { id: 'John Doe2', email: 'john.doe2@mailservice.com' }
-  ],
-  project_templates: [
-    {
-      id: '0',
-      title: 'Computer Network Project 1',
-      task_templates: [
-        {
-          id: '0',
-          title: 'task 1 name',
-          description: 'Eine BEschreibung',
-          difficulty: 'Beginner',
-          type: 'Attack',
-          virtualization: {
-            id: '0',
-            name: 'Docker',
-            role: 'User Shell',
-            compose_file: 'file'
-          },
-          acceptance_criteria: {
-            acceptance_criteria_questionaire: [
-              {
-                id: '0',
-                question: 'xdtgfchWhat is the IP Adress?',
-                question_choice: [
-                  {
-                    answer: '123.456.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '1333.232.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '234.333.242',
-                    is_correct: true
-                  }
-                ]
-              },
-              {
-                id: '1',
-                question: '1What is the IP Adress?',
-                question_choice: [
-                  {
-                    answer: '123.456.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '333.232.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '234.333.242',
-                    is_correct: true
-                  }
-                ]
-              },
-              {
-                id: '2',
-                question: '1What is the IP Adress?',
-                question_choice: [
-                  {
-                    answer: '1123.456.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '333.232.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '234.333.242',
-                    is_correct: true
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          id: '1',
-          title: 'task 2 name',
-          description: 'Eine Beschreibung',
-          difficulty: 'Advanced',
-          type: 'Attack',
-          virtualization: {
-            id: '0',
-            name: 'Docker',
-            role: 'User Shell',
-            compose_file: 'file'
-          },
-          acceptance_criteria: {
-            acceptance_criteria_questionaire: [
-              {
-                id: '5',
-                question: 'ööööWhat is the IP Adress?',
-                question_choice: [
-                  {
-                    answer: '123.456.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '333.232.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '234.333.242',
-                    is_correct: true
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          id: '2',
-          title: 'task 1 name',
-          description: 'Eine BEschreibung',
-          difficulty: 'Beginner',
-          type: 'Attack',
-          virtualization: {
-            id: '0',
-            name: 'Docker',
-            role: 'User Shell',
-            compose_file: 'file'
-          },
-          acceptance_criteria: {
-            acceptance_criteria_questionaire: [
-              {
-                id: '7',
-                question: 'What is the IP Adress?',
-                question_choice: [
-                  {
-                    answer: '123.456.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '333.232.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '234.333.242',
-                    is_correct: true
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    },
-    {
-      id: '2',
-      title: '2 Computer Network Project 2',
-      task_templates: [
-        {
-          id: '3',
-          title: '2 task 1 name',
-          description: 'Eine BEschreibung',
-          difficulty: 'Beginner',
-          type: 'Attack',
-          virtualization: {
-            id: '0',
-            name: 'Docker',
-            role: 'User Shell',
-            compose_file: 'file'
-          },
-          acceptance_criteria: {
-            acceptance_criteria_questionaire: [
-              {
-                id: '9',
-                question: 'What is the IP Adress?',
-                question_choice: [
-                  {
-                    answer: '123.456.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '333.232.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '234.333.242',
-                    is_correct: true
-                  }
-                ]
-              }
-            ]
-          }
-        },
-        {
-          id: '4',
-          title: 'task 2 name',
-          description: 'Eine Beschreibung',
-          difficulty: 'Advanced',
-          type: 'Attack',
-          virtualization: {
-            id: '0',
-            name: 'Docker',
-            role: 'User Shell',
-            compose_file: 'file'
-          },
-          acceptance_criteria: {
-            acceptance_criteria_questionaire: [
-              {
-                id: '10',
-                question: 'What is the IP Adress?',
-                question_choice: [
-                  {
-                    answer: '123.456.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '333.232.789',
-                    is_correct: false
-                  },
-                  {
-                    answer: '234.333.242',
-                    is_correct: true
-                  }
-                ]
-              }
-            ]
-          }
-        }
-      ]
-    }
-  ]
-}
+// const mockdata: TemplateData = {
+//   id: '12',
+//   title: 'Computer Networks',
+//   created_at: '2022.01.11',
+//   updated_at: '2023.03.06',
+//   helpful_resources: [
+//     { id: '0', title: 'moodle course', url: 'https://www.google.com' },
+//     { id: '1', title: 'Introduction to DHCP', url: 'https://www.google.com' }
+//   ],
+//   managers: [
+//     { id: 'John Doe', email: 'john.doe@mailservice.com' },
+//     { id: 'John Doe2', email: 'john.doe2@mailservice.com' }
+//   ],
+//   project_templates: [
+//     {
+//       id: '0',
+//       title: 'Computer Network Project 1',
+//       task_templates: [
+//         {
+//           id: '0',
+//           title: 'task 1 name',
+//           description: 'Eine BEschreibung',
+//           difficulty: 'Beginner',
+//           type: 'Attack',
+//           virtualization: {
+//             id: '0',
+//             name: 'Docker',
+//             role: 'User Shell',
+//             compose_file: 'file'
+//           },
+//           acceptance_criteria: {
+//             acceptance_criteria_questionaire: [
+//               {
+//                 id: '0',
+//                 question: 'xdtgfchWhat is the IP Adress?',
+//                 question_choice: [
+//                   {
+//                     answer: '123.456.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '1333.232.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '234.333.242',
+//                     is_correct: true
+//                   }
+//                 ]
+//               },
+//               {
+//                 id: '1',
+//                 question: '1What is the IP Adress?',
+//                 question_choice: [
+//                   {
+//                     answer: '123.456.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '333.232.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '234.333.242',
+//                     is_correct: true
+//                   }
+//                 ]
+//               },
+//               {
+//                 id: '2',
+//                 question: '1What is the IP Adress?',
+//                 question_choice: [
+//                   {
+//                     answer: '1123.456.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '333.232.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '234.333.242',
+//                     is_correct: true
+//                   }
+//                 ]
+//               }
+//             ]
+//           }
+//         },
+//         {
+//           id: '1',
+//           title: 'task 2 name',
+//           description: 'Eine Beschreibung',
+//           difficulty: 'Advanced',
+//           type: 'Attack',
+//           virtualization: {
+//             id: '0',
+//             name: 'Docker',
+//             role: 'User Shell',
+//             compose_file: 'file'
+//           },
+//           acceptance_criteria: {
+//             acceptance_criteria_questionaire: [
+//               {
+//                 id: '5',
+//                 question: 'ööööWhat is the IP Adress?',
+//                 question_choice: [
+//                   {
+//                     answer: '123.456.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '333.232.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '234.333.242',
+//                     is_correct: true
+//                   }
+//                 ]
+//               }
+//             ]
+//           }
+//         },
+//         {
+//           id: '2',
+//           title: 'task 1 name',
+//           description: 'Eine BEschreibung',
+//           difficulty: 'Beginner',
+//           type: 'Attack',
+//           virtualization: {
+//             id: '0',
+//             name: 'Docker',
+//             role: 'User Shell',
+//             compose_file: 'file'
+//           },
+//           acceptance_criteria: {
+//             acceptance_criteria_questionaire: [
+//               {
+//                 id: '7',
+//                 question: 'What is the IP Adress?',
+//                 question_choice: [
+//                   {
+//                     answer: '123.456.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '333.232.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '234.333.242',
+//                     is_correct: true
+//                   }
+//                 ]
+//               }
+//             ]
+//           }
+//         }
+//       ]
+//     },
+//     {
+//       id: '2',
+//       title: '2 Computer Network Project 2',
+//       task_templates: [
+//         {
+//           id: '3',
+//           title: '2 task 1 name',
+//           description: 'Eine BEschreibung',
+//           difficulty: 'Beginner',
+//           type: 'Attack',
+//           virtualization: {
+//             id: '0',
+//             name: 'Docker',
+//             role: 'User Shell',
+//             compose_file: 'file'
+//           },
+//           acceptance_criteria: {
+//             acceptance_criteria_questionaire: [
+//               {
+//                 id: '9',
+//                 question: 'What is the IP Adress?',
+//                 question_choice: [
+//                   {
+//                     answer: '123.456.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '333.232.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '234.333.242',
+//                     is_correct: true
+//                   }
+//                 ]
+//               }
+//             ]
+//           }
+//         },
+//         {
+//           id: '4',
+//           title: 'task 2 name',
+//           description: 'Eine Beschreibung',
+//           difficulty: 'Advanced',
+//           type: 'Attack',
+//           virtualization: {
+//             id: '0',
+//             name: 'Docker',
+//             role: 'User Shell',
+//             compose_file: 'file'
+//           },
+//           acceptance_criteria: {
+//             acceptance_criteria_questionaire: [
+//               {
+//                 id: '10',
+//                 question: 'What is the IP Adress?',
+//                 question_choice: [
+//                   {
+//                     answer: '123.456.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '333.232.789',
+//                     is_correct: false
+//                   },
+//                   {
+//                     answer: '234.333.242',
+//                     is_correct: true
+//                   }
+//                 ]
+//               }
+//             ]
+//           }
+//         }
+//       ]
+//     }
+//   ]
+// }
