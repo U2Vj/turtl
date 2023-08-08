@@ -68,10 +68,6 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
           <TextButton buttonName="Edit" :goTo="`templates/${item.raw.id}`"></TextButton>
         </template>
       </v-data-table>
-      <p>{{ templateData }}</p>
-      <div v-for="item in templateData" :key="item.id">
-        {{ item.title }}
-      </div>
     </template>
   </DefaultLayout>
 </template>
