@@ -61,7 +61,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
           { title: 'Created At', align: 'end', key: 'created_at' },
           { title: 'Use', align: 'end', key: 'link' }
         ]"
-        :items="[templateData]"
+        :items="templateData"
         @click:row="handleRowClick"
       >
         <template #[`item.link`]="{ item }">
