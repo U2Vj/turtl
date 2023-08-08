@@ -4,6 +4,7 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
+import dayjs from 'dayjs'
 import { toRef } from 'vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -26,18 +27,9 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
     router.push(`templates/${item.item.raw.id}`)
   }
 }
-
-// const fetchedData = ref(null)
-
-// const fetchData = async () => {
-//   const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
-
-//   if (response.success) {
-//     fetchedData.value = response.data
-//   } else {
-//     console.error('An error occurred:', response.message)
-//   }
-// }
+function formatReadableDate(date: string) {
+  return dayjs(date).format('DD.MM.YYYY HH:mm')
+}
 </script>
 
 <template>
@@ -66,6 +58,12 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
       >
         <template #[`item.link`]="{ item }">
           <TextButton buttonName="Edit" :goTo="`templates/${item.raw.id}`"></TextButton>
+        </template>
+        <template v-slot:[`item.updated_at`]="{ item }">
+          {{ formatReadableDate(item.raw.updated_at) }}
+        </template>
+        <template v-slot:[`item.created_at`]="{ item }">
+          {{ formatReadableDate(item.raw.created_at) }}
         </template>
       </v-data-table>
     </template>
