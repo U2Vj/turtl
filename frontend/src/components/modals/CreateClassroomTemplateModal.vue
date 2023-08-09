@@ -12,6 +12,8 @@ const router = useRouter()
 
 const templateStore = useTemplateStore()
 
+const isCreating = ref(false)
+
 // let templateData = toRef(templateStore, 'basicTemplateData')
 // templateStore.getBasicTemplateData()
 
@@ -27,11 +29,20 @@ const { value: titleNewClassroom, errorMessage: titleError } = useField<string>(
 )
 
 const create = handleSubmit(async (values) => {
+  if (isCreating.value) {
+    return
+  }
+
+  isCreating.value = true
+
   const result = await templateStore.createProjectTemplate(values.title)
+
+  isCreating.value = false
   if (result.success) {
     console.log('Hier die ID:', result.id)
     console.log('Hier der success:', result.success)
-    router.push({ path: `admin/templates/${result.id}` })
+    // router.push({ path: `admin/templates/${result.id}` })
+    router.push('/profile')
   }
 })
 </script>
@@ -50,7 +61,7 @@ const create = handleSubmit(async (values) => {
           label="Name of new classroom template"
         ></v-text-field>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Create" @click="create"> </PrimaryButton>
+        <PrimaryButton buttonName="Create" @click="create" :disabled="isCreating"> </PrimaryButton>
       </v-card-text>
     </v-card>
   </v-dialog>
