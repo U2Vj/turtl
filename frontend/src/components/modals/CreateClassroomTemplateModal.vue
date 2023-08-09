@@ -26,21 +26,20 @@ const { value: titleNewClassroom, errorMessage: titleError } = useField<string>(
   { validateOnValueUpdate: false }
 )
 
-// const create = handleSubmit(async (values) => {
-//   const result = await templateStore.createProjectTemplate(values.title)
-//   if (result.success) {
-//     // console.log('Hier die ID:', result.id)
-//     // console.log('Hier der success:', result.success)
-//     // router.push({ path: `admin/templates/${result.id}` })
-//     router.push('/profile')
-//   }
-//   createFunctionCalls.value++
-//   console.log('function calls', createFunctionCalls)
-// })
+const create = handleSubmit(async (values) => {
+  const result = await templateStore.createProjectTemplate(values.title)
+  if (result.success) {
+    console.log('Hier die ID:', result.id)
+    console.log('Hier der success:', result.success)
+    router.push({ path: `admin/templates/${result.id}` })
+    // router.push('/profile')
+  }
+  createFunctionCalls.value++
+})
 
 let count = 0
 
-function create() {
+function test() {
   console.log('counts', count)
   count++
 }

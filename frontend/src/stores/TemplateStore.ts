@@ -96,6 +96,7 @@ export const useTemplateStore = defineStore('template', () => {
     const response = await makeAxiosRequest('templates/classrooms', 'POST', true, true, data)
     if (response.success) {
       basicTemplateData.value = response.data
+      console.log('response data', response)
       return { success: true, id: response.data.id }
     }
     return { success: false, id: null }
