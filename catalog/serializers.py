@@ -284,7 +284,6 @@ class HelpfulResourceSerializer(serializers.ModelSerializer):
 
 class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
     title = serializers.CharField()
-    description = serializers.CharField()
     created_at = serializers.DateTimeField()
     updated_at = serializers.DateTimeField()
     project_templates = ProjectTemplateClassroomSerializer(many=True)
@@ -341,7 +340,7 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ClassroomTemplate
-        fields = ['id', 'title', 'description', 'created_at', 'updated_at', 'project_templates', 'helpful_resources',
+        fields = ['id', 'title', 'created_at', 'updated_at', 'project_templates', 'helpful_resources',
                   'managers']
 
 

@@ -85,9 +85,6 @@ class ClassroomTemplate(RulesModel):
     # A ClassroomTemplate has a title e.g.: Eternal Blue Exploit
     title = models.CharField(max_length=120, unique=True)
 
-    # A ClassroomTemplate has a description e.g.: Eternal Blue is the exploit CVE-2017-0144
-    description = models.TextField()
-
     # A timestamp representing when this object was created.
     created_at = models.DateTimeField(auto_now_add=True)
 
