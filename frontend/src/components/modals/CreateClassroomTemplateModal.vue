@@ -9,10 +9,8 @@ import * as yup from 'yup'
 
 const showDialog = ref(false)
 const router = useRouter()
-
+const createFunctionCalls = ref(0)
 const templateStore = useTemplateStore()
-
-const isCreating = ref(false)
 
 // let templateData = toRef(templateStore, 'basicTemplateData')
 // templateStore.getBasicTemplateData()
@@ -28,23 +26,24 @@ const { value: titleNewClassroom, errorMessage: titleError } = useField<string>(
   { validateOnValueUpdate: false }
 )
 
-const create = handleSubmit(async (values) => {
-  if (isCreating.value) {
-    return
-  }
+// const create = handleSubmit(async (values) => {
+//   const result = await templateStore.createProjectTemplate(values.title)
+//   if (result.success) {
+//     // console.log('Hier die ID:', result.id)
+//     // console.log('Hier der success:', result.success)
+//     // router.push({ path: `admin/templates/${result.id}` })
+//     router.push('/profile')
+//   }
+//   createFunctionCalls.value++
+//   console.log('function calls', createFunctionCalls)
+// })
 
-  isCreating.value = true
+let count = 0
 
-  const result = await templateStore.createProjectTemplate(values.title)
-
-  isCreating.value = false
-  if (result.success) {
-    console.log('Hier die ID:', result.id)
-    console.log('Hier der success:', result.success)
-    // router.push({ path: `admin/templates/${result.id}` })
-    router.push('/profile')
-  }
-})
+function create() {
+  console.log('counts', count)
+  count++
+}
 </script>
 
 <template>
@@ -61,7 +60,7 @@ const create = handleSubmit(async (values) => {
           label="Name of new classroom template"
         ></v-text-field>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Create" @click="create" :disabled="isCreating"> </PrimaryButton>
+        <PrimaryButton buttonName="Create" @click="create"> </PrimaryButton>
       </v-card-text>
     </v-card>
   </v-dialog>

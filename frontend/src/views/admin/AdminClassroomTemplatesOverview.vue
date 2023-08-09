@@ -6,7 +6,6 @@ import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTem
 import { useTemplateStore } from '@/stores/TemplateStore'
 import dayjs from 'dayjs'
 import { toRef } from 'vue'
-import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
