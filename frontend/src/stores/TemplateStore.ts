@@ -1,7 +1,7 @@
-import { makeAxiosRequest } from './AxiosInstance'
 import { useCloned } from '@vueuse/core'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
+import { makeAxiosRequest } from './AxiosInstance'
 
 type BasicTemplateData = {
   id: string
@@ -60,15 +60,6 @@ export const useTemplateStore = defineStore('template', () => {
   const classroomTemplate = ref<TemplateData | undefined>()
   const basicTemplateData = ref<BasicTemplateData[]>()
 
-  async function fetchBasicTemplate() {
-    // classroomTemplate.value = mockdata
-    const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
-    if (response.success) {
-      basicTemplateData.value = response.data
-    }
-    return classroomTemplate
-  }
-
   async function fetchTemplate(id: string) {
     const response = await makeAxiosRequest(`/templates/${id}`, 'GET', true, true)
     if (response.success) {
@@ -99,7 +90,15 @@ export const useTemplateStore = defineStore('template', () => {
   }
 
   async function createProjectTemplate(projectName: string) {
-    await makeAxiosRequest('templates', 'PUT', true, true, projectName)
+    const data = {
+      title: projectName
+    }
+    const response = await makeAxiosRequest('templates/classrooms', 'POST', true, true, data)
+    if (response.success) {
+      basicTemplateData.value = response.data
+      return { success: true, id: response.data.id }
+    }
+    return { success: false, id: null }
   }
 
   async function addManager(id: string, email: string) {
@@ -130,7 +129,6 @@ export const useTemplateStore = defineStore('template', () => {
     classroomTemplate,
     basicTemplateData,
     fetchTemplate,
-    fetchBasicTemplate,
     changeTemplateData,
     deleteClassroomTemplate,
     getBasicTemplateData,

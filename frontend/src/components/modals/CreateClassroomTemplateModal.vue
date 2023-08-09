@@ -1,20 +1,39 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import axios from 'axios'
+import { useTemplateStore } from '@/stores/TemplateStore'
+import { useField, useForm } from 'vee-validate'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
+import * as yup from 'yup'
 
 const showDialog = ref(false)
-const titleNewClassroom = ref('')
+const router = useRouter()
 
-async function createClassroomTemplate(title: string) {
-  const response = await axios.post(`${import.meta.env.VITE_API_URL}/templates/classrooms`, {
-    title
-  })
-  const router = useRouter()
-  router.push(`/templates/${response.data.id}`)
-}
+const templateStore = useTemplateStore()
+
+// let templateData = toRef(templateStore, 'basicTemplateData')
+// templateStore.getBasicTemplateData()
+
+const schema = yup.object({
+  title: yup.string().required('This field is required')
+})
+const { handleSubmit } = useForm({ validationSchema: schema })
+
+const { value: titleNewClassroom, errorMessage: titleError } = useField<string>(
+  'title',
+  {},
+  { validateOnValueUpdate: false }
+)
+
+const create = handleSubmit(async (values) => {
+  const result = await templateStore.createProjectTemplate(values.title)
+  if (result.success) {
+    console.log('Hier die ID:', result.id)
+    console.log('Hier der success:', result.success)
+    router.push({ path: `admin/templates/${result.id}` })
+  }
+})
 </script>
 
 <template>
@@ -31,8 +50,7 @@ async function createClassroomTemplate(title: string) {
           label="Name of new classroom template"
         ></v-text-field>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Create" @click="createClassroomTemplate(titleNewClassroom)">
-        </PrimaryButton>
+        <PrimaryButton buttonName="Create" @click="create"> </PrimaryButton>
       </v-card-text>
     </v-card>
   </v-dialog>
