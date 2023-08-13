@@ -36,13 +36,6 @@ const create = handleSubmit(async (values) => {
   }
   createFunctionCalls.value++
 })
-
-let count = 0
-
-function test() {
-  console.log('counts', count)
-  count++
-}
 </script>
 
 <template>

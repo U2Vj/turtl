@@ -13,7 +13,6 @@ defineProps<{
     variant="tonal"
     color="primary"
     :prepend-icon="prependIcon"
-    @click="$emit('click')"
     :to="goTo"
     :type="buttonType"
   >
