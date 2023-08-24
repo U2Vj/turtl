@@ -345,20 +345,10 @@ class ClassroomTemplateDetailSerializer(serializers.ModelSerializer):
 
 
 class ClassroomTemplateSerializer(serializers.ModelSerializer):
-    title = serializers.CharField()
-    created_at = serializers.DateTimeField()
-    updated_at = serializers.DateTimeField()
-
     class Meta:
         model = ClassroomTemplate
         fields = ['id', 'title', 'created_at', 'updated_at']
-
-
-class ClassroomTemplateNewSerializer(serializers.Serializer):
-    title = serializers.CharField()
-
-    def create(self, validated_data):
-        return ClassroomTemplate.objects.create(**validated_data)
+        read_only_fields = ['id', 'created_at', 'updated_at']
 
 
 class ProjectTemplateNewSerializer(serializers.Serializer):

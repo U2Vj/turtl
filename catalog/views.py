@@ -5,24 +5,19 @@ from rest_framework import status
 from rest_framework.response import Response
 
 from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
 from catalog.models import ClassroomTemplate, TaskTemplate, ProjectTemplate
-from catalog.serializers import ClassroomTemplateSerializer, ProjectTemplateClassroomSerializer, TaskTemplateSerializer, \
-    ClassroomTemplateNewSerializer, ClassroomTemplateDetailSerializer, ProjectTemplateNewSerializer
+from catalog.serializers import (ClassroomTemplateSerializer, ProjectTemplateClassroomSerializer,
+                                 TaskTemplateSerializer, ClassroomTemplateDetailSerializer,
+                                 ProjectTemplateNewSerializer)
 
 
-class ClassroomTemplateList(APIView):
-    def get(self, request):
-        templates = ClassroomTemplate.objects.all()
-        serializer = ClassroomTemplateSerializer(templates, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+class ClassroomTemplateViewSet(ModelViewSet):
+    queryset = ClassroomTemplate.objects.all()
+    serializer_class = ClassroomTemplateSerializer
+    # TODO: Add permission classes once they're working again
 
-    def post(self, request):
-        serializer = ClassroomTemplateNewSerializer(data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class ClassroomTemplateDetail(APIView):
     def get_object(self, template_id):
