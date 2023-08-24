@@ -14,7 +14,6 @@ defineProps<{
     :icon="singleIcon"
     color="primary"
     :append-icon="appendIcon"
-    @click="$emit('click')"
     :to="goTo"
     :type="buttonType"
   >
