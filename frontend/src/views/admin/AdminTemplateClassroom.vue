@@ -49,7 +49,11 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
 </script>
 
 <template>
-  <p>HALLO</p>
+  <p>
+    HALLO
+    {{ templateId }}
+  </p>
+  <p>{{ templateData }}</p>
   <DefaultLayout v-if="templateData">
     <template #heading>{{ templateData.title }}</template>
     <template #default>

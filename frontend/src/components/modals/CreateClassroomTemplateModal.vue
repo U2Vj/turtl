@@ -29,10 +29,7 @@ const { value: titleNewClassroom, errorMessage: titleError } = useField<string>(
 const create = handleSubmit(async (values) => {
   const result = await templateStore.createProjectTemplate(values.title)
   if (result.success) {
-    console.log('Hier die ID:', result.id)
-    console.log('Hier der success:', result.success)
-    router.push({ path: `admin/templates/${result.id}` })
-    // router.push('/profile')
+    router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
   }
   createFunctionCalls.value++
 })
