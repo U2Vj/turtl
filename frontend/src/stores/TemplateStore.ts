@@ -61,9 +61,10 @@ export const useTemplateStore = defineStore('template', () => {
   const basicTemplateData = ref<BasicTemplateData[]>()
 
   async function fetchTemplate(id: string) {
-    const response = await makeAxiosRequest(`/templates/${id}`, 'GET', true, true)
+    const response = await makeAxiosRequest(`/templates/classrooms/${id}`, 'GET', true, true)
     if (response.success) {
       classroomTemplate.value = response.data
+      console.log('Logging:', classroomTemplate)
     }
     return classroomTemplate
   }

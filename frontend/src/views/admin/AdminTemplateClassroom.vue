@@ -18,6 +18,18 @@ const templateStore = useTemplateStore()
 let templateData = toRef(templateStore, 'classroomTemplate')
 templateStore.fetchTemplate(props.templateId)
 
+const formatDate = (datetime: string) => {
+  const options: Intl.DateTimeFormatOptions = {
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+    hour: '2-digit',
+    minute: '2-digit'
+  }
+  const formattedDate = new Date(datetime).toLocaleDateString('de-DE', options)
+  return formattedDate.replace(',', ' um')
+}
+
 watchEffect(() => {
   if (!templateData.value) return
 
@@ -99,10 +111,10 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                       <div>{{ templateData.id }}</div>
 
                       <div class="mt-5"><h3>Created At:</h3></div>
-                      <div>{{ templateData.created_at }}</div>
+                      <div>{{ formatDate(templateData.created_at) }}</div>
 
                       <div class="mt-5"><h3>Updated At:</h3></div>
-                      <div>{{ templateData.updated_at }}</div>
+                      <div>{{ formatDate(templateData.updated_at) }}</div>
                     </v-card-text>
                   </v-card>
                 </div>
