@@ -6,6 +6,7 @@ import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
+import AddResourceModal from '@/components/modals/AddResourceModal.vue'
 import DeleteClassroomTemplateModal from '@/components/modals/DeleteClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
@@ -15,6 +16,7 @@ const props = defineProps<{ templateId: string }>()
 const tab = ref(0)
 const showCreateModal = ref(false)
 const showDeleteModal = ref(false)
+const showResourceModal = ref(false)
 
 const templateStore = useTemplateStore()
 
@@ -125,7 +127,9 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>Helpful resources</v-card-title>
                     <v-card-text>
-                      <SecondaryButton>Add Ressource</SecondaryButton>
+                      <SecondaryButton buttonName="Add Resource" @click="showResourceModal = true">
+                        <AddResourceModal />
+                      </SecondaryButton>
                       <!-- <div
                         v-for="(resource, index) in templateData.helpful_resources"
                         :key="resource.id"

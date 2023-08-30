@@ -338,7 +338,7 @@ function getNumberOfDoneProjects() {
                 </div>
                 <div class="mt-5">
                   <v-card variant="flat" color="cardColor" class="elevation-4">
-                    <v-card-title>Helpful Ressources</v-card-title>
+                    <v-card-title>Helpful Resources</v-card-title>
                     <v-card-text>
                       <a
                         v-for="(resource, index) in classroom.helpfulResources"
