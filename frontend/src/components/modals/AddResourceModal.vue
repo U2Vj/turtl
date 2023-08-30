@@ -3,7 +3,7 @@ import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { useField, useForm, useResetForm } from 'vee-validate'
-import { ref } from 'vue'
+import { ref, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 import * as yup from 'yup'
 
@@ -12,12 +12,15 @@ const router = useRouter()
 const createFunctionCalls = ref(0)
 const templateStore = useTemplateStore()
 
-// let templateData = toRef(templateStore, 'basicTemplateData')
-// templateStore.getBasicTemplateData()
+const props = defineProps<{ templateId: string }>()
+
+let templateData = toRef(templateStore, 'classroomTemplate')
+templateStore.fetchTemplate(props.templateId)
 
 const schema = yup.object({
   title: yup.string().required('This field is required'),
-  url: yup.string().url('Please provide a valid URL').required('This field is required')
+  // url: yup.string().url('Please provide a valid URL').required('This field is required')
+  url: yup.string().required('This field is required')
 })
 const { handleSubmit } = useForm({ validationSchema: schema })
 
@@ -40,12 +43,30 @@ function resetDialog() {
 }
 
 const createURL = handleSubmit(async (values) => {
-  //   const result = await templateStore.createProjectTemplate(values.title)
-  //   if (result.success) {
-  //     router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
-  //   }
-  //   createFunctionCalls.value++
+  if (templateData.value) {
+    const newResource = {
+      id: templateData.value.id,
+      title: values.title,
+      url: values.url
+    }
+    templateData.value?.helpful_resources.push(newResource)
+
+    const response = await templateStore.changeTemplateData(props.templateId, templateData.value)
+    console.log(response)
+    if (response) {
+      showDialog.value = false
+      resetForm()
+    }
+  }
 })
+
+// const createURL = handleSubmit(async (values) => {
+//   //   const result = await templateStore.createProjectTemplate(values.title)
+//   //   if (result.success) {
+//   //     router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
+//   //   }
+//   //   createFunctionCalls.value++
+// })
 </script>
 
 <template>
