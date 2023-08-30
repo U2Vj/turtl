@@ -2,9 +2,11 @@
 import TemplateCard from '@/components/TemplateCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
+import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
+import DeleteClassroomTemplateModal from '@/components/modals/DeleteClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
 import { ref, toRef, watchEffect } from 'vue'
@@ -12,6 +14,7 @@ import { ref, toRef, watchEffect } from 'vue'
 const props = defineProps<{ templateId: string }>()
 const tab = ref(0)
 const showCreateModal = ref(false)
+const showDeleteModal = ref(false)
 
 const templateStore = useTemplateStore()
 
@@ -122,14 +125,15 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>Helpful resources</v-card-title>
                     <v-card-text>
-                      <div
+                      <SecondaryButton>Add Ressource</SecondaryButton>
+                      <!-- <div
                         v-for="(resource, index) in templateData.helpful_resources"
                         :key="resource.id"
                       >
                         <a :href="resource.url">
                           {{ `${index + 1}. ${resource.title}` }}
                         </a>
-                      </div>
+                      </div> -->
                     </v-card-text>
                   </v-card>
                 </div>
@@ -139,7 +143,9 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>Permanently Delete Template</v-card-title>
                     <v-card-actions>
-                      <ErrorButton buttonName="Delete Template"></ErrorButton>
+                      <ErrorButton buttonName="Delete Template" @click="showDeleteModal = true">
+                        <DeleteClassroomTemplateModal :templateId="props.templateId" />
+                      </ErrorButton>
                     </v-card-actions>
                   </v-card>
                 </div>

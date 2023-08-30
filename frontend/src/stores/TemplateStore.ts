@@ -69,7 +69,13 @@ export const useTemplateStore = defineStore('template', () => {
   }
 
   async function changeTemplateData(id: string, templateData: TemplateData) {
-    const response = await makeAxiosRequest(`/templates/${id}`, 'POST', true, true, templateData)
+    const response = await makeAxiosRequest(
+      `/templates/classrooms//${id}`,
+      'POST',
+      true,
+      true,
+      templateData
+    )
     if (response.success) {
       classroomTemplate.value = response.data
     }
@@ -77,7 +83,7 @@ export const useTemplateStore = defineStore('template', () => {
   }
 
   async function deleteClassroomTemplate(id: string) {
-    const response = await makeAxiosRequest(`/templates${id}`, 'DELETE', true, true)
+    const response = await makeAxiosRequest(`/templates/classrooms/${id}`, 'DELETE', true, true)
     return response.success
   }
 
@@ -105,7 +111,7 @@ export const useTemplateStore = defineStore('template', () => {
   async function addManager(id: string, email: string) {
     const { cloned } = useCloned(classroomTemplate)
     cloned.value?.managers.push({ id, email })
-    const response = await makeAxiosRequest('templates', 'PUT', true, true, cloned)
+    const response = await makeAxiosRequest('templates/classrooms/', 'PUT', true, true, cloned)
     if (response.success) {
       classroomTemplate.value = response.data
     }
