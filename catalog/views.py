@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 
 # Create your views here.
@@ -24,7 +25,7 @@ class ClassroomTemplateDetail(APIView):
         try:
             return ClassroomTemplate.objects.get(id=template_id)
         except ClassroomTemplate.DoesNotExist:
-            raise status.HTTP_404_NOT_FOUND
+            raise Http404("Template not found")
 
     def get(self, request, template_id):
         template = self.get_object(template_id)
