@@ -53,21 +53,19 @@ export async function makeAxiosRequest(
     return { success: true, data: response.data }
   } catch (error) {
     if (tryToUpdateTokenWhenUnauthorized) {
-      const data = { refresh: refreshToken.value }
       const responseToRefreshRequest = await makeAxiosRequest(
         'api/users/login/refresh',
         'POST',
         false,
         false,
-        data
+        { refresh: refreshToken.value }
       )
 
       if (responseToRefreshRequest.success) {
         accessToken.value = responseToRefreshRequest?.data.access
         refreshToken.value = responseToRefreshRequest?.data.refresh
 
-        const response = await makeAxiosRequest(url, method, useAuthorization, false, data)
-        return response
+        return await makeAxiosRequest(url, method, useAuthorization, false, data)
       }
     }
     if (axios.isAxiosError(error) && error.response?.data.message) {
