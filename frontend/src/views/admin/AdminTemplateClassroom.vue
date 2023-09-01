@@ -122,17 +122,23 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>Helpful resources</v-card-title>
                     <v-card-text>
-                      <SecondaryButton buttonName="Add Resource" @click="showResourceModal = true">
-                        <AddResourceModal :templateId="props.templateId" />
-                      </SecondaryButton>
-                      <!-- <div
-                        v-for="(resource, index) in templateData.helpful_resources"
-                        :key="resource.id"
-                      >
-                        <a :href="resource.url">
-                          {{ `${index + 1}. ${resource.title}` }}
-                        </a>
-                      </div> -->
+                      <v-row>
+                        <v-col>
+                          <li v-for="resource in templateData.helpful_resources">
+                            <a :href="resource.url">{{ resource.title }}</a>
+                          </li>
+                        </v-col>
+                      </v-row>
+                      <v-row>
+                        <v-col>
+                          <SecondaryButton
+                            buttonName="Add Resource"
+                            @click="showResourceModal = true"
+                          >
+                            <AddResourceModal :templateId="props.templateId" />
+                          </SecondaryButton>
+                        </v-col>
+                      </v-row>
                     </v-card-text>
                   </v-card>
                 </div>
