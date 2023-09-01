@@ -66,11 +66,6 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
 </script>
 
 <template>
-  <p>
-    HALLO
-    {{ templateId }}
-  </p>
-  <p>{{ templateData }}</p>
   <DefaultLayout v-if="templateData">
     <template #heading>{{ templateData.title }}</template>
     <template #default>
@@ -128,7 +123,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                     <v-card-title>Helpful resources</v-card-title>
                     <v-card-text>
                       <SecondaryButton buttonName="Add Resource" @click="showResourceModal = true">
-                        <AddResourceModal />
+                        <AddResourceModal :templateId="props.templateId" />
                       </SecondaryButton>
                       <!-- <div
                         v-for="(resource, index) in templateData.helpful_resources"
