@@ -1,3 +1,4 @@
+from django.http import Http404
 from django.shortcuts import render
 
 # Create your views here.
@@ -7,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from catalog.models import ClassroomTemplate, TaskTemplate, ProjectTemplate
+from catalog.models import ClassroomTemplate, TaskTemplate, ProjectTemplate, ClassroomTemplateManager
 from catalog.serializers import (ClassroomTemplateSerializer, ProjectTemplateClassroomSerializer,
                                  TaskTemplateSerializer, ClassroomTemplateDetailSerializer,
-                                 ProjectTemplateNewSerializer)
+                                 ProjectTemplateNewSerializer, ClassroomTemplateManagerSerializer)
 
 
 class ClassroomTemplateViewSet(ModelViewSet):
@@ -24,7 +25,7 @@ class ClassroomTemplateDetail(APIView):
         try:
             return ClassroomTemplate.objects.get(id=template_id)
         except ClassroomTemplate.DoesNotExist:
-            raise status.HTTP_404_NOT_FOUND
+            raise Http404("Template not found")
 
     def get(self, request, template_id):
         template = self.get_object(template_id)
@@ -44,6 +45,7 @@ class ClassroomTemplateDetail(APIView):
         template.delete()
         return Response(status=status.HTTP_200_OK)
 
+
 class ProjectTemplateList(APIView):
     def post(self, request):
         serializer = ProjectTemplateNewSerializer(data=request.data)
@@ -51,6 +53,7 @@ class ProjectTemplateList(APIView):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class ProjectTemplateDetail(APIView):
     def get(self, request, project_id):
@@ -79,6 +82,7 @@ class ProjectTemplateDetail(APIView):
             return Response(status=status.HTTP_200_OK)
         except ProjectTemplate.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
+
 
 class TaskTemplateList(APIView):
     def post(self, request):
@@ -109,3 +113,7 @@ class TaskTemplateDetail(APIView):
         except TaskTemplate.DoesNotExist:
             return Response(status=status.HTTP_404_NOT_FOUND)
 
+
+class ClassroomTemplateManagerViewSet(ModelViewSet):
+    queryset = ClassroomTemplateManager.objects.all()
+    serializer_class = ClassroomTemplateManagerSerializer
