@@ -209,15 +209,14 @@ class ClassroomTemplateSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
-class ProjectTemplateNewSerializer(serializers.Serializer):
-    title = serializers.CharField()
-    classroom_templates = serializers.CharField()
+class ProjectTemplateNewSerializer(serializers.ModelSerializer):
+    classroom_template_id = serializers.PrimaryKeyRelatedField(source='classroom_template',
+                                                               queryset=ClassroomTemplate.objects.all())
 
-    def create(self, validated_data):
-        project_template = ProjectTemplate.objects.create(title=validated_data.get('title'),
-                                                          classroom_templates_id=validated_data.get(
-                                                              'classroom_templates'))
-        return project_template
+    class Meta:
+        model = ProjectTemplate
+        fields = ['id', 'title', 'classroom_template_id']
+        read_only_fields = ['id']
 
 
 class TaskTemplateNewSerializer(serializers.Serializer):
