@@ -12,9 +12,6 @@ const router = useRouter()
 const createFunctionCalls = ref(0)
 const templateStore = useTemplateStore()
 
-// let templateData = toRef(templateStore, 'basicTemplateData')
-// templateStore.getBasicTemplateData()
-
 const schema = yup.object({
   title: yup.string().required('This 1 field is required')
 })

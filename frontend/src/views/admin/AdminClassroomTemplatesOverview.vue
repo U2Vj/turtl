@@ -12,8 +12,6 @@ const router = useRouter()
 
 const templateStore = useTemplateStore()
 
-const props = defineProps<{ templateId: string }>()
-
 let templateData = toRef(templateStore, 'basicTemplateData')
 templateStore.getBasicTemplateData()
 
