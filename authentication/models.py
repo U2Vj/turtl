@@ -23,10 +23,8 @@ class UserManager(BaseUserManager):
     to create `User` objects.
     """
 
-    def create_user(self, username, email, password):
-        """Create and return a `User` with an email, username and password."""
-        if username is None:
-            raise TypeError('Users must have a username.')
+    def create_user(self, email, password):
+        """Create and return a `User` with an email and password."""
 
         if email is None:
             raise TypeError('Users must have an email address.')
@@ -34,65 +32,65 @@ class UserManager(BaseUserManager):
         if password is None:
             raise TypeError('Users must have a password.')
 
-        user = self.model(username=username, email=self.normalize_email(email))
+        user = self.model(email=self.normalize_email(email))
         user.set_password(password)
         user.save()
 
         return user
 
-    def create_student(self, username, email, password):
+    def create_student(self, email, password):
         """
             create and return a student
         """
-        user = self.create_user(username, email, password)
+        user = self.create_user(email, password)
         user.role = user.Role.STUDENT
         user.save()
 
         return user
 
-    def create_instructor(self, username, email, password):
+    def create_instructor(self, email, password):
         """
             create and return an instructor
         """
-        user = self.create_user(username, email, password)
+        user = self.create_user(email, password)
         user.role = user.Role.INSTRUCTOR
         user.save()
 
         return user
 
-    def create_manager(self, username, email, password):
+    def create_manager(self, email, password):
         """
             create and return a student
         """
-        user = self.create_user(username, email, password)
+        user = self.create_user(email, password)
         user.role = user.Role.MANAGER
         user.save()
 
         return user
 
-    def create_administrator(self, username, email, password):
+    def create_administrator(self, email, password):
         """
             create and return an administrator
         """
-        user = self.create_user(username, email, password)
+        user = self.create_user(email, password)
         user.role = user.Role.ADMINISTRATOR
         user.save()
 
         return user
 
-    def create_superuser(self, username, email, password):
+    def create_superuser(self, email, password):
         """
         Create and return a `User` with superuser (admin) permissions.
         """
 
-        return self.create_administrator(username, email, password)
+        return self.create_administrator(email, password)
 
 
 class User(AbstractBaseUser, PermissionsMixin):
     # Each `User` needs a human-readable unique identifier that we can use to
     # represent the `User` in the UI. We want to index this column in the
     # database to improve lookup performance.
-    username = models.CharField(db_index=True, max_length=255, unique=True)
+    username = models.CharField(max_length=255, null=True)
 
     # We also need a way to contact the user and a way for the user to identify
     # themselves when logging in. Since we need an email address for contacting
@@ -159,7 +157,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     # The `USERNAME_FIELD` property tells us which field we will use to log in.
     # In this case we want it to be the email field.
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['username']
 
     # Tells Django that the UserManager class defined above should manage
     # objects of this type.
