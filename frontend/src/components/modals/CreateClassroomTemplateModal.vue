@@ -16,7 +16,7 @@ const templateStore = useTemplateStore()
 // templateStore.getBasicTemplateData()
 
 const schema = yup.object({
-  title: yup.string().required('This field is required')
+  title: yup.string().required('This 1 field is required')
 })
 const { handleSubmit } = useForm({ validationSchema: schema })
 

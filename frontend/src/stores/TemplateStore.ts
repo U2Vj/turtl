@@ -71,14 +71,18 @@ export const useTemplateStore = defineStore('template', () => {
 
   async function changeTemplateData(id: string, templateData: TemplateData) {
     const response = await makeAxiosRequest(
-      `/templates/classrooms//${id}`,
+      `/templates/classrooms/${id}`,
       'PUT',
       true,
       true,
       templateData
     )
+    console.log(response)
+    console.log('templatData', templateData)
     if (response.success) {
       classroomTemplate.value = response.data
+    } else {
+      console.error
     }
     return classroomTemplate
   }

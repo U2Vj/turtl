@@ -12,15 +12,15 @@ const userStore = useUserStore()
 
 const schema = toTypedSchema(
   yup.object({
-    oldPassword: yup.string().required('This field is required'),
+    oldPassword: yup.string().required('This 5 field is required'),
     newPassword: yup
       .string()
-      .required('This field is required')
+      .required('This 6 field is required')
       .min(8, 'Password needs to be 8 characters long')
       .oneOf([yup.ref('newPasswordValidate')], 'Passwords need to be the same'),
     newPasswordValidate: yup
       .string()
-      .required('This field is required')
+      .required('This 7 field is required')
       .min(8, 'Password needs to be 8 characters long')
       .oneOf([yup.ref('newPassword')], 'Passwords need to be the same')
   })

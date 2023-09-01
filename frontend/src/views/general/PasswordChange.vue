@@ -9,12 +9,12 @@ const schema = toTypedSchema(
   yup.object({
     newPassword: yup
       .string()
-      .required('This field is required')
+      .required('This 2 field is required')
       .min(8, 'Password needs to be 8 characters long')
       .oneOf([yup.ref('newPasswordValidation')], 'Passwords need to be the same'),
     newPasswordValidation: yup
       .string()
-      .required('This field is required')
+      .required('This 3 field is required')
       .min(8, 'Password needs to be 8 characters long')
       .oneOf([yup.ref('newPassword')], 'Passwords need to be the same')
   })

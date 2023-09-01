@@ -18,9 +18,9 @@ let templateData = toRef(templateStore, 'classroomTemplate')
 templateStore.fetchTemplate(props.templateId)
 
 const schema = yup.object({
-  title: yup.string().required('This field is required'),
-  // url: yup.string().url('Please provide a valid URL').required('This field is required')
-  url: yup.string().required('This field is required')
+  title: yup.string().required('This title field is required'),
+  // url: yup.string().url('Please provide a valid URL').required('This 55 field is required')
+  url: yup.string().required('This url field is required')
 })
 const { handleSubmit } = useForm({ validationSchema: schema })
 
@@ -50,7 +50,6 @@ const createURL = handleSubmit(async (values) => {
       url: values.url
     }
     templateData.value?.helpful_resources.push(newResource)
-
     const response = await templateStore.changeTemplateData(props.templateId, templateData.value)
     console.log(response)
     if (response) {

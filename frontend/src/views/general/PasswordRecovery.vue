@@ -13,7 +13,7 @@ const schema = toTypedSchema(
   yup.object({
     email: yup
       .string()
-      .required('This field is required')
+      .required('This 8 field is required')
       .email('Please enter a valid email address')
   })
 )
