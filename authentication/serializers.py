@@ -1,6 +1,12 @@
+import logging
+from typing import Dict, Any
+
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+import rest_framework_simplejwt.settings
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
+from rest_framework_simplejwt.tokens import RefreshToken
 
 from .models import User
 
@@ -12,8 +18,8 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         updated, hence they are not included here.
     """
 
-    # Usernames must be less than 255 characters and are optional
-    username = serializers.CharField(max_length=255, allow_null=True, required=False, default=None)
+    # Usernames must be 2 or more and 255 or less characters and are optional
+    username = serializers.CharField(min_length=2, max_length=255, allow_null=True, required=False, default=None)
 
     # Passwords must be at least 8 characters, but no more than 128
     # characters. These values are the default provided by Django. We could
@@ -95,11 +101,58 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         return instance
 
 
-class CustomTokenObtainSerializer(TokenObtainPairSerializer):
+class LoginRefreshSerializer(serializers.Serializer):
+    """
+        This serializer is responsible for issuing new access and refresh tokens. It is necessary because the standard
+        implementation just copies the claims from the old token. However, we want to update them in case a user has
+        updated their profile.
+
+        The following code is based on the default implementation (rest_framework_simplejwt.serializers.
+        TokenRefreshSerializer).
+    """
+
+    refresh = serializers.CharField()
+    access = serializers.CharField(read_only=True)
+    token_class = RefreshToken
+
+    def validate(self, attrs: Dict[str, Any]) -> Dict[str, str]:
+        refresh = self.token_class(attrs["refresh"])
+        access = refresh.access_token
+
+        # Here, we have to add the potentially updated token claims for the user
+        # (in our case, just the username)
+        try:
+            user = User.objects.get(id=refresh['user_id'])
+        except User.DoesNotExist:
+            raise TokenError("No user found for given token")
+
+        refresh['username'] = access['username'] = user.username
+
+        data = {"access": str(access)}
+
+        if rest_framework_simplejwt.settings.api_settings.ROTATE_REFRESH_TOKENS:
+            if rest_framework_simplejwt.settings.api_settings.BLACKLIST_AFTER_ROTATION:
+                try:
+                    refresh.blacklist()
+                except AttributeError:
+                    logging.getLogger(__name__).warning("Blacklisting of refresh tokens is enabled but the blacklist"
+                                                        "app has not been installed. Skipping...")
+
+            refresh.set_jti()
+            refresh.set_exp()
+            refresh.set_iat()
+
+            data["refresh"] = str(refresh)
+
+        return data
+
+
+class LoginSerializer(TokenObtainPairSerializer):
     """
         This serializer is used to add custom claims (username, role and email) to the JWT tokens used to
         authenticate a user. This information is stored directly in the token and is necessary for the frontend.
     """
+
     @classmethod
     def get_token(cls, user):
         token = super().get_token(user)
