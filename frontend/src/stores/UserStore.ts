@@ -66,11 +66,11 @@ export const useUserStore = defineStore('api/user', () => {
     return false
   }
 
-  async function getNewRefreshAndAccessToken() {
+  async function refreshLogin() {
     const data = {
       refresh: refreshToken.value
     }
-    const response = await makeAxiosRequest('/api/users/login/refresh', 'POST', false, true, data)
+    const response = await makeAxiosRequest('/api/users/login/refresh', 'POST', false, false, data)
     if (response.success && response.data.access && response.data.refresh) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
@@ -103,7 +103,7 @@ export const useUserStore = defineStore('api/user', () => {
   // Cant use direct import because https://github.com/vitejs/vite/issues/4430#issuecomment-979013114.
   async function signOut(router: Router) {
     const data = { refresh: refreshToken.value }
-    await makeAxiosRequest('api/users/logout', 'POST', true, true, data)
+    await makeAxiosRequest('api/users/logout', 'POST', false, false, data)
     refreshToken.value = null
     accessToken.value = null
     router.push('/signin')
@@ -142,7 +142,7 @@ export const useUserStore = defineStore('api/user', () => {
     register,
     resetPasswordRequest,
     resetPassword,
-    getNewRefreshAndAccessToken,
+    refreshLogin,
     userIsSignedIn,
     refreshTokenPayload,
     testLogin
