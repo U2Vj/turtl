@@ -4,17 +4,17 @@ import { storeToRefs } from 'pinia'
 
 type HTTPMethodName = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
-type SuccessfullResponse = {
+type SuccessfulResponse = {
   success: true
   data: any
 }
 
-type UnsuccessfullResponse = {
+type UnsuccessfulResponse = {
   success: false
   message: string
 }
 
-type Response = SuccessfullResponse | UnsuccessfullResponse
+type Response = SuccessfulResponse | UnsuccessfulResponse
 
 const axiosInstance = axios.create({ baseURL: import.meta.env.VITE_API_URL })
 
