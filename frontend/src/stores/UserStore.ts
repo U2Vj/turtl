@@ -68,13 +68,12 @@ export const useUserStore = defineStore('api/user', () => {
 
   async function getNewRefreshAndAccessToken() {
     const data = {
-      refresh: refreshToken
+      refresh: refreshToken.value
     }
     const response = await makeAxiosRequest('/api/users/login/refresh', 'POST', false, true, data)
     if (response.success && response.data.access && response.data.refresh) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
-      console.log('help')
       return true
     }
     return false
