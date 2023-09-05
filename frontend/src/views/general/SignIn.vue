@@ -13,9 +13,9 @@ const schema = toTypedSchema(
   yup.object({
     email: yup
       .string()
-      .required('This 4 field is required')
+      .required('This field is required')
       .email('Please enter a valid email address'),
-    password: yup.string().required('This 4 field is required')
+    password: yup.string().required('This field is required')
   })
 )
 const { handleSubmit } = useForm({ validationSchema: schema })

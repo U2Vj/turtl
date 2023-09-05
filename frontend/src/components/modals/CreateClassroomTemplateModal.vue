@@ -13,7 +13,7 @@ const createFunctionCalls = ref(0)
 const templateStore = useTemplateStore()
 
 const schema = yup.object({
-  title: yup.string().required('This 1 field is required')
+  title: yup.string().required('This field is required')
 })
 const { handleSubmit } = useForm({ validationSchema: schema })
 
