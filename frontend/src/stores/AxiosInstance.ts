@@ -1,20 +1,22 @@
 import { useAuthStore } from './AuthStore'
 import axios, { type AxiosRequestConfig } from 'axios'
 import { storeToRefs } from 'pinia'
+import {useUserStore} from "@/stores/UserStore";
+import router from "@/router";
 
 type HTTPMethodName = 'GET' | 'POST' | 'PUT' | 'DELETE'
 
-type SuccessfullResponse = {
+type SuccessfulResponse = {
   success: true
   data: any
 }
 
-type UnsuccessfullResponse = {
+type UnsuccessfulResponse = {
   success: false
   message: string
 }
 
-type Response = SuccessfullResponse | UnsuccessfullResponse
+type Response = SuccessfulResponse | UnsuccessfulResponse
 
 const axiosInstance = axios.create({ baseURL: import.meta.env.VITE_API_URL })
 
@@ -27,7 +29,7 @@ export async function makeAxiosRequest(
 ): Promise<Response> {
   // TODO: find out why this can't be used outside of the function.
   const authStore = useAuthStore()
-  const { refreshToken, accessToken } = storeToRefs(authStore)
+  const { accessToken } = storeToRefs(authStore)
 
   const config: AxiosRequestConfig = {}
 
@@ -52,31 +54,22 @@ export async function makeAxiosRequest(
     }
     return { success: true, data: response.data }
   } catch (error) {
-    if (tryToUpdateTokenWhenUnauthorized) {
-      const data = { refresh: refreshToken.value }
-      const responseToRefreshRequest = await makeAxiosRequest(
-        'api/users/login/refresh',
-        'POST',
-        false,
-        false,
-        data
-      )
-
-      if (responseToRefreshRequest.success) {
-        accessToken.value = responseToRefreshRequest?.data.access
-        refreshToken.value = responseToRefreshRequest?.data.refresh
-
-        const response = await makeAxiosRequest(url, method, useAuthorization, false, data)
-        return response
-      }
+    if(tryToUpdateTokenWhenUnauthorized) {
+      const userStore = useUserStore()
+      return await userStore.refreshLogin().then(async (success) => {
+        if (success) {
+          return await makeAxiosRequest(url, method, useAuthorization, false, data)
+        }
+        await userStore.signOut(router)
+        return {
+          success: false,
+          message: 'Could not obtain new access token, logging out...'
+        }
+      })
     }
-    if (axios.isAxiosError(error) && error.response?.data.message) {
-      return { success: false, message: error.response.data.message }
-    }
-
     return {
       success: false,
-      message: 'An error occured'
+      message: 'An error occurred'
     }
   }
 }

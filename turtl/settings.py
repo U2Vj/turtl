@@ -89,7 +89,7 @@ REST_FRAMEWORK = {
 }
 SIMPLE_JWT = {
     # It will work instead of the default serializer(TokenObtainPairSerializer).
-    "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.CustomTokenObtainSerializer",
+    "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.LoginSerializer",
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
 }
