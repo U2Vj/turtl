@@ -4,13 +4,13 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { ref } from 'vue'
 
-const props = defineProps<{ resourceId: string }>()
+// const props = defineProps<{ resourceId: string }>()
 const showDialog = ref(false)
 
 const templateStore = useTemplateStore()
 
 // let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate(props.resourceId)
+// templateStore.fetchTemplate(props.resourceId)
 
 async function deleteTemplate() {
   //   const result = await templateStore.deleteClassroomTemplate(props.resourceId)

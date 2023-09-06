@@ -8,7 +8,6 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import AddResourceModal from '@/components/modals/AddResourceModal.vue'
-import DeleteClassroomResourceModal from '@/components/modals/DeleteClassroomResourceModal.vue'
 import DeleteClassroomTemplateModal from '@/components/modals/DeleteClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
@@ -151,7 +150,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
 
                           <template #[`item.link`]="{ item }">
                             <TextButton buttonName="Delete">
-                              <DeleteClassroomResourceModal :resourceId="item.columns.id" />
+                              <!-- <DeleteClassroomResourceModal :resourceId="item.columns.id" /> -->
                             </TextButton>
                           </template>
                         </v-data-table>
