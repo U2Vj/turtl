@@ -9,7 +9,6 @@ import * as yup from 'yup'
 
 const showDialog = ref(false)
 const router = useRouter()
-const createFunctionCalls = ref(0)
 const templateStore = useTemplateStore()
 
 const schema = yup.object({
@@ -28,7 +27,6 @@ const create = handleSubmit(async (values) => {
   if (result.success) {
     router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
   }
-  createFunctionCalls.value++
 })
 
 const resetForm = useResetForm()
