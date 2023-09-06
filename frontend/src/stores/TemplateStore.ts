@@ -59,7 +59,6 @@ export type TemplateData = BasicTemplateData & AdditionalTemplateData
 export const useTemplateStore = defineStore('template', () => {
   const classroomTemplate = ref<TemplateData | undefined>()
   const basicTemplateData = ref<BasicTemplateData[]>()
-  const additionalTemplateData = ref<AdditionalTemplateData[]>()
 
   async function fetchTemplate(id: string) {
     const response = await makeAxiosRequest(`/templates/classrooms/${id}`, 'GET', true, true)

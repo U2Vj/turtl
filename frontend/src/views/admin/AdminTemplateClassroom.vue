@@ -145,7 +145,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                           ]"
                           :items="templateData.helpful_resources"
                         >
-                          <template v-slot:item.url="{ item }">
+                          <template #[`item.url`]="{ item }">
                             <a :href="item.columns.url" target="_blank">{{ item.columns.url }}</a>
                           </template>
 

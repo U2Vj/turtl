@@ -2,16 +2,14 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
-import { ref, toRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 
 const props = defineProps<{ resourceId: string }>()
 const showDialog = ref(false)
-const router = useRouter()
 
 const templateStore = useTemplateStore()
 
-let templateData = toRef(templateStore, 'classroomTemplate')
+// let templateData = toRef(templateStore, 'classroomTemplate')
 templateStore.fetchTemplate(props.resourceId)
 
 async function deleteTemplate() {

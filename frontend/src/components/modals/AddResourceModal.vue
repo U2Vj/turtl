@@ -4,12 +4,9 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref, toRef } from 'vue'
-import { useRouter } from 'vue-router'
 import * as yup from 'yup'
 
 const showDialog = ref(false)
-const router = useRouter()
-const createFunctionCalls = ref(0)
 const templateStore = useTemplateStore()
 
 const props = defineProps<{ templateId: string }>()
