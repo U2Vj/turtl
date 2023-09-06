@@ -47,7 +47,6 @@ const createURL = handleSubmit(async (values) => {
     }
     templateData.value?.helpful_resources.push(newResource)
     const response = await templateStore.changeTemplateData(props.templateId, templateData.value)
-    console.log(response)
     if (response) {
       showDialog.value = false
       resetForm()

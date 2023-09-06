@@ -76,8 +76,6 @@ export const useTemplateStore = defineStore('template', () => {
       true,
       templateData
     )
-    console.log(response)
-    console.log('templatData', templateData)
     if (response.success) {
       classroomTemplate.value = response.data
     } else {
