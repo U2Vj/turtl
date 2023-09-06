@@ -90,7 +90,7 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                 v-for="project in templateData.project_templates"
                 :template-id="props.templateId"
                 :key="project.id"
-                :project-id="project.id"
+                :project-id="`${project.id}`"
                 :title="project.title"
                 :taskTemplates="project.task_templates"
                 @update:task_template="handleUpdateTaskOrder"
