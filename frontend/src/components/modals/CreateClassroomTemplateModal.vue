@@ -28,8 +28,6 @@ const create = handleSubmit(async (values) => {
     router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
   } else {
     titleError.value = 'The title already exists.'
-    console.log('title', titleError)
-    console.log('title value', titleError.value)
   }
 })
 
