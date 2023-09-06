@@ -96,6 +96,8 @@ export const useTemplateStore = defineStore('template', () => {
     const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
     if (response.success) {
       basicTemplateData.value = response.data
+    } else {
+      console.error
     }
     return basicTemplateData
   }
@@ -106,7 +108,6 @@ export const useTemplateStore = defineStore('template', () => {
     }
     const response = await makeAxiosRequest('templates/classrooms', 'POST', true, true, data)
     if (response.success) {
-      basicTemplateData.value = response.data
       return { success: true, id: response.data.id }
     }
     return { success: false, id: null }
