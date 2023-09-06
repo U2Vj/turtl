@@ -14,6 +14,7 @@ const templateStore = useTemplateStore()
 const schema = yup.object({
   title: yup.string().required('This field is required')
 })
+
 const { handleSubmit } = useForm({ validationSchema: schema })
 
 const { value: titleNewClassroom, errorMessage: titleError } = useField<string>(
@@ -26,8 +27,6 @@ const create = handleSubmit(async (values) => {
   const result = await templateStore.createProjectTemplate(values.title)
   if (result.success) {
     router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
-  } else {
-    titleError.value = 'The title already exists.'
   }
 })
 
