@@ -5,31 +5,33 @@ import { useTemplateStore } from '@/stores/TemplateStore'
 import { ref, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 
-const props = defineProps<{ templateId: string }>()
+const props = defineProps<{ resourceId: string }>()
 const showDialog = ref(false)
 const router = useRouter()
 
 const templateStore = useTemplateStore()
 
 let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate(props.templateId)
+templateStore.fetchTemplate(props.resourceId)
 
 async function deleteTemplate() {
-  const result = await templateStore.deleteClassroomTemplate(props.templateId)
-  if (result) {
-    router.push('/admin/templates')
-  } else {
-    console.error
-  }
+  //   const result = await templateStore.deleteClassroomTemplate(props.resourceId)
+  //
+  // TODO: Delete Resource
+  //   if (result) {
+  //     showDialog.value = false
+  //   } else {
+  //     console.error
+  //   }
 }
 </script>
 
 <template>
-  <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
+  <v-dialog v-model="showDialog" activator="parent" persistent width="60%">
     <v-card>
-      <v-card-title>Permanently delete Classroom</v-card-title>
+      <v-card-title>Delete Rsource </v-card-title>
       <v-card-text>
-        <p>Are you sure you want to permanently delete "{{ templateData?.title }}"</p>
+        <p>Are you sure you want to permanently delete the Resource "RESOURCE NAME EINFÜGEN"</p>
       </v-card-text>
       <v-card-actions>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>

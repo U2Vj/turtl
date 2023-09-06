@@ -3,10 +3,12 @@ import TemplateCard from '@/components/TemplateCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddManagerModal from '@/components/modals/AddManagerModal.vue'
 import AddProjectTemplateModal from '@/components/modals/AddProjectTemplateModal.vue'
 import AddResourceModal from '@/components/modals/AddResourceModal.vue'
+import DeleteClassroomResourceModal from '@/components/modals/DeleteClassroomResourceModal.vue'
 import DeleteClassroomTemplateModal from '@/components/modals/DeleteClassroomTemplateModal.vue'
 import { useTemplateStore } from '@/stores/TemplateStore'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
@@ -122,23 +124,46 @@ function handleUpdateTaskOrder(projectId: string, event: any) {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>Helpful resources</v-card-title>
                     <v-card-text>
-                      <v-row>
-                        <v-col>
-                          <li v-for="resource in templateData.helpful_resources">
-                            <a :href="resource.url">{{ resource.title }}</a>
-                          </li>
-                        </v-col>
-                      </v-row>
-                      <v-row>
-                        <v-col>
-                          <SecondaryButton
-                            buttonName="Add Resource"
-                            @click="showResourceModal = true"
-                          >
-                            <AddResourceModal :templateId="props.templateId" />
-                          </SecondaryButton>
-                        </v-col>
-                      </v-row>
+                      <div>
+                        <v-data-table
+                          :headers="[
+                            {
+                              title: 'Name',
+                              align: 'start',
+                              key: 'title'
+                            },
+                            {
+                              title: 'Link',
+                              align: 'start',
+                              key: 'url'
+                            },
+                            {
+                              title: 'Delete',
+                              align: 'center',
+                              key: 'link'
+                            }
+                          ]"
+                          :items="templateData.helpful_resources"
+                        >
+                          <template v-slot:item.url="{ item }">
+                            <a :href="item.columns.url" target="_blank">{{ item.columns.url }}</a>
+                          </template>
+
+                          <template #[`item.link`]="{ item }">
+                            <TextButton buttonName="Delete">
+                              <DeleteClassroomResourceModal :resourceId="item.columns.id" />
+                            </TextButton>
+                          </template>
+                        </v-data-table>
+                      </div>
+                      <div class="mt-5">
+                        <SecondaryButton
+                          buttonName="Add Resource"
+                          @click="showResourceModal = true"
+                        >
+                          <AddResourceModal :templateId="props.templateId" />
+                        </SecondaryButton>
+                      </div>
                     </v-card-text>
                   </v-card>
                 </div>
