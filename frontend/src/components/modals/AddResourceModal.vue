@@ -57,14 +57,6 @@ const createURL = handleSubmit(async (values) => {
     }
   }
 })
-
-// const createURL = handleSubmit(async (values) => {
-//   //   const result = await templateStore.createProjectTemplate(values.title)
-//   //   if (result.success) {
-//   //     router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
-//   //   }
-//   //   createFunctionCalls.value++
-// })
 </script>
 
 <template>

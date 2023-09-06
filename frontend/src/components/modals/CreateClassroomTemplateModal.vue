@@ -26,6 +26,10 @@ const create = handleSubmit(async (values) => {
   const result = await templateStore.createProjectTemplate(values.title)
   if (result.success) {
     router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
+  } else {
+    titleError.value = 'The title already exists.'
+    console.log('title', titleError)
+    console.log('title value', titleError.value)
   }
 })
 
