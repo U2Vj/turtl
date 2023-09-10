@@ -8,6 +8,8 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import { VDataTable } from 'vuetify/labs/VDataTable'
 import 'vuetify/styles'
+import Toast, { type PluginOptions } from 'vue-toastification'
+import 'vue-toastification/dist/index.css';
 
 const turtlTheme: ThemeDefinition = {
   dark: false,
@@ -33,8 +35,16 @@ const vuetify = createVuetify({
 
 const app = createApp(App)
 
+// The options for the used notification library (vue-toastification)
+const toastificationOptions: PluginOptions = {
+  transition: "Vue-Toastification__fade",
+  maxToasts: 10,
+  newestOnTop: true
+}
+
 app.use(createPinia())
 app.use(router)
 app.use(vuetify)
+app.use(Toast, toastificationOptions)
 
 app.mount('#app')
