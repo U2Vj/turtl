@@ -12,7 +12,7 @@ const userStore = useUserStore()
 
 const schema = toTypedSchema(
   yup.object({
-    username: yup.string().test('checkLengthOptional', 'Username needs to be between 2 and 255 characters long',
+    username: yup.string().nullable().test('checkLengthOptional', 'Username needs to be between 2 and 255 characters long',
         (value) => {
           // If there is a value, we want to make sure it more than 2 and less than 255
           if(value) {
@@ -117,7 +117,6 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
           name="username"
           type="text"
           label="Your username"
-          clearable
           variant="underlined"
           base-color="primary"
           color="primary"
@@ -135,7 +134,6 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
           name="oldPassword"
           type="password"
           label="Enter current password"
-          clearable
           variant="underlined"
           base-color="primary"
           color="primary"
@@ -147,7 +145,6 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
           name="newPassword"
           type="password"
           label="Enter new password"
-          clearable
           variant="underlined"
           base-color="primary"
           color="primary"
@@ -160,7 +157,6 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
           name="newPasswordValidation"
           type="password"
           label="Confirm new password"
-          clearable
           variant="underlined"
           base-color="primary"
           color="primary"
