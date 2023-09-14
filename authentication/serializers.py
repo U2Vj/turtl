@@ -159,6 +159,7 @@ class LoginSerializer(TokenObtainPairSerializer):
 
         token['username'] = user.username
         token['role'] = user.role
+        token['role_display'] = user.get_role_display()
         token['email'] = user.email
 
         return token
