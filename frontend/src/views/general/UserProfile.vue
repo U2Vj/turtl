@@ -110,6 +110,8 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
       <v-form @submit="submit">
         <div class="mt-5"><h2>Email address</h2></div>
         <div>{{ userStore.refreshTokenPayload?.email }}</div>
+        <div class="mt-5"><h2>Role</h2></div>
+        <div>{{ userStore.refreshTokenPayload?.role_display }}</div>
         <div class="mt-5"><h2>Username</h2></div>
         <v-text-field
           v-model="username"

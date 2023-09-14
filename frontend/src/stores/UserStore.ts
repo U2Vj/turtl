@@ -27,7 +27,8 @@ type RefreshTokenPayload = {
   jti: string
   user_id: number
   username: string
-  role: 'ADMINISTRATOR'
+  role: string
+  role_display: string
   email: string
 }
 
