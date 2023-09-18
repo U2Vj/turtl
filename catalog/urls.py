@@ -1,6 +1,6 @@
 from django.urls import path
 
-from .views import (ProjectNew, ProjectDetail, TaskNew, TaskDetail,
+from .views import (ProjectNew, ProjectDetailViewSet, TaskNew, TaskDetailViewSet,
                     ClassroomViewSet, ClassroomInstructorViewSet, ClassroomDetailViewSet)
 
 # This file maps the api endpoints to the corresponding URLs.
@@ -15,8 +15,16 @@ urlpatterns = [
         'delete': 'destroy'
     })),
     path('projects', ProjectNew.as_view()),
-    path('projects/<int:project_id>/', ProjectDetail.as_view()),
+    path('projects/<int:pk>', ProjectDetailViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'delete': 'destroy'
+    })),
     path('tasks/', TaskNew.as_view()),
-    path('tasks/<int:task_id>/', TaskDetail.as_view()),
+    path('tasks/<int:pk>/', TaskDetailViewSet.as_view({
+        'get': 'retrieve',
+        'put': 'update',
+        'delete': 'destroy'
+    })),
     path('users/instructors', ClassroomInstructorViewSet.as_view({'get': 'list'})),
 ]
