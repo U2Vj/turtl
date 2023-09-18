@@ -6,6 +6,7 @@ import { computed, type Ref } from 'vue'
 import type { Router } from 'vue-router'
 import { useAuthStore } from './AuthStore'
 import { makeAxiosRequest } from './AxiosInstance'
+import {useToast} from "vue-toastification";
 
 type LoginData = {
   user: {
@@ -32,6 +33,8 @@ type RefreshTokenPayload = {
   email: string
 }
 
+const toast = useToast()
+
 export const useUserStore = defineStore('api/user', () => {
   const authStore = useAuthStore()
   const { refreshToken, accessToken } = storeToRefs(authStore)
@@ -52,18 +55,20 @@ export const useUserStore = defineStore('api/user', () => {
     }
   })
 
-  async function login(logininData: LoginData) {
+  async function login(loginData: LoginData) {
     const data = {
-      email: logininData.user.email,
-      password: logininData.user.password
+      email: loginData.user.email,
+      password: loginData.user.password
     }
 
     const response = await makeAxiosRequest('api/users/login', 'POST', false, false, data)
     if (response.success) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
+      toast.info("Welcome back!")
       return true
     }
+    toast.error(response.message)
     return false
   }
 
@@ -107,6 +112,7 @@ export const useUserStore = defineStore('api/user', () => {
     await makeAxiosRequest('api/users/logout', 'POST', false, false, data)
     refreshToken.value = null
     accessToken.value = null
+    toast.info("You have been signed out")
     router.push('/signin')
   }
 

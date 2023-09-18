@@ -28,6 +28,7 @@
     "vite-plugin-vuetify": "^1.0.2",
     "vue": "^3.2.47",
     "vue-router": "^4.2.2",
+    "vue-toastification": "^2.0.0-rc.5",
     "vuetify": "^3.3.2",
     "xterm": "^5.1.0",
     "xterm-addon-attach": "^0.8.0",
