@@ -7,8 +7,10 @@ import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'
 import { useField, useForm } from 'vee-validate'
 import * as yup from 'yup'
+import {useToast} from "vue-toastification";
 
 const userStore = useUserStore()
+const toast = useToast()
 
 const schema = toTypedSchema(
   yup.object({
@@ -89,13 +91,15 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
     })
   }
 
-  const req = await makeAxiosRequest('/api/users/profile', 'PUT', true, true, data)
+  const res = await makeAxiosRequest('/api/users/profile', 'PUT', true, true, data)
 
   // If the request was successful, we need to refresh the login data to get the updated token claims (e.g. username)
-  if(req.success) {
+  if(res.success) {
     await userStore.refreshLogin()
+    toast.success("Your changes have been saved.")
+  } else {
+    toast.error(res.message)
   }
-
   // Reset the password form
   setFieldValue('oldPassword', undefined)
   setFieldValue('newPassword', undefined)

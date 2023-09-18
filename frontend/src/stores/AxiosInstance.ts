@@ -13,7 +13,8 @@ type SuccessfulResponse = {
 
 type UnsuccessfulResponse = {
   success: false
-  message: string
+  message: string,
+  data?: any
 }
 
 type Response = SuccessfulResponse | UnsuccessfulResponse
@@ -27,7 +28,6 @@ export async function makeAxiosRequest(
   tryToUpdateTokenWhenUnauthorized: boolean,
   data?: any
 ): Promise<Response> {
-  // TODO: find out why this can't be used outside of the function.
   const authStore = useAuthStore()
   const { accessToken } = storeToRefs(authStore)
 
@@ -53,8 +53,10 @@ export async function makeAxiosRequest(
         response = await axiosInstance.delete(url, config)
     }
     return { success: true, data: response.data }
-  } catch (error) {
-    if(tryToUpdateTokenWhenUnauthorized) {
+  } catch (error: any) {
+    if(error.response.status === 401
+        && error.response.data?.code === 'token_not_valid'
+        && tryToUpdateTokenWhenUnauthorized) {
       const userStore = useUserStore()
       return await userStore.refreshLogin().then(async (success) => {
         if (success) {
@@ -63,13 +65,32 @@ export async function makeAxiosRequest(
         await userStore.signOut(router)
         return {
           success: false,
-          message: 'Could not obtain new access token, logging out...'
+          message: 'Your session has expired. Please sign in again.'
         }
       })
     }
+    // This section constructs an error message either by getting the error detail or, if that is not available (e.g.
+    // backend form validation errors), by adding each error description of each form field to the error message returned
+    // by this function.
+    let errorMessage: string = `Error ${error?.response.status}`
+    if(error?.response.data?.detail) {
+      errorMessage += `: ${error?.response.data?.detail}`
+    } else if(error?.response.data?.errors) {
+      errorMessage += ": "
+      for(const [field, errorDescriptions] of Object.entries<string[]>(error.response.data.errors)) {
+        errorMessage += `Field ${field}: `
+        for(const errorDescription of errorDescriptions) {
+          errorMessage += `${errorDescription} `
+        }
+        errorMessage = errorMessage.slice(0,-1)
+        errorMessage += ", "
+      }
+      errorMessage = errorMessage.slice(0, -2)
+    }
     return {
       success: false,
-      message: 'An error occurred'
+      message: errorMessage,
+      data: error?.response?.data
     }
   }
 }
