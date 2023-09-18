@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from authentication.models import User
-from catalog.models import ClassroomTemplate, ProjectTemplate, ClassroomTemplateManager, HelpfulResource, TaskTemplate, \
-    Virtualization, AcceptanceCriteria, Question, QuestionChoice
+from catalog.models import (ClassroomTemplate, ProjectTemplate, ClassroomTemplateInstructor, HelpfulResource,
+                            TaskTemplate, Virtualization, AcceptanceCriteria, Question, QuestionChoice)
 
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 
@@ -167,13 +167,13 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']
 
 
-class ClassroomTemplateManagerSerializer(WritableNestedModelSerializer):
+class ClassroomTemplateInstructorSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     user = UserSerializer()
     added_at = serializers.DateTimeField()
 
     class Meta:
-        model = ClassroomTemplateManager
+        model = ClassroomTemplateInstructor
         fields = ['id', 'user', 'added_at']
 
 
@@ -194,12 +194,12 @@ class ClassroomTemplateDetailSerializer(WritableNestedModelSerializer):
     updated_at = serializers.DateTimeField()
     project_templates = ProjectTemplateClassroomSerializer(many=True)
     helpful_resources = HelpfulResourceSerializer(many=True)
-    managers = ClassroomTemplateManagerSerializer(many=True)
+    instructors = ClassroomTemplateInstructorSerializer(many=True)
 
     class Meta:
         model = ClassroomTemplate
         fields = ['id', 'title', 'created_at', 'updated_at', 'project_templates', 'helpful_resources',
-                  'managers']
+                  'instructors']
 
 
 class ClassroomTemplateSerializer(serializers.ModelSerializer):

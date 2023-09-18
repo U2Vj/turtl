@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import ClassroomTemplateDetail, ProjectTemplateNew, ProjectTemplateDetail, \
-    TaskTemplateList, TaskTemplateDetail, ClassroomTemplateViewSet, ClassroomTemplateManagerViewSet
+    TaskTemplateList, TaskTemplateDetail, ClassroomTemplateViewSet, ClassroomTemplateInstructorViewSet
 
 # This file maps the api endpoints to the corresponding URLs.
 # https://docs.djangoproject.com/en/3.1/topics/http/urls/
@@ -14,5 +14,5 @@ urlpatterns = [
     path('projects/<int:project_id>/', ProjectTemplateDetail.as_view(), name='project-template-detail'),
     path('tasks/', TaskTemplateList.as_view(), name='task-template-list'),
     path('tasks/<int:task_id>/', TaskTemplateDetail.as_view(), name='task-template-detail'),
-    path('users/managers', ClassroomTemplateManagerViewSet.as_view({'get': 'list'})),
+    path('users/instructors', ClassroomTemplateInstructorViewSet.as_view({'get': 'list'})),
 ]

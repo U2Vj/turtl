@@ -2,7 +2,7 @@ from django.db import models
 from rules.contrib.models import RulesModel
 from .predicates import manages_classroom_template
 from authentication.models import User
-from authentication.predicates import is_manager, is_administrator, is_instructor
+from authentication.predicates import is_administrator, is_instructor
 
 
 class Question(models.Model):
@@ -78,7 +78,7 @@ class AcceptanceCriteria(models.Model):
 class ClassroomTemplate(RulesModel):
     """
         A ClassroomTemplate has a title, a description, a created_at timestamp and an updated_at timestamp.
-        It has a ManyToMany relationship (managers) to the User model and a ManyToMany relationship to the
+        It has a ManyToMany relationship (instructors) to the User model and a ManyToMany relationship to the
         ProjectTemplate model.
     """
 
@@ -91,38 +91,43 @@ class ClassroomTemplate(RulesModel):
     # A timestamp representing when this object was last updated.
     updated_at = models.DateTimeField(auto_now=True)
 
-    # Permissions
+    instructors = models.ManyToManyField(User, related_name='classroom_templates',
+                                         through="ClassroomTemplateInstructor",
+                                         through_fields=('classroom_template', 'instructor'))
+
+    # Permissions (Administrators automatically have all permissions)
     class Meta:
         rules_permissions = {
-            # Managers and administrators can create classroom templates in our application
-            "add": is_manager | is_administrator,
-            # Reading classroom templates is allowed for instructors, managers and administrators
-            "read": is_instructor | is_manager | is_administrator,
+            # Instructors can create classroom templates in our application
+            "add": is_instructor,
+            # Reading classroom templates is allowed for instructors
+            "read": is_instructor,
             # To edit an existing classroom template, you must be able to create one and also manage the one you are
             # trying to modify
-            "change": (is_manager | is_administrator) & manages_classroom_template,
-            # Additionally, administrators can always delete classroom templates
-            "delete": (is_manager & manages_classroom_template) | is_administrator
+            "change": is_instructor & manages_classroom_template,
+            # The same applies for deleting classrooms
+            "delete": is_instructor & manages_classroom_template
         }
 
 
-class ClassroomTemplateManager(models.Model):
+class ClassroomTemplateInstructor(models.Model):
     """
-        This model defines the relationship between a ClassroomTemplate and a User (i.e. a manager). It consists of the
-        two necessary foreign keys and a timestamp added_at which saves when this manager was added to the
-        ClassroomTemplate. It also contains an added_by field which references the user who added the manager to the
+        This model defines the relationship between a ClassroomTemplate and a User (i.e. an instructor). It consists of
+        the two necessary foreign keys and a timestamp added_at which saves when this instructor was added to the
+        ClassroomTemplate. It also contains an added_by field which references the user who added the instructor to the
         ClassroomTemplate.
     """
-    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE, related_name='managers')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='classroomtemplatemanager_set_manager')
+    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE)
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE,
+                                   related_name='classroomtemplateinstructor_set_instructor')
     added_at = models.DateTimeField(auto_now_add=True)
 
-    # Please note that it is possible for a user to delete their account. When manager A added another manager B but
-    # manager A deletes their account, the relationship between manager B and the ClassroomTemplate still exists.
-    # However, the user (manager A) who added manager B might not. In this case, the added_by field should be set to
-    # NULL (which is why it is nullable).
+    # Please note that it is possible for a user to delete their account. When instructor A added another instructor B
+    # but instructor A deletes their account, the relationship between instructor B and the ClassroomTemplate still
+    # exists. However, the user (instructor A) who added instructor B might not. In this case, the added_by field
+    # should be set to NULL (which is why it is nullable).
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
-                                 related_name='classroomtemplatemanager_set_added_by')
+                                 related_name='classroomtemplateinstructor_set_added_by')
 
 
 class HelpfulResource(models.Model):
@@ -143,7 +148,7 @@ class ProjectTemplate(RulesModel):
     title = models.CharField(max_length=120)
 
     classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
-                                            related_name='project_templates')
+                                           related_name='project_templates')
 
 
 class TaskTemplate(models.Model):

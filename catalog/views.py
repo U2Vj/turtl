@@ -1,5 +1,4 @@
 from django.http import Http404
-from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import status
@@ -9,10 +8,10 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 
-from catalog.models import ClassroomTemplate, TaskTemplate, ProjectTemplate, ClassroomTemplateManager
+from catalog.models import ClassroomTemplate, TaskTemplate, ProjectTemplate, ClassroomTemplateInstructor
 from catalog.serializers import (ClassroomTemplateSerializer, ProjectTemplateClassroomSerializer,
                                  TaskTemplateSerializer, ClassroomTemplateDetailSerializer,
-                                 ProjectTemplateNewSerializer, ClassroomTemplateManagerSerializer)
+                                 ProjectTemplateNewSerializer, ClassroomTemplateInstructorSerializer)
 
 
 class ClassroomTemplateViewSet(ModelViewSet):
@@ -111,6 +110,6 @@ class TaskTemplateDetail(APIView):
             return Response(status=status.HTTP_404_NOT_FOUND)
 
 
-class ClassroomTemplateManagerViewSet(ModelViewSet):
-    queryset = ClassroomTemplateManager.objects.all()
-    serializer_class = ClassroomTemplateManagerSerializer
+class ClassroomTemplateInstructorViewSet(ModelViewSet):
+    queryset = ClassroomTemplateInstructor.objects.all()
+    serializer_class = ClassroomTemplateInstructorSerializer
