@@ -12,9 +12,9 @@ from rest_framework_simplejwt.views import (
 
 app_name = 'authentication'
 urlpatterns = [
-    path('users/login', TokenObtainPairView.as_view(), name='login'),
-    path('users/login/refresh', LoginRefreshView.as_view(), name='login_refresh'),
-    path('users/logout', TokenBlacklistView.as_view(), name='logout'),
-    path('users/login/test', TestProtectedView.as_view()),
-    path('users/profile', ProfileUpdateView.as_view()),
+    path('login', TokenObtainPairView.as_view(), name='login'),
+    path('login/refresh', LoginRefreshView.as_view(), name='login_refresh'),
+    path('logout', TokenBlacklistView.as_view(), name='logout'),
+    path('login/test', TestProtectedView.as_view()),
+    path('profile', ProfileUpdateView.as_view()),
 ]

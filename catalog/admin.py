@@ -1,15 +1,15 @@
 from django.contrib import admin
-from .models import (ClassroomTemplate, ClassroomTemplateInstructor, ProjectTemplate, TaskTemplate, \
-                     AcceptanceCriteria, Question, QuestionChoice, HelpfulResource, Virtualization)
+from .models import (Classroom, ClassroomInstructor, Project, Task, AcceptanceCriteria,
+                     Question, QuestionChoice, HelpfulResource, Virtualization)
 
 # Register your models here.
-admin.site.register(ClassroomTemplate)
+admin.site.register(Classroom)
 
-admin.site.register(ClassroomTemplateInstructor)
+admin.site.register(ClassroomInstructor)
 
-admin.site.register(ProjectTemplate)
+admin.site.register(Project)
 
-admin.site.register(TaskTemplate)
+admin.site.register(Task)
 
 admin.site.register(AcceptanceCriteria)
 

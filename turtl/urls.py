@@ -23,8 +23,8 @@ urlpatterns = [
     path('admin/', admin.site.urls),
    # path('docker/', include('dockerService.urls')),
     path('shell/', include('shell.urls')),
-    path('api/', include('authentication.urls')),
-    path('templates/', include('catalog.urls'))
+    path('users/', include('authentication.urls')),
+    path('catalog/', include('catalog.urls'))
 ]
 
 

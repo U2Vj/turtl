@@ -1,8 +1,8 @@
 from django.db import models
 from rules.contrib.models import RulesModel
-from .predicates import manages_classroom_template
+from .predicates import manages_classroom
 from authentication.models import User
-from authentication.predicates import is_administrator, is_instructor
+from authentication.predicates import is_instructor
 
 
 class Question(models.Model):
@@ -75,14 +75,14 @@ class AcceptanceCriteria(models.Model):
         return f"{self.get_criteria_type_display()} Acceptance Criteria"
 
 
-class ClassroomTemplate(RulesModel):
+class Classroom(RulesModel):
     """
-        A ClassroomTemplate has a title, a description, a created_at timestamp and an updated_at timestamp.
-        It has a ManyToMany relationship (instructors) to the User model and a ManyToMany relationship to the
-        ProjectTemplate model.
+        A Classroom has a title, a description, a created_at timestamp and an updated_at timestamp.
+        It has a ManyToMany relationship (instructors) to the User model and a OneToMany relationship to the
+        Project model.
     """
 
-    # A ClassroomTemplate has a title e.g.: Eternal Blue Exploit
+    # A Classroom has a title e.g.: Eternal Blue Exploit
     title = models.CharField(max_length=120, unique=True)
 
     # A timestamp representing when this object was created.
@@ -91,109 +91,112 @@ class ClassroomTemplate(RulesModel):
     # A timestamp representing when this object was last updated.
     updated_at = models.DateTimeField(auto_now=True)
 
-    instructors = models.ManyToManyField(User, related_name='classroom_templates',
-                                         through="ClassroomTemplateInstructor",
-                                         through_fields=('classroom_template', 'instructor'))
+    # The Instructors who own this classroom
+    instructors = models.ManyToManyField(User,
+                                         through="ClassroomInstructor",
+                                         through_fields=('classroom', 'instructor'))
 
     # Permissions (Administrators automatically have all permissions)
     class Meta:
         rules_permissions = {
-            # Instructors can create classroom templates in our application
+            # Instructors can create classrooms in our application
             "add": is_instructor,
-            # Reading classroom templates is allowed for instructors
+            # Reading classrooms is allowed for instructors
             "read": is_instructor,
-            # To edit an existing classroom template, you must be able to create one and also manage the one you are
-            # trying to modify
-            "change": is_instructor & manages_classroom_template,
+            # To edit an existing classroom, you must be able to create one and also manage the one you are trying to
+            # modify
+            "change": is_instructor & manages_classroom,
             # The same applies for deleting classrooms
-            "delete": is_instructor & manages_classroom_template
+            "delete": is_instructor & manages_classroom
         }
 
 
-class ClassroomTemplateInstructor(models.Model):
+class ClassroomInstructor(models.Model):
     """
-        This model defines the relationship between a ClassroomTemplate and a User (i.e. an instructor). It consists of
+        This model defines the relationship between a Classroom and a User (i.e. an instructor). It consists of
         the two necessary foreign keys and a timestamp added_at which saves when this instructor was added to the
-        ClassroomTemplate. It also contains an added_by field which references the user who added the instructor to the
-        ClassroomTemplate.
+        Classroom. It also contains an added_by field which references the user who added the instructor to the
+        Classroom.
     """
-    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE)
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
     instructor = models.ForeignKey(User, on_delete=models.CASCADE,
-                                   related_name='classroomtemplateinstructor_set_instructor')
+                                   related_name='classroominstructor_set_instructor')
     added_at = models.DateTimeField(auto_now_add=True)
 
     # Please note that it is possible for a user to delete their account. When instructor A added another instructor B
-    # but instructor A deletes their account, the relationship between instructor B and the ClassroomTemplate still
+    # but instructor A deletes their account, the relationship between instructor B and the Classroom still
     # exists. However, the user (instructor A) who added instructor B might not. In this case, the added_by field
     # should be set to NULL (which is why it is nullable).
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
-                                 related_name='classroomtemplateinstructor_set_added_by')
+                                 related_name='classroominstructor_set_added_by')
 
 
 class HelpfulResource(models.Model):
-    title = models.CharField(max_length=120, unique=True)
+    title = models.CharField(max_length=120)
 
     url = models.URLField(max_length=200)
 
-    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
-                                           related_name="helpful_resources")
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE,
+                                  related_name="helpful_resources")
 
 
-class ProjectTemplate(RulesModel):
+class Project(RulesModel):
     """
-        A ProjectTemplate is a template that is used to create a Project.
+        A Project is contained within a classroom. It consists of a title and some tasks.
     """
 
-    # Title of the project
+    # Title of the Project
     title = models.CharField(max_length=120)
 
-    classroom_template = models.ForeignKey(ClassroomTemplate, on_delete=models.CASCADE,
-                                           related_name='project_templates')
+    # The corresponding classroom which this Project is a part of
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE,
+                                  related_name='projects')
 
 
-class TaskTemplate(models.Model):
+class Task(models.Model):
     """
-        A TaskTemplate is a template that is used to create a Task.
+        A Task is part of a Project.
     """
 
-    # Title of the task
+    # Title of the Task
     title = models.CharField(max_length=50)
 
-    # The project template that this task template belongs to
-    project_template = models.ForeignKey(ProjectTemplate, on_delete=models.CASCADE, related_name='task_templates')
+    # The project that this Task belongs to
+    project = models.ForeignKey(Project, on_delete=models.CASCADE, related_name='tasks')
 
-    # Description of the task
+    # Description of the Task
     description = models.TextField()
 
     NEUTRAL = 'neutral'  # Neutral type
     DEFENSE = 'defense'  # Defense type
     ATTACK = 'attack'  # Attack type
 
-    # Possible choices for the task type
+    # Possible choices for the Task type
     TASK_TYPE_CHOICES = [
         (NEUTRAL, "Neutral"),
         (DEFENSE, "Defense"),
         (ATTACK, "Attack")
     ]
 
-    # Type of the task, i.e. whether it is a neutral, defense or attack task
+    # Type of the Task, i.e. whether it is a neutral, defense or attack Task
     task_type = models.CharField(choices=TASK_TYPE_CHOICES, max_length=12)
 
     BEGINNER = "beginner"  # Beginner difficulty
     INTERMEDIATE = "intermediate"  # Intermediate difficulty
     ADVANCED = "advanced"  # Advanced difficulty
 
-    # Possible choices for the difficulty of a task
+    # Possible choices for the difficulty of a Task
     DIFFICULTY_CHOICES = [
         (BEGINNER, "Beginner"),
         (INTERMEDIATE, "Intermediate"),
         (ADVANCED, "Advanced")
     ]
 
-    # Difficulty of the task
+    # Difficulty of the Task
     difficulty = models.CharField(choices=DIFFICULTY_CHOICES, max_length=12)
 
-    # The acceptance criteria for this task, meaning how the user can prove that they have completed the task
+    # The acceptance criteria for this Task, meaning how the user can prove that they have completed the task
+    # TODO: This makes no sense -> a Task should be able to consist of multiple acceptance criteria
     acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
 
 
@@ -205,8 +208,8 @@ class Virtualization(models.Model):
     # Name of the virtualization
     name = models.CharField(max_length=30)
 
-    # The task template that this virtualization belongs to
-    template = models.ForeignKey(TaskTemplate, on_delete=models.CASCADE, related_name='virtualizations')
+    # The task that this virtualization belongs to
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='virtualizations')
 
     USER_SHELL = "user_shell"  # The user interacts with the virtualization via a shell
     USER_ACCESSIBLE = "user_accessible"  # The user interacts with the virtualization via an IP address
