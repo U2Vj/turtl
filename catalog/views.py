@@ -7,25 +7,29 @@ from rest_framework.response import Response
 
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rules.contrib.rest_framework import AutoPermissionViewSetMixin
 
 from catalog.models import Classroom, Task, Project, ClassroomInstructor
 from catalog.serializers import (ClassroomSerializer, ProjectDetailSerializer,
                                  TaskSerializer, ClassroomDetailSerializer,
                                  ProjectNewSerializer, ClassroomInstructorSerializer)
+from turtl.utils.permissions import AutoPermissionViewSetWithListMixin
 
 
-class ClassroomViewSet(ModelViewSet):
+class ClassroomViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
     queryset = Classroom.objects.all()
     serializer_class = ClassroomSerializer
-    # TODO: Add permission classes once they're working again
+
+    def perform_create(self, serializer):
+        classroom: Classroom = serializer.save()
+        ClassroomInstructor.objects.create(instructor=self.request.user,
+                                           classroom=classroom,
+                                           added_by=self.request.user).save()
 
 
-class ClassroomDetailViewSet(ModelViewSet):
+class ClassroomDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = ClassroomDetailSerializer
-
-    def get_queryset(self):
-        classroom_id: int = self.kwargs['pk']
-        return Classroom.objects.filter(id=classroom_id)
+    queryset = Classroom.objects.all()
 
 
 class ProjectNew(CreateAPIView):

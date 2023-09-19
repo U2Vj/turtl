@@ -1,4 +1,5 @@
 from django.db import models
+from rules import is_authenticated
 from rules.contrib.models import RulesModel
 from .predicates import manages_classroom
 from authentication.models import User
@@ -94,20 +95,21 @@ class Classroom(RulesModel):
     # The Instructors who own this classroom
     instructors = models.ManyToManyField(User,
                                          through="ClassroomInstructor",
-                                         through_fields=('classroom', 'instructor'))
+                                         through_fields=('classroom', 'instructor'),
+                                         related_name='classrooms')
 
     # Permissions (Administrators automatically have all permissions)
     class Meta:
         rules_permissions = {
-            # Instructors can create classrooms in our application
-            "add": is_instructor,
-            # Reading classrooms is allowed for instructors
-            "read": is_instructor,
+            # Authenticated Instructors can create classrooms in our application
+            "add": is_authenticated & is_instructor,
+            # Viewing classrooms is allowed for every authenticated user
+            "view": is_authenticated,
             # To edit an existing classroom, you must be able to create one and also manage the one you are trying to
             # modify
-            "change": is_instructor & manages_classroom,
+            "change": is_authenticated & is_instructor & manages_classroom,
             # The same applies for deleting classrooms
-            "delete": is_instructor & manages_classroom
+            "delete": is_authenticated & is_instructor & manages_classroom
         }
 
 
@@ -119,8 +121,7 @@ class ClassroomInstructor(models.Model):
         Classroom.
     """
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE)
-    instructor = models.ForeignKey(User, on_delete=models.CASCADE,
-                                   related_name='classroominstructor_set_instructor')
+    instructor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='classroominstructor_instructor')
     added_at = models.DateTimeField(auto_now_add=True)
 
     # Please note that it is possible for a user to delete their account. When instructor A added another instructor B
@@ -128,7 +129,7 @@ class ClassroomInstructor(models.Model):
     # exists. However, the user (instructor A) who added instructor B might not. In this case, the added_by field
     # should be set to NULL (which is why it is nullable).
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
-                                 related_name='classroominstructor_set_added_by')
+                                 related_name='classroominstructor_added_by')
 
 
 class HelpfulResource(models.Model):

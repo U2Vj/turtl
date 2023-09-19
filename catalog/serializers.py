@@ -177,11 +177,12 @@ class UserSerializer(serializers.ModelSerializer):
 class ClassroomInstructorSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     instructor = UserSerializer()
-    added_at = serializers.DateTimeField()
+    added_at = serializers.DateTimeField(read_only=True)
+    added_by = UserSerializer()
 
     class Meta:
         model = ClassroomInstructor
-        fields = ['id', 'instructor', 'added_at']
+        fields = ['id', 'instructor', 'added_at', 'added_by']
 
 
 class HelpfulResourceSerializer(serializers.ModelSerializer):
@@ -208,7 +209,7 @@ class ClassroomDetailSerializer(WritableNestedModelSerializer):
     updated_at = serializers.DateTimeField()
     projects = ProjectDetailSerializer(many=True)
     helpful_resources = HelpfulResourceSerializer(many=True)
-    instructors = ClassroomInstructorSerializer(many=True)
+    instructors = ClassroomInstructorSerializer(many=True, source='classroominstructor_set')
 
     class Meta:
         model = Classroom
