@@ -187,8 +187,8 @@ class ClassroomInstructorSerializer(WritableNestedModelSerializer):
 
 class HelpfulResourceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
-    url = serializers.CharField()
+    title = serializers.CharField(max_length=120)
+    url = serializers.URLField(max_length=200)
 
     class Meta:
         model = HelpfulResource
