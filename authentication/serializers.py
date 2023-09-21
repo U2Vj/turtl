@@ -18,8 +18,14 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         updated, hence they are not included here.
     """
 
+    id = serializers.IntegerField(read_only=True)
+
+    email = serializers.CharField(read_only=True)
+
+    role = serializers.CharField(read_only=True, source='get_role_display')
+
     # Usernames must be 2 or more and 255 or less characters and are optional
-    username = serializers.CharField(min_length=2, max_length=255, allow_null=True, required=False, default=None)
+    username = serializers.CharField(min_length=2, max_length=128, allow_null=True, required=False, default=None)
 
     # Passwords must be at least 8 characters, but no more than 128
     # characters. These values are the default provided by Django. We could
@@ -40,7 +46,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['username', 'new_password', 'new_password_confirm', 'current_password']
+        fields = ['id', 'email', 'role', 'username', 'new_password', 'new_password_confirm', 'current_password']
 
     def validate(self, data):
         # First, we perform the standard validation procedure
