@@ -19,7 +19,7 @@ type UnsuccessfulResponse = {
 
 type Response = SuccessfulResponse | UnsuccessfulResponse
 
-const axiosInstance = axios.create({ baseURL: import.meta.env.VITE_API_URL })
+const axiosInstance = axios.create({ baseURL: import.meta.env.TURTL_API_URL })
 
 export async function makeAxiosRequest(
   url: string,

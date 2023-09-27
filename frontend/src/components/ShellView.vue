@@ -12,7 +12,7 @@ onMounted(() => {
     cursorBlink: true
   })
 
-  socket.value = new WebSocket(import.meta.env.VITE_WS_URL)
+  socket.value = new WebSocket(import.meta.env.TURTL_WS_URL)
   const attachAddon = new AttachAddon(socket.value)
   term.value.loadAddon(attachAddon)
 
