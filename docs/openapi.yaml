@@ -1,8 +1,8 @@
 openapi: 3.0.3
 info:
-  title: TURTL - API
+  title: TURTL API documentation
   description: |-
-    TURTL-Api
+    This is the documentation for the TURTL REST-API provided by the Django backend.
     
     Some useful links:
     - [Docs for file format](https://swagger.io/docs/specification/basic-structure/)
@@ -463,6 +463,9 @@ paths:
         - Users
       summary: Sign a User in
       description: This endpoint is used to log in a User.
+      # does not require authentication
+      security:
+        - []
       requestBody:
         required: true
         content:
@@ -515,7 +518,10 @@ paths:
       tags:
         - Users
       summary: Refresh a User's access token
-      description: This endpoint is used to refresh a User's access token.
+      description: This endpoint is used to refresh a User's access token. Because it is intended to refresh expired access tokens, it does not require authentication via the HTTP Authentication header.
+      # does not require authentication
+      security:
+        - []
       requestBody:
         required: true
         content:
@@ -530,35 +536,37 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccessAndRefreshToken'
         '400':
-          description: 'Bad Request: Invalid JSON or form validation error, e.g. a required field is missing.'
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/FormValidationFailed'
-              example: {
-                "errors": {
-                  "refresh": [
-                    "This field is required."
-                  ]
-                }
-              }
+          $ref: '#/components/responses/NoRefreshToken'
         '401':
-          description: 'Unauthorized: Token is invalid or expired.'
+          $ref: '#/components/responses/RefreshTokenInvalid'
+  /users/logout:
+    post:
+      tags:
+        - Users
+      summary: Log out a User
+      description: This endpoint is used to log out a User. It does not require an access token via the Authentication
+                   header. It blacklists the refresh token of a User to prevent that User from refreshing their access
+                   token.
+      # does not require authentication
+      security:
+        - []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessAndRefreshToken'
+      responses:
+        '200':
+          description: 'OK: Logout successful. Returns an empty JSON object'
           content:
             application/json:
               schema:
                 type: object
-                properties:
-                  detail:
-                    type: string
-                    enum:
-                      - Token is invalid or expired
-                    example: "Token is invalid or expired"
-                  code:
-                    type: string
-                    enum:
-                      - token_not_valid
-                    example: "token_not_valid"
+        '400':
+          $ref: '#/components/responses/NoRefreshToken'
+        '401':
+          $ref: '#/components/responses/RefreshTokenInvalid'
   /users/profile:
     get:
       tags:
@@ -1154,16 +1162,42 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/NoPermission'
+    NoRefreshToken:
+      description: 'Bad Request: Invalid JSON or form validation error, e.g. the refresh token is missing.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FormValidationFailed'
+          example: {
+            "errors": {
+              "refresh": [
+                "This field is required."
+              ]
+            }
+          }
+    RefreshTokenInvalid:
+      description: 'Unauthorized: Token is invalid or expired.'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+                enum:
+                  - Token is invalid or expired
+                example: "Token is invalid or expired"
+              code:
+                type: string
+                enum:
+                  - token_not_valid
+                example: "token_not_valid"
   securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Requires JWT authentication. JWT tokens in TURTL have multiple custom claims, see the documentation on authentication for further details."
+# by default, every endpoint requires bearer authentication
+security:
+  - bearerAuth: []
