@@ -18,7 +18,7 @@ daphne==3.0.2
 autobahn==21.3.1
 sqlparse==0.4.1
 six==1.16.0
-requests==2.25.1
+requests==2.31.0
 websocket-client==1.0.1
 pyasn1==0.4.8
 Automat==20.2.0
