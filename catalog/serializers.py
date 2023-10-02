@@ -211,6 +211,18 @@ class ClassroomDetailSerializer(WritableNestedModelSerializer):
     helpful_resources = HelpfulResourceSerializer(many=True)
     instructors = ClassroomInstructorSerializer(many=True, source='classroominstructor_set')
 
+    def validate(self, data):
+        title = data.get('title')
+
+        queryset = Classroom.objects.all()
+        if self.instance:
+            queryset = queryset.exclude(id=self.instance.id)
+
+        if queryset.filter(title=title).exists():
+            raise serializers.ValidationError('This classroom title already exists.')
+
+        return data
+
     class Meta:
         model = Classroom
         fields = ['id', 'title', 'created_at', 'updated_at', 'projects', 'helpful_resources',
