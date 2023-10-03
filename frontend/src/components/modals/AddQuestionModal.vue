@@ -16,7 +16,7 @@ async function addQuestion(title: string) {
     classroomTemplateId
   }
 
-  const response = await makeAxiosRequest('/catalog/classrooms', 'POST', true, true, data)
+  const response = await makeAxiosRequest('/templates/classrooms', 'POST', true, true, data)
   if (response.success) {
     showDialog.value = false
   }

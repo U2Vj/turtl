@@ -61,7 +61,7 @@ export const useTemplateStore = defineStore('template', () => {
   const basicTemplateData = ref<BasicTemplateData[]>()
 
   async function fetchTemplate(id: string) {
-    const response = await makeAxiosRequest(`/catalog/classrooms/${id}`, 'GET', true, true)
+    const response = await makeAxiosRequest(`/templates/classrooms/${id}`, 'GET', true, true)
     if (response.success) {
       classroomTemplate.value = response.data
     }
@@ -70,7 +70,7 @@ export const useTemplateStore = defineStore('template', () => {
 
   async function changeTemplateData(id: string, templateData: TemplateData) {
     const response = await makeAxiosRequest(
-      `/catalog/classrooms/${id}`,
+      `/templates/classrooms/${id}`,
       'PUT',
       true,
       true,
@@ -85,12 +85,12 @@ export const useTemplateStore = defineStore('template', () => {
   }
 
   async function deleteClassroomTemplate(id: string) {
-    const response = await makeAxiosRequest(`/catalog/classrooms/${id}`, 'DELETE', true, true)
+    const response = await makeAxiosRequest(`/templates/classrooms/${id}`, 'DELETE', true, true)
     return response.success
   }
 
   async function getBasicTemplateData() {
-    const response = await makeAxiosRequest('/catalog/classrooms', 'GET', true, true)
+    const response = await makeAxiosRequest('/templates/classrooms', 'GET', true, true)
     if (response.success) {
       basicTemplateData.value = response.data
     } else {
@@ -103,7 +103,7 @@ export const useTemplateStore = defineStore('template', () => {
     const data = {
       title: projectName
     }
-    const response = await makeAxiosRequest('/catalog/classrooms', 'POST', true, true, data)
+    const response = await makeAxiosRequest('templates/classrooms', 'POST', true, true, data)
     if (response.success) {
       return { success: true, id: response.data.id }
     }
@@ -113,7 +113,7 @@ export const useTemplateStore = defineStore('template', () => {
   async function addManager(id: string, email: string) {
     const { cloned } = useCloned(classroomTemplate)
     cloned.value?.managers.push({ id, email })
-    const response = await makeAxiosRequest('/catalog/classrooms/', 'PUT', true, true, cloned)
+    const response = await makeAxiosRequest('templates/classrooms/', 'PUT', true, true, cloned)
     if (response.success) {
       classroomTemplate.value = response.data
     }

@@ -61,7 +61,7 @@ export const useUserStore = defineStore('api/user', () => {
       password: loginData.user.password
     }
 
-    const response = await makeAxiosRequest('/users/login', 'POST', false, false, data)
+    const response = await makeAxiosRequest('api/users/login', 'POST', false, false, data)
     if (response.success) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
@@ -76,7 +76,7 @@ export const useUserStore = defineStore('api/user', () => {
     const data = {
       refresh: refreshToken.value
     }
-    const response = await makeAxiosRequest('/users/login/refresh', 'POST', false, false, data)
+    const response = await makeAxiosRequest('/api/users/login/refresh', 'POST', false, false, data)
     if (response.success && response.data.access && response.data.refresh) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
@@ -94,7 +94,7 @@ export const useUserStore = defineStore('api/user', () => {
 
   async function resetPasswordRequest(email: string) {
     return await axios
-      .post(import.meta.env.TURTL_API_URL + '/users/request-reset-email', {
+      .post(import.meta.env.VITE_API_URL + 'api/request-reset-email', {
         email: email
       })
       .then(() => {
@@ -109,20 +109,24 @@ export const useUserStore = defineStore('api/user', () => {
   // Cant use direct import because https://github.com/vitejs/vite/issues/4430#issuecomment-979013114.
   async function signOut(router: Router) {
     const data = { refresh: refreshToken.value }
-    await makeAxiosRequest('/users/logout', 'POST', false, false, data)
+    await makeAxiosRequest('api/users/logout', 'POST', false, false, data)
     refreshToken.value = null
     accessToken.value = null
     toast.info("You have been signed out")
     router.push('/signin')
   }
 
+  async function register(user: any) {
+    return await axios.post(import.meta.env.VITE_API_URL + 'api/users/register', user)
+  }
+
   async function testLogin() {
-    console.log(await makeAxiosRequest('/users/login/test', 'GET', true, true))
+    console.log(await makeAxiosRequest('api/users/login/test', 'GET', true, true))
   }
 
   async function resetPassword(email: string, newPassword: string) {
     return await axios
-      .post(import.meta.env.TURTL_API_URL + '/users/reset-password', {
+      .post(import.meta.env.VITE_API_URL + 'api/reset-password', {
         email: email,
         newPassword: newPassword
       })
@@ -142,6 +146,7 @@ export const useUserStore = defineStore('api/user', () => {
     user,
     login,
     signOut,
+    register,
     resetPasswordRequest,
     resetPassword,
     refreshLogin,

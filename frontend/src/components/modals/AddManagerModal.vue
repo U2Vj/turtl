@@ -6,7 +6,7 @@ import { useAxios } from '@vueuse/integrations/useAxios'
 import { ref } from 'vue'
 
 const templateStore = useTemplateStore()
-const { data: AllManagers } = useAxios<User[]>(`${import.meta.env.TURTL_API_URL}/users/managers`)
+const { data: AllManagers } = useAxios<User[]>(`${import.meta.env.VITE_API_URL}users/managers`)
 const managers = AllManagers.value?.filter((element: User) => {
   return !templateStore.classroomTemplate?.managers.includes(element)
 })
