@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
@@ -9,7 +9,7 @@ import * as yup from 'yup'
 
 const showDialog = ref(false)
 const router = useRouter()
-const templateStore = useTemplateStore()
+const catalogStore = useCatalogStore()
 
 const schema = yup.object({
   title: yup.string().required('This field is required')
@@ -24,9 +24,9 @@ const { value: titleNewClassroom, errorMessage: titleError } = useField<string>(
 )
 
 const create = handleSubmit(async (values) => {
-  const result = await templateStore.createProjectTemplate(values.title)
+  const result = await catalogStore.createClassroom(values.title)
   if (result.success) {
-    router.push({ name: 'AdminTemplateClassroom', params: { templateId: result.id } })
+    await router.push({ name: 'InstructorClassroom', params: { classroomId: result.id } })
   }
 })
 
@@ -40,7 +40,7 @@ function resetDialog() {
 <template>
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
-      <v-card-title>Create Classroom Template</v-card-title>
+      <v-card-title>Create Classroom</v-card-title>
       <v-card-text>
         <v-text-field
           clearable
@@ -48,7 +48,7 @@ function resetDialog() {
           base-color="primary"
           color="primary"
           v-model="titleNewClassroom"
-          label="Name of new classroom template"
+          label="Title"
           :error-messages="titleError"
         ></v-text-field>
         <TextButton buttonName="Close" @click="resetDialog"></TextButton>

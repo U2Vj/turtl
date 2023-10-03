@@ -91,7 +91,7 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
     })
   }
 
-  const res = await makeAxiosRequest('/api/users/profile', 'PUT', true, true, data)
+  const res = await makeAxiosRequest('/users/profile', 'PUT', true, true, data)
 
   // If the request was successful, we need to refresh the login data to get the updated token claims (e.g. username)
   if(res.success) {

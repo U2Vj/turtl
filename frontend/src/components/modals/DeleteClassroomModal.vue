@@ -1,23 +1,23 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 
-const props = defineProps<{ templateId: string }>()
+const props = defineProps<{ classroomId: number }>()
 const showDialog = ref(false)
 const router = useRouter()
 
-const templateStore = useTemplateStore()
+const catalogStore = useCatalogStore()
 
-let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate(props.templateId)
+let classroom = toRef(catalogStore, 'classroom')
+catalogStore.getClassroom(props.classroomId)
 
-async function deleteTemplate() {
-  const result = await templateStore.deleteClassroomTemplate(props.templateId)
+async function deleteClassroom() {
+  const result = await catalogStore.deleteClassroom(props.classroomId)
   if (result) {
-    router.push('/admin/templates')
+    await router.push({ name: 'InstructorClassroomList' })
   } else {
     console.error
   }
@@ -27,13 +27,13 @@ async function deleteTemplate() {
 <template>
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
-      <v-card-title>Permanently delete Classroom</v-card-title>
+      <v-card-title>Delete Classroom</v-card-title>
       <v-card-text>
-        <p>Are you sure you want to permanently delete "{{ templateData?.title }}"</p>
+        <p>Are you sure you want to permanently delete "{{ classroom?.title }}"</p>
       </v-card-text>
       <v-card-actions>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Delete" @click="deleteTemplate()"> </PrimaryButton>
+        <PrimaryButton buttonName="Delete" @click="deleteClassroom()"></PrimaryButton>
       </v-card-actions>
     </v-card>
   </v-dialog>

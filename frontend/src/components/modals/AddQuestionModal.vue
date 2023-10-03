@@ -2,18 +2,19 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import { makeAxiosRequest } from '@/stores/AxiosInstance'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref } from 'vue'
 
 const showDialog = ref(false)
 const newQuestion = ref('')
 
 async function addQuestion(title: string) {
-  const templateStore = useTemplateStore()
-  const classroomTemplateId = templateStore.classroomTemplate?.id
+  // TODO: make this actually work
+  const catalogStore = useCatalogStore()
+  const classroomId = catalogStore.classroom?.id
   const data = {
     title,
-    classroomTemplateId
+    classroomId
   }
 
   const response = await makeAxiosRequest('/templates/classrooms', 'POST', true, true, data)

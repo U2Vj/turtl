@@ -1,17 +1,18 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import axios from 'axios'
 import { ref } from 'vue'
 
 const showDialog = ref(false)
 const titleNewProject = ref('')
 
-async function addProjectTemplate(title: string) {
-  const templateStore = useTemplateStore()
-  const classroomTemplateId = templateStore.classroomTemplate?.id
-  const response = await axios.post(`${import.meta.env.VITE_API_URL}/templates/classrooms`, {
+async function addProject(title: string) {
+  // TODO: make this actually work
+  const catalogStore = useCatalogStore()
+  const classroomTemplateId = catalogStore.classroom?.id
+  const response = await axios.post(`${import.meta.env.VITE_API_URL}/catalog/projects`, {
     title,
     classroomTemplateId
   })
@@ -36,7 +37,7 @@ async function addProjectTemplate(title: string) {
           label="Name of new project template"
         ></v-text-field>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Create" @click="addProjectTemplate(titleNewProject)">
+        <PrimaryButton buttonName="Create" @click="addProject(titleNewProject)">
         </PrimaryButton>
       </v-card-text>
     </v-card>

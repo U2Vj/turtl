@@ -1,10 +1,7 @@
-import { adminRoutes } from './AdminRoutes'
-import { managerRoutes } from './ManagerRoutes'
+import { instructorRoutes } from './InstructorRoutes'
 import { studentRoutes } from './StudentRoutes'
 import { useUserStore } from '@/stores/UserStore'
 import ImprintTurtl from '@/views/general/ImprintTurtl.vue'
-import PasswordChange from '@/views/general/PasswordChange.vue'
-import PasswordRecovery from '@/views/general/PasswordRecovery.vue'
 import PrivacyPolicy from '@/views/general/PrivacyPolicy.vue'
 import SignIn from '@/views/general/SignIn.vue'
 import UserProfile from '@/views/general/UserProfile.vue'
@@ -14,15 +11,14 @@ const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...studentRoutes,
-    ...adminRoutes,
-    ...managerRoutes,
+    ...instructorRoutes,
     {
       path: '/',
       component: SignIn,
       beforeEnter: async () => {
         const userStore = useUserStore()
         if (await userStore.userIsSignedIn()) {
-          router.push('/profile')
+          await router.push('/profile')
         }
       }
     },
@@ -33,19 +29,9 @@ const router = createRouter({
       beforeEnter: async () => {
         const userStore = useUserStore()
         if (await userStore.userIsSignedIn()) {
-          router.push('/profile')
+          await router.push('/profile')
         }
       }
-    },
-    {
-      path: '/forgot-password',
-      name: 'forgot-password',
-      component: PasswordRecovery
-    },
-    {
-      path: '/reset-password',
-      name: 'reset-password',
-      component: PasswordChange
     },
     {
       path: '/profile',

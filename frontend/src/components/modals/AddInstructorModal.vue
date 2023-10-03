@@ -1,29 +1,33 @@
 <script setup lang="ts">
 import TextButton from '@/components/buttons/TextButton.vue'
-import type { User } from '@/stores/TemplateStore'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import type { User } from '@/stores/CatalogStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import { useAxios } from '@vueuse/integrations/useAxios'
 import { ref } from 'vue'
+import {makeAxiosRequest} from "@/stores/AxiosInstance";
+import {useToast} from "vue-toastification";
 
-const templateStore = useTemplateStore()
-const { data: AllManagers } = useAxios<User[]>(`${import.meta.env.VITE_API_URL}users/managers`)
-const managers = AllManagers.value?.filter((element: User) => {
-  return !templateStore.classroomTemplate?.managers.includes(element)
-})
+const catalogStore = useCatalogStore()
+const response = await makeAxiosRequest("/users/instructors", 'GET', true, true)
+const instructors: any[] = []
+if(response.success) {
+} else {
+  useToast().error(response.message)
+}
 const showDialog = ref(false)
 </script>
 
 <template>
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
-      <v-card-title>Add Managers</v-card-title>
+      <v-card-title>Add Instructors</v-card-title>
       <v-card-text>
         <v-data-table
           :headers="[
             { title: 'E-Mail', key: 'email' },
             { title: 'Add', key: 'add' }
           ]"
-          :items="managers"
+          :items="instructors"
         >
           <template #[`item.add`]="{ item }">
             <v-btn
@@ -32,7 +36,7 @@ const showDialog = ref(false)
               color="primary"
               @click="
                 () => {
-                  templateStore.addManager(item.raw.id, item.raw.email)
+                  //catalogStore.addInstructor(item.raw.id, item.raw.email)
                 }
               "
             />
