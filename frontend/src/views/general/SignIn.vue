@@ -33,7 +33,7 @@ const { value: passwordValue, errorMessage: passwordError } = useField<string>(
 
 const submit = handleSubmit(async (values) => {
   const success = await userStore.login({
-    user: { email: values.email, password: values.password }
+    email: values.email, password: values.password
   })
   if (success) {
     await router.push({ path: '/profile' })

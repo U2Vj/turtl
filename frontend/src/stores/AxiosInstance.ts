@@ -1,4 +1,3 @@
-import { useAuthStore } from './AuthStore'
 import axios, { type AxiosRequestConfig } from 'axios'
 import { storeToRefs } from 'pinia'
 import {useUserStore} from "@/stores/UserStore";
@@ -28,8 +27,8 @@ export async function makeAxiosRequest(
   tryToUpdateTokenWhenUnauthorized: boolean,
   data?: any
 ): Promise<Response> {
-  const authStore = useAuthStore()
-  const { accessToken } = storeToRefs(authStore)
+  const userStore = useUserStore()
+  const { accessToken } = storeToRefs(userStore)
 
   const config: AxiosRequestConfig = {}
 
@@ -57,12 +56,11 @@ export async function makeAxiosRequest(
     if(error.response.status === 401
         && error.response.data?.code === 'token_not_valid'
         && tryToUpdateTokenWhenUnauthorized) {
-      const userStore = useUserStore()
       return await userStore.refreshLogin().then(async (success) => {
         if (success) {
           return await makeAxiosRequest(url, method, useAuthorization, false, data)
         }
-        await userStore.signOut(router)
+        await userStore.logout(router)
         return {
           success: false,
           message: 'Your session has expired. Please sign in again.'

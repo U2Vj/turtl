@@ -36,7 +36,7 @@ const userStore = useUserStore()
               </template>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="userStore.signOut(router)">
+            <v-list-item @click="userStore.logout(router)">
               <template #prepend>
                 <v-icon icon="mdi-logout"></v-icon>
               </template>

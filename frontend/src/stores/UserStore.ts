@@ -1,24 +1,15 @@
 import { StorageSerializers, useStorage } from '@vueuse/core'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
-import { defineStore, storeToRefs } from 'pinia'
+import { defineStore } from 'pinia'
 import { computed, type Ref } from 'vue'
 import type { Router } from 'vue-router'
-import { useAuthStore } from './AuthStore'
 import { makeAxiosRequest } from './AxiosInstance'
 import {useToast} from "vue-toastification";
 
 type LoginData = {
-  user: {
-    email: string
-    password: string
-  }
-}
-
-type User = {
   email: string
-  username: string
-  token: string
+  password: string
 }
 
 type RefreshTokenPayload = {
@@ -27,22 +18,25 @@ type RefreshTokenPayload = {
   iat: number
   jti: string
   user_id: number
-  username: string
+  username: string | null
+  email: string
   role: string
   role_display: string
+}
+
+type User = {
+  id: number,
+  username: string | null
   email: string
+  role: string
+  role_display: string
 }
 
 const toast = useToast()
 
 export const useUserStore = defineStore('user', () => {
-  const authStore = useAuthStore()
-  const { refreshToken, accessToken } = storeToRefs(authStore)
-
-  // see https://github.com/vueuse/vueuse/issues/1307 and https://vueuse.org/core/useStorage/#custom-serialization
-  const user = useStorage<User | null>('user', null, undefined, {
-    serializer: StorageSerializers.object
-  })
+  const refreshToken = useStorage<string | null>('refreshToken', null)
+  const accessToken = useStorage<string | null>('accessToken', null)
 
   const refreshTokenPayload: Ref<RefreshTokenPayload | null> = computed(() => {
     try {
@@ -55,11 +49,20 @@ export const useUserStore = defineStore('user', () => {
     }
   })
 
-  async function login(loginData: LoginData) {
-    const data = {
-      email: loginData.user.email,
-      password: loginData.user.password
+  const user: Ref<User | null> = computed(() => {
+    if(refreshTokenPayload.value === null) {
+      return null
     }
+    return {
+      id: refreshTokenPayload.value.user_id,
+      username: refreshTokenPayload.value.username,
+      email: refreshTokenPayload.value.email,
+      role: refreshTokenPayload.value.role,
+      role_display: refreshTokenPayload.value.role_display
+    }
+  })
+
+  async function login(data: LoginData) {
 
     const response = await makeAxiosRequest('/users/login', 'POST', false, false, data)
     if (response.success) {
@@ -107,13 +110,13 @@ export const useUserStore = defineStore('user', () => {
 
   // see https://github.com/vuejs/pinia/discussions/1092#discussioncomment-5408576.
   // Cant use direct import because https://github.com/vitejs/vite/issues/4430#issuecomment-979013114.
-  async function signOut(router: Router) {
+  async function logout(router: Router) {
     const data = { refresh: refreshToken.value }
     await makeAxiosRequest('/users/logout', 'POST', false, false, data)
     refreshToken.value = null
     accessToken.value = null
     toast.info("You have been signed out")
-    router.push('/signin')
+    await router.push('/signin')
   }
 
   async function testLogin() {
@@ -139,14 +142,14 @@ export const useUserStore = defineStore('user', () => {
   }
 
   return {
+    accessToken,
     user,
     login,
-    signOut,
+    logout,
     resetPasswordRequest,
     resetPassword,
     refreshLogin,
     userIsSignedIn,
-    refreshTokenPayload,
     testLogin
   }
 })
