@@ -52,7 +52,7 @@ function resetDialog() {
           :error-messages="titleError"
         ></v-text-field>
         <TextButton buttonName="Close" @click="resetDialog"></TextButton>
-        <PrimaryButton buttonName="Create" @click="create"> </PrimaryButton>
+        <PrimaryButton buttonName="Create" @click="create"></PrimaryButton>
       </v-card-text>
     </v-card>
   </v-dialog>

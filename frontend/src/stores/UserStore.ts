@@ -13,7 +13,7 @@ type LoginData = {
 }
 
 type RefreshTokenPayload = {
-  token_type: 'refresh'
+  token_type: string
   exp: number
   iat: number
   jti: string

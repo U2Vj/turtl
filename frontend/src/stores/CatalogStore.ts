@@ -73,7 +73,7 @@ type HelpfulResource = {
 }
 
 type Project = {
-  id: number
+  id?: number
   title: string
   tasks: Task[]
 }
@@ -141,6 +141,18 @@ export const useCatalogStore = defineStore('catalog', () => {
     return response.success
   }
 
+  async function createProject(title: string) {
+    if(classroom.value === undefined) {
+      throw new TypeError("Cannot create project: No classroom was loaded yet")
+    }
+    const updatedClassroomData = {...classroom.value}
+    updatedClassroomData.projects.push({
+      title: title,
+      tasks: []
+    })
+    return updateClassroom(classroom.value.id, updatedClassroomData)
+  }
+
   async function getTask(id: number) {
     const response = await makeAxiosRequest(`/catalog/tasks/${id}`, 'GET', true, true)
     if (response.success) {
@@ -157,6 +169,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     getClassroom,
     updateClassroom,
     deleteClassroom,
+    createProject,
     getTask
   }
 })
