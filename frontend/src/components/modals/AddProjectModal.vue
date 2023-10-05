@@ -2,17 +2,43 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
-import axios from 'axios'
 import { ref } from 'vue'
+import * as yup from "yup";
+import { useField, useForm, useResetForm } from "vee-validate";
 
 const showDialog = ref(false)
-const titleNewProject = ref('')
 
-async function addProject(title: string) {
-  // TODO: make this actually work
-  const catalogStore = useCatalogStore()
-  await catalogStore.createProject(title)
+const schema = yup.object({
+  title: yup.string()
+      .ensure()
+      .trim()
+      .required('This field is required')
+      .min(3)
+      .max(120)
+      .matches(/.*[a-zA-Z].*/, {message: "The title should contain at least one letter"})
+})
+
+const { handleSubmit } = useForm({ validationSchema: schema })
+
+const { value: titleNewProject, errorMessage: titleError } = useField<string>(
+  'title',
+  {},
+  { validateOnValueUpdate: false }
+)
+
+const resetForm = useResetForm()
+
+function resetAndHideModal() {
+  showDialog.value = false
+  resetForm()
 }
+
+const addProject = handleSubmit(async (values) => {
+  const catalogStore = useCatalogStore()
+  await catalogStore.createProject(values.title)
+  resetAndHideModal()
+})
+
 </script>
 
 <template>
@@ -27,9 +53,10 @@ async function addProject(title: string) {
           color="primary"
           v-model="titleNewProject"
           label="Title"
+          :error-messages="titleError"
         ></v-text-field>
-        <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Create" @click="addProject(titleNewProject)"></PrimaryButton>
+        <TextButton buttonName="Close" @click="resetAndHideModal"></TextButton>
+        <PrimaryButton buttonName="Create" @click="addProject"></PrimaryButton>
       </v-card-text>
     </v-card>
   </v-dialog>

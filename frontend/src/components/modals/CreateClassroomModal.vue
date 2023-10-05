@@ -12,7 +12,13 @@ const router = useRouter()
 const catalogStore = useCatalogStore()
 
 const schema = yup.object({
-  title: yup.string().required('This field is required')
+  title: yup.string()
+      .ensure()
+      .trim()
+      .required('This field is required')
+      .min(3)
+      .max(120)
+      .matches(/.*[a-zA-Z].*/, {message: "The title should contain at least one letter"})
 })
 
 const { handleSubmit } = useForm({ validationSchema: schema })
