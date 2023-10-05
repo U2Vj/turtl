@@ -2,26 +2,25 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import CreateClassroomTemplateModal from '@/components/modals/CreateClassroomTemplateModal.vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import CreateClassroomModal from '@/components/modals/CreateClassroomModal.vue'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import dayjs from 'dayjs'
 import { toRef } from 'vue'
 import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
-const templateStore = useTemplateStore()
+const catalogStore = useCatalogStore()
 
-let templateData = toRef(templateStore, 'basicTemplateData')
-templateStore.getBasicTemplateData()
+let classroomList = toRef(catalogStore, 'classroomList')
+catalogStore.getClassroomList()
 
-// TODO: find way to import DataTableItem from vuetify
 function handleRowClick(event: Event, item: { item: { raw: any } }) {
   // Allow text selection.
   // See https://stackoverflow.com/questions/31982407/prevent-onclick-event-when-selecting-text
   const selection = window.getSelection()
   if (selection?.toString().length === 0) {
-    router.push(`templates/${item.item.raw.id}`)
+    router.push(`classrooms/${item.item.raw.id}`)
   }
 }
 function formatReadableDate(date: string) {
@@ -30,31 +29,31 @@ function formatReadableDate(date: string) {
 </script>
 
 <template>
-  <DefaultLayout v-if="templateData">
-    <template #heading>Classroom Templates</template>
+  <DefaultLayout v-if="classroomList">
+    <template #heading>Classrooms</template>
     <template #postHeadingButton>
-      <PrimaryButton buttonName="Create Template">
-        <CreateClassroomTemplateModal />
+      <PrimaryButton buttonName="Create Classroom">
+        <CreateClassroomModal />
       </PrimaryButton>
     </template>
     <template #default>
       <v-data-table
         :headers="[
           {
-            title: 'Name',
+            title: 'Title',
             align: 'start',
             sortable: true,
             key: 'title'
           },
-          { title: 'Last Edited', align: 'end', key: 'updated_at' },
-          { title: 'Created At', align: 'end', key: 'created_at' },
-          { title: 'Use', align: 'end', key: 'link' }
+          { title: 'Last edited', align: 'end', key: 'updated_at' },
+          { title: 'Created at', align: 'end', key: 'created_at' },
+          { title: 'Edit', align: 'end', key: 'link' }
         ]"
-        :items="templateData"
+        :items="classroomList"
         @click:row="handleRowClick"
       >
         <template #[`item.link`]="{ item }">
-          <TextButton buttonName="Edit" :goTo="`templates/${item.raw.id}`"></TextButton>
+          <TextButton buttonName="Edit" :goTo="`classrooms/${item.raw.id}`"></TextButton>
         </template>
         <template v-slot:[`item.updated_at`]="{ item }">
           {{ formatReadableDate(item.raw.updated_at) }}

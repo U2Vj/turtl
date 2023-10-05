@@ -1,6 +1,6 @@
 import StudentClassroom from '@/views/student/StudentClassroom.vue'
-import StudentClassroomsAll from '@/views/student/StudentClassroomsAll.vue'
-import StudentClassroomsEnroled from '@/views/student/StudentClassroomsEnroled.vue'
+import StudentAllClassrooms from '@/views/student/StudentAllClassrooms.vue'
+import StudentMyClassrooms from '@/views/student/StudentMyClassrooms.vue'
 import StudentDashboard from '@/views/student/StudentDashboard.vue'
 import StudentTask from '@/views/student/StudentTask.vue'
 
@@ -12,22 +12,22 @@ export const studentRoutes = [
   },
   {
     path: '/student/classrooms',
-    name: 'StudentClassroomsEnroled',
-    component: StudentClassroomsEnroled
+    name: 'StudentMyClassrooms',
+    component: StudentMyClassrooms
   },
   {
-    path: '/student/classrooms/:id',
-    name: 'ClassroomSingle',
+    path: '/student/classrooms/:classroomId',
+    name: 'StudentClassroom',
     component: StudentClassroom
   },
   {
-    path: '/student/tasks/:id',
+    path: '/student/classrooms/:classroomId/tasks/:taskId',
     name: 'StudentTask',
     component: StudentTask
   },
   {
     path: '/student/classrooms/all',
-    name: 'StudentClassroomsAll',
-    component: StudentClassroomsAll
+    name: 'StudentAllClassrooms',
+    component: StudentAllClassrooms
   }
 ]

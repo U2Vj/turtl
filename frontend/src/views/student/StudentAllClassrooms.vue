@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
+import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import JoinClassroomModal from '@/components/modals/JoinClassroomModal.vue'
 import { ref } from 'vue'
@@ -7,33 +7,33 @@ import { ref } from 'vue'
 const search = ref('')
 const dialog = ref(false)
 const headers = [
-  { title: 'Name of Classroom', key: 'name_classroom' },
-  { title: 'Manager', key: 'manager_name' },
+  { title: 'Title', key: 'title' },
+  { title: 'Instructors', key: 'instructors' },
   { title: '', key: 'actions', width: '10%', sortable: false }
 ]
 
 const classrooms = [
   {
-    name_classroom: 'Test Networks',
-    manager_name: 'John Doe'
+    title: 'Test Networks',
+    instructors: 'John Doe'
   },
   {
-    name_classroom: 'Computer Networks',
-    manager_name: 'Tom Doe'
+    title: 'Computer Networks',
+    instructors: 'Tom Doe'
   },
   {
-    name_classroom: 'Secure Networks',
-    manager_name: 'Finn Doe'
+    title: 'Secure Networks',
+    instructors: 'Finn Doe'
   }
 ]
 
 const selectedClassroom = ref({})
 
-const selectedClassroomName = ref('')
+const selectedClassroomTitle = ref('')
 
 function joinClassroomBtn(item: any) {
   selectedClassroom.value = item
-  selectedClassroomName.value = item.name_classroom
+  selectedClassroomTitle.value = item.title
   dialog.value = true
 }
 </script>
@@ -46,7 +46,7 @@ function joinClassroomBtn(item: any) {
         <v-col cols="8">
           <v-text-field
             clearable
-            label="Search Name of Classroom"
+            label="Search title of Classroom"
             v-model="search"
             append-inner-icon="mdi-magnify"
             variant="underlined"
@@ -61,15 +61,15 @@ function joinClassroomBtn(item: any) {
             :headers="headers"
             :items="classrooms"
             :search="search"
-            item-value="classTemplates"
+            item-value="classrooms"
           >
             <template #top> </template>
             <template #[`item.actions`]="{ item }">
-              <SecundaryButton buttonName="Join Classroom" @click="joinClassroomBtn(item.raw)">
+              <SecondaryButton buttonName="Join Classroom" @click="joinClassroomBtn(item.raw)">
                 <JoinClassroomModal>
-                  <template #classroomName>{{ selectedClassroomName }}</template>
+                  <template #classroomName>{{ selectedClassroomTitle }}</template>
                 </JoinClassroomModal>
-              </SecundaryButton>
+              </SecondaryButton>
             </template>
             <template #no-data>
               <p>No data</p>

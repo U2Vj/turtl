@@ -58,16 +58,6 @@ class UserManager(BaseUserManager):
 
         return user
 
-    def create_manager(self, email, password):
-        """
-            create and return a student
-        """
-        user = self.create_user(email, password)
-        user.role = user.Role.MANAGER
-        user.save()
-
-        return user
-
     def create_administrator(self, email, password):
         """
             create and return an administrator
@@ -90,26 +80,25 @@ class User(AbstractBaseUser, PermissionsMixin):
     # Each `User` needs a human-readable unique identifier that we can use to
     # represent the `User` in the UI. We want to index this column in the
     # database to improve lookup performance.
-    username = models.CharField(max_length=255, null=True)
+    username = models.CharField(max_length=128, null=True)
 
     # We also need a way to contact the user and a way for the user to identify
     # themselves when logging in. Since we need an email address for contacting
-    # the user anyways, we will also use the email for logging in because it is
+    # the user anyway, we will also use the email for logging in because it is
     # the most common form of login credential at the time of writing.
     email = models.EmailField(db_index=True, unique=True)
 
     # When a user no longer wishes to use our platform, they may try to delete
     # their account. That's a problem for us because the data we collect is
-    # valuable to us and we don't want to delete it. We
+    # valuable to us, and we don't want to delete it. We
     # will simply offer users a way to deactivate their account instead of
     # letting them delete it. That way they won't show up on the site anymore,
     # but we can still analyze the data.
     is_active = models.BooleanField(default=True)
 
-    # Users can have four different roles within TURTL: administrator, manager, instructor and student.
+    # Users can have three different roles within TURTL: administrator, instructor and student.
     class Role(models.TextChoices):
         ADMINISTRATOR = 'ADMINISTRATOR', _('Administrator')
-        MANAGER = 'MANAGER', _('Manager')
         INSTRUCTOR = 'INSTRUCTOR', _('Instructor')
         STUDENT = 'STUDENT', _('Student')
 
@@ -127,10 +116,6 @@ class User(AbstractBaseUser, PermissionsMixin):
     @property
     def is_instructor(self):
         return self.role == self.Role.INSTRUCTOR
-
-    @property
-    def is_manager(self):
-        return self.role == self.Role.MANAGER
 
     @property
     def is_administrator(self):
@@ -173,7 +158,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     def get_full_name(self):
         """
         This method is required by Django for things like handling emails.
-        Typically this would be the user's first and last name. Since we do
+        Typically, this would be the user's first and last name. Since we do
         not store the user's real name, we return their username instead.
         """
         return self.username

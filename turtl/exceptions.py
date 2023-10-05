@@ -1,6 +1,7 @@
 from rest_framework.views import exception_handler
 
-# This file contains all definitions of exceptions which can occur during authentication.
+# This exception handler is used to wrap any ValidationErrors in the 'errors' key to better differentiate them from
+# other types of errors.
 
 def core_exception_handler(exc, context):
     # If an exception is thrown that we don't explicitly handle here, we want

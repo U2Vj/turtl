@@ -1,520 +1,947 @@
 openapi: 3.0.3
 info:
-  title: Turtl - API
+  title: TURTL API documentation
   description: |-
-    Turtl-Api
+    This is the documentation for the TURTL REST-API provided by the Django backend.
     
     Some useful links:
     - [Docs for file format](https://swagger.io/docs/specification/basic-structure/)
   version: 0.0.1
 tags:
-  - name: classrooms
-    description: classroom data
-  - name: projects
-    description: project data
-  - name: tasks
-    description: task data
-  - name: users
-    description: user data
+  - name: Classrooms
+  - name: Projects
+  - name: Tasks
+  - name: Users
+    description: User actions (login, logout, update profile etc.)
 paths:
-  /templates/classrooms:
+  /catalog/classrooms:
     get:
       tags:
-        - classrooms
-      summary: Get a list of all classroom templates
+        - Classrooms
+      summary: List all Classrooms
+      description: This endpoint lists all Classrooms. 
+                   It requires authentication and is available to everyone in TURTL, i.e.
+                   Students, Instructors and Administrators.
       responses:
         '200':
-          description: Successful operation
+          description: 'OK'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TemplateAll'
+                $ref: '#/components/schemas/ListClassrooms'
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
+          $ref: '#/components/responses/NoAccessToken'
     post:
       tags:
-        - classrooms
-      summary: Create ClassroomTemplate
+        - Classrooms
+      summary: Create Classroom
+      description: This endpoint allows authenticated Instructors or Administrators to create a new Classroom.
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClassroomTemplateNew'
+              $ref: '#/components/schemas/ClassroomShort'
         required: true
       responses:
-        '200':
-          description: Successful operation
+        '201':
+          description: 'Created: The Classroom has been created successfully.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClassroomTemplate'
+                $ref: '#/components/schemas/ClassroomShort'
+        '400':
+          description: 'Bad Request: This response is returned when validation has failed, e.g. the title is empty.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormValidationFailed'
+              example: {
+                "errors": {
+                  "title": [
+                    "This field may not be blank."
+                  ]
+                }
+              }
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
-  /templates/classrooms/{id}:
+          description: 'Forbidden: This response is returned when you have provided no access token or when 
+                        the User the access token belongs to does not have permission to create a Classroom, e.g. when
+                        they are a Student.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoPermission'
+  /catalog/classrooms/{id}:
     get:
       tags:
-        - classrooms
-      summary: Get ClassroomTemplate
+        - Classrooms
+      summary: View Classroom
+      description: This endpoint returns a Classroom. It is available to all authenticated Users in TURTL, e.g.
+                   Students, Instructors and Administrators.
       parameters:
         - name: id
           in: path
           required: true
-          description: ID of ClassroomTemplate
-          explode: true
+          description: The ID of the target Classroom
           schema:
             type: integer
       responses:
         '200':
-          description: successful operation
+          description: OK
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClassroomTemplate'
+                $ref: '#/components/schemas/ClassroomDetail'
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
-    delete:
-      tags:
-        - classrooms
-      summary: Delete ClassroomTemplate
-      parameters:
-      - name: id
-        in: path
-        required: true
-        description: ID of ClassroomTemplate
-        explode: true
-        schema:
-          type: string
-      responses:
-        '200':
-          description: Successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ClassroomTemplate'
-        '401':
-          $ref: "#/components/responses/Unauthorized"
-        '403':
-          $ref: "#/components/responses/Forbidden"
+          $ref: '#/components/responses/NoAccessToken'
+        '404':
+          $ref: '#/components/responses/ClassroomNotFound'
     put:
       tags:
-        - classrooms
-      summary: Update ClassroomTemplate
+        - Classrooms
+      summary: Update Classroom
+      description: This endpoint is used to update an existing Classroom. It is available to all Administrators and to
+                   Instructors who manage the target Classroom. Updating properties of type array (e.g. helpfulResource)
+                   works by modifying / adding / removing items. When adding an item to an array, you do not have to
+                   specify an ID since it has to be generated by the backend.
       parameters:
-      - name: id
-        in: path
-        required: true
-        description: ID of ClassroomTemplate
-        explode: true
-        schema:
-          type: string
+        - name: id
+          in: path
+          required: true
+          description: The ID of the target Classroom
+          schema:
+            type: integer
       requestBody:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ClassroomTemplate'
+              $ref: '#/components/schemas/ClassroomDetail'
         required: true
       responses:
         '200':
-          description: Successful operation
+          description: 'OK: The Classroom has been updated successfully.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ClassroomTemplate'
+                $ref: '#/components/schemas/ClassroomDetail'
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
-  /templates/projects:
+          $ref: '#/components/responses/DoesNotManageClassroom'
+        '404':
+          $ref: '#/components/responses/ClassroomNotFound'
+    delete:
+      tags:
+        - Classrooms
+      summary: Delete Classroom
+      description: This endpoint is used to delete an existing Classroom. It is available to all Administrators and to
+                   Instructors who manage the target Classroom. You do not have to specify a request body.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the target Classroom
+          schema:
+            type: integer
+      responses:
+        '204':
+          $ref: '#/components/responses/SuccessfulDeletion'
+        '401':
+          $ref: '#/components/responses/NoAccessToken'
+        '403':
+          $ref: '#/components/responses/DoesNotManageClassroom'
+        '404':
+          $ref: '#/components/responses/ClassroomNotFound'
+  /catalog/projects:
     post:
       tags:
-        - projects
-      summary: Create ProjectTemplate
+        - Projects
+      summary: Create Project
+      description: This endpoint is used to create a new Project. It is available to Instructors who manage the
+                   Classroom the Project is going to be a part of, as well as all Administrators.
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ProjectTemplateNew'
+              $ref: '#/components/schemas/CreateProject'
       responses:
-        '200':
-          description: successful operation
+        '201':
+          description: 'Created: The Project has been created successfully.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProjectTemplateNew'
+                $ref: '#/components/schemas/CreateProject'
+        '400':
+          description: 'Bad Request: No Classroom was found with the provided ID or there was a validation error with
+                        the Project title (e.g. it was too long).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormValidationFailed'
+              examples:
+                Classroom was not found:
+                  description: No Classroom with the specified ID was found.
+                  value:
+                    errors: {
+                              "classroom_id": [
+                                "Invalid pk \"1\" - object does not exist."
+                              ]
+                    }
+                Title validation failed:
+                  description: There was one or multiple validation errors with the Project title (e.g. it was longer
+                               than 120 characters or blank).
+                  value:
+                    errors: {
+                              "title": [
+                                "Ensure this field has no more than 120 characters."
+                              ]
+                    }
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
-  /templates/projects/{id}:
+          description: 'Forbidden: This response is returned when you have provided no access token or when you are neither
+                        an Instructor who manages the Classroom the new Project is a part of nor an Administrator.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoPermission'
+  /catalog/projects/{id}:
     get:
       tags:
-        - projects
-      summary: Get ProjectTemplate by ID
+        - Projects
+      summary: View Project
+      description: This endpoint is used to view an existing Project. It is available to all signed-in Users of TURTL.
       parameters:
         - name: id
           in: path
-          description: ID of ProjectTemplate
           required: true
+          description: The ID of the target Project
           schema:
             type: integer
       responses:
         '200':
-          description: successful operation
+          description: 'OK'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProjectTemplate'
+                $ref: '#/components/schemas/Project'
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
+          $ref: '#/components/responses/NoAccessToken'
+        '404':
+          $ref: '#/components/responses/ProjectNotFound'
     put:
       tags:
-        - projects
-      summary: Update ProjectTemplate
+        - Projects
+      summary: Update Project
+      description: This endpoint is used to update an existing Project. It is available to all Instructors who manage
+                   the Classroom the target Project is a part of, as well as all Administrators.
       parameters:
         - name: id
           in: path
-          description: ID of ProjectTemplate
           required: true
+          description: The ID of the target Project
           schema:
             type: integer
       requestBody:
         content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/ProjectTemplate' 
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Project'
+        required: true
       responses:
         '200':
-          description: successful operation
+          description: 'OK: The Project has been modified successfully.'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ProjectTemplate'
+                $ref: '#/components/schemas/Project'
+        '400':
+          description: 'Bad Request: A validation error was encountered, e.g. with the Project title'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormValidationFailed'
+              examples:
+                Title validation failed:
+                  description: There was one or multiple validation errors with the Project title (e.g. it was longer
+                    than 120 characters or blank).
+                  value:
+                    errors: {
+                      "title": [
+                        "Ensure this field has no more than 120 characters."
+                      ]
+                    }
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
+          $ref: '#/components/responses/DoesNotManageProject'
+        '404':
+          $ref: '#/components/responses/ProjectNotFound'
     delete:
       tags:
-        - projects
-      summary: Delete ProjectTemplate
+        - Projects
+      summary: Delete Project
+      description: This endpoint is used to delete an existing Project. It is available to all Instructors who manage
+                   the Classroom the target Project is a part of, as well as all Administrators.
       parameters:
         - name: id
           in: path
-          description: ID of ProjectTemplate
           required: true
+          description: The ID of the target Project
           schema:
             type: integer
       responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ProjectTemplate'
+        '204':
+          $ref: '#/components/responses/SuccessfulDeletion'
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
-  /templates/tasks:
+          $ref: '#/components/responses/DoesNotManageProject'
+        '404':
+          $ref: '#/components/responses/ProjectNotFound'
+  /catalog/tasks:
     post:
       tags:
-        - tasks
-      summary: Create TaskTemplate
+        - Tasks
+      summary: Create Task
+      description: This endpoint is used to create a new Task. It is available to Instructors who manage the Classroom
+                   the Project that should contain the new Task is a part of, as well as Administrators.
       requestBody:
         content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TaskTemplateNew'
+                $ref: '#/components/schemas/CreateTask'
       responses:
-        '200':
-          description: successful operation
+        '201':
+          description: 'Created: The Task has been created successfully.'
           content:
             application/json:
               schema:
-                type: array
-                items: 
-                  $ref: '#/components/schemas/TaskTemplate'
+                $ref: '#/components/schemas/CreateTask'
+        '400':
+          description: 'Bad Request: No Project was found with the provided ID or there was a validation error with
+                        the Task title and/or description (e.g. it was too long).'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormValidationFailed'
+              examples:
+                Project was not found:
+                  description: No Project with the specified ID was found.
+                  value:
+                    errors: {
+                      "project_id": [
+                        "Invalid pk \"1\" - object does not exist."
+                      ]
+                    }
+                Title validation failed:
+                  description: There was one or multiple validation errors with the Task title (e.g. it was longer
+                               than 50 characters or blank).
+                  value:
+                    errors: {
+                      "title": [
+                        "Ensure this field has no more than 50 characters."
+                      ]
+                    }
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
-  /templates/tasks/{id}:
+          description: 'Forbidden: This response is returned when you have provided no access token or when you are
+                        neither an Instructor who manages the Classroom the Project that should contain the new Task
+                        is a part of, nor an Administrator.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NoPermission'
+  /catalog/tasks/{id}:
     get:
       tags:
-        - tasks
-      summary: Get TaskTemplate by ID
+        - Tasks
+      summary: View Task
+      description: This endpoint is used to view an existing Task. It is available to all signed-in Users of TURTL.
       parameters:
         - name: id
-          description: ID of TaskTemplate
           in: path
           required: true
+          description: The ID of the target Task
           schema:
             type: integer
       responses:
         '200':
-          description: successful operation
+          description: 'OK'
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/TaskTemplate'
+                $ref: '#/components/schemas/Task'
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
+          $ref: '#/components/responses/NoAccessToken'
+        '404':
+          $ref: '#/components/responses/TaskNotFound'
     put:
       tags:
-        - tasks
-      summary: Update TaskTemplate
+        - Tasks
+      summary: Update Task
+      description: This endpoint is used to update an existing Task. It is available to Instructors who manage the
+                   Classroom the Project that contains the Task is a part of, as well as Administrators.
       parameters:
         - name: id
-          description: ID of TaskTemplate
           in: path
           required: true
+          description: The ID of the target Task
           schema:
             type: integer
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Task'
+        required: true
       responses:
         '200':
-          description: successful operation
+          description: 'OK'
           content:
             application/json:
               schema:
-                type: array
-                items: 
-                  $ref: '#/components/schemas/TaskTemplate'
+                $ref: '#/components/schemas/Task'
+        '400':
+          description: 'Bad Request: There was a validation error, e.g. with the Task title and/or description.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormValidationFailed'
+              examples:
+                Title validation failed:
+                  description: There was one or multiple validation errors with the Task title (e.g. it was longer
+                    than 50 characters or blank).
+                  value:
+                    errors: {
+                      "title": [
+                        "Ensure this field has no more than 50 characters."
+                      ]
+                    }
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
+          $ref: '#/components/responses/DoesNotManageTask'
+        '404':
+          $ref: '#/components/responses/TaskNotFound'
     delete:
       tags:
-        - tasks
-      summary: Delete TaskTemplate
+        - Tasks
+      summary: Delete Task
+      description: This endpoint is used to delete an existing Task. It is available to Instructors who manage the
+                   Classroom the Project that contains the Task is a part of, as well as Administrators.
       parameters:
         - name: id
-          description: ID of TaskTemplate
           in: path
           required: true
+          description: The ID of the target Task
           schema:
             type: integer
       responses:
-        '200':
-          description: successful operation
-          content:
-            application/json:
-              schema:
-                type: array
-                items: 
-                  $ref: '#/components/schemas/TaskTemplate'
+        '204':
+          $ref: '#/components/responses/SuccessfulDeletion'
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
-  /users/managers:
-    get:
+          $ref: '#/components/responses/DoesNotManageTask'
+        '404':
+          $ref: '#/components/responses/TaskNotFound'
+  /users/login:
+    post:
       tags:
-        - users
-      summary: Get all Managers or Administrators (everyone who can manage a ClassroomTemplate)
+        - Users
+      summary: Sign a User in
+      description: This endpoint is used to log in a User.
+      # does not require authentication
+      security:
+        - []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  description: The email address of the User
+                  example: "user@example.com"
+                password:
+                  type: string
+                  description: The User's password
+                  example: "12345678"
       responses:
         '200':
-          description: successful operation
+          description: 'OK: The User has been signed in successfully'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessAndRefreshToken'
+        '400':
+          description: 'Bad Request: Invalid JSON or form validation error, e.g. a required field is missing.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormValidationFailed'
+              example: {
+                "errors": {
+                  "password": [
+                    "This field is required."
+                  ]
+                }
+              }
+        '401':
+          description: 'Unauthorized: No active account has been found with the given credentials.'
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  detail:
+                    type: string
+                    enum:
+                      - No active account found with the given credentials
+                    example: "No active account found with the given credentials"
+  /users/login/refresh:
+    post:
+      tags:
+        - Users
+      summary: Refresh a User's access token
+      description: This endpoint is used to refresh a User's access token. Because it is intended to refresh expired access tokens, it does not require authentication via the HTTP Authentication header.
+      # does not require authentication
+      security:
+        - []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessAndRefreshToken'
+      responses:
+        '200':
+          description: 'OK: The refresh token was valid so a new one has been issued along with a new access token.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccessAndRefreshToken'
+        '400':
+          $ref: '#/components/responses/NoRefreshToken'
+        '401':
+          $ref: '#/components/responses/RefreshTokenInvalid'
+  /users/logout:
+    post:
+      tags:
+        - Users
+      summary: Log out a User
+      description: This endpoint is used to log out a User. It does not require an access token via the Authentication
+                   header. It blacklists the refresh token of a User to prevent that User from refreshing their access
+                   token.
+      # does not require authentication
+      security:
+        - []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccessAndRefreshToken'
+      responses:
+        '200':
+          description: 'OK: Logout successful. Returns an empty JSON object'
+          content:
+            application/json:
+              schema:
+                type: object
+        '400':
+          $ref: '#/components/responses/NoRefreshToken'
+        '401':
+          $ref: '#/components/responses/RefreshTokenInvalid'
+  /users/profile:
+    get:
+      tags:
+        - Users
+      summary: Get the current User's profile information
+      description: This endpoint can be used to get the current User's profile information.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '401':
+          $ref: '#/components/responses/401InvalidOrNoAccessToken'
+    put:
+      tags:
+        - Users
+      summary: Update the current User's profile
+      description: This endpoint can be used to update the current User's profile. It supports partial updates.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserProfile'
+      responses:
+        '200':
+          description: 'OK: (Partial) update was successful'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserProfile'
+        '400':
+          description: 'Bad Request: JSON or validation error, e.g. the username is too long.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FormValidationFailed'
+              examples:
+                Username too long:
+                  description: A User has tried to update their username, but it is too long.
+                  value:
+                    errors: {
+                      "username": [
+                        "Ensure this field has no more than 128 characters."
+                      ]
+                    }
+        '401':
+          $ref: '#/components/responses/401InvalidOrNoAccessToken'
+  /users/instructors:
+    get:
+      tags:
+        - Users
+      summary: List all Instructors / Administrators
+      description: This endpoint returns a list of all Instructors or Administrators (everyone who can manage a Classroom).
+                   It is available to all signed-in Users of TURTL.
+      responses:
+        '200':
+          description: 'OK'
           content:
             application/json:
               schema:
                 type: array
                 items: 
-                  $ref: '#/components/schemas/Manager'
+                  $ref: '#/components/schemas/Instructor'
         '401':
-          $ref: "#/components/responses/Unauthorized"
+          $ref: '#/components/responses/InvalidAccessToken'
         '403':
-          $ref: "#/components/responses/Forbidden"
+          $ref: '#/components/responses/NoAccessToken'
 components:
   schemas:
-    TemplateAll:
+    ListClassrooms:
       type: array
       items:
-        type: object
-        properties:
-          id:
-            type: integer
-          title:
-            type: string
-          created_at:
-            type: string
-          updated_at:
-            type: string
+        $ref: '#/components/schemas/ClassroomShort'
       example: [{
-        "id": 928,
+        "id": 1,
         "title": "Computer Networks",
-        "created_at": "2018-11-20 09:58",
-        "updated_at": "2018-11-20 09:58"
+        "created_at": "2023-09-19T09:09:42.509748Z",
+        "updated_at": "2023-09-19T09:09:42.509748Z"
       },{
-        "id": 929,
+        "id": 2,
         "title": "Hacking Challenges",
-        "created_at": "2018-11-21 19:58",
-        "updated_at": "2018-11-21 20:58"
+        "created_at": "2023-09-19T09:09:42.509748Z",
+        "updated_at": "2023-09-19T09:09:42.509748Z"
       }]
-    ClassroomTemplate:
+    ClassroomShort:
       type: object
       properties:
         id:
           type: integer
-        project_templates:
+          readOnly: true
+          description: ID of the Classroom
+          example: 1
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: Title of the Classroom. Cannot be blank and has to be unique.
+          example: "Computer Networks"
+        created_at:
+          type: string
+          readOnly: true
+          description: Timestamp of when the Classroom has been created.
+          example: "2023-09-19T09:09:42.509748Z"
+        updated_at:
+          type: string
+          readOnly: true
+          description: Timestamp of when the Classroom has been last updated.
+          example: "2023-09-19T09:09:42.509748Z"
+    ClassroomDetail:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: ID of the Classroom
+          example: 1
+        title:
+          type: string
+          minLength: 1
+          maxLength: 120
+          description: Title of the Classroom. Cannot be blank and has to be unique.
+          example: "Computer Networks"
+        created_at:
+          type: string
+          readOnly: true
+          description: Timestamp of when the Classroom has been created.
+          example: "2023-09-19T11:42:48.116396Z"
+        updated_at:
+          type: string
+          readOnly: true
+          description: Timestamp of when the Classroom has been last updated.
+          example: "2023-09-19T11:42:48.116396Z"
+        projects:
           type: array
+          description: All the Projects that are contained within this Classroom.
           items:
-            type: integer
-          example: [15,18,39]
-        information:
-          type: object
-          properties:
-            title:
-              type: string
-              example: "Computer Networks"
-            id:
-              type: integer
-              example: 928
-            created_at:
-              type: string
-              example: "2018-11-20 09:58"
-            updated_at:
-              type: string
-              example: "2018-11-20 15:07"
+            $ref: '#/components/schemas/Project'
+          example: [{
+              "id": 1,
+              "title": "Introduction to firewalls",
+              "tasks": []
+            },
+            {
+              "id": 2,
+              "title": "DNS configuration",
+              "tasks": []
+            }]
         helpful_resources:
           type: array
+          description: A list of named URLs that is displayed to Students.
           items:
             type: object
             properties:
+              id:
+                type: integer
+                description: ID of the HelpfulResource. Not necessary when creating, but necessary when updating
+                             a HelpfulResource.
+                example: 1
               title:
                 type: string
+                minLength: 1
+                maxLength: 120
+                description: The title that should be shown to Students.
                 example: "Moodle course"
               url:
                 type: string
+                minLength: 1
+                maxLength: 200
+                description: The URL to the resource.
                 example: "https://moodle.de/course/view.php?id=24"
-        managers:
+        instructors:
           type: array
+          description: The Instructors that manage this Classroom.
           items: 
-            $ref: "#/components/schemas/Manager"
-    ClassroomTemplateNew:
+            $ref: "#/components/schemas/ClassroomInstructor"
+    ClassroomInstructor:
       type: object
       properties:
-        title:
+        id:
+          description: ID of the ClassroomInstructor object. Can be left out when adding a new Instructor.
+          type: integer
+          example: 1
+          readOnly: true
+        instructor:
+          $ref: '#/components/schemas/Instructor'
+        added_at:
+          description: Timestamp of when the Instructor was added
           type: string
-          example: "IT Security"
-    ProjectTemplate:
+          example: "2023-09-19T11:42:48.129472Z"
+          readOnly: true
+        added_by:
+          $ref: '#/components/schemas/Instructor'
+    CreateProject:
       type: object
       properties:
         id:
           type: integer
-          example: 928
+          description: The ID of the Project in the backend. Read-only, not necessary for POST requests to create a new Project.
+          readOnly: true
+          example: 1
         title:
           type: string
+          description: The title of the Project
           example: "Introduction to firewalls"
-        task_templates:
+        classroom_id:
+          type: integer
+          description: The ID of the Classroom this Project is a part of.
+          example: 1
+    Project:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: 'ID of the Project. Generated in the backend, cannot be modified.'
+          readOnly: true
+          example: 1
+        title:
+          type: string
+          description: 'Title of the Project. Cannot be blank or null, must be less than 120 characters.'
+          example: "Introduction to firewalls"
+        tasks:
           type: array
           items:
-            type: integer
-          example: [2,4,5]
-    ProjectTemplateNew:
-      type: object
-      properties:
-        title:
-          type: string
-          example: "Introduction to firewalls"
-        classroom_template_id:
-          type: integer
-          example: 928
-    TaskTemplate:
+            $ref: '#/components/schemas/Task'
+    CreateTask:
       type: object
       properties:
         id:
           type: integer
-          example: 592
+          readOnly: true
+          description: The ID of the Task in the backend. Read-only, not necessary for POST requests to create a new Task.
+          example: 1
         title:
           type: string
+          description: The title of the Task. Must be a maximum of 50 characters and not be blank or null.
+          example: "Block incoming traffic using UFW"
+        description:
+          type: string
+          description: Description of what the Student has to do.
+          example: "Run the following commands:..."
+        project_id:
+          type: integer
+          description: The ID of the Project that this Task should be a part of
+          example: 1
+    Task:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the Task
+          example: 1
+        title:
+          type: string
+          description: The title of the Task. Must be a maximum of 50 characters and not be blank or null.
           example: "Block incoming traffic using UFW"
         virtualization:
           type: object
           properties:
+            id:
+              type: integer
+              readOnly: true
+              description: The ID of the Virtualization
+              example: 1
             name:
               type: string
-              example: "Kali linux for students"
+              description: The name of the Virtualization. Not displayed to Students.
+              example: "Kali Linux shell"
             role:
               type: string
+              enum:
+                - User Shell
+                - User-accessible via IP
+              description: The role this Virtualization has.
               example: "User Shell"
-            compose_file:
+            dockerfile:
               type: string
+              description: The Dockerfile used to generate an instance of this Virtualization.
+              example: "FROM kalilinux/kali-rolling\nWORKDIR /root\nRUN apt -y update && DEBIAN_FRONTEND=noninteractive apt -y dist-upgrade && apt -y autoremove && apt clean"
         acceptance_criteria:
           type: array
+          description: List of criteria for Students to fulfill to solve this Task.
           items:
             oneOf:
+              - $ref: '#/components/schemas/AcceptanceCriteriaQuestionnaire'
               - $ref: '#/components/schemas/AcceptanceCriteriaFlag'
               - $ref: '#/components/schemas/AcceptanceCriteriaRegex'
-              - $ref: '#/components/schemas/AcceptanceCriteriaQuestionnaire'
     AcceptanceCriteriaFlag:
       type: object
       properties:
         type:
           type: string
+          enum:
+            - flag
           example: "flag"
         flag:
           type: string
+          description: A Student has to enter this exact string to consider this criterium fulfilled.
           example: "you hacked me successfully :)"
     AcceptanceCriteriaRegex:
       type: object
       properties:
+        id:
+          type: integer
+          description: ID of the AcceptanceCriteriaRegex object
+          example: 1
         type:
           type: string
+          enum:
+            - regex
           example: "regex"
         regex:
           type: string
+          description: A Student has to enter a string which is validated against this regex.
           example: "^\\w+([.-]?\\w+)*@\\w+([.-]?\\w+)*(\\.\\w{2,3})+$"
     AcceptanceCriteriaQuestionnaire:
       type: object
       properties:
+        id:
+          type: integer
+          description: ID of the AcceptanceCriteriaQuestionnaire
+          example: 1
         type:
           type: string
+          enum:
+            - questionnaire
           example: "questionnaire"
         questions:
           type: array
           items:
             type: object
-          properties:
-            title:
-              type: string
-            type:
-              type: string
-              example: "Single Choice"
-            question_choice:
-              type: array
-              items:
-                type: object
-                properties:
-                  answer: 
-                    type: string
-                  is_correct: 
-                    type: boolean
-              example: [{
-                "answer": "nmap -sX [...]",
-                "is_correct": false
-              }, {
-                "answer": "nmap -sC [...]",
-                "is_correct": false
-              },{
-                "answer": "nmap -sS [...]",
-                "is_correct": true
-              }]
+            properties:
+              id:
+                type: integer
+                description: ID of the Question
+                example: 1
+              title:
+                type: string
+                description: The question itself
+                example: "What is the command to perform a SYN port scan with nmap?"
+              type:
+                type: string
+                enum:
+                  - Single choice
+                  - Multiple choice
+                description: Type of the Question. Determines whether checkboxes or radio buttons are displayed in the
+                             frontend.
+                example: "Single choice"
+              choices:
+                type: array
+                description: The possible choices Students have when answering the questions.
+                items:
+                  type: object
+                  properties:
+                    answer:
+                      type: string
+                      description: The answer text
+                    is_correct:
+                      type: boolean
+                      description: Whether this choice is the correct answer
+                example: [{
+                  "answer": "nmap -sX [...]",
+                  "is_correct": false
+                }, {
+                  "answer": "nmap -sC [...]",
+                  "is_correct": false
+                },{
+                  "answer": "nmap -sS [...]",
+                  "is_correct": true
+                }]
           example: [{
               "title": "What is the command to perform a SYN port scan with nmap?",
-              "type": "Single Choice",
-              "question_choice": [{
+              "type": "Single choice",
+              "choices": [{
                 "answer": "nmap -sX [...]",
                 "is_correct": false
               },{
@@ -526,8 +953,8 @@ components:
               }]
             },{
               "title": "What can you do with nmap?",
-              "type": "Multiple Choice",
-              "question_choice": [{
+              "type": "Multiple choice",
+              "choices": [{
                 "answer": "Port scans",
                 "is_correct": true
               },{
@@ -541,41 +968,236 @@ components:
                 "is_correct": true
               }]
             }]
-    TaskTemplateNew:
-      type: object
-      properties:
-        title:
-          type: string
-        description:
-          type: string
-        project_template_id:
-          type: integer
-    Manager:
+    Instructor:
       type: object
       properties:
         id:
           type: integer
+          example: 1
+          description: ID of the Instructor / Administrator
         username:
           type: string
           example: "John Doe"
+          nullable: true
+          description: Username, can be null (if the User chose that)
+          readOnly: true
         email:
           type: string
           example: "john@doe.com"
+          description: Email address of the Instructor that should be added
+          readOnly: true
+    AccessAndRefreshToken:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+          description: "Access token, intended to be sent in an \"Authorization: Bearer\" header when performing a request requiring authentication"
+          example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2..."
+        refresh:
+          type: string
+          description: "Refresh token, can be used to obtain a new access token"
+          example: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2..."
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: ID of the current User
+          example: 12
+        email:
+          type: string
+          readOnly: true
+          description: Email address of the current User. Cannot be changed, hence it is read-only.
+          example: "user@example.com"
+        role_display:
+          type: string
+          readOnly: true
+          description: A display-friendly string describing the current User's role. Cannot be changed here, hence it is read-only.
+          example: "Student"
+        username:
+          type: string
+          nullable: true
+          required: false
+          description: Username, optional. Null by default. To remove a User's username, set it to null.
+          minLength: 2
+          maxLength: 128
+          example: "John Doe"
+        current_password:
+          type: string
+          writeOnly: true
+          required: false
+          description: Current password, required when new_password is present, ignored otherwise.
+          example: "12345678"
+        new_password:
+          type: string
+          writeOnly: true
+          required: false
+          minLength: 8
+          maxLength: 128
+          description: New password, used to update a User's password. When new_password is present, current_password and new_password_confirm also have to be present.
+          example: "123456789"
+        new_password_confirm:
+          type: string
+          writeOnly: true
+          required: false
+          description: Has to be equal to the new password. Required when new_password is present, ignored otherwise.
+          example: "123456789"
+    NoPermission:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: "You do not have permission to perform this action."
+    InvalidAccessToken:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: "Given token not valid for any token type"
+        code:
+          type: string
+          example: "token_not_valid"
+        messages:
+          type: array
+          items:
+            type: object
+            properties:
+              token_class:
+                type: string
+                example: "AccessToken"
+              token_type:
+                type: string
+                example: "access"
+              message:
+                type: string
+                example: "Token is invalid or expired"
+    NoAccessToken401:
+      type: object
+      properties:
+        detail:
+          type: string
+          description: Error message
+          enum:
+            - Authentication credentials were not provided.
+          example: "Authentication credentials were not provided."
+    FormValidationFailed:
+      type: object
+      properties:
+        errors:
+          type: object
+          properties:
+            field_name:
+              type: array
+              items:
+                type: string
+                example: "Error message"
+    NotFound:
+      type: object
+      properties:
+        detail:
+          type: string
+          example: "Not found."
   responses:
-    Unauthorized:
-        description: unauthorized
-    Forbidden:
-      description: forbidden
+    InvalidAccessToken:
+      description: 'Unauthorized: This response is returned when you have provided an invalid or expired access token.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InvalidAccessToken'
+    NoAccessToken:
+      description: 'Forbidden: This response is returned when you have provided no access token at all.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NoPermission'
+    401InvalidOrNoAccessToken:
+      description: 'Unauthorized: You have not provided an access token or the access token you provided is invalid or expired.'
+      content:
+        application/json:
+          schema:
+            oneOf:
+              - $ref: '#/components/schemas/NoAccessToken401'
+              - $ref: '#/components/schemas/InvalidAccessToken'
+    SuccessfulDeletion:
+      description: 'No Content: Successful Deletion. Returns an empty response body.'
+    ClassroomNotFound:
+      description: 'Not Found: This response is returned when no Classroom exists with the specified ID.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFound'
+    DoesNotManageClassroom:
+      description: 'Forbidden: This response is returned when you have provided no access token or when you are
+                    neither an Administrator nor an Instructor who manages the target Classroom.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NoPermission'
+    ProjectNotFound:
+      description: 'Not Found: This response is returned when no Project exists with the specified ID.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFound'
+    DoesNotManageProject:
+      description: 'Forbidden: This response is returned when you have provided no access token or when you are
+                    neither an Instructor who manages the Classroom this Project is a part of nor an Administrator.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NoPermission'
+    TaskNotFound:
+      description: 'Not Found: This response is returned when no Task exists with the specified ID.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFound'
+    DoesNotManageTask:
+      description: 'Forbidden: This response is returned when you have provided no access token or when you are
+                    neither an Instructor who manages the Classroom the Project containing this Task is a part of,
+                    nor an Administrator.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NoPermission'
+    NoRefreshToken:
+      description: 'Bad Request: Invalid JSON or form validation error, e.g. the refresh token is missing.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/FormValidationFailed'
+          example: {
+            "errors": {
+              "refresh": [
+                "This field is required."
+              ]
+            }
+          }
+    RefreshTokenInvalid:
+      description: 'Unauthorized: Token is invalid or expired.'
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              detail:
+                type: string
+                enum:
+                  - Token is invalid or expired
+                example: "Token is invalid or expired"
+              code:
+                type: string
+                enum:
+                  - token_not_valid
+                example: "token_not_valid"
   securitySchemes:
-    petstore_auth:
-      type: oauth2
-      flows:
-        implicit:
-          authorizationUrl: https://petstore3.swagger.io/oauth/authorize
-          scopes:
-            write:pets: modify pets in your account
-            read:pets: read your pets
-    api_key:
-      type: apiKey
-      name: api_key
-      in: header
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: "Requires JWT authentication. JWT tokens in TURTL have multiple custom claims, see the documentation on authentication for further details."
+# by default, every endpoint requires bearer authentication
+security:
+  - bearerAuth: []

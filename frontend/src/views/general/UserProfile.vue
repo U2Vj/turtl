@@ -53,7 +53,7 @@ const { value: username, errorMessage: usernameError } = useField<string>(
   {},
   {
     validateOnValueUpdate: false,
-    initialValue: userStore.refreshTokenPayload?.username
+    initialValue: userStore.user?.username
   }
 )
 
@@ -91,7 +91,7 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
     })
   }
 
-  const res = await makeAxiosRequest('/api/users/profile', 'PUT', true, true, data)
+  const res = await makeAxiosRequest('/users/profile', 'PUT', true, true, data)
 
   // If the request was successful, we need to refresh the login data to get the updated token claims (e.g. username)
   if(res.success) {
@@ -113,9 +113,9 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
     <template #default>
       <v-form @submit="submit">
         <div class="mt-5"><h2>Email address</h2></div>
-        <div>{{ userStore.refreshTokenPayload?.email }}</div>
+        <div>{{ userStore.user?.email }}</div>
         <div class="mt-5"><h2>Role</h2></div>
-        <div>{{ userStore.refreshTokenPayload?.role_display }}</div>
+        <div>{{ userStore.user?.role_display }}</div>
         <div class="mt-5"><h2>Username</h2></div>
         <v-text-field
           v-model="username"
@@ -127,10 +127,10 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
           base-color="primary"
           color="primary"
         ></v-text-field>
-        <small v-if="userStore.refreshTokenPayload?.username == null">
+        <small v-if="userStore.user?.username == null">
           You did not set a username yet.
         </small>
-        <small v-if="userStore.refreshTokenPayload?.username != null">
+        <small v-if="userStore.user?.username != null">
           Usernames are optional. To remove your username, simply clear the text box.
         </small>
         <div class="mt-5"><h2>Change your password</h2></div>

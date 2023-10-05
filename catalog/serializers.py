@@ -1,8 +1,8 @@
 from rest_framework import serializers
 
 from authentication.models import User
-from catalog.models import ClassroomTemplate, ProjectTemplate, ClassroomTemplateManager, HelpfulResource, TaskTemplate, \
-    Virtualization, AcceptanceCriteria, Question, QuestionChoice
+from catalog.models import (Classroom, Project, ClassroomInstructor, HelpfulResource,
+                            Task, Virtualization, AcceptanceCriteria, Question, QuestionChoice)
 
 from drf_writable_nested.serializers import WritableNestedModelSerializer
 
@@ -124,37 +124,44 @@ class VirtualizationSerializer(serializers.ModelSerializer):
         fields = ['id', 'name', 'virtualization_role', 'docker_compose_file']
 
 
-class TaskTemplateSerializer(WritableNestedModelSerializer):
+class TaskNewSerializer(serializers.Serializer):
+    title = serializers.CharField()
+    description = serializers.CharField()
+    project_id = serializers.IntegerField()
+
+
+class TaskSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField()
     description = serializers.CharField()
-    task_type = serializers.ChoiceField(choices=TaskTemplate.TASK_TYPE_CHOICES)
-    difficulty = serializers.ChoiceField(choices=TaskTemplate.DIFFICULTY_CHOICES)
+    task_type = serializers.ChoiceField(choices=Task.TASK_TYPE_CHOICES)
+    difficulty = serializers.ChoiceField(choices=Task.DIFFICULTY_CHOICES)
     virtualizations = VirtualizationSerializer(many=True)
     acceptance_criteria = AcceptanceCriteriaSerializer()
 
     class Meta:
-        model = TaskTemplate
+        model = Task
         fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'virtualizations', 'acceptance_criteria']
 
 
-class ProjectTemplateDetailSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
+class ProjectNewSerializer(serializers.ModelSerializer):
+    classroom_id = serializers.PrimaryKeyRelatedField(source='classroom',
+                                                      queryset=Classroom.objects.all())
 
     class Meta:
-        model = ProjectTemplate
-        fields = ['id', 'title']
+        model = Project
+        fields = ['id', 'title', 'classroom_id']
+        read_only_fields = ['id']
 
 
-class ProjectTemplateClassroomSerializer(WritableNestedModelSerializer):
+class ProjectDetailSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     title = serializers.CharField()
-    task_templates = TaskTemplateSerializer(many=True)
+    tasks = TaskSerializer(many=True)
 
     class Meta:
-        model = ProjectTemplate
-        fields = ['id', 'title', 'task_templates']
+        model = Project
+        fields = ['id', 'title', 'tasks']
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -167,59 +174,56 @@ class UserSerializer(serializers.ModelSerializer):
         fields = ['id', 'username', 'email']
 
 
-class ClassroomTemplateManagerSerializer(WritableNestedModelSerializer):
+class ClassroomInstructorSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    user = UserSerializer()
-    added_at = serializers.DateTimeField()
+    instructor = UserSerializer()
+    added_at = serializers.DateTimeField(read_only=True)
+    added_by = UserSerializer()
 
     class Meta:
-        model = ClassroomTemplateManager
-        fields = ['id', 'user', 'added_at']
+        model = ClassroomInstructor
+        fields = ['id', 'instructor', 'added_at', 'added_by']
 
 
 class HelpfulResourceSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
-    url = serializers.CharField()
+    title = serializers.CharField(max_length=120)
+    url = serializers.URLField(max_length=200)
 
     class Meta:
         model = HelpfulResource
         fields = ['id', 'title', 'url']
 
 
-class ClassroomTemplateDetailSerializer(WritableNestedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
-    created_at = serializers.DateTimeField()
-    updated_at = serializers.DateTimeField()
-    project_templates = ProjectTemplateClassroomSerializer(many=True)
-    helpful_resources = HelpfulResourceSerializer(many=True)
-    managers = ClassroomTemplateManagerSerializer(many=True)
-
+class ClassroomSerializer(serializers.ModelSerializer):
     class Meta:
-        model = ClassroomTemplate
-        fields = ['id', 'title', 'created_at', 'updated_at', 'project_templates', 'helpful_resources',
-                  'managers']
-
-
-class ClassroomTemplateSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = ClassroomTemplate
+        model = Classroom
         fields = ['id', 'title', 'created_at', 'updated_at']
         read_only_fields = ['id', 'created_at', 'updated_at']
 
 
-class ProjectTemplateNewSerializer(serializers.ModelSerializer):
-    classroom_template_id = serializers.PrimaryKeyRelatedField(source='classroom_template',
-                                                               queryset=ClassroomTemplate.objects.all())
+class ClassroomDetailSerializer(WritableNestedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    title = serializers.CharField()
+    created_at = serializers.DateTimeField()
+    updated_at = serializers.DateTimeField()
+    projects = ProjectDetailSerializer(many=True)
+    helpful_resources = HelpfulResourceSerializer(many=True)
+    instructors = ClassroomInstructorSerializer(many=True, source='classroominstructor_set')
+
+    def validate(self, data):
+        title = data.get('title')
+
+        queryset = Classroom.objects.all()
+        if self.instance:
+            queryset = queryset.exclude(id=self.instance.id)
+
+        if queryset.filter(title=title).exists():
+            raise serializers.ValidationError('This classroom title already exists.')
+
+        return data
 
     class Meta:
-        model = ProjectTemplate
-        fields = ['id', 'title', 'classroom_template_id']
-        read_only_fields = ['id']
-
-
-class TaskTemplateNewSerializer(serializers.Serializer):
-    title = serializers.CharField()
-    description = serializers.CharField()
-    project_template_id = serializers.IntegerField()
+        model = Classroom
+        fields = ['id', 'title', 'created_at', 'updated_at', 'projects', 'helpful_resources',
+                  'instructors']

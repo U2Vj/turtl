@@ -1,18 +1,18 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref, toRef } from 'vue'
 import * as yup from 'yup'
 
 const showDialog = ref(false)
-const templateStore = useTemplateStore()
+const catalogStore = useCatalogStore()
 
-const props = defineProps<{ templateId: string }>()
+const props = defineProps<{ classroomId: number }>()
 
-let templateData = toRef(templateStore, 'classroomTemplate')
-templateStore.fetchTemplate(props.templateId)
+let classroom = toRef(catalogStore, 'classroom')
+catalogStore.getClassroom(props.classroomId)
 
 const schema = yup.object({
   title: yup.string().required('This field is required'),
@@ -38,18 +38,16 @@ function resetDialog() {
   showDialog.value = false
 }
 
-const createURL = handleSubmit(async (values) => {
-  if (templateData.value) {
+const createHelpfulResource = handleSubmit(async (values) => {
+  if (classroom.value) {
     const newResource = {
-      id: templateData.value.id,
       title: values.title,
       url: values.url
     }
-    templateData.value?.helpful_resources.push(newResource)
-    const response = await templateStore.changeTemplateData(props.templateId, templateData.value)
+    classroom.value?.helpful_resources.push(newResource)
+    const response = await catalogStore.updateClassroom(props.classroomId, classroom.value)
     if (response) {
-      showDialog.value = false
-      resetForm()
+      resetDialog()
     }
   }
 })
@@ -79,7 +77,7 @@ const createURL = handleSubmit(async (values) => {
           :error-messages="urlError"
         ></v-text-field>
         <TextButton buttonName="Close" @click="resetDialog"></TextButton>
-        <PrimaryButton buttonName="Create" @click="createURL"> </PrimaryButton>
+        <PrimaryButton buttonName="Create" @click="createHelpfulResource"> </PrimaryButton>
       </v-card-text>
     </v-card>
   </v-dialog>

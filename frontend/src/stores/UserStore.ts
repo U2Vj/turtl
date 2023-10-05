@@ -1,48 +1,42 @@
 import { StorageSerializers, useStorage } from '@vueuse/core'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
-import { defineStore, storeToRefs } from 'pinia'
+import { defineStore } from 'pinia'
 import { computed, type Ref } from 'vue'
 import type { Router } from 'vue-router'
-import { useAuthStore } from './AuthStore'
 import { makeAxiosRequest } from './AxiosInstance'
 import {useToast} from "vue-toastification";
 
 type LoginData = {
-  user: {
-    email: string
-    password: string
-  }
-}
-
-type User = {
   email: string
-  username: string
-  token: string
+  password: string
 }
 
 type RefreshTokenPayload = {
-  token_type: 'refresh'
+  token_type: string
   exp: number
   iat: number
   jti: string
   user_id: number
-  username: string
+  username: string | null
+  email: string
   role: string
   role_display: string
+}
+
+type User = {
+  id: number,
+  username: string | null
   email: string
+  role: string
+  role_display: string
 }
 
 const toast = useToast()
 
-export const useUserStore = defineStore('api/user', () => {
-  const authStore = useAuthStore()
-  const { refreshToken, accessToken } = storeToRefs(authStore)
-
-  // see https://github.com/vueuse/vueuse/issues/1307 and https://vueuse.org/core/useStorage/#custom-serialization
-  const user = useStorage<User | null>('api/user', null, undefined, {
-    serializer: StorageSerializers.object
-  })
+export const useUserStore = defineStore('user', () => {
+  const refreshToken = useStorage<string | null>('refreshToken', null)
+  const accessToken = useStorage<string | null>('accessToken', null)
 
   const refreshTokenPayload: Ref<RefreshTokenPayload | null> = computed(() => {
     try {
@@ -55,13 +49,22 @@ export const useUserStore = defineStore('api/user', () => {
     }
   })
 
-  async function login(loginData: LoginData) {
-    const data = {
-      email: loginData.user.email,
-      password: loginData.user.password
+  const user: Ref<User | null> = computed(() => {
+    if(refreshTokenPayload.value === null) {
+      return null
     }
+    return {
+      id: refreshTokenPayload.value.user_id,
+      username: refreshTokenPayload.value.username,
+      email: refreshTokenPayload.value.email,
+      role: refreshTokenPayload.value.role,
+      role_display: refreshTokenPayload.value.role_display
+    }
+  })
 
-    const response = await makeAxiosRequest('api/users/login', 'POST', false, false, data)
+  async function login(data: LoginData) {
+
+    const response = await makeAxiosRequest('/users/login', 'POST', false, false, data)
     if (response.success) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
@@ -76,7 +79,7 @@ export const useUserStore = defineStore('api/user', () => {
     const data = {
       refresh: refreshToken.value
     }
-    const response = await makeAxiosRequest('/api/users/login/refresh', 'POST', false, false, data)
+    const response = await makeAxiosRequest('/users/login/refresh', 'POST', false, false, data)
     if (response.success && response.data.access && response.data.refresh) {
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
@@ -94,7 +97,7 @@ export const useUserStore = defineStore('api/user', () => {
 
   async function resetPasswordRequest(email: string) {
     return await axios
-      .post(import.meta.env.VITE_API_URL + 'api/request-reset-email', {
+      .post(import.meta.env.VITE_API_URL + '/users/request-reset-email', {
         email: email
       })
       .then(() => {
@@ -107,26 +110,22 @@ export const useUserStore = defineStore('api/user', () => {
 
   // see https://github.com/vuejs/pinia/discussions/1092#discussioncomment-5408576.
   // Cant use direct import because https://github.com/vitejs/vite/issues/4430#issuecomment-979013114.
-  async function signOut(router: Router) {
+  async function logout(router: Router) {
     const data = { refresh: refreshToken.value }
-    await makeAxiosRequest('api/users/logout', 'POST', false, false, data)
+    await makeAxiosRequest('/users/logout', 'POST', false, false, data)
     refreshToken.value = null
     accessToken.value = null
     toast.info("You have been signed out")
-    router.push('/signin')
-  }
-
-  async function register(user: any) {
-    return await axios.post(import.meta.env.VITE_API_URL + 'api/users/register', user)
+    await router.push('/signin')
   }
 
   async function testLogin() {
-    console.log(await makeAxiosRequest('api/users/login/test', 'GET', true, true))
+    console.log(await makeAxiosRequest('/users/login/test', 'GET', true, true))
   }
 
   async function resetPassword(email: string, newPassword: string) {
     return await axios
-      .post(import.meta.env.VITE_API_URL + 'api/reset-password', {
+      .post(import.meta.env.VITE_API_URL + '/users/reset-password', {
         email: email,
         newPassword: newPassword
       })
@@ -143,15 +142,14 @@ export const useUserStore = defineStore('api/user', () => {
   }
 
   return {
+    accessToken,
     user,
     login,
-    signOut,
-    register,
+    logout,
     resetPasswordRequest,
     resetPassword,
     refreshLogin,
     userIsSignedIn,
-    refreshTokenPayload,
     testLogin
   }
 })

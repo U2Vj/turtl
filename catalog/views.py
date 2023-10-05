@@ -1,5 +1,4 @@
 from django.http import Http404
-from django.shortcuts import render
 
 # Create your views here.
 from rest_framework import status
@@ -8,109 +7,61 @@ from rest_framework.response import Response
 
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
+from rules.contrib.rest_framework import AutoPermissionViewSetMixin
 
-from catalog.models import ClassroomTemplate, TaskTemplate, ProjectTemplate, ClassroomTemplateManager
-from catalog.serializers import (ClassroomTemplateSerializer, ProjectTemplateClassroomSerializer,
-                                 TaskTemplateSerializer, ClassroomTemplateDetailSerializer,
-                                 ProjectTemplateNewSerializer, ClassroomTemplateManagerSerializer)
-
-
-class ClassroomTemplateViewSet(ModelViewSet):
-    queryset = ClassroomTemplate.objects.all()
-    serializer_class = ClassroomTemplateSerializer
-    # TODO: Add permission classes once they're working again
+from catalog.models import Classroom, Task, Project, ClassroomInstructor
+from catalog.serializers import (ClassroomSerializer, ProjectDetailSerializer,
+                                 TaskSerializer, ClassroomDetailSerializer,
+                                 ProjectNewSerializer, ClassroomInstructorSerializer)
+from turtl.utils.permissions import AutoPermissionViewSetWithListMixin
 
 
-class ClassroomTemplateDetail(APIView):
-    def get_object(self, template_id):
-        try:
-            return ClassroomTemplate.objects.get(id=template_id)
-        except ClassroomTemplate.DoesNotExist:
-            raise Http404("Template not found")
+class ClassroomViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
+    queryset = Classroom.objects.all()
+    serializer_class = ClassroomSerializer
 
-    def get(self, request, template_id):
-        template = self.get_object(template_id)
-        serializer = ClassroomTemplateDetailSerializer(template)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def put(self, request, template_id):
-        template = self.get_object(template_id)
-        serializer = ClassroomTemplateDetailSerializer(template, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data)
-        return Response(serializer.errors, status=status.HTTP_200_OK)
-
-    def delete(self, request, template_id):
-        template = self.get_object(template_id)
-        template.delete()
-        return Response(status=status.HTTP_200_OK)
+    def perform_create(self, serializer):
+        classroom: Classroom = serializer.save()
+        ClassroomInstructor.objects.create(instructor=self.request.user,
+                                           classroom=classroom,
+                                           added_by=self.request.user).save()
 
 
-class ProjectTemplateNew(CreateAPIView):
-    queryset = ProjectTemplate.objects.all()
-    serializer_class = ProjectTemplateNewSerializer
+class ClassroomDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
+    serializer_class = ClassroomDetailSerializer
+    queryset = Classroom.objects.all()
 
 
-class ProjectTemplateDetail(APIView):
-    def get(self, request, project_id):
-        try:
-            template = ProjectTemplate.objects.get(id=project_id)
-            serializer = ProjectTemplateClassroomSerializer(template)
-            return Response(serializer.data)
-        except ProjectTemplate.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def put(self, request, project_id):
-        try:
-            template = ProjectTemplate.objects.get(id=project_id)
-            serializer = ProjectTemplateClassroomSerializer(template, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except ProjectTemplate.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
-
-    def delete(self, request, project_id):
-        try:
-            template = ProjectTemplate.objects.get(id=project_id)
-            template.delete()
-            return Response(status=status.HTTP_200_OK)
-        except ProjectTemplate.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+class ProjectNew(CreateAPIView):
+    queryset = Project.objects.all()
+    serializer_class = ProjectNewSerializer
 
 
-class TaskTemplateList(APIView):
+class ProjectDetailViewSet(ModelViewSet):
+    serializer_class = ProjectDetailSerializer
+
+    def get_queryset(self):
+        project_id: int = self.kwargs['pk']
+        return Project.objects.filter(id=project_id)
+
+
+class TaskNew(APIView):
     def post(self, request):
-        serializer = TaskTemplateSerializer(data=request.data)
+        serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TaskTemplateDetail(APIView):
-    def get(self, request, task_id):
-        try:
-            template = TaskTemplate.objects.get(id=task_id)
-            serializer = TaskTemplateSerializer(template)
-            return Response(serializer.data)
-        except TaskTemplate.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+class TaskDetailViewSet(ModelViewSet):
+    serializer_class = TaskSerializer
 
-    def put(self, request, task_id):
-        try:
-            template = TaskTemplate.objects.get(id=task_id)
-            serializer = TaskTemplateSerializer(template, data=request.data)
-            if serializer.is_valid():
-                serializer.save()
-                return Response(serializer.data)
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-        except TaskTemplate.DoesNotExist:
-            return Response(status=status.HTTP_404_NOT_FOUND)
+    def get_queryset(self):
+        task_id: int = self.kwargs['pk']
+        return Task.objects.filter(id=task_id)
 
 
-class ClassroomTemplateManagerViewSet(ModelViewSet):
-    queryset = ClassroomTemplateManager.objects.all()
-    serializer_class = ClassroomTemplateManagerSerializer
+class ClassroomInstructorViewSet(ModelViewSet):
+    queryset = ClassroomInstructor.objects.all()
+    serializer_class = ClassroomInstructorSerializer

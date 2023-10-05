@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref } from 'vue'
 
 // const props = defineProps<{ resourceId: string }>()
 const showDialog = ref(false)
 
-const templateStore = useTemplateStore()
+const catalogStore = useCatalogStore()
 
 // let templateData = toRef(templateStore, 'classroomTemplate')
 // templateStore.fetchTemplate(props.resourceId)

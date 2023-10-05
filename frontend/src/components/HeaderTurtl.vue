@@ -11,10 +11,9 @@ const userStore = useUserStore()
     <v-app-bar sticky color="cardColor" class="elevation-4">
       <div class="flex-grow-1">
         <v-btn to="/student/dashboard">S Dashboard</v-btn>
-        <v-btn to="/student/classrooms">S Classroom Enroled</v-btn>
-        <v-btn to="/student/classrooms/all">S Classrooms All</v-btn>
-        <v-btn to="/admin/templates">A Templates</v-btn>
-        <v-btn to="/manager/classrooms">M Classrooms</v-btn>
+        <v-btn to="/student/classrooms">S My Classrooms</v-btn>
+        <v-btn to="/student/classrooms/all">S All Classrooms</v-btn>
+        <v-btn to="/instructor/classrooms">I Classrooms</v-btn>
       </div>
       <template #prepend>
         <router-link to="/">
@@ -37,7 +36,7 @@ const userStore = useUserStore()
               </template>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="userStore.signOut(router)">
+            <v-list-item @click="userStore.logout(router)">
               <template #prepend>
                 <v-icon icon="mdi-logout"></v-icon>
               </template>

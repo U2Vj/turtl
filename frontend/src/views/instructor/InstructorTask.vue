@@ -1,22 +1,21 @@
 <script setup lang="ts">
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
-import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
+import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
-import { useTemplateStore } from '@/stores/TemplateStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 
-const props = defineProps<{ templateId: string; taskId: string }>()
+const props = defineProps<{ classroomId: number; taskId: number }>()
 
 const router = useRouter()
 
-const templateStore = useTemplateStore()
-const task = ref(templateStore.getTask(props.taskId))
+const catalogStore = useCatalogStore()
+const task = ref(await catalogStore.getTask(props.taskId))
 </script>
-
 <template>
   <DefaultLayout v-if="task">
     <template #heading>{{ task.title }}</template>
@@ -68,10 +67,10 @@ const task = ref(templateStore.getTask(props.taskId))
             <h2>Questions</h2>
           </v-col>
         </v-row>
-        <v-row v-if="task.acceptance_criteria.acceptance_criteria_questionaire">
+        <v-row v-if="task.acceptance_criteria.acceptance_criteria_questionnaire">
           <v-col
             cols="12"
-            v-for="question in task.acceptance_criteria.acceptance_criteria_questionaire"
+            v-for="question in task.acceptance_criteria.acceptance_criteria_questionnaire"
             :key="question.id"
           >
             <v-form>
@@ -83,9 +82,9 @@ const task = ref(templateStore.getTask(props.taskId))
                     variant="underlined"
                     base-color="primary"
                     color="primary"
-                    v-model="question.question"
+                    v-model="question.title"
                   ></v-text-field>
-                  <v-row v-for="choice in question.question_choice" :key="choice.answer">
+                  <v-row v-for="choice in question.choices" :key="choice.answer">
                     <v-col>
                       <v-text-field
                         label="Edit Answer"
@@ -97,8 +96,9 @@ const task = ref(templateStore.getTask(props.taskId))
                       ></v-text-field>
                     </v-col>
                     <v-col cols="3">
+                      <!-- TODO: Make this a checkbox -->
                       <v-select
-                        label="Correctness"
+                        label="Correct"
                         :items="[
                           { title: 'True', value: true },
                           { title: 'False', value: false }
@@ -117,9 +117,9 @@ const task = ref(templateStore.getTask(props.taskId))
         </v-row>
         <v-row>
           <v-col>
-            <SecundaryButton buttonName="Add Question">
+            <SecondaryButton buttonName="Add Question">
               <AddQuestionModal />
-            </SecundaryButton>
+            </SecondaryButton>
           </v-col>
         </v-row>
         <v-row>
@@ -138,7 +138,7 @@ const task = ref(templateStore.getTask(props.taskId))
               >
                 <v-card-text>
                   <v-text-field
-                    label="Edit Name of Virtualization"
+                    label="Name of Virtualization"
                     clearable
                     variant="underlined"
                     base-color="primary"
@@ -155,7 +155,7 @@ const task = ref(templateStore.getTask(props.taskId))
                   ></v-select>
                   <v-file-input
                     clearable
-                    label="Change File"
+                    label="Dockerfile"
                     variant="underlined"
                     base-color="primary"
                     color="primary"
@@ -168,9 +168,9 @@ const task = ref(templateStore.getTask(props.taskId))
         <div class="d-flex mt-5 mb-2 align-center justify-space-between">
           <TextButton
             buttonName="Close"
-            @click="router.push(`/admin/templates/${props.templateId}`)"
+            @click="router.push(`/instructor/classrooms/${props.classroomId}`)"
           ></TextButton>
-          <PrimaryButton buttonName="Safe"> </PrimaryButton>
+          <PrimaryButton buttonName="Save"></PrimaryButton>
         </div>
       </v-form>
     </template>

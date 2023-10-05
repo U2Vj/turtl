@@ -7,11 +7,6 @@ def is_administrator(user):
 
 
 @rules.predicate
-def is_manager(user):
-    return user.is_manager
-
-
-@rules.predicate
 def is_instructor(user):
     return user.is_instructor
 

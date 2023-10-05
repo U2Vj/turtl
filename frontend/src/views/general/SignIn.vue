@@ -20,7 +20,6 @@ const schema = toTypedSchema(
 )
 const { handleSubmit } = useForm({ validationSchema: schema })
 
-// validateOnValueUpdate cant be set on form level. See https://github.com/logaretm/vee-validate/issues/3771
 const { value: emailValue, errorMessage: emailError } = useField<string>(
   'email',
   {},
@@ -34,10 +33,10 @@ const { value: passwordValue, errorMessage: passwordError } = useField<string>(
 
 const submit = handleSubmit(async (values) => {
   const success = await userStore.login({
-    user: { email: values.email, password: values.password }
+    email: values.email, password: values.password
   })
   if (success) {
-    router.push({ path: '/profile' })
+    await router.push({ path: '/profile' })
   }
 })
 </script>
@@ -68,32 +67,31 @@ const submit = handleSubmit(async (values) => {
             label="Password"
             placeholder="Password"
           ></v-text-field>
-          <PrimaryButton buttonName="Sign In" buttonType="submit"> </PrimaryButton>
+          <PrimaryButton buttonName="Sign In" buttonType="submit"></PrimaryButton>
         </v-form>
-        <router-link class="d-block mt-5" to="/forgot-password">Forgot your password?</router-link>
       </v-sheet>
     </div>
   </div>
 </template>
 
 <style scoped>
-#container {
-  height: fit-content;
-  min-height: 100vh;
-  position: relative;
-}
+  #container {
+    height: fit-content;
+    min-height: 100vh;
+    position: relative;
+  }
 
-#background::before {
-  content: '';
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  width: 100%;
-  height: 100%;
-  background-image: url(@/assets/logo.svg);
-  background-size: contain;
-  background-repeat: space;
-  opacity: 0.2;
-}
+  #background::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 100%;
+    height: 100%;
+    background-image: url(@/assets/logo.svg);
+    background-size: contain;
+    background-repeat: space;
+    opacity: 0.2;
+  }
 </style>
