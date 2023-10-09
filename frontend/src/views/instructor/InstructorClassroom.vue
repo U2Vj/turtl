@@ -12,6 +12,7 @@ import { useCatalogStore } from '@/stores/CatalogStore'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
 import { ref, toRef, watchEffect } from 'vue'
 import {useToast} from "vue-toastification";
+import dayjs from "dayjs";
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
@@ -25,18 +26,8 @@ catalogStore.getClassroom(props.classroomId).catch((e) => {
   toast.error(e.message)
 })
 
-
-// TODO: use dayjs
 const formatDate = (datetime: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  }
-  const formattedDate = new Date(datetime).toLocaleDateString('de-DE', options)
-  return formattedDate.replace(',', ' um')
+  return dayjs(datetime).format('DD.MM.YYYY HH:mm')
 }
 
 watchEffect(() => {
