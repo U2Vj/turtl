@@ -57,6 +57,7 @@ const createHelpfulResource = handleSubmit(async (values) => {
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
       <v-card-title>Add Helpful Resource</v-card-title>
+      <v-card-subtitle>Helpful Resources are displayed to Students in a Classroom as a list of links.</v-card-subtitle>
       <v-card-text>
         <v-text-field
           clearable
@@ -64,7 +65,7 @@ const createHelpfulResource = handleSubmit(async (values) => {
           base-color="primary"
           color="primary"
           v-model="titleNewHelpfulResource"
-          label="Title of helpful resource"
+          label="Title"
           :error-messages="titleError"
         ></v-text-field>
         <v-text-field
@@ -73,7 +74,7 @@ const createHelpfulResource = handleSubmit(async (values) => {
           base-color="primary"
           color="primary"
           v-model="urlNewHelpfulResource"
-          label="URL of helpful resource"
+          label="URL"
           :error-messages="urlError"
         ></v-text-field>
         <TextButton buttonName="Close" @click="resetDialog"></TextButton>
