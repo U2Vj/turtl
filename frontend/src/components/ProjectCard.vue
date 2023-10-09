@@ -4,6 +4,7 @@ import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import { useSortable } from '@vueuse/integrations/useSortable'
 import { ref } from 'vue'
+import DeleteProjectModal from "@/components/modals/DeleteProjectModal.vue";
 
 const emit = defineEmits<{
   (e: 'update:task', id: number, event: any): void
@@ -18,7 +19,7 @@ const props = defineProps<{
   tasks: { id: number; title: string }[]
 }>()
 
-const showTasks = ref(false)
+const showDetails = ref(false)
 
 useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
   animation: 150,
@@ -33,19 +34,19 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
     <v-card-title> <v-icon icon="mdi-drag" />{{ title }} </v-card-title>
     <v-card-actions>
       <TextButton
-        v-if="!showTasks"
-        buttonName="Show tasks"
-        @click="showTasks = true"
+        v-if="!showDetails"
+        buttonName="Show details"
+        @click="showDetails = true"
         appendIcon="mdi-chevron-down"
       ></TextButton>
       <TextButton
-        v-if="showTasks"
-        buttonName="Hide tasks"
-        @click="showTasks = false"
+        v-if="showDetails"
+        buttonName="Hide..."
+        @click="showDetails = false"
         appendIcon="mdi-chevron-up"
       ></TextButton>
     </v-card-actions>
-    <v-card-text v-show="showTasks">
+    <v-card-text v-show="showDetails">
       Tasks
       <div :id="`taskWrapper${props.projectId}`">
         <div v-for="task in props.tasks" :key="task.id" style="cursor: grab">
@@ -55,9 +56,11 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
         </div>
       </div>
       <v-card-actions>
-        <SecondaryButton buttonName="Add Task" prependIcon="mdi-plus"> </SecondaryButton>
+        <SecondaryButton buttonName="Add Task" prependIcon="mdi-plus"></SecondaryButton>
         <v-spacer></v-spacer>
-        <ErrorButton buttonName="Delete Project"></ErrorButton>
+        <ErrorButton buttonName="Delete Project">
+          <delete-project-modal :project-id="props.projectId" :project-title="props.title"></delete-project-modal>
+        </ErrorButton>
       </v-card-actions>
     </v-card-text>
   </v-card>

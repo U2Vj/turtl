@@ -132,6 +132,15 @@ export const useCatalogStore = defineStore('catalog', () => {
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
+  async function deleteProject(idToRemove: number) {
+    if(classroom.value === undefined) {
+      throw new ClassroomNotLoadedError("Cannot delete project: No classroom was loaded yet")
+    }
+    const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
+    updatedClassroomData.projects = updatedClassroomData.projects.filter(project => project.id !== idToRemove)
+    return updateClassroom(classroom.value.id, updatedClassroomData)
+  }
+
   async function getTask(id: number) {
     return (await makeAPIRequest(`/catalog/tasks/${id}`, 'GET', true, true)).data
   }
@@ -145,6 +154,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     updateClassroom,
     deleteClassroom,
     createProject,
+    deleteProject,
     getTask
   }
 })

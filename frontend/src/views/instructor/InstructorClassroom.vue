@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import TemplateCard from '@/components/ProjectCard.vue'
+import ProjectCard from '@/components/ProjectCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
@@ -15,9 +15,6 @@ import {useToast} from "vue-toastification";
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
-const showAddProjectModal = ref(false)
-const showDeleteClassroomModal = ref(false)
-const showResourceModal = ref(false)
 
 const catalogStore = useCatalogStore()
 const toast = useToast()
@@ -87,12 +84,12 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
           <v-container fluid>
             <div class="d-flex flex-row mb-2 align-center justify-space-between">
               <h2>Projects</h2>
-              <PrimaryButton buttonName="Add Project" @click="showAddProjectModal = true">
+              <PrimaryButton buttonName="Add Project">
                 <AddProjectModal />
               </PrimaryButton>
             </div>
             <div id="cardWrapper">
-              <template-card
+              <project-card
                 v-for="project in classroom.projects"
                 :classroom-id="props.classroomId"
                 :key="project.id"
@@ -101,7 +98,7 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
                 :tasks="project.tasks"
                 @update:task="handleUpdateTaskOrder"
                 class="mt-5"
-              ></template-card>
+              ></project-card>
             </div>
           </v-container>
         </v-window-item>
@@ -161,10 +158,7 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
                         </v-data-table>
                       </div>
                       <div class="mt-5">
-                        <SecondaryButton
-                          buttonName="Add Resource"
-                          @click="showResourceModal = true"
-                        >
+                        <SecondaryButton buttonName="Add Resource">
                           <AddHelpfulResourceModal :classroom-id="props.classroomId" />
                         </SecondaryButton>
                       </div>
@@ -177,7 +171,7 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>Delete Classroom</v-card-title>
                     <v-card-actions>
-                      <ErrorButton buttonName="Delete Classroom" @click="showDeleteClassroomModal = true">
+                      <ErrorButton buttonName="Delete Classroom">
                         <DeleteClassroomModal :classroom-id="props.classroomId" />
                       </ErrorButton>
                     </v-card-actions>
