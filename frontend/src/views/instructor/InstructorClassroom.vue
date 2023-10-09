@@ -90,6 +90,7 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
                 @update:task="handleUpdateTaskOrder"
                 class="mt-5"
               ></project-card>
+              <p class="mt-3" v-if="!classroom.projects.length">This classroom does not contain any projects yet.</p>
             </div>
           </v-container>
         </v-window-item>
