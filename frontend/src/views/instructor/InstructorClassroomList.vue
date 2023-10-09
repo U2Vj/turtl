@@ -16,7 +16,7 @@ const toast = useToast()
 
 let classroomList = toRef(catalogStore, 'classroomList')
 
-catalogStore.getClassroomList()
+catalogStore.getClassroomList().catch((e) => toast.error(e.message))
 
 function handleRowClick(event: Event, item: { item: { raw: any } }) {
   // Allow text selection.
@@ -32,7 +32,7 @@ function formatReadableDate(date: string) {
 </script>
 
 <template>
-  <DefaultLayout v-if="classroomList">
+  <DefaultLayout>
     <template #heading>Classrooms</template>
     <template #postHeadingButton>
       <PrimaryButton buttonName="Create Classroom">

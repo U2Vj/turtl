@@ -71,6 +71,9 @@ export async function makeAPIRequest(
     }
     return { statusCode: response.status, data: response.data }
   } catch (error: any) {
+    if(!error.response) {
+      throw new ServerError("The backend API seems to be down or does not respond.", undefined)
+    }
     if(error.response.status === 401
         && error.response.data?.code === 'token_not_valid'
         && tryToUpdateTokenWhenUnauthorized) {
