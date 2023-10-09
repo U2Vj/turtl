@@ -8,7 +8,7 @@ import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
 import {VDataTable} from 'vuetify/labs/VDataTable'
 import 'vuetify/styles'
-import Toast, {type PluginOptions, POSITION} from 'vue-toastification'
+import Toast, {type PluginOptions} from 'vue-toastification'
 import 'vue-toastification/dist/index.css';
 
 const turtlTheme: ThemeDefinition = {
@@ -40,7 +40,7 @@ const toastificationOptions: PluginOptions = {
   transition: "Vue-Toastification__fade",
   maxToasts: 10,
   newestOnTop: true,
-  timeout: 10000
+  timeout: 5000
 }
 
 app.use(createPinia())

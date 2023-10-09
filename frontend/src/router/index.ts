@@ -1,7 +1,7 @@
 import { instructorRoutes } from './InstructorRoutes'
 import { studentRoutes } from './StudentRoutes'
 import { useUserStore } from '@/stores/UserStore'
-import ImprintTurtl from '@/views/general/ImprintTurtl.vue'
+import Imprint from '@/views/general/Imprint.vue'
 import PrivacyPolicy from '@/views/general/PrivacyPolicy.vue'
 import SignIn from '@/views/general/SignIn.vue'
 import UserProfile from '@/views/general/UserProfile.vue'
@@ -35,18 +35,18 @@ const router = createRouter({
     },
     {
       path: '/profile',
-      name: 'profile',
+      name: 'UserProfile',
       component: UserProfile
     },
     {
-      path: '/privacypolicy',
+      path: '/privacy-policy',
       name: 'PrivacyPolicy',
       component: PrivacyPolicy
     },
     {
       path: '/imprint',
       name: 'Imprint',
-      component: ImprintTurtl
+      component: Imprint
     }
   ]
 })

@@ -1,19 +1,20 @@
 <script setup lang="ts">
 import TextButton from '@/components/buttons/TextButton.vue'
-import type { User } from '@/stores/CatalogStore'
-import { useCatalogStore } from '@/stores/CatalogStore'
-import { useAxios } from '@vueuse/integrations/useAxios'
 import { ref } from 'vue'
-import {makeAxiosRequest} from "@/stores/AxiosInstance";
+import { makeAPIRequest } from "@/communication/APIRequests";
 import {useToast} from "vue-toastification";
+import type {User} from "@/stores/UserStore";
 
-const catalogStore = useCatalogStore()
-const response = await makeAxiosRequest("/users/instructors", 'GET', true, true)
-const instructors: any[] = []
-if(response.success) {
-} else {
-  useToast().error(response.message)
-}
+const toast = useToast()
+const instructors = ref<User[]>()
+
+
+makeAPIRequest("/users/instructors", 'GET', true, true).then((response) => {
+  instructors.value = response.data
+}).catch((e) => {
+  toast.error(e.message)
+})
+
 const showDialog = ref(false)
 </script>
 

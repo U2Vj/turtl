@@ -2,7 +2,7 @@
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import { makeAxiosRequest } from '@/stores/AxiosInstance'
+import { makeAPIRequest } from '@/communication/APIRequests'
 import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'
 import { useField, useForm } from 'vee-validate'
@@ -91,15 +91,14 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
     })
   }
 
-  const res = await makeAxiosRequest('/users/profile', 'PUT', true, true, data)
-
-  // If the request was successful, we need to refresh the login data to get the updated token claims (e.g. username)
-  if(res.success) {
-    await userStore.refreshLogin()
+  makeAPIRequest('/users/profile', 'PUT', true, true, data).then(() => {
+    // If the request was successful, we need to refresh the login data to get the updated token claims (e.g. username)
+    userStore.refreshLogin()
     toast.success("Your changes have been saved.")
-  } else {
-    toast.error(res.message)
-  }
+  }).catch((e) => {
+    toast.error(e.message)
+  })
+
   // Reset the password form
   setFieldValue('oldPassword', undefined)
   setFieldValue('newPassword', undefined)

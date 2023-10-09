@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import { makeAxiosRequest } from '@/stores/AxiosInstance'
+import { makeAPIRequest } from '@/communication/APIRequests'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref } from 'vue'
 
@@ -17,8 +17,8 @@ async function addQuestion(title: string) {
     classroomId
   }
 
-  const response = await makeAxiosRequest('/templates/classrooms', 'POST', true, true, data)
-  if (response.success) {
+  const response = await makeAPIRequest('/templates/classrooms', 'POST', true, true, data)
+  if (response) {
     showDialog.value = false
   }
 }

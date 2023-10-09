@@ -6,10 +6,12 @@ import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import * as yup from 'yup'
+import {useToast} from "vue-toastification";
 
 const showDialog = ref(false)
 const router = useRouter()
 const catalogStore = useCatalogStore()
+const toast = useToast()
 
 const schema = yup.object({
   title: yup.string()
@@ -30,9 +32,11 @@ const { value: titleNewClassroom, errorMessage: titleError } = useField<string>(
 )
 
 const create = handleSubmit(async (values) => {
-  const result = await catalogStore.createClassroom(values.title)
-  if (result.success) {
-    await router.push({ name: 'InstructorClassroom', params: { classroomId: result.id } })
+  try {
+    const response = await catalogStore.createClassroom(values.title)
+    await router.push({ name: 'InstructorClassroom', params: { classroomId: response.id } })
+  } catch(e: any) {
+    toast.error(e.message)
   }
 })
 

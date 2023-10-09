@@ -5,14 +5,15 @@ import { useCatalogStore } from '@/stores/CatalogStore'
 import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref, toRef } from 'vue'
 import * as yup from 'yup'
+import {useToast} from "vue-toastification";
 
 const showDialog = ref(false)
 const catalogStore = useCatalogStore()
 
 const props = defineProps<{ classroomId: number }>()
+const toast = useToast()
 
 let classroom = toRef(catalogStore, 'classroom')
-catalogStore.getClassroom(props.classroomId)
 
 const schema = yup.object({
   title: yup.string().required('This field is required'),
@@ -45,10 +46,9 @@ const createHelpfulResource = handleSubmit(async (values) => {
       url: values.url
     }
     classroom.value?.helpful_resources.push(newResource)
-    const response = await catalogStore.updateClassroom(props.classroomId, classroom.value)
-    if (response) {
-      resetDialog()
-    }
+    catalogStore.updateClassroom(props.classroomId, classroom.value).then(resetDialog).catch((e) => {
+      toast.error(e.message)
+    })
   }
 })
 </script>
@@ -57,6 +57,7 @@ const createHelpfulResource = handleSubmit(async (values) => {
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
       <v-card-title>Add Helpful Resource</v-card-title>
+      <v-card-subtitle>Helpful Resources are displayed to Students in a Classroom as a list of links.</v-card-subtitle>
       <v-card-text>
         <v-text-field
           clearable
@@ -64,7 +65,7 @@ const createHelpfulResource = handleSubmit(async (values) => {
           base-color="primary"
           color="primary"
           v-model="titleNewHelpfulResource"
-          label="Title of helpful resource"
+          label="Title"
           :error-messages="titleError"
         ></v-text-field>
         <v-text-field
@@ -73,7 +74,7 @@ const createHelpfulResource = handleSubmit(async (values) => {
           base-color="primary"
           color="primary"
           v-model="urlNewHelpfulResource"
-          label="URL of helpful resource"
+          label="URL"
           :error-messages="urlError"
         ></v-text-field>
         <TextButton buttonName="Close" @click="resetDialog"></TextButton>

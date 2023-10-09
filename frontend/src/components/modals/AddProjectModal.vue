@@ -5,8 +5,10 @@ import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref } from 'vue'
 import * as yup from "yup";
 import { useField, useForm, useResetForm } from "vee-validate";
+import {useToast} from "vue-toastification";
 
 const showDialog = ref(false)
+const toast = useToast()
 
 const schema = yup.object({
   title: yup.string()
@@ -35,8 +37,12 @@ function resetAndHideModal() {
 
 const addProject = handleSubmit(async (values) => {
   const catalogStore = useCatalogStore()
-  await catalogStore.createProject(values.title)
-  resetAndHideModal()
+  catalogStore.createProject(values.title).then(() => {
+    resetAndHideModal()
+    toast.success("Project created successfully")
+  }).catch((e) => {
+    toast.error(e.message)
+  })
 })
 
 </script>

@@ -1,9 +1,8 @@
 <script setup lang="ts">
-import TemplateCard from '@/components/ProjectCard.vue'
+import ProjectCard from '@/components/ProjectCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
-import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
 import AddProjectModal from '@/components/modals/AddProjectModal.vue'
@@ -11,30 +10,24 @@ import AddHelpfulResourceModal from '@/components/modals/AddHelpfulResourceModal
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
-import { ref, toRef, watchEffect } from 'vue'
+import {ref, toRaw, toRef, watchEffect} from 'vue'
+import { useToast } from "vue-toastification"
+import dayjs from "dayjs"
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
-const showAddProjectModal = ref(false)
-const showDeleteClassroomModal = ref(false)
-const showResourceModal = ref(false)
 
 const catalogStore = useCatalogStore()
+const toast = useToast()
 
 let classroom = toRef(catalogStore, 'classroom')
-catalogStore.getClassroom(props.classroomId)
 
-// TODO: use dayjs
+catalogStore.getClassroom(props.classroomId).catch((e) => {
+  toast.error(e.message)
+})
+
 const formatDate = (datetime: string) => {
-  const options: Intl.DateTimeFormatOptions = {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  }
-  const formattedDate = new Date(datetime).toLocaleDateString('de-DE', options)
-  return formattedDate.replace(',', ' um')
+  return dayjs(datetime).format('DD.MM.YYYY HH:mm')
 }
 
 watchEffect(() => {
@@ -66,6 +59,15 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
   }
   moveArrayElement(project.tasks, event.oldIndex, event.newIndex)
 }
+
+function deleteHelpfulResource(id: number) {
+  if(!classroom.value) {
+    return
+  }
+  const updatedClassroom = Object.assign({}, toRaw(classroom.value))
+  updatedClassroom.helpful_resources = updatedClassroom.helpful_resources.filter(resource => resource.id !== id)
+  catalogStore.updateClassroom(classroom.value.id, updatedClassroom).catch(e => toast.error(e.message))
+}
 </script>
 
 <template>
@@ -73,8 +75,8 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
     <template #heading>{{ classroom.title }}</template>
     <template #default>
       <v-tabs v-model="tab" color="primary">
-        <v-tab value="0">Projects and Settings</v-tab>
-        <v-tab value="1">Information</v-tab>
+        <v-tab value="0">Projects</v-tab>
+        <v-tab value="1">Settings</v-tab>
         <v-tab value="2">Instructors</v-tab>
       </v-tabs>
       <v-window v-model="tab" class="mt-5">
@@ -82,12 +84,12 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
           <v-container fluid>
             <div class="d-flex flex-row mb-2 align-center justify-space-between">
               <h2>Projects</h2>
-              <PrimaryButton buttonName="Add Project" @click="showAddProjectModal = true">
+              <PrimaryButton buttonName="Add Project">
                 <AddProjectModal />
               </PrimaryButton>
             </div>
             <div id="cardWrapper">
-              <template-card
+              <project-card
                 v-for="project in classroom.projects"
                 :classroom-id="props.classroomId"
                 :key="project.id"
@@ -96,7 +98,8 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
                 :tasks="project.tasks"
                 @update:task="handleUpdateTaskOrder"
                 class="mt-5"
-              ></template-card>
+              ></project-card>
+              <p class="mt-3" v-if="!classroom.projects.length">This classroom does not contain any projects yet.</p>
             </div>
           </v-container>
         </v-window-item>
@@ -106,12 +109,9 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
               <v-col cols="6">
                 <div>
                   <v-card variant="flat" color="cardColor" class="elevation-4">
-                    <v-card-title>General information</v-card-title>
+                    <v-card-title>Stats</v-card-title>
                     <v-card-text>
-                      <div><h3>Classroom title:</h3></div>
-                      <div>{{ classroom.title }}</div>
-
-                      <div class="mt-5"><h3>Created at:</h3></div>
+                      <div><h3>Created at:</h3></div>
                       <div>{{ formatDate(classroom.created_at) }}</div>
 
                       <div class="mt-5"><h3>Updated at:</h3></div>
@@ -138,28 +138,22 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
                             },
                             {
                               title: 'Delete',
-                              align: 'center',
-                              key: 'link'
+                              key: 'id'
                             }
                           ]"
                           :items="classroom.helpful_resources"
+                          no-data-text="This Classroom does not contain any Helpful Resources yet."
                         >
                           <template #[`item.url`]="{ item }">
                             <a :href="item.columns.url" target="_blank">{{ item.columns.url }}</a>
                           </template>
-
-                          <!--<template #[`item.link`]="{ item }">
-                            <TextButton buttonName="Delete">
-                              <DeleteClassroomResourceModal :resourceId="item.columns.id" />
-                            </TextButton>
-                          </template>-->
+                          <template #[`item.id`]="{ item }">
+                            <v-btn icon="mdi-trash-can-outline" variant="text"  @click="deleteHelpfulResource(item.columns.id)"/>
+                          </template>
                         </v-data-table>
                       </div>
                       <div class="mt-5">
-                        <SecondaryButton
-                          buttonName="Add Resource"
-                          @click="showResourceModal = true"
-                        >
+                        <SecondaryButton buttonName="Add Resource">
                           <AddHelpfulResourceModal :classroom-id="props.classroomId" />
                         </SecondaryButton>
                       </div>
@@ -172,7 +166,7 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>Delete Classroom</v-card-title>
                     <v-card-actions>
-                      <ErrorButton buttonName="Delete Classroom" @click="showDeleteClassroomModal = true">
+                      <ErrorButton buttonName="Delete Classroom">
                         <DeleteClassroomModal :classroom-id="props.classroomId" />
                       </ErrorButton>
                     </v-card-actions>

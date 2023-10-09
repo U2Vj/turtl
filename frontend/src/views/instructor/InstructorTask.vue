@@ -6,15 +6,32 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
-import { ref } from 'vue'
+import {ref} from 'vue'
+import type { Ref } from 'vue'
+import type { Task } from '@/stores/CatalogStore'
 import { useRouter } from 'vue-router'
+import {useToast} from "vue-toastification";
+
 
 const props = defineProps<{ classroomId: number; taskId: number }>()
 
 const router = useRouter()
-
+const toast = useToast()
 const catalogStore = useCatalogStore()
-const task = ref(await catalogStore.getTask(props.taskId))
+
+let task: Ref<Task | undefined> = ref(undefined)
+
+try {
+  catalogStore.getClassroom(props.classroomId).then(() => {
+    task.value = catalogStore.getTask(props.taskId)
+  }).catch((e) => {
+    toast.error(e.message)
+  })
+} catch(e: any){
+  toast.error(e.message)
+}
+
+
 </script>
 <template>
   <DefaultLayout v-if="task">
@@ -130,7 +147,8 @@ const task = ref(await catalogStore.getTask(props.taskId))
         <v-row>
           <v-col>
             <v-form>
-              <v-card
+              <!-- TODO: make this a loop because a task can contain multiple virtualizations -->
+              <!--<v-card
                 :key="task.virtualization.id"
                 variant="flat"
                 color="cardColor"
@@ -161,14 +179,15 @@ const task = ref(await catalogStore.getTask(props.taskId))
                     color="primary"
                   ></v-file-input>
                 </v-card-text>
-              </v-card>
+              </v-card>-->
             </v-form>
           </v-col>
         </v-row>
         <div class="d-flex mt-5 mb-2 align-center justify-space-between">
+          <a :href="`/instructor/classrooms/${props.classroomId}`">zurück</a>
           <TextButton
             buttonName="Close"
-            @click="router.push(`/instructor/classrooms/${props.classroomId}`)"
+            @click="router.push({ name: 'InstructorClassroom', params: { classroomId: props.classroomId } })"
           ></TextButton>
           <PrimaryButton buttonName="Save"></PrimaryButton>
         </div>

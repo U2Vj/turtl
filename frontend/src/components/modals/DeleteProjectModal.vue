@@ -2,24 +2,19 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
-import { ref, toRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref } from 'vue'
 import {useToast} from "vue-toastification";
 
-const props = defineProps<{ classroomId: number }>()
+const props = defineProps<{ projectId: number , projectTitle: string}>()
 const showDialog = ref(false)
-const router = useRouter()
 const toast = useToast()
 
 const catalogStore = useCatalogStore()
 
-let classroom = toRef(catalogStore, 'classroom')
-catalogStore.getClassroom(props.classroomId)
-
-async function deleteClassroom() {
-  catalogStore.deleteClassroom(props.classroomId).then(() => {
-    toast.info("Classroom deleted")
-    router.push({ name: 'InstructorClassroomList' })
+async function deleteProject() {
+  catalogStore.deleteProject(props.projectId).then(() => {
+    toast.info("Project deleted")
+    showDialog.value = false
   }).catch((e) => {
     toast.error(e.message)
   })
@@ -29,13 +24,13 @@ async function deleteClassroom() {
 <template>
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
-      <v-card-title>Delete Classroom</v-card-title>
+      <v-card-title>Delete Project</v-card-title>
       <v-card-text>
-        <p>Are you sure you want to permanently delete "{{ classroom?.title }}"?</p>
+        <p>Are you sure you want to permanently delete "{{ projectTitle }}"?</p>
       </v-card-text>
       <v-card-actions>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
-        <PrimaryButton buttonName="Delete" @click="deleteClassroom()"></PrimaryButton>
+        <PrimaryButton buttonName="Delete" @click="deleteProject()"></PrimaryButton>
       </v-card-actions>
     </v-card>
   </v-dialog>
