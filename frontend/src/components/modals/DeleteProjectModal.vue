@@ -26,7 +26,7 @@ async function deleteProject() {
     <v-card>
       <v-card-title>Delete Project</v-card-title>
       <v-card-text>
-        <p>Are you sure you want to permanently delete "{{ projectTitle }}"</p>
+        <p>Are you sure you want to permanently delete "{{ projectTitle }}"?</p>
       </v-card-text>
       <v-card-actions>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>

@@ -31,7 +31,7 @@ async function deleteClassroom() {
     <v-card>
       <v-card-title>Delete Classroom</v-card-title>
       <v-card-text>
-        <p>Are you sure you want to permanently delete "{{ classroom?.title }}"</p>
+        <p>Are you sure you want to permanently delete "{{ classroom?.title }}"?</p>
       </v-card-text>
       <v-card-actions>
         <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
