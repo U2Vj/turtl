@@ -50,9 +50,9 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
       Tasks
       <div :id="`taskWrapper${props.projectId}`">
         <div v-for="task in props.tasks" :key="task.id" style="cursor: grab">
-          <a :href="`/instructor/classrooms/${props.classroomId}/tasks/${task.id}`">
+          <router-link :to="{name: 'InstructorTask', params: { classroomId: props.classroomId, taskId: task.id }}">
             <v-icon icon="mdi-drag" />{{ task.title }}
-          </a>
+          </router-link>
         </div>
       </div>
       <v-card-actions>
