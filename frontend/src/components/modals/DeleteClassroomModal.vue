@@ -18,6 +18,7 @@ catalogStore.getClassroom(props.classroomId)
 
 async function deleteClassroom() {
   catalogStore.deleteClassroom(props.classroomId).then(() => {
+    toast.info("Classroom deleted")
     router.push({ name: 'InstructorClassroomList' })
   }).catch((e) => {
     toast.error(e.message)
