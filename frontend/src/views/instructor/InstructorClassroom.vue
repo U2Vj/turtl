@@ -10,9 +10,9 @@ import AddHelpfulResourceModal from '@/components/modals/AddHelpfulResourceModal
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
-import { ref, toRef, watchEffect } from 'vue'
-import {useToast} from "vue-toastification";
-import dayjs from "dayjs";
+import {ref, toRaw, toRef, watchEffect} from 'vue'
+import { useToast } from "vue-toastification"
+import dayjs from "dayjs"
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
@@ -59,6 +59,15 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
   }
   moveArrayElement(project.tasks, event.oldIndex, event.newIndex)
 }
+
+function deleteHelpfulResource(id: number) {
+  if(!classroom.value) {
+    return
+  }
+  const updatedClassroom = Object.assign({}, toRaw(classroom.value))
+  updatedClassroom.helpful_resources = updatedClassroom.helpful_resources.filter(resource => resource.id !== id)
+  catalogStore.updateClassroom(classroom.value.id, updatedClassroom).catch(e => toast.error(e.message))
+}
 </script>
 
 <template>
@@ -67,7 +76,7 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
     <template #default>
       <v-tabs v-model="tab" color="primary">
         <v-tab value="0">Projects</v-tab>
-        <v-tab value="1">Information</v-tab>
+        <v-tab value="1">Settings</v-tab>
         <v-tab value="2">Instructors</v-tab>
       </v-tabs>
       <v-window v-model="tab" class="mt-5">
@@ -100,12 +109,9 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
               <v-col cols="6">
                 <div>
                   <v-card variant="flat" color="cardColor" class="elevation-4">
-                    <v-card-title>General information</v-card-title>
+                    <v-card-title>Stats</v-card-title>
                     <v-card-text>
-                      <div><h3>Classroom title:</h3></div>
-                      <div>{{ classroom.title }}</div>
-
-                      <div class="mt-5"><h3>Created at:</h3></div>
+                      <div><h3>Created at:</h3></div>
                       <div>{{ formatDate(classroom.created_at) }}</div>
 
                       <div class="mt-5"><h3>Updated at:</h3></div>
@@ -132,21 +138,18 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
                             },
                             {
                               title: 'Delete',
-                              align: 'center',
-                              key: 'link'
+                              key: 'id'
                             }
                           ]"
                           :items="classroom.helpful_resources"
+                          no-data-text="This Classroom does not contain any Helpful Resources yet."
                         >
                           <template #[`item.url`]="{ item }">
                             <a :href="item.columns.url" target="_blank">{{ item.columns.url }}</a>
                           </template>
-
-                          <!--<template #[`item.link`]="{ item }">
-                            <TextButton buttonName="Delete">
-                              <DeleteClassroomResourceModal :resourceId="item.columns.id" />
-                            </TextButton>
-                          </template>-->
+                          <template #[`item.id`]="{ item }">
+                            <v-btn icon="mdi-trash-can-outline" variant="text"  @click="deleteHelpfulResource(item.columns.id)"/>
+                          </template>
                         </v-data-table>
                       </div>
                       <div class="mt-5">
