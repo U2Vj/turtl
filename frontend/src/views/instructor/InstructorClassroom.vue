@@ -57,12 +57,35 @@ function deleteHelpfulResource(id: number) {
     .updateClassroom(classroom.value.id, updatedClassroom)
     .catch((e) => toast.error(e.message))
 }
+
+function editClassroomTitle(newTitle: string) {
+  if (!classroom.value) {
+    return
+  }
+  const updatedTitle = Object.assign({}, toRaw(classroom.value))
+  updatedTitle.title = newTitle
+  catalogStore
+    .updateClassroom(classroom.value.id, updatedTitle)
+    .catch((e) => toast.error(e.message))
+}
 </script>
 
 <template>
   <DefaultLayout v-if="classroom">
     <template #heading>{{ classroom.title }}</template>
     <template #default>
+      <v-text-field
+        label="Edit Title"
+        clearable
+        variant="underlined"
+        base-color="primary"
+        color="primary"
+        v-model="classroom.title"
+      ></v-text-field>
+      <PrimaryButton
+        button-name="Save Title"
+        @click="editClassroomTitle(classroom.title)"
+      ></PrimaryButton>
       <v-tabs v-model="tab" color="primary">
         <v-tab value="0">Projects</v-tab>
         <v-tab value="1">Settings</v-tab>
