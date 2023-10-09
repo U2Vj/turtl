@@ -4,15 +4,15 @@ import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import AddHelpfulResourceModal from '@/components/modals/AddHelpfulResourceModal.vue'
 import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
 import AddProjectModal from '@/components/modals/AddProjectModal.vue'
-import AddHelpfulResourceModal from '@/components/modals/AddHelpfulResourceModal.vue'
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
-import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
-import {ref, toRaw, toRef, watchEffect} from 'vue'
-import { useToast } from "vue-toastification"
-import dayjs from "dayjs"
+import { moveArrayElement } from '@vueuse/integrations/useSortable'
+import dayjs from 'dayjs'
+import { ref, toRaw, toRef } from 'vue'
+import { useToast } from 'vue-toastification'
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
@@ -30,21 +30,6 @@ const formatDate = (datetime: string) => {
   return dayjs(datetime).format('DD.MM.YYYY HH:mm')
 }
 
-watchEffect(() => {
-  // TODO: remove drag and drop
-  if (!classroom.value) return
-
-  useSortable('#cardWrapper', classroom.value.projects, {
-    animation: 300,
-    onUpdate: (event: any) => {
-      if (!classroom.value) return
-      const copyTemplateDataProjects = classroom.value.projects.slice()
-      moveArrayElement(copyTemplateDataProjects, event.oldIndex, event.newIndex)
-      classroom.value.projects = copyTemplateDataProjects
-    }
-  })
-})
-
 function handleUpdateTaskOrder(projectId: number, event: any) {
   if (!classroom.value) {
     return
@@ -61,12 +46,16 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
 }
 
 function deleteHelpfulResource(id: number) {
-  if(!classroom.value) {
+  if (!classroom.value) {
     return
   }
   const updatedClassroom = Object.assign({}, toRaw(classroom.value))
-  updatedClassroom.helpful_resources = updatedClassroom.helpful_resources.filter(resource => resource.id !== id)
-  catalogStore.updateClassroom(classroom.value.id, updatedClassroom).catch(e => toast.error(e.message))
+  updatedClassroom.helpful_resources = updatedClassroom.helpful_resources.filter(
+    (resource) => resource.id !== id
+  )
+  catalogStore
+    .updateClassroom(classroom.value.id, updatedClassroom)
+    .catch((e) => toast.error(e.message))
 }
 </script>
 
@@ -88,7 +77,7 @@ function deleteHelpfulResource(id: number) {
                 <AddProjectModal />
               </PrimaryButton>
             </div>
-            <div id="cardWrapper">
+            <div>
               <project-card
                 v-for="project in classroom.projects"
                 :classroom-id="props.classroomId"
@@ -99,7 +88,9 @@ function deleteHelpfulResource(id: number) {
                 @update:task="handleUpdateTaskOrder"
                 class="mt-5"
               ></project-card>
-              <p class="mt-3" v-if="!classroom.projects.length">This classroom does not contain any projects yet.</p>
+              <p class="mt-3" v-if="!classroom.projects.length">
+                This classroom does not contain any projects yet.
+              </p>
             </div>
           </v-container>
         </v-window-item>
@@ -148,7 +139,11 @@ function deleteHelpfulResource(id: number) {
                             <a :href="item.columns.url" target="_blank">{{ item.columns.url }}</a>
                           </template>
                           <template #[`item.id`]="{ item }">
-                            <v-btn icon="mdi-trash-can-outline" variant="text"  @click="deleteHelpfulResource(item.columns.id)"/>
+                            <v-btn
+                              icon="mdi-trash-can-outline"
+                              variant="text"
+                              @click="deleteHelpfulResource(item.columns.id)"
+                            />
                           </template>
                         </v-data-table>
                       </div>

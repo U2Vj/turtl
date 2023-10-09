@@ -295,7 +295,7 @@ function getNumberOfDoneProjects() {
                     </SecundaryButton>
                   </v-card-actions>
                   <v-card-text v-show="showTask">
-                    <div :id="`taskWrapper${item.id}`">
+                    <div>
                       <div v-for="(task, index) in item.taskList" :key="task.id">
                         {{ index + 1 }}. {{ task.task }}
                         <v-icon
