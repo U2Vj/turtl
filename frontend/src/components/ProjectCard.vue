@@ -55,6 +55,7 @@ useSortable(`#taskWrapper${props.projectId}`, props.tasks, {
           </router-link>
         </div>
       </div>
+      <small v-if="!props.tasks.length">This project does not contain any tasks yet.</small>
       <v-card-actions>
         <SecondaryButton buttonName="Add Task" prependIcon="mdi-plus"></SecondaryButton>
         <v-spacer></v-spacer>
