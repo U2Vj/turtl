@@ -2,6 +2,8 @@ import { defineStore } from 'pinia'
 import {ref, toRaw} from 'vue'
 import { makeAPIRequest } from '@/communication/APIRequests'
 import type { User } from "@/stores/UserStore"
+import {ClassroomNotLoadedError} from "@/stores/exceptions"
+
 
 type ClassroomShort = {
   id: number
@@ -141,8 +143,19 @@ export const useCatalogStore = defineStore('catalog', () => {
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
-  async function getTask(id: number) {
-    return (await makeAPIRequest(`/catalog/tasks/${id}`, 'GET', true, true)).data
+  function getTask(targetId: number) {
+    if(classroom.value === undefined) {
+      throw new ClassroomNotLoadedError("Cannot get task: No classroom was loaded yet")
+    }
+    let targetTask
+    classroom.value.projects.forEach((project) => {
+      project.tasks.forEach((task) => {
+        if(task.id === targetId) {
+          targetTask = task
+        }
+      })
+    })
+    return targetTask
   }
 
   return {
