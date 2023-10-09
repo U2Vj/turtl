@@ -66,7 +66,7 @@ function handleUpdateTaskOrder(projectId: number, event: any) {
     <template #heading>{{ classroom.title }}</template>
     <template #default>
       <v-tabs v-model="tab" color="primary">
-        <v-tab value="0">Projects and Settings</v-tab>
+        <v-tab value="0">Projects</v-tab>
         <v-tab value="1">Information</v-tab>
         <v-tab value="2">Instructors</v-tab>
       </v-tabs>
