@@ -1,9 +1,17 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
 import { useRouter } from 'vue-router'
+import {useToast} from "vue-toastification";
 
 const router = useRouter()
 const userStore = useUserStore()
+const toast = useToast()
+
+function handleLogout() {
+  userStore.logout(router)
+  toast.info("You have been signed out.")
+}
+
 </script>
 
 <template>
@@ -36,7 +44,7 @@ const userStore = useUserStore()
               </template>
               <v-list-item-title>Profile</v-list-item-title>
             </v-list-item>
-            <v-list-item @click="userStore.logout(router)">
+            <v-list-item @click="handleLogout">
               <template #prepend>
                 <v-icon icon="mdi-logout"></v-icon>
               </template>

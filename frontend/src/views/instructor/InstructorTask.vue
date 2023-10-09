@@ -6,15 +6,25 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
-import { ref } from 'vue'
+import {ref} from 'vue'
+import type { Task } from '@/stores/CatalogStore'
 import { useRouter } from 'vue-router'
+import {useToast} from "vue-toastification";
 
 const props = defineProps<{ classroomId: number; taskId: number }>()
 
 const router = useRouter()
-
+const toast = useToast()
 const catalogStore = useCatalogStore()
-const task = ref(await catalogStore.getTask(props.taskId))
+
+let task: Task
+
+try {
+  task = ref(await catalogStore.getTask(props.taskId))
+} catch(e: any){
+  toast.error(e.message)
+}
+
 </script>
 <template>
   <DefaultLayout v-if="task">

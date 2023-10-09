@@ -7,12 +7,15 @@ import { useCatalogStore } from '@/stores/CatalogStore'
 import dayjs from 'dayjs'
 import { toRef } from 'vue'
 import { useRouter } from 'vue-router'
+import {useToast} from "vue-toastification";
 
 const router = useRouter()
 
 const catalogStore = useCatalogStore()
+const toast = useToast()
 
 let classroomList = toRef(catalogStore, 'classroomList')
+
 catalogStore.getClassroomList()
 
 function handleRowClick(event: Event, item: { item: { raw: any } }) {

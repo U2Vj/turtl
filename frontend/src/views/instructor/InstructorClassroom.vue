@@ -3,7 +3,6 @@ import TemplateCard from '@/components/ProjectCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
-import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
 import AddProjectModal from '@/components/modals/AddProjectModal.vue'
@@ -12,6 +11,7 @@ import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import { moveArrayElement, useSortable } from '@vueuse/integrations/useSortable'
 import { ref, toRef, watchEffect } from 'vue'
+import {useToast} from "vue-toastification";
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
@@ -20,9 +20,14 @@ const showDeleteClassroomModal = ref(false)
 const showResourceModal = ref(false)
 
 const catalogStore = useCatalogStore()
+const toast = useToast()
 
 let classroom = toRef(catalogStore, 'classroom')
-catalogStore.getClassroom(props.classroomId)
+
+catalogStore.getClassroom(props.classroomId).catch((e) => {
+  toast.error(e.message)
+})
+
 
 // TODO: use dayjs
 const formatDate = (datetime: string) => {

@@ -5,14 +5,15 @@ import { useCatalogStore } from '@/stores/CatalogStore'
 import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref, toRef } from 'vue'
 import * as yup from 'yup'
+import {useToast} from "vue-toastification";
 
 const showDialog = ref(false)
 const catalogStore = useCatalogStore()
 
 const props = defineProps<{ classroomId: number }>()
+const toast = useToast()
 
 let classroom = toRef(catalogStore, 'classroom')
-catalogStore.getClassroom(props.classroomId)
 
 const schema = yup.object({
   title: yup.string().required('This field is required'),
@@ -45,10 +46,9 @@ const createHelpfulResource = handleSubmit(async (values) => {
       url: values.url
     }
     classroom.value?.helpful_resources.push(newResource)
-    const response = await catalogStore.updateClassroom(props.classroomId, classroom.value)
-    if (response) {
-      resetDialog()
-    }
+    catalogStore.updateClassroom(props.classroomId, classroom.value).then(resetDialog).catch((e) => {
+      toast.error(e.message)
+    })
   }
 })
 </script>

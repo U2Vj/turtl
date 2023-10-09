@@ -5,9 +5,11 @@ import { toTypedSchema } from '@vee-validate/yup'
 import { useField, useForm } from 'vee-validate'
 import { useRouter } from 'vue-router'
 import * as yup from 'yup'
+import {useToast} from "vue-toastification";
 
 const router = useRouter()
 const userStore = useUserStore()
+const toast = useToast()
 
 const schema = toTypedSchema(
   yup.object({
@@ -31,13 +33,15 @@ const { value: passwordValue, errorMessage: passwordError } = useField<string>(
   { validateOnValueUpdate: false }
 )
 
-const submit = handleSubmit(async (values) => {
-  const success = await userStore.login({
+const submit = handleSubmit((values) => {
+  userStore.login({
     email: values.email, password: values.password
+  }).then(() => {
+    router.push({ name: 'UserProfile' })
+    toast.info("Welcome back!")
+  }).catch((e) => {
+    toast.error(e.message)
   })
-  if (success) {
-    await router.push({ path: '/profile' })
-  }
 })
 </script>
 

@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia'
-import { ref } from 'vue'
-import { makeAxiosRequest } from './AxiosInstance'
-import axios from "axios";
+import {ref, toRaw} from 'vue'
+import { makeAPIRequest } from '@/communication/APIRequests'
+import type { User } from "@/stores/UserStore"
 
 type ClassroomShort = {
   id: number
@@ -10,7 +10,7 @@ type ClassroomShort = {
   updated_at: string
 }
 
-type Task = {
+export type Task = {
   id: number
   title: string
   description: string
@@ -60,12 +60,6 @@ type ClassroomInstructor = {
   added_by: User
 }
 
-export type User = {
-  id: number
-  username: string | null
-  email: string
-}
-
 type HelpfulResource = {
   id?: number
   title: string
@@ -91,61 +85,46 @@ export const useCatalogStore = defineStore('catalog', () => {
   const classroomList = ref<ClassroomShort[]>()
 
   async function getClassroomList() {
-    const response = await makeAxiosRequest('/catalog/classrooms', 'GET', true, true)
-    if (response.success) {
-      classroomList.value = response.data
-    } else {
-      console.error
-    }
-    return classroomList
+    const response = await makeAPIRequest('/catalog/classrooms', 'GET', true, true)
+    classroomList.value = response.data
+    return response.data
   }
 
   async function createClassroom(title: string) {
     const data = {
       title: title
     }
-    const response = await makeAxiosRequest('/catalog/classrooms', 'POST', true, true, data)
-    if (response.success) {
-      return { success: true, id: response.data.id }
-    }
-    return { success: false, id: null }
+    const response = await makeAPIRequest('/catalog/classrooms', 'POST', true, true, data)
+    return response.data
   }
 
   async function getClassroom(id: number) {
-    const response = await makeAxiosRequest(`/catalog/classrooms/${id}`, 'GET', true, true)
-    if (response.success) {
-      classroom.value = response.data
-    }
-    return classroom
+    const response = await makeAPIRequest(`/catalog/classrooms/${id}`, 'GET', true, true)
+    classroom.value = response.data
+    return classroom.value
   }
 
   async function updateClassroom(id: number, classroomData: ClassroomDetail) {
-    const response = await makeAxiosRequest(
+    const response = await makeAPIRequest(
       `/catalog/classrooms/${id}`,
       'PUT',
       true,
       true,
       classroomData
     )
-    if (response.success) {
-      classroom.value = response.data
-    } else {
-      // TODO: add notification
-      console.error
-    }
-    return classroom
+    classroom.value = response.data
+    return classroom.value
   }
 
   async function deleteClassroom(id: number) {
-    const response = await makeAxiosRequest(`/catalog/classrooms/${id}`, 'DELETE', true, true)
-    return response.success
+    await makeAPIRequest(`/catalog/classrooms/${id}`, 'DELETE', true, true)
   }
 
   async function createProject(title: string) {
     if(classroom.value === undefined) {
-      throw new TypeError("Cannot create project: No classroom was loaded yet")
+      throw new ClassroomNotLoadedError("Cannot create project: No classroom was loaded yet")
     }
-    const updatedClassroomData = {...classroom.value}
+    const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
     updatedClassroomData.projects.push({
       title: title,
       tasks: []
@@ -154,11 +133,7 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   async function getTask(id: number) {
-    const response = await makeAxiosRequest(`/catalog/tasks/${id}`, 'GET', true, true)
-    if (response.success) {
-      return response.data
-    }
-    return undefined
+    return (await makeAPIRequest(`/catalog/tasks/${id}`, 'GET', true, true)).data
   }
 
   return {

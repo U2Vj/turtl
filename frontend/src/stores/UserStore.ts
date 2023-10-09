@@ -1,11 +1,10 @@
-import { StorageSerializers, useStorage } from '@vueuse/core'
+import { useStorage } from '@vueuse/core'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
 import { defineStore } from 'pinia'
 import { computed, type Ref } from 'vue'
 import type { Router } from 'vue-router'
-import { makeAxiosRequest } from './AxiosInstance'
-import {useToast} from "vue-toastification";
+import { makeAPIRequest } from '@/communication/APIRequests'
 
 type LoginData = {
   email: string
@@ -24,15 +23,13 @@ type RefreshTokenPayload = {
   role_display: string
 }
 
-type User = {
+export type User = {
   id: number,
   username: string | null
   email: string
-  role: string
-  role_display: string
+  role?: string
+  role_display?: string
 }
-
-const toast = useToast()
 
 export const useUserStore = defineStore('user', () => {
   const refreshToken = useStorage<string | null>('refreshToken', null)
@@ -63,29 +60,18 @@ export const useUserStore = defineStore('user', () => {
   })
 
   async function login(data: LoginData) {
-
-    const response = await makeAxiosRequest('/users/login', 'POST', false, false, data)
-    if (response.success) {
-      refreshToken.value = response.data.refresh
-      accessToken.value = response.data.access
-      toast.info("Welcome back!")
-      return true
-    }
-    toast.error(response.message)
-    return false
+    const response = await makeAPIRequest('/users/login', 'POST', false, false, data)
+    refreshToken.value = response.data.refresh
+    accessToken.value = response.data.access
   }
 
   async function refreshLogin() {
     const data = {
       refresh: refreshToken.value
     }
-    const response = await makeAxiosRequest('/users/login/refresh', 'POST', false, false, data)
-    if (response.success && response.data.access && response.data.refresh) {
-      refreshToken.value = response.data.refresh
-      accessToken.value = response.data.access
-      return true
-    }
-    return false
+    const response = await makeAPIRequest('/users/login/refresh', 'POST', false, false, data)
+    refreshToken.value = response.data.refresh
+    accessToken.value = response.data.access
   }
 
   async function userIsSignedIn() {
@@ -108,19 +94,22 @@ export const useUserStore = defineStore('user', () => {
       })
   }
 
-  // see https://github.com/vuejs/pinia/discussions/1092#discussioncomment-5408576.
-  // Cant use direct import because https://github.com/vitejs/vite/issues/4430#issuecomment-979013114.
   async function logout(router: Router) {
     const data = { refresh: refreshToken.value }
-    await makeAxiosRequest('/users/logout', 'POST', false, false, data)
+    try {
+      await makeAPIRequest('/users/logout', 'POST', false, false, data)
+    } catch(e: any) {
+      if(e.name !== "UnauthorizedError") {
+        console.error(e)
+      }
+    }
     refreshToken.value = null
     accessToken.value = null
-    toast.info("You have been signed out")
     await router.push('/signin')
   }
 
   async function testLogin() {
-    console.log(await makeAxiosRequest('/users/login/test', 'GET', true, true))
+    console.log(await makeAPIRequest('/users/login/test', 'GET', true, true))
   }
 
   async function resetPassword(email: string, newPassword: string) {
