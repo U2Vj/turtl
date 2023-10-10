@@ -165,9 +165,10 @@ class ProjectDetailSerializer(WritableNestedModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    username = serializers.CharField()
-    email = serializers.CharField()
+    # The ID is the only field that is not read-only because it is used to identify a certain User
+    id = serializers.IntegerField()
+    username = serializers.CharField(read_only=True)
+    email = serializers.CharField(read_only=True)
 
     class Meta:
         model = User
@@ -178,6 +179,7 @@ class ClassroomInstructorSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     instructor = UserSerializer()
     added_at = serializers.DateTimeField(read_only=True)
+    # TODO: This should be read-only as well and automatically be filled with the current user
     added_by = UserSerializer()
 
     class Meta:
