@@ -70,9 +70,9 @@ def add_test_data(apps, schema_editor):
     # Add tasks to projects
     sqlinjectionpython = Task.objects.create(title='SQL Injection in Python', description='SQL Injection in Python', task_type='attack', difficulty='beginner', project=sqlinjection, acceptance_criteria=sqlinjectionpythonac)
     sqlinjectionjava = Task.objects.create(title='SQL Injection in Java', description='SQL Injection in Java', task_type='attack', difficulty='beginner', project=sqlinjection, acceptance_criteria=sqlinjectionjavaac)
-    reflectedxss = Task.objects.create(title='Reflected XSS', description='Reflected XSS', task_type='programming', difficulty='defense', project=xss, acceptance_criteria=reflectedxssac)
-    storedxss = Task.objects.create(title='Stored XSS', description='Stored XSS', task_type='programming', difficulty='defense', project=xss, acceptance_criteria=storedxssac)
-    bufferoverflowc = Task.objects.create(title='Buffer Overflow in C', description='Buffer Overflow in C', task_type='neutral', difficulty='advanced', project=bufferoverflow, acceptance_criteria=bufferoverflowcac)
+    reflectedxss = Task.objects.create(title='Reflected XSS', description='Reflected XSS', task_type='neutral', difficulty='intermediate', project=xss, acceptance_criteria=reflectedxssac)
+    storedxss = Task.objects.create(title='Stored XSS', description='Stored XSS', task_type='neutral', difficulty='intermediate', project=xss, acceptance_criteria=storedxssac)
+    bufferoverflowc = Task.objects.create(title='Buffer Overflow in C', description='Buffer Overflow in C', task_type='defense', difficulty='advanced', project=bufferoverflow, acceptance_criteria=bufferoverflowcac)
 
     # Add helpful resources to classrooms
     HelpfulResource.objects.create(title='SQL Injection', url='https://www.w3schools.com/sql/sql_injection.asp', classroom=itsicherheit)

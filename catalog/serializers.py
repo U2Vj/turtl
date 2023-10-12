@@ -17,7 +17,7 @@ class QuestionChoiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'answer', 'is_correct']
 
 
-class QuestionSerializer(serializers.ModelSerializer):
+class QuestionSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     choices = QuestionChoiceSerializer(required=False, many=True, read_only=False)
     question = serializers.CharField()
@@ -216,12 +216,18 @@ class ClassroomDetailSerializer(WritableNestedModelSerializer):
     def validate(self, data):
         title = data.get('title')
 
+        # Prevent duplicate classroom titles
         queryset = Classroom.objects.all()
         if self.instance:
             queryset = queryset.exclude(id=self.instance.id)
 
         if queryset.filter(title=title).exists():
             raise serializers.ValidationError('This classroom title already exists.')
+
+        # Prevent classrooms without instructors
+        instructors = data.get('classroominstructor_set', [])
+        if self.instance and not instructors:
+            raise serializers.ValidationError('At least one instructor must be associated with the classroom.')
 
         return data
 
