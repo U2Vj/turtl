@@ -6,6 +6,22 @@ from authentication.models import User
 from authentication.predicates import is_instructor
 
 
+class Regex(models.Model):
+    """
+    A regex is a regular expression that is used to check whether the user has completed the task.
+    """
+
+    pattern = models.CharField(max_length=200)
+
+
+class Flag(models.Model):
+    """
+    A flag is a string that the user has to submit to prove that they have completed the task.
+    """
+    prompt = models.CharField(max_length=200, blank=True)
+    value = models.CharField(max_length=50)
+
+
 class Question(models.Model):
     """
     A question that the user has to answer to prove that they have completed the task.
@@ -47,28 +63,32 @@ class AcceptanceCriteria(models.Model):
     This is the superclass of all supported acceptance criteria types.
     """
 
+    DISABLED = 'disabled'
     MANUAL = 'manual'
     QUESTIONNAIRE = 'questionnaire'
     REGEX = 'regex'
     FLAG = 'flag'
+    MIXED = 'mixed'
 
     CRITERIA_TYPE_CHOICES = [
+        (DISABLED, 'Disabled'),
         (MANUAL, 'Manual'),
         (QUESTIONNAIRE, 'Questionnaire'),
         (REGEX, 'Regex'),
         (FLAG, 'Flag'),
+        (MIXED, 'Mixed')
     ]
 
     criteria_type = models.CharField(
         choices=CRITERIA_TYPE_CHOICES,
-        default=MANUAL,
+        default=DISABLED,
         max_length=20
     )
 
     # Additional fields for each criteria type, if necessary
     questions = models.ManyToManyField(Question, blank=True)
-    regex = models.CharField(max_length=200, blank=True)
-    flag = models.CharField(max_length=50, blank=True)
+    regexes = models.ManyToManyField(Regex, blank=True)
+    flags = models.ManyToManyField(Flag, blank=True)
 
     # Add any other common fields for all criteria types here
 
