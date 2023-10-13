@@ -1,10 +1,12 @@
 from rest_framework import status
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
 
+from catalog.serializers import UserSerializer
 from .models import User
 from .serializers import ProfileUpdateSerializer, LoginRefreshSerializer
 
@@ -46,3 +48,13 @@ class TestProtectedView(APIView):
 
     def get(self, request):
         return Response({'token_valid': True})
+
+
+class InstructorViewSet(ModelViewSet):
+    """
+        This view returns a list of all Instructors or Administrators (everyone who can manage a Classroom). It is
+        available to all signed-in Users of TURTL.
+    """
+    permission_classes = (IsAuthenticated,)
+    queryset = User.objects.filter(role=User.Role.INSTRUCTOR)
+    serializer_class = UserSerializer

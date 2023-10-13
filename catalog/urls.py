@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (ProjectNew, ProjectDetailViewSet, TaskNew, TaskDetailViewSet,
-                    ClassroomViewSet, ClassroomInstructorViewSet, ClassroomDetailViewSet)
+                    ClassroomViewSet, ClassroomDetailViewSet)
 
 # This file maps the api endpoints to the corresponding URLs.
 # https://docs.djangoproject.com/en/3.1/topics/http/urls/
@@ -26,5 +26,4 @@ urlpatterns = [
         'put': 'update',
         'delete': 'destroy'
     })),
-    path('users/instructors', ClassroomInstructorViewSet.as_view({'get': 'list'})),
 ]
