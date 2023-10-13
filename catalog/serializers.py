@@ -131,11 +131,11 @@ class VirtualizationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     virtualization_role = serializers.CharField()
-    docker_compose_file = serializers.FileField(read_only=True)
+    dockerfile = serializers.FileField(read_only=True)
 
     class Meta:
         model = Virtualization
-        fields = ['id', 'name', 'virtualization_role', 'docker_compose_file']
+        fields = ['id', 'name', 'virtualization_role', 'dockerfile']
 
 
 class TaskNewSerializer(serializers.Serializer):

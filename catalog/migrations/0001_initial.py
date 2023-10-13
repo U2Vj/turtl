@@ -72,7 +72,7 @@ class Migration(migrations.Migration):
                 ('id', models.AutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('name', models.CharField(max_length=30)),
                 ('virtualization_role', models.CharField(choices=[('user_shell', 'User Shell'), ('user_accessible', 'User-accessible via IP')], max_length=30)),
-                ('docker_compose_file', models.FileField(upload_to='')),
+                ('dockerfile', models.FileField(upload_to='')),
                 ('task', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='virtualizations', to='catalog.Task')),
             ],
         ),

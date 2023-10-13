@@ -244,5 +244,5 @@ class Virtualization(models.Model):
     # Role of virtualization (i.e. how the user interacts with the virtualization)
     virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=30)
 
-    # File of the docker-compose.yml that is used to create the virtualization
-    docker_compose_file = models.FileField(upload_to='')
+    # File of the Dockerfile that is used to create the virtualization
+    dockerfile = models.FileField(upload_to='')
