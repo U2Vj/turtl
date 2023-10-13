@@ -1,3 +1,4 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from authentication.models import User
@@ -192,8 +193,22 @@ class ClassroomInstructorSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     instructor = UserSerializer()
     added_at = serializers.DateTimeField(read_only=True)
-    # TODO: This should be read-only as well and automatically be filled with the current user
-    added_by = UserSerializer()
+    added_by = UserSerializer(read_only=True)
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        instructor_data = validated_data.pop('instructor')
+
+        try:
+            instructor = User.objects.get(id=instructor_data['id'])
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError("Instructor does not exist.")
+
+        if instructor.role != User.Role.INSTRUCTOR:
+            raise serializers.ValidationError("User is not an instructor.")
+
+        instance = ClassroomInstructor.objects.create(added_by=user, instructor=instructor, **validated_data)
+        return instance
 
     class Meta:
         model = ClassroomInstructor
@@ -227,14 +242,12 @@ class ClassroomDetailSerializer(WritableNestedModelSerializer):
     instructors = ClassroomInstructorSerializer(many=True, source='classroominstructor_set')
 
     def validate(self, data):
-        title = data.get('title')
-
         # Prevent duplicate classroom titles
         queryset = Classroom.objects.all()
         if self.instance:
             queryset = queryset.exclude(id=self.instance.id)
 
-        if queryset.filter(title=title).exists():
+        if queryset.filter(title=data.get('title')).exists():
             raise serializers.ValidationError('This classroom title already exists.')
 
         # Prevent classrooms without instructors
