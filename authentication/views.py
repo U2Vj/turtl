@@ -15,7 +15,7 @@ from .emails import send_invitation_email
 
 from .models import User, Invitation
 from .serializers import (ProfileUpdateSerializer, LoginRefreshSerializer,
-                          InvitationSerializer, AcceptInvitationSerializer, BulkInvitationSerializer)
+                          InvitationSerializer, AcceptInvitationSerializer, BulkInvitationSerializer, UserSerializer)
 
 
 class ProfileUpdateView(RetrieveUpdateAPIView):
