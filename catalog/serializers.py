@@ -1,7 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
-from authentication.models import User
+from authentication.serializers import UserSerializer
 from catalog.models import (Classroom, Project, ClassroomInstructor, HelpfulResource,
                             Task, Virtualization, AcceptanceCriteria, Question, QuestionChoice,
                             Regex, Flag)
@@ -176,17 +176,6 @@ class ProjectDetailSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Project
         fields = ['id', 'title', 'tasks']
-
-
-class UserSerializer(serializers.ModelSerializer):
-    # The ID is the only field that is not read-only because it is used to identify a certain User
-    id = serializers.IntegerField()
-    username = serializers.CharField(read_only=True)
-    email = serializers.CharField(read_only=True)
-
-    class Meta:
-        model = User
-        fields = ['id', 'username', 'email']
 
 
 class ClassroomInstructorSerializer(WritableNestedModelSerializer):

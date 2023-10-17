@@ -1,19 +1,22 @@
 import logging
-from typing import Dict, Any
+from typing import Dict, Any, List
 
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
+from rest_framework.serializers import ValidationError
+from rest_framework.exceptions import PermissionDenied
 import rest_framework_simplejwt.settings
+from rest_framework.validators import UniqueValidator
 from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework.exceptions import AuthenticationFailed
 
-from .models import User
+from .models import User, Invitation
 
 
 class ProfileUpdateSerializer(serializers.ModelSerializer):
     """
-        This serializers handles a update request for the current user's profile, i.e. an update of a user object.
+        This serializers handles an update request for the current user's profile, i.e. an update of a user object.
         Handles serialization and deserialization of User objects. In TURTL, email addresses are not meant to be
         updated, hence they are not included here.
     """
@@ -24,7 +27,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     role = serializers.CharField(read_only=True, source='get_role_display')
 
-    # Usernames must be 2 or more and 255 or less characters and are optional
+    # Usernames must be 2 or more and 255 or fewer characters and are optional
     username = serializers.CharField(min_length=2, max_length=128, allow_null=True, required=False, default=None)
 
     # Passwords must be at least 8 characters, but no more than 128
@@ -169,3 +172,126 @@ class LoginSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
 
         return token
+
+
+class UserSerializer(serializers.ModelSerializer):
+    # The ID is the only field that is not read-only because it is used to identify a certain User, e.g. when adding
+    # instructors to a classroom (see app 'catalog')
+    id = serializers.IntegerField()
+    username = serializers.CharField(read_only=True)
+    email = serializers.CharField(read_only=True)
+
+    class Meta:
+        model = User
+        fields = ['id', 'username', 'email']
+
+
+class AcceptInvitationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=254)
+    password = serializers.CharField(
+        max_length=128,
+        min_length=8,
+        write_only=True
+    )
+    token = serializers.CharField(max_length=256, write_only=True)
+
+    class Meta:
+        model = User
+        fields = ['email', 'password', 'token']
+
+    def __init__(self, data=None, **kwargs):
+        try:
+            self.invitation = Invitation.objects.filter(email=data['email']).first()
+            if self.invitation is not None and not self.invitation.token_valid(data['token']):
+                self.invitation = None
+        except (KeyError, TypeError):
+            self.invitation = None
+        super().__init__(data=data,**kwargs)
+
+
+    def validate(self, attrs):
+        if not self.invitation:
+            raise AuthenticationFailed("No invitation found for the given email address and token.")
+        if self.invitation.is_expired:
+            raise AuthenticationFailed("Your invitation has already expired.")
+
+        return super().validate(attrs)
+
+    def create(self, validated_data):
+        if self.invitation.target_role == self.invitation.TargetRole.INSTRUCTOR:
+            user = User.objects.create_instructor(email=validated_data['email'],
+                                                  password=validated_data['password'])
+        else:
+            user = User.objects.create_student(email=validated_data['email'],
+                                               password=validated_data['password'])
+        user.save()
+
+        # The invitation has been redeemed and accepted, so we can delete it
+        self.invitation.delete()
+
+        return user
+
+
+class InvitationSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(max_length=254, validators=[
+        UniqueValidator(queryset=Invitation.objects.all(), message="This email address has already been invited."),
+        UniqueValidator(queryset=User.objects.all(), message="A user with this email address already exists.")
+    ])
+    issuer = UserSerializer(read_only=True)
+
+    target_role_display = serializers.CharField(read_only=True, source='get_target_role_display')
+
+    class Meta:
+        model = Invitation
+        fields = ['id', 'email', 'target_role', 'target_role_display', 'issuer', 'expiration_date']
+        read_only_fields = ['id', 'issuer', 'expiration_date']
+
+    def validate(self, attrs):
+        validated_data = super().validate(attrs)
+
+        if(validated_data['target_role'] == Invitation.TargetRole.INSTRUCTOR
+                and not self.context['request'].user.is_administrator):
+            raise PermissionDenied("Only Administrators can invite Instructors.")
+
+        return validated_data
+
+    def create(self, validated_data) -> Invitation:
+        if validated_data['target_role'] == Invitation.TargetRole.INSTRUCTOR:
+            invitation = Invitation.objects.invite_instructor(
+                email=validated_data['email'],
+                issuer=self.context['request'].user
+            )
+        else:
+            invitation = Invitation.objects.invite_student(
+                email=validated_data['email'],
+                issuer=self.context['request'].user
+            )
+        return invitation
+
+
+class BulkInvitationSerializer(serializers.Serializer):
+    emails = serializers.ListField(
+        child=serializers.EmailField(max_length=254),
+        allow_empty=False,
+        min_length=1,
+        max_length=30
+    )
+
+    def validate_emails(self, email_array: List[str]):
+        errors: List[str] = []
+        for email in email_array:
+            if Invitation.objects.filter(email__iexact=email).exists():
+                errors.append(f"The email address {email} has already been invited.")
+            if User.objects.filter(email__iexact=email).exists():
+                errors.append(f"A user with the email address {email} already exists.")
+        if errors:
+            raise ValidationError(errors)
+        return email_array
+
+    def create(self, validated_data) -> List[Invitation]:
+        invitations: List[Invitation] = []
+        for email in validated_data['emails']:
+            invitation = Invitation.objects.invite_student(email=email, issuer=self.context['request'].user)
+            invitations.append(invitation)
+        return invitations
+

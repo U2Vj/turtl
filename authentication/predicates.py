@@ -14,3 +14,8 @@ def is_instructor(user):
 @rules.predicate
 def is_student(user):
     return user.is_student
+
+
+@rules.predicate
+def issued_invitation(user, invitation):
+    return invitation.issuer == user

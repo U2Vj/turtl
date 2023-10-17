@@ -6,6 +6,7 @@ import PrivacyPolicy from '@/views/general/PrivacyPolicy.vue'
 import SignIn from '@/views/general/SignIn.vue'
 import UserProfile from '@/views/general/UserProfile.vue'
 import { createRouter, createWebHistory } from 'vue-router'
+import AcceptInvitation from "@/views/general/AcceptInvitation.vue"
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -34,6 +35,17 @@ const router = createRouter({
       }
     },
     {
+      path: '/accept-invitation',
+      name: 'AcceptInvitation',
+      component: AcceptInvitation,
+      beforeEnter: async () => {
+        const userStore = useUserStore()
+        if (await userStore.userIsSignedIn()) {
+          await router.push('/profile')
+        }
+      }
+    },
+    {
       path: '/profile',
       name: 'UserProfile',
       component: UserProfile
@@ -54,7 +66,7 @@ const router = createRouter({
 // redirect to signin view if user is not signed in and route requires them to be logged in
 router.beforeEach(async (to) => {
   const userStore = useUserStore()
-  const allowedRouteNamesWhenNotSignedIn = ['signin', 'forgot-password', 'reset-password']
+  const allowedRouteNamesWhenNotSignedIn = ['signin', 'AcceptInvitation']
   if (
     !(await userStore.userIsSignedIn()) &&
     to.name &&
