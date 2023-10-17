@@ -57,7 +57,7 @@ function resetAndHideModal() {
 const addTask = handleSubmit(async (values) => {
   const catalogStore = useCatalogStore()
   catalogStore
-    .createTask(titleNewTask, descriptionNewTask, task_typeNewTask, difficultyNewTask)
+    .createTask(values.title, values.description, values.task_type, values.difficulty)
     .then(() => {
       resetAndHideModal()
       toast.success('Task created successfully')

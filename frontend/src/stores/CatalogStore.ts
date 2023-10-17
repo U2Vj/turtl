@@ -11,7 +11,7 @@ type ClassroomShort = {
   updated_at: string
 }
 
-export type Task = {
+type Task = {
   id: number
   title: string
   description: string
@@ -170,6 +170,19 @@ export const useCatalogStore = defineStore('catalog', () => {
       })
     })
     return targetTask
+  }
+
+  async function createTask(
+    title: string,
+    description: string,
+    task_type: string,
+    difficulty: string
+  ) {
+    if (task.value === undefined) {
+      throw new TaskNotLoadedError('Cannot get task: No task was loaded yet')
+    }
+    console.log('error')
+    // TODO Add Rest of implementation
   }
 
   return {
