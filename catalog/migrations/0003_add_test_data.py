@@ -92,7 +92,7 @@ def add_test_data(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('catalog', '0002_add_flag_regex_models'),
-        ('authentication', '0007_add_test_users')
+        ('authentication', '0009_add_test_users')
     ]
 
     operations = [
