@@ -2,6 +2,7 @@
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
+import AddTaskModal from '@/components/modals/AddTaskModal.vue'
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal.vue'
 import { ref } from 'vue'
 
@@ -54,7 +55,9 @@ const showDetails = ref(false)
       </div>
       <small v-if="!props.tasks.length">This project does not contain any tasks yet.</small>
       <v-card-actions>
-        <SecondaryButton buttonName="Add Task" prependIcon="mdi-plus"></SecondaryButton>
+        <SecondaryButton buttonName="Add Task" prependIcon="mdi-plus">
+          <AddTaskModal />
+        </SecondaryButton>
         <v-spacer></v-spacer>
         <ErrorButton buttonName="Delete Project">
           <delete-project-modal

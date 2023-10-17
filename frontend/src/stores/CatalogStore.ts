@@ -1,9 +1,8 @@
-import { defineStore } from 'pinia'
-import {ref, toRaw} from 'vue'
 import { makeAPIRequest } from '@/communication/APIRequests'
-import type { User } from "@/stores/UserStore"
-import {ClassroomNotLoadedError} from "@/stores/exceptions"
-
+import type { User } from '@/stores/UserStore'
+import { ClassroomNotLoadedError, TaskNotLoadedError } from '@/stores/exceptions'
+import { defineStore } from 'pinia'
+import { ref, toRaw } from 'vue'
 
 type ClassroomShort = {
   id: number
@@ -17,14 +16,14 @@ export type Task = {
   title: string
   description: string
   difficulty: string
-  type: string
+  task_type: string
   virtualization: Virtualization
   acceptance_criteria: AcceptanceCriteria
 }
 
 enum VirtualizationRole {
-  UserShell = "User Shell",
-  UserAccessible = "User-accessible via IP"
+  UserShell = 'User Shell',
+  UserAccessible = 'User-accessible via IP'
 }
 
 type Virtualization = {
@@ -39,8 +38,8 @@ type AcceptanceCriteria = {
 }
 
 enum QuestionType {
-  SingleChoice = "Single choice",
-  MultipleChoice = "Multiple choice"
+  SingleChoice = 'Single choice',
+  MultipleChoice = 'Multiple choice'
 }
 
 type Question = {
@@ -85,6 +84,7 @@ export type ClassroomDetail = ClassroomShort & AdditionalClassroomData
 export const useCatalogStore = defineStore('catalog', () => {
   const classroom = ref<ClassroomDetail | undefined>()
   const classroomList = ref<ClassroomShort[]>()
+  const task = ref<Task | undefined>()
 
   async function getClassroomList() {
     const response = await makeAPIRequest('/catalog/classrooms', 'GET', true, true)
@@ -123,8 +123,8 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   async function createProject(title: string) {
-    if(classroom.value === undefined) {
-      throw new ClassroomNotLoadedError("Cannot create project: No classroom was loaded yet")
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot create project: No classroom was loaded yet')
     }
     const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
     updatedClassroomData.projects.push({
@@ -135,22 +135,36 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   async function deleteProject(idToRemove: number) {
-    if(classroom.value === undefined) {
-      throw new ClassroomNotLoadedError("Cannot delete project: No classroom was loaded yet")
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot delete project: No classroom was loaded yet')
     }
     const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
-    updatedClassroomData.projects = updatedClassroomData.projects.filter(project => project.id !== idToRemove)
+    updatedClassroomData.projects = updatedClassroomData.projects.filter(
+      (project) => project.id !== idToRemove
+    )
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
+  async function createTask(
+    title: string,
+    description: string,
+    task_type: string,
+    difficulty: string
+  ) {
+    if (task.value === undefined) {
+      throw new TaskNotLoadedError('Cannot get task: No task was loaded yet')
+    }
+    // TODO Add Rest of implementation
+  }
+
   function getTask(targetId: number) {
-    if(classroom.value === undefined) {
-      throw new ClassroomNotLoadedError("Cannot get task: No classroom was loaded yet")
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
     }
     let targetTask
     classroom.value.projects.forEach((project) => {
       project.tasks.forEach((task) => {
-        if(task.id === targetId) {
+        if (task.id === targetId) {
           targetTask = task
         }
       })
@@ -168,6 +182,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     deleteClassroom,
     createProject,
     deleteProject,
-    getTask
+    getTask,
+    createTask
   }
 })
