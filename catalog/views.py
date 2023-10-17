@@ -1,10 +1,6 @@
-from django.http import Http404
-
-# Create your views here.
 from rest_framework import status
 from rest_framework.generics import CreateAPIView
 from rest_framework.response import Response
-
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rules.contrib.rest_framework import AutoPermissionViewSetMixin
@@ -12,7 +8,7 @@ from rules.contrib.rest_framework import AutoPermissionViewSetMixin
 from catalog.models import Classroom, Task, Project, ClassroomInstructor
 from catalog.serializers import (ClassroomSerializer, ProjectDetailSerializer,
                                  TaskSerializer, ClassroomDetailSerializer,
-                                 ProjectNewSerializer, ClassroomInstructorSerializer)
+                                 ProjectNewSerializer)
 from turtl.utils.permissions import AutoPermissionViewSetWithListMixin
 
 
@@ -60,8 +56,3 @@ class TaskDetailViewSet(ModelViewSet):
     def get_queryset(self):
         task_id: int = self.kwargs['pk']
         return Task.objects.filter(id=task_id)
-
-
-class ClassroomInstructorViewSet(ModelViewSet):
-    queryset = ClassroomInstructor.objects.all()
-    serializer_class = ClassroomInstructorSerializer

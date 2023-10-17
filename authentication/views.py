@@ -2,6 +2,7 @@ from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.utils.encoding import smart_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status
+from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.exceptions import AuthenticationFailed, ValidationError, PermissionDenied, NotFound
 from rest_framework.response import Response
@@ -99,3 +100,13 @@ class RenewInvitationView(APIView):
         invitation.renew()
 
         return Response(status=status.HTTP_200_OK)
+
+
+class InstructorViewSet(ModelViewSet):
+    """
+        This view returns a list of all Instructors or Administrators (everyone who can manage a Classroom). It is
+        available to all signed-in Users of TURTL.
+    """
+    permission_classes = (IsAuthenticated,)
+    queryset = User.objects.filter(role=User.Role.INSTRUCTOR)
+    serializer_class = UserSerializer

@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import (ProfileUpdateView, TestProtectedView, LoginRefreshView, InvitationViewSet, AcceptInvitationView,
-                    RenewInvitationView, MyInvitationsViewSet, BulkInvitationViewSet)
+                    RenewInvitationView, MyInvitationsViewSet, BulkInvitationViewSet, InstructorViewSet)
 
 from rest_framework_simplejwt.views import (
     TokenObtainPairView,
@@ -32,5 +32,6 @@ urlpatterns = [
     path('invitations/<int:pk>', InvitationViewSet.as_view({
         'delete': 'destroy'
     })),
-    path('invitations/<int:pk>/renew', RenewInvitationView.as_view())
+    path('invitations/<int:pk>/renew', RenewInvitationView.as_view()),
+    path('instructors', InstructorViewSet.as_view({'get': 'list'}))
 ]

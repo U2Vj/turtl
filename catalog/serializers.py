@@ -1,10 +1,31 @@
+from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
 from authentication.serializers import UserSerializer
 from catalog.models import (Classroom, Project, ClassroomInstructor, HelpfulResource,
-                            Task, Virtualization, AcceptanceCriteria, Question, QuestionChoice)
+                            Task, Virtualization, AcceptanceCriteria, Question, QuestionChoice,
+                            Regex, Flag)
 
 from drf_writable_nested.serializers import WritableNestedModelSerializer
+
+
+class RegexSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    pattern = serializers.CharField()
+
+    class Meta:
+        model = Regex
+        fields = '__all__'
+
+
+class FlagSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    prompt = serializers.CharField(allow_blank=True)
+    value = serializers.CharField()
+
+    class Meta:
+        model = Flag
+        fields = '__all__'
 
 
 class QuestionChoiceSerializer(serializers.ModelSerializer):
@@ -17,7 +38,7 @@ class QuestionChoiceSerializer(serializers.ModelSerializer):
         fields = ['id', 'answer', 'is_correct']
 
 
-class QuestionSerializer(serializers.ModelSerializer):
+class QuestionSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     choices = QuestionChoiceSerializer(required=False, many=True, read_only=False)
     question = serializers.CharField()
@@ -31,6 +52,8 @@ class QuestionSerializer(serializers.ModelSerializer):
 class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     questions = QuestionSerializer(many=True, read_only=False, required=False)
+    regexes = RegexSerializer(many=True, read_only=False, required=False)
+    flags = FlagSerializer(many=True, read_only=False, required=False)
 
     class Meta:
         model = AcceptanceCriteria
@@ -38,36 +61,22 @@ class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
 
     def update(self, instance, validated_data):
         instance.criteria_type = validated_data.get('criteria_type', instance.criteria_type)
-        if instance.criteria_type == AcceptanceCriteria.MANUAL:
+
+        instance = super().update(instance, validated_data)
+
+        if instance.criteria_type == AcceptanceCriteria.MANUAL or instance.criteria_type == AcceptanceCriteria.DISABLED:
             instance.questions.clear()
-            instance.regex = ""
-            instance.flag = ""
+            instance.regexes.clear()
+            instance.flags.clear()
         elif instance.criteria_type == AcceptanceCriteria.QUESTIONNAIRE:
-            questions_data = validated_data.pop('questions', [])
-
-            for question_data in questions_data:
-                question_id = question_data.pop('id', None)
-
-                if question_id:
-                    question_instance = Question.objects.get(id=question_id)
-                    question_serializer = QuestionSerializer(question_instance, data=question_data)
-                else:
-                    # Use the nested serializer to handle both Question and its Choices creation
-                    question_serializer = QuestionSerializer(data=question_data)
-
-                # This will handle both creation of new Questions and updating existing ones
-                if question_serializer.is_valid():
-                    question_serializer.save()
-            instance.regex = ""
-            instance.flag = ""
+            instance.regexes.clear()
+            instance.flags.clear()
         elif instance.criteria_type == AcceptanceCriteria.REGEX:
             instance.questions.clear()
-            instance.regex = validated_data.get('regex', instance.regex)
-            instance.flag = ""
+            instance.flags.clear()
         elif instance.criteria_type == AcceptanceCriteria.FLAG:
             instance.questions.clear()
-            instance.flag = validated_data.get('flag', instance.flag)
-            instance.regex = ""
+            instance.regexes.clear()
 
         instance.save()
         return instance
@@ -75,19 +84,19 @@ class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
     def to_representation(self, instance):
         data = super().to_representation(instance)
 
-        if instance.criteria_type == AcceptanceCriteria.MANUAL:
+        if instance.criteria_type == AcceptanceCriteria.MANUAL or instance.criteria_type == AcceptanceCriteria.DISABLED:
             data.pop('questions', None)
-            data.pop('regex', None)
-            data.pop('flag', None)
+            data.pop('regexes', None)
+            data.pop('flags', None)
         elif instance.criteria_type == AcceptanceCriteria.QUESTIONNAIRE:
-            data.pop('regex', None)
-            data.pop('flag', None)
+            data.pop('regexes', None)
+            data.pop('flags', None)
         elif instance.criteria_type == AcceptanceCriteria.REGEX:
             data.pop('questions', None)
-            data.pop('flag', None)
+            data.pop('flags', None)
         elif instance.criteria_type == AcceptanceCriteria.FLAG:
             data.pop('questions', None)
-            data.pop('regex', None)
+            data.pop('regexes', None)
 
         return data
 
@@ -95,19 +104,24 @@ class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
         criteria_type = data.get('criteria_type')
 
         if criteria_type == AcceptanceCriteria.MANUAL:
-            if data.get('questions') or data.get('regex') or data.get('flag'):
+            if data.get('questions') or data.get('regexes') or data.get('flags'):
                 raise serializers.ValidationError("For MANUAL type, questions, regex, and flag should not be provided.")
 
+        elif criteria_type == AcceptanceCriteria.DISABLED:
+            if data.get('questions') or data.get('regexes') or data.get('flags'):
+                raise serializers.ValidationError("For DISABLED type, questions, regex, and flag should not be "
+                                                  "provided.")
+
         elif criteria_type == AcceptanceCriteria.QUESTIONNAIRE:
-            if not data.get('questions') or data.get('regex') or data.get('flag'):
+            if not data.get('questions') or data.get('regexes') or data.get('flags'):
                 raise serializers.ValidationError("For QUESTIONNAIRE type, only questions should be provided.")
 
         elif criteria_type == AcceptanceCriteria.REGEX:
-            if data.get('questions') or not data.get('regex') or data.get('flag'):
+            if data.get('questions') or not data.get('regexes') or data.get('flags'):
                 raise serializers.ValidationError("For REGEX type, only regex should be provided.")
 
         elif criteria_type == AcceptanceCriteria.FLAG:
-            if data.get('questions') or data.get('regex') or not data.get('flag'):
+            if data.get('questions') or data.get('regexes') or not data.get('flags'):
                 raise serializers.ValidationError("For FLAG type, only flag should be provided.")
 
         return data
@@ -117,11 +131,11 @@ class VirtualizationSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField()
     name = serializers.CharField()
     virtualization_role = serializers.CharField()
-    docker_compose_file = serializers.FileField(read_only=True)
+    dockerfile = serializers.FileField(read_only=True)
 
     class Meta:
         model = Virtualization
-        fields = ['id', 'name', 'virtualization_role', 'docker_compose_file']
+        fields = ['id', 'name', 'virtualization_role', 'dockerfile']
 
 
 class TaskNewSerializer(serializers.Serializer):
@@ -168,8 +182,22 @@ class ClassroomInstructorSerializer(WritableNestedModelSerializer):
     id = serializers.IntegerField(read_only=True)
     instructor = UserSerializer()
     added_at = serializers.DateTimeField(read_only=True)
-    # TODO: This should be read-only as well and automatically be filled with the current user
-    added_by = UserSerializer()
+    added_by = UserSerializer(read_only=True)
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+        instructor_data = validated_data.pop('instructor')
+
+        try:
+            instructor = User.objects.get(id=instructor_data['id'])
+        except ObjectDoesNotExist:
+            raise serializers.ValidationError("Instructor does not exist.")
+
+        if instructor.role != User.Role.INSTRUCTOR:
+            raise serializers.ValidationError("User is not an instructor.")
+
+        instance = ClassroomInstructor.objects.create(added_by=user, instructor=instructor, **validated_data)
+        return instance
 
     class Meta:
         model = ClassroomInstructor
@@ -203,14 +231,18 @@ class ClassroomDetailSerializer(WritableNestedModelSerializer):
     instructors = ClassroomInstructorSerializer(many=True, source='classroominstructor_set')
 
     def validate(self, data):
-        title = data.get('title')
-
+        # Prevent duplicate classroom titles
         queryset = Classroom.objects.all()
         if self.instance:
             queryset = queryset.exclude(id=self.instance.id)
 
-        if queryset.filter(title=title).exists():
+        if queryset.filter(title=data.get('title')).exists():
             raise serializers.ValidationError('This classroom title already exists.')
+
+        # Prevent classrooms without instructors
+        instructors = data.get('classroominstructor_set', [])
+        if self.instance and not instructors:
+            raise serializers.ValidationError('At least one instructor must be associated with the classroom.')
 
         return data
 

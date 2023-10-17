@@ -11,6 +11,8 @@ def add_test_data(apps, schema_editor):
     Project = apps.get_model('catalog', 'Project')
     Task = apps.get_model('catalog', 'Task')
     AcceptanceCriteria = apps.get_model('catalog', 'AcceptanceCriteria')
+    Regex = apps.get_model('catalog', 'Regex')
+    Flag = apps.get_model('catalog', 'Flag')
     Question = apps.get_model('catalog', 'Question')
     QuestionChoice = apps.get_model('catalog', 'QuestionChoice')
     Virtualization = apps.get_model('catalog', 'Virtualization')
@@ -57,22 +59,28 @@ def add_test_data(apps, schema_editor):
     QuestionChoice.objects.create(answer='Stored XSS', question=xssq2, is_correct=True)
     QuestionChoice.objects.create(answer='DOM XSS', question=xssq2, is_correct=False)
 
+    # Create test regexes and flags
+    sqlinjectionjavaregex = Regex.objects.create(pattern='.*')
+    reflectedxssflag = Flag.objects.create(value='FL4G')
+
     # Add acceptance criteria to tasks
     sqlinjectionpythonac = AcceptanceCriteria.objects.create(criteria_type='questionnaire')
-    sqlinjectionjavaac = AcceptanceCriteria.objects.create(criteria_type='regex', regex='.*')
-    reflectedxssac = AcceptanceCriteria.objects.create(criteria_type='flag', flag='FL4G')
+    sqlinjectionjavaac = AcceptanceCriteria.objects.create(criteria_type='regex')
+    reflectedxssac = AcceptanceCriteria.objects.create(criteria_type='flag')
     storedxssac = AcceptanceCriteria.objects.create(criteria_type='questionnaire')
     bufferoverflowcac = AcceptanceCriteria.objects.create(criteria_type='manual')
 
+    sqlinjectionjavaac.regexes.add(sqlinjectionjavaregex)
+    reflectedxssac.flags.add(reflectedxssflag)
     sqlinjectionpythonac.questions.set([sqlinjectionpythonq1])
     storedxssac.questions.set([xssq2])
 
     # Add tasks to projects
     sqlinjectionpython = Task.objects.create(title='SQL Injection in Python', description='SQL Injection in Python', task_type='attack', difficulty='beginner', project=sqlinjection, acceptance_criteria=sqlinjectionpythonac)
     sqlinjectionjava = Task.objects.create(title='SQL Injection in Java', description='SQL Injection in Java', task_type='attack', difficulty='beginner', project=sqlinjection, acceptance_criteria=sqlinjectionjavaac)
-    reflectedxss = Task.objects.create(title='Reflected XSS', description='Reflected XSS', task_type='programming', difficulty='defense', project=xss, acceptance_criteria=reflectedxssac)
-    storedxss = Task.objects.create(title='Stored XSS', description='Stored XSS', task_type='programming', difficulty='defense', project=xss, acceptance_criteria=storedxssac)
-    bufferoverflowc = Task.objects.create(title='Buffer Overflow in C', description='Buffer Overflow in C', task_type='neutral', difficulty='advanced', project=bufferoverflow, acceptance_criteria=bufferoverflowcac)
+    reflectedxss = Task.objects.create(title='Reflected XSS', description='Reflected XSS', task_type='neutral', difficulty='intermediate', project=xss, acceptance_criteria=reflectedxssac)
+    storedxss = Task.objects.create(title='Stored XSS', description='Stored XSS', task_type='neutral', difficulty='intermediate', project=xss, acceptance_criteria=storedxssac)
+    bufferoverflowc = Task.objects.create(title='Buffer Overflow in C', description='Buffer Overflow in C', task_type='defense', difficulty='advanced', project=bufferoverflow, acceptance_criteria=bufferoverflowcac)
 
     # Add helpful resources to classrooms
     HelpfulResource.objects.create(title='SQL Injection', url='https://www.w3schools.com/sql/sql_injection.asp', classroom=itsicherheit)
@@ -83,7 +91,7 @@ def add_test_data(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('catalog', '0001_initial'),
+        ('catalog', '0002_add_flag_regex_models'),
         ('authentication', '0007_add_test_users')
     ]
 
