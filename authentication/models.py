@@ -1,12 +1,19 @@
-from datetime import datetime, timedelta
+import hashlib
+import secrets
+from datetime import timedelta
 
-import rules
 from django.conf import settings
 from django.contrib.auth.models import (
     AbstractBaseUser, BaseUserManager, PermissionsMixin
 )
 from django.db import models
+from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
+from rules import is_authenticated
+from rules.contrib.models import RulesModel
+
+from authentication.emails import send_invitation_email
+from authentication.predicates import is_instructor, issued_invitation
 
 
 # This file defines the models used during authentication.
@@ -171,3 +178,94 @@ class User(AbstractBaseUser, PermissionsMixin):
         the user's real name, we return their username instead.
         """
         return self.username
+
+
+class InvitationManager(models.Manager):
+    def _create_and_send_invitation(self, email: str, issuer: User):
+        if not issuer.has_perm('authentication.add_invitation'):
+            raise TypeError("Users must be Instructors or Administrators to invite others")
+        invitation = self.model(email=email, issuer=issuer)
+        token = invitation.get_and_save_token()
+        invitation.set_expiration_date()
+        invitation.save()
+        send_invitation_email(invitation, token)
+        return invitation
+    def invite_student(self, email: str, issuer: User):
+        invitation = self._create_and_send_invitation(email, issuer)
+        return invitation
+
+    def invite_instructor(self, email: str, issuer: User):
+        if not issuer.is_administrator:
+            raise TypeError("Users must be Administrators to invite Instructors")
+        invitation = self._create_and_send_invitation(email, issuer)
+        invitation.target_role = invitation.TargetRole.INSTRUCTOR
+        invitation.save()
+        return invitation
+
+
+class Invitation(RulesModel):
+    """
+    This model represents an invitation for a student or an instructor to join TURTL.
+    """
+    # The email of the invited person
+    email = models.EmailField(unique=True, editable=False, blank=False)
+
+    @staticmethod
+    def _generate_token() -> str:
+        return secrets.token_urlsafe(32)
+
+    @staticmethod
+    def _encrypt_token(raw_token: str) -> str:
+        return hashlib.sha512(raw_token.encode()).hexdigest()
+
+    def get_and_save_token(self) -> str:
+        raw_token = self._generate_token()
+        self.token = self._encrypt_token(raw_token)
+        return raw_token
+
+    def token_valid(self, raw_token) -> bool:
+        return self.token == self._encrypt_token(raw_token)
+
+    def renew(self):
+        token = self.get_and_save_token()
+        self.set_expiration_date()
+        self.save()
+        send_invitation_email(self, token, renew=True)
+
+    # A token to check whether an invitation link is valid, encrypted using SHA512
+    token = models.CharField(max_length=128)
+
+    def set_expiration_date(self) -> None:
+        self.expiration_date = timezone.now() + timedelta(days=settings.INVITATION_EXPIRY_DAYS)
+
+    # An expiration date to avoid invitations that are infinitely valid
+    expiration_date = models.DateTimeField()
+
+    @property
+    def is_expired(self) -> bool:
+        return self.expiration_date < timezone.now()
+
+    class TargetRole(models.TextChoices):
+        INSTRUCTOR = 'INSTRUCTOR', _('Instructor')
+        STUDENT = 'STUDENT', _('Student')
+
+    # The role the newly invited user is going to have. Either Student or Instructor, you cannot invite administrators
+    # directly.
+    target_role = models.CharField(
+        max_length=10,
+        choices=TargetRole.choices,
+        default=TargetRole.STUDENT
+    )
+
+    issuer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='invitations', editable=False)
+
+    objects = InvitationManager()
+
+    class Meta:
+        rules_permissions = {
+            "add": is_authenticated & is_instructor,
+            "view": is_authenticated & is_instructor,
+            "change": is_authenticated & is_instructor & issued_invitation,
+            "delete": is_authenticated & is_instructor & issued_invitation
+        }
+

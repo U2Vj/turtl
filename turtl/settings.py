@@ -92,6 +92,7 @@ SIMPLE_JWT = {
     "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.LoginSerializer",
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True
 }
 
 ROOT_URLCONF = 'turtl.urls'
@@ -191,3 +192,15 @@ CSRF_COOKIE_SECURE = True
 APPLICATION_URL = 'http://localhost:8000'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+FRONTEND_URL = 'http://localhost:5173'
+
+INVITATION_EXPIRY_DAYS = 14
+
+EMAIL_HOST = ""
+DEFAULT_FROM_EMAIL = ""
+EMAIL_PORT = 465
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
+EMAIL_USE_SSL = True

@@ -1,10 +1,14 @@
 export abstract class APIError extends Error {
-    private data: any;
+    private data: any
 
     protected constructor(message: string, data: any) {
         super(message)
         this.name = "APIError"
         this.data = data
+    }
+
+    public getData(): any {
+        return this.data
     }
 }
 

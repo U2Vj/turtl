@@ -112,6 +112,10 @@ export const useUserStore = defineStore('user', () => {
     console.log(await makeAPIRequest('/users/login/test', 'GET', true, true))
   }
 
+  function isAdministrator() {
+    return user.value != null && user.value.role == "ADMINISTRATOR"
+  }
+
   async function resetPassword(email: string, newPassword: string) {
     return await axios
       .post(import.meta.env.VITE_API_URL + '/users/reset-password', {
@@ -135,6 +139,7 @@ export const useUserStore = defineStore('user', () => {
     user,
     login,
     logout,
+    isAdministrator,
     resetPasswordRequest,
     resetPassword,
     refreshLogin,

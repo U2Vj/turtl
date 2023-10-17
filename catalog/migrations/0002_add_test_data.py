@@ -84,7 +84,7 @@ def add_test_data(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('catalog', '0001_initial'),
-        ('authentication', '0006_add_test_users')
+        ('authentication', '0007_add_test_users')
     ]
 
     operations = [

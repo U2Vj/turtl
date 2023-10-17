@@ -3,15 +3,18 @@ from django.utils.encoding import smart_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import AuthenticationFailed, ValidationError
+from rest_framework.exceptions import AuthenticationFailed, ValidationError, PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
+from rest_framework.viewsets import ModelViewSet, ViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
+from turtl.utils.permissions import AutoPermissionViewSetWithListMixin
+from .emails import send_invitation_email
 
-from .models import User
-from .serializers import ProfileUpdateSerializer, LoginRefreshSerializer, SendInvitationEmailSerializer,
-                          SetNewPasswordSerializer
+from .models import User, Invitation
+from .serializers import (ProfileUpdateSerializer, LoginRefreshSerializer,
+                          InvitationSerializer, AcceptInvitationSerializer, BulkInvitationSerializer)
 
 
 class ProfileUpdateView(RetrieveUpdateAPIView):
@@ -53,33 +56,46 @@ class TestProtectedView(APIView):
         return Response({'token_valid': True})
 
 
-class SendInvitationEmailAPIView(APIView):
-    serializer_class = SendInvitationEmailSerializer
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
+class InvitationViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
+    queryset = Invitation.objects.all()
+    serializer_class = InvitationSerializer
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
 
 
-class SetNewPasswordAPIView(APIView):
-    serializer_class = SetNewPasswordSerializer
+class BulkInvitationViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
+    queryset = Invitation.objects.all()
+    serializer_class = BulkInvitationSerializer
 
-    def post(self, request):
-        serializer = self.serializer_class(data=request.data)
-        try:
-            token = request.data['token']
-            uidb64 = request.data['uidb64']
-            password = request.data['password']
-            password_confirm = request.data['passwordConfirm']
-            id = force_str(urlsafe_base64_decode(uidb64))
-            user = User.objects.get(id=id)
-            if not PasswordResetTokenGenerator().check_token(user, token):
-                raise AuthenticationFailed('The reset link is invalid', 401)
-            if not password == password_confirm:
-                raise ValidationError('Your password does not match', 400)
-            user.set_password(password)
-            user.save()
-        except Exception as e:
-            raise AuthenticationFailed('The reset link is invalid', 401)
-        return Response({'success': 'We have sent you a link to reset your password'}, status=status.HTTP_200_OK)
-        #serializer.is_valid(raise_exception=True)
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+
+
+class MyInvitationsViewSet(InvitationViewSet):
+    def get_queryset(self):
+        return Invitation.objects.filter(issuer=self.request.user).all()
+
+
+class AcceptInvitationView(CreateAPIView):
+    serializer_class = AcceptInvitationSerializer
+
+
+class RenewInvitationView(APIView):
+
+    def post(self, request, pk:int=None):
+        invitation = Invitation.objects.filter(id=pk).first()
+
+        if not request.user.has_perm('authentication.change_invitation', invitation):
+            raise PermissionDenied
+        if not invitation:
+            raise NotFound
+
+        invitation.renew()
+
+        return Response(status=status.HTTP_200_OK)
