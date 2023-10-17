@@ -145,18 +145,6 @@ export const useCatalogStore = defineStore('catalog', () => {
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
-  async function createTask(
-    title: string,
-    description: string,
-    task_type: string,
-    difficulty: string
-  ) {
-    if (task.value === undefined) {
-      throw new TaskNotLoadedError('Cannot get task: No task was loaded yet')
-    }
-    // TODO Add Rest of implementation
-  }
-
   function getTask(targetId: number) {
     if (classroom.value === undefined) {
       throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
