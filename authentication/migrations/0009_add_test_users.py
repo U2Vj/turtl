@@ -28,7 +28,7 @@ def add_test_users(apps, schema_editor):
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('authentication', '0006_invitation'),
+        ('authentication', '0008_alter_invitation_id'),
     ]
 
     operations = [
