@@ -12,12 +12,12 @@ type ClassroomShort = {
 }
 
 export type Task = {
-  id: number
+  id?: number
   title: string
   description: string
   task_type: string
   difficulty: string
-  virtualization: Virtualization
+  virtualizations: Virtualization[]
   acceptance_criteria: AcceptanceCriteria
 }
 
@@ -168,25 +168,22 @@ export const useCatalogStore = defineStore('catalog', () => {
     difficulty: string
   ) {
     if (classroom.value === undefined) {
-      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
+      throw new ClassroomNotLoadedError('Cannot add task: No classroom was loaded yet')
     }
-    let newTask
     const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
 
-    newTask = { title, description, task_type, difficulty }
-    updatedClassroomData.projects.forEach((project) => {
-      if (project.id === projectId) {
-        project.tasks.push({
-          id: 1,
+    updatedClassroomData
+        .projects
+        .filter((project) => project.id == projectId)[0]
+        .tasks
+        .push({
           title: title,
           description: description,
           task_type: task_type,
           difficulty: difficulty,
-          virtualization: [],
+          virtualizations: [],
           acceptance_criteria: {}
         })
-      }
-    })
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
