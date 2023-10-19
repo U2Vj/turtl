@@ -106,7 +106,7 @@ function editClassroomTitle(newTitle: string) {
                 :classroom-id="props.classroomId"
                 :key="project.id"
                 :project-id="project.id"
-                :title="project.title"
+                :project-title="project.title"
                 :tasks="project.tasks"
                 @update:task="handleUpdateTaskOrder"
                 class="mt-5"

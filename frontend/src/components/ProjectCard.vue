@@ -15,7 +15,7 @@ const emit = defineEmits<{
 const props = defineProps<{
   classroomId: number
   projectId: number
-  title: string
+  projectTitle: string
   tasks: { id: number; title: string }[]
 }>()
 
@@ -24,7 +24,7 @@ const showDetails = ref(false)
 
 <template>
   <v-card variant="flat" color="cardColor" class="elevation-4" style="cursor: grab">
-    <v-card-title>{{ title }} </v-card-title>
+    <v-card-title>{{ projectTitle }} </v-card-title>
     <v-card-actions>
       <TextButton
         v-if="!showDetails"
@@ -56,13 +56,16 @@ const showDetails = ref(false)
       <small v-if="!props.tasks.length">This project does not contain any tasks yet.</small>
       <v-card-actions>
         <SecondaryButton buttonName="Add Task" prependIcon="mdi-plus">
-          <AddTaskModal />
+          <AddTaskModal
+            :classroom-id="props.classroomId"
+            :project-id="props.projectId"
+          ></AddTaskModal>
         </SecondaryButton>
         <v-spacer></v-spacer>
         <ErrorButton buttonName="Delete Project">
           <delete-project-modal
             :project-id="props.projectId"
-            :project-title="props.title"
+            :project-title="props.projectTitle"
           ></delete-project-modal>
         </ErrorButton>
       </v-card-actions>

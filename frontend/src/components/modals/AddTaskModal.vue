@@ -24,6 +24,11 @@ const schema = yup.object({
   difficulty: yup.string().required('This field is required')
 })
 
+const props = defineProps<{
+  classroomId: number
+  projectId: number
+}>()
+
 const { handleSubmit } = useForm({ validationSchema: schema })
 
 const { value: titleNewTask, errorMessage: titleError } = useField<string>(
@@ -57,7 +62,14 @@ function resetAndHideModal() {
 const addTask = handleSubmit(async (values) => {
   const catalogStore = useCatalogStore()
   catalogStore
-    .createTask(values.title, values.description, values.task_type, values.difficulty)
+    .createTask(
+      props.classroomId,
+      props.projectId,
+      values.title,
+      values.description,
+      values.task_type,
+      values.difficulty
+    )
     .then(() => {
       resetAndHideModal()
       toast.success('Task created successfully')

@@ -1,6 +1,6 @@
 import { makeAPIRequest } from '@/communication/APIRequests'
 import type { User } from '@/stores/UserStore'
-import { ClassroomNotLoadedError, TaskNotLoadedError } from '@/stores/exceptions'
+import { ClassroomNotLoadedError } from '@/stores/exceptions'
 import { defineStore } from 'pinia'
 import { ref, toRaw } from 'vue'
 
@@ -15,8 +15,8 @@ type Task = {
   id: number
   title: string
   description: string
-  difficulty: string
   task_type: string
+  difficulty: string
   virtualization: Virtualization
   acceptance_criteria: AcceptanceCriteria
 }
@@ -84,7 +84,7 @@ export type ClassroomDetail = ClassroomShort & AdditionalClassroomData
 export const useCatalogStore = defineStore('catalog', () => {
   const classroom = ref<ClassroomDetail | undefined>()
   const classroomList = ref<ClassroomShort[]>()
-  const task = ref<Task | undefined>()
+  const project = ref<Project | undefined>()
 
   async function getClassroomList() {
     const response = await makeAPIRequest('/catalog/classrooms', 'GET', true, true)
@@ -161,16 +161,23 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   async function createTask(
+    classroomId: number,
+    projectId: number,
     title: string,
     description: string,
     task_type: string,
     difficulty: string
   ) {
-    if (task.value === undefined) {
-      throw new TaskNotLoadedError('Cannot get task: No task was loaded yet')
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
     }
-    console.log('error')
-    // TODO Add Rest of implementation
+    console.log(classroomId, projectId, title, description, task_type, difficulty)
+    // const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
+    // updatedClassroomData.projects.push({
+    //   title: title,
+    //   tasks: []
+    // })
+    // return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
   return {
