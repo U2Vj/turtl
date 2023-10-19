@@ -11,7 +11,7 @@ type ClassroomShort = {
   updated_at: string
 }
 
-type Task = {
+export type Task = {
   id: number
   title: string
   description: string

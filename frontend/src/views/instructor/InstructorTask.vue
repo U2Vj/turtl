@@ -75,7 +75,7 @@ try {
               variant="underlined"
               base-color="primary"
               color="primary"
-              v-model="task.type"
+              v-model="task.task_type"
             ></v-select>
           </v-col>
         </v-row>
