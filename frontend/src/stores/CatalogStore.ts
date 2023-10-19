@@ -161,7 +161,6 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   async function createTask(
-    classroomId: number,
     projectId: number,
     title: string,
     description: string,
@@ -171,13 +170,24 @@ export const useCatalogStore = defineStore('catalog', () => {
     if (classroom.value === undefined) {
       throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
     }
-    console.log(classroomId, projectId, title, description, task_type, difficulty)
-    // const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
-    // updatedClassroomData.projects.push({
-    //   title: title,
-    //   tasks: []
-    // })
-    // return updateClassroom(classroom.value.id, updatedClassroomData)
+    let newTask
+    const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
+
+    newTask = { title, description, task_type, difficulty }
+    updatedClassroomData.projects.forEach((project) => {
+      if (project.id === projectId) {
+        project.tasks.push({
+          id: 1,
+          title: title,
+          description: description,
+          task_type: task_type,
+          difficulty: difficulty,
+          virtualization: [],
+          acceptance_criteria: {}
+        })
+      }
+    })
+    return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
   return {

@@ -63,7 +63,6 @@ const addTask = handleSubmit(async (values) => {
   const catalogStore = useCatalogStore()
   catalogStore
     .createTask(
-      props.classroomId,
       props.projectId,
       values.title,
       values.description,
