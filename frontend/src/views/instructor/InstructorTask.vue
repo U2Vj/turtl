@@ -5,6 +5,7 @@ import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
+import AddVirtualizationModal from '@/components/modals/AddVirtualizationModal.vue'
 import type { Task } from '@/stores/CatalogStore'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import type { Ref } from 'vue'
@@ -142,6 +143,14 @@ try {
         <v-row>
           <v-col>
             <h2>Virtualization</h2>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <SecondaryButton buttonName="Add Virtualization">
+              <AddVirtualizationModal :classroom-id="props.classroomId" :task-id="props.taskId">
+              </AddVirtualizationModal>
+            </SecondaryButton>
           </v-col>
         </v-row>
         <v-row>

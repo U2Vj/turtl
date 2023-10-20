@@ -2,22 +2,23 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
+import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref } from 'vue'
-import * as yup from "yup";
-import { useField, useForm, useResetForm } from "vee-validate";
-import {useToast} from "vue-toastification";
+import { useToast } from 'vue-toastification'
+import * as yup from 'yup'
 
 const showDialog = ref(false)
 const toast = useToast()
 
 const schema = yup.object({
-  title: yup.string()
-      .ensure()
-      .trim()
-      .required('This field is required')
-      .min(3)
-      .max(120)
-      .matches(/.*[a-zA-Z].*/, {message: "The title should contain at least one letter"})
+  title: yup
+    .string()
+    .ensure()
+    .trim()
+    .required('This field is required')
+    .min(3)
+    .max(120)
+    .matches(/.*[a-zA-Z].*/, { message: 'The title should contain at least one letter' })
 })
 
 const { handleSubmit } = useForm({ validationSchema: schema })
@@ -37,14 +38,16 @@ function resetAndHideModal() {
 
 const addProject = handleSubmit(async (values) => {
   const catalogStore = useCatalogStore()
-  catalogStore.createProject(values.title).then(() => {
-    resetAndHideModal()
-    toast.success("Project created successfully")
-  }).catch((e) => {
-    toast.error(e.message)
-  })
+  catalogStore
+    .createProject(values.title)
+    .then(() => {
+      resetAndHideModal()
+      toast.success('Project created successfully')
+    })
+    .catch((e) => {
+      toast.error(e.message)
+    })
 })
-
 </script>
 
 <template>

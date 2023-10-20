@@ -1,7 +1,7 @@
 <script setup lang="ts">
+import { makeAPIRequest } from '@/communication/APIRequests'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import { makeAPIRequest } from '@/communication/APIRequests'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref } from 'vue'
 
