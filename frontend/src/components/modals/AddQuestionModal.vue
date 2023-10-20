@@ -2,7 +2,6 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import { ref } from 'vue'
-import ErrorButton from '../buttons/ErrorButton.vue'
 import SecondaryButton from '../buttons/SecondaryButton.vue'
 import {useToast} from "vue-toastification";
 
@@ -10,9 +9,10 @@ const showDialog = ref(false)
 const newQuestionnaire = ref('')
 const toast = useToast()
 
-const singleChoice = ref(false)
+const singleChoice = ref(true)
 
 const answerOptions = ref([{ answer: '', checked: false }, { answer: '', checked: false }])
+const singleChoiceSelectedAnswerOption = ref<number>(0)
 
 const addAnswerOption = () => {
   answerOptions.value.push({ answer: '', checked: false })
@@ -48,7 +48,6 @@ const removeAnswerOption = (index: number) => {
           <v-btn :value="true">
             Single choice
           </v-btn>
-
           <v-btn :value="false">
             Multiple Choice
           </v-btn>
@@ -60,7 +59,12 @@ const removeAnswerOption = (index: number) => {
           <v-col cols="1">Remove</v-col>
         </v-row>
         <v-row v-for="(option, index) in answerOptions" :key="index" no-gutters>
-          <v-col cols="1"><v-checkbox v-model="option.checked" class="col-sm-1"></v-checkbox></v-col>
+          <v-col cols="1">
+            <v-radio-group v-model="singleChoiceSelectedAnswerOption" v-if="singleChoice">
+              <v-radio :value="index" />
+            </v-radio-group>
+            <v-checkbox v-model="option.checked" class="col-sm-1" v-else></v-checkbox>
+          </v-col>
           <v-col cols="10">
             <v-text-field
               clearable
