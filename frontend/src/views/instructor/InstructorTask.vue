@@ -96,7 +96,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton buttonName="Add RegEx"> </SecondaryButton>
+            <SecondaryButton buttonName="Add RegEx"></SecondaryButton>
           </v-col>
         </v-row>
         <v-row>
@@ -116,7 +116,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton buttonName="Add Questionnaire" button-type="button">
+            <SecondaryButton buttonName="Add Question" button-type="button">
               <AddQuestionModal />
             </SecondaryButton>
           </v-col>
