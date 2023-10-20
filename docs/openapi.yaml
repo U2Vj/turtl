@@ -824,29 +824,10 @@ components:
           type: string
           description: The title of the Task. Must be a maximum of 50 characters and not be blank or null.
           example: "Block incoming traffic using UFW"
-        virtualization:
-          type: object
-          properties:
-            id:
-              type: integer
-              readOnly: true
-              description: The ID of the Virtualization
-              example: 1
-            name:
-              type: string
-              description: The name of the Virtualization. Not displayed to Students.
-              example: "Kali Linux shell"
-            role:
-              type: string
-              enum:
-                - User Shell
-                - User-accessible via IP
-              description: The role this Virtualization has.
-              example: "User Shell"
-            dockerfile:
-              type: string
-              description: The Dockerfile used to generate an instance of this Virtualization.
-              example: "FROM kalilinux/kali-rolling\nWORKDIR /root\nRUN apt -y update && DEBIAN_FRONTEND=noninteractive apt -y dist-upgrade && apt -y autoremove && apt clean"
+        virtualizations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Virtualization'
         acceptance_criteria:
           type: array
           description: List of criteria for Students to fulfill to solve this Task.
@@ -855,6 +836,29 @@ components:
               - $ref: '#/components/schemas/AcceptanceCriteriaQuestionnaire'
               - $ref: '#/components/schemas/AcceptanceCriteriaFlag'
               - $ref: '#/components/schemas/AcceptanceCriteriaRegex'
+    Virtualization:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: The ID of the Virtualization
+          example: 1
+        name:
+          type: string
+          description: The name of the Virtualization. Not displayed to Students.
+          example: "Kali Linux shell"
+        role:
+          type: string
+          enum:
+            - User Shell
+            - User-accessible via IP
+          description: The role this Virtualization has.
+          example: "User Shell"
+        dockerfile:
+          type: string
+          description: The Dockerfile used to generate an instance of this Virtualization.
+          example: "FROM kalilinux/kali-rolling\nWORKDIR /root\nRUN apt -y update && DEBIAN_FRONTEND=noninteractive apt -y dist-upgrade && apt -y autoremove && apt clean"
     AcceptanceCriteriaFlag:
       type: object
       properties:
@@ -904,24 +908,29 @@ components:
                 type: integer
                 description: ID of the Question
                 example: 1
-              title:
+              question:
                 type: string
                 description: The question itself
                 example: "What is the command to perform a SYN port scan with nmap?"
-              type:
+              question_type:
                 type: string
                 enum:
-                  - Single choice
-                  - Multiple choice
+                  - single_choice
+                  - multiple_choice
                 description: Type of the Question. Determines whether checkboxes or radio buttons are displayed in the
                              frontend.
-                example: "Single choice"
+                example: "single_choice"
               choices:
                 type: array
                 description: The possible choices Students have when answering the questions.
                 items:
                   type: object
                   properties:
+                    id:
+                      type: integer
+                      description: The ID of the answer
+                      readOnly: true
+                      example: 1
                     answer:
                       type: string
                       description: The answer text
@@ -940,7 +949,7 @@ components:
                 }]
           example: [{
               "title": "What is the command to perform a SYN port scan with nmap?",
-              "type": "Single choice",
+              "type": "single_choice",
               "choices": [{
                 "answer": "nmap -sX [...]",
                 "is_correct": false
@@ -953,7 +962,7 @@ components:
               }]
             },{
               "title": "What can you do with nmap?",
-              "type": "Multiple choice",
+              "type": "multiple_choice",
               "choices": [{
                 "answer": "Port scans",
                 "is_correct": true
