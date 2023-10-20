@@ -4,11 +4,13 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import * as yup from 'yup'
 
 const showDialog = ref(false)
 const toast = useToast()
+const router = useRouter()
 
 const schema = yup.object({
   title: yup
@@ -61,7 +63,7 @@ function resetAndHideModal() {
 
 const addTask = handleSubmit(async (values) => {
   const catalogStore = useCatalogStore()
-  catalogStore
+  const response = catalogStore
     .createTask(
       props.projectId,
       values.title,
@@ -71,6 +73,10 @@ const addTask = handleSubmit(async (values) => {
     )
     .then(() => {
       resetAndHideModal()
+      // router.push({
+      //   name: 'InstructorTask',
+      //   params: { classroomId: props.classroomId, taskId: response.id }
+      // })
       toast.success('Task created successfully')
     })
     .catch((e) => {
