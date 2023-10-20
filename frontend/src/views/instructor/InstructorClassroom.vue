@@ -6,10 +6,9 @@ import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddHelpfulResourceModal from '@/components/modals/AddHelpfulResourceModal.vue'
 import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
-import AddProjectModal from '@/components/modals/AddProjectModal.vue'
+import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
-import { moveArrayElement } from '@vueuse/integrations/useSortable'
 import dayjs from 'dayjs'
 import { ref, toRaw, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
@@ -82,7 +81,8 @@ function editClassroomTitle(newTitle: string) {
             <div class="d-flex flex-row mb-2 align-center justify-space-between">
               <h2>Projects</h2>
               <PrimaryButton buttonName="Add Project">
-                <AddProjectModal />
+                <!-- <AddProjectModal /> -->
+                <AddQuestionModal />
               </PrimaryButton>
             </div>
             <div>

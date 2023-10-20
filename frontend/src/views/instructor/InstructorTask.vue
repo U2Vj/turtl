@@ -82,7 +82,33 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <h2>Questions</h2>
+            <h2>Acceptance Criteria</h2>
+          </v-col>
+        </v-row>
+
+        <v-row>
+          <v-col>
+            <h3>RegEx</h3>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <SecondaryButton buttonName="Add RegEx"> </SecondaryButton>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <h3>Flag</h3>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <SecondaryButton buttonName="Add Flag"> </SecondaryButton>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <h3>Questionnaire</h3>
           </v-col>
         </v-row>
         <v-row v-if="task.acceptance_criteria.acceptance_criteria_questionnaire">
@@ -135,7 +161,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton buttonName="Add Question">
+            <SecondaryButton buttonName="Add Questionnaire">
               <AddQuestionModal />
             </SecondaryButton>
           </v-col>
