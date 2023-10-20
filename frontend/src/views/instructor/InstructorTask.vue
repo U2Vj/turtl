@@ -148,8 +148,9 @@ try {
           <v-col>
             <v-form>
               <!-- TODO: make this a loop because a task can contain multiple virtualizations -->
-              <!--<v-card
-                :key="task.virtualization.id"
+              <v-card
+                v-for="virtualization in task.virtualizations"
+                :key="virtualization.id"
                 variant="flat"
                 color="cardColor"
                 class="elevation-4"
@@ -161,7 +162,7 @@ try {
                     variant="underlined"
                     base-color="primary"
                     color="primary"
-                    v-model="task.virtualization.name"
+                    v-model="virtualization.name"
                   ></v-text-field>
                   <v-select
                     label="Role"
@@ -169,7 +170,7 @@ try {
                     variant="underlined"
                     base-color="primary"
                     color="primary"
-                    v-model="task.virtualization.role"
+                    v-model="virtualization.role"
                   ></v-select>
                   <v-file-input
                     clearable
@@ -179,7 +180,7 @@ try {
                     color="primary"
                   ></v-file-input>
                 </v-card-text>
-              </v-card>-->
+              </v-card>
             </v-form>
           </v-col>
         </v-row>
