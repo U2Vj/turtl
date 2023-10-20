@@ -187,6 +187,20 @@ export const useCatalogStore = defineStore('catalog', () => {
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
+  async function deleteTask(taskIdToRemove: number) {
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot add task: No classroom was loaded yet')
+    }
+    const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
+
+    const project = updatedClassroomData.projects.filter(
+        (project) => project.tasks.filter((task) => task.id === taskIdToRemove)
+    )[0]
+    project.tasks = project.tasks.filter((task) => task.id !== taskIdToRemove)
+    console.log(updatedClassroomData)
+    return updateClassroom(classroom.value.id, updatedClassroomData)
+  }
+
   return {
     classroom,
     classroomList,
@@ -197,6 +211,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     deleteClassroom,
     createProject,
     deleteProject,
+    deleteTask,
     getTask,
     createTask
   }

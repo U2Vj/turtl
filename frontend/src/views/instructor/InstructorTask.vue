@@ -12,6 +12,7 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
+import DeleteTaskModal from "@/components/modals/DeleteTaskModal.vue";
 
 const props = defineProps<{ classroomId: number; taskId: number }>()
 
@@ -38,7 +39,9 @@ try {
   <DefaultLayout v-if="task">
     <template #heading>{{ task.title }}</template>
     <template #postHeadingButton>
-      <ErrorButton buttonName="Delete"></ErrorButton>
+      <ErrorButton buttonName="Delete">
+        <DeleteTaskModal :task="task" :classroom-id="classroomId"></DeleteTaskModal>
+      </ErrorButton>
     </template>
     <template #default>
       <v-form>
