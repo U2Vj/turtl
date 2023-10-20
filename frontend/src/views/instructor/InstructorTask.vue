@@ -41,142 +41,140 @@ try {
       <ErrorButton buttonName="Delete"></ErrorButton>
     </template>
     <template #default>
-      <v-form>
-        <v-text-field
-          label="Edit Title"
-          clearable
-          variant="underlined"
-          base-color="primary"
-          color="primary"
-          v-model="task.title"
-        ></v-text-field>
-        <v-textarea
-          label="Task Description"
-          clearable
-          variant="underlined"
-          base-color="primary"
-          color="primary"
-          v-model="task.description"
-        ></v-textarea>
-        <v-row>
-          <v-col>
-            <v-select
-              label="Select Difficulty Level"
-              :items="['Beginner', 'Intermediate', 'Advanced']"
-              variant="underlined"
-              base-color="primary"
-              color="primary"
-              v-model="task.difficulty"
-            ></v-select>
-          </v-col>
-          <v-col>
-            <v-select
-              label="Select Task Type"
-              :items="['Neural', 'Attack', 'Defense']"
-              variant="underlined"
-              base-color="primary"
-              color="primary"
-              v-model="task.task_type"
-            ></v-select>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <h2>Acceptance Criteria</h2>
-          </v-col>
-        </v-row>
+      <v-text-field
+        label="Edit Title"
+        clearable
+        variant="underlined"
+        base-color="primary"
+        color="primary"
+        v-model="task.title"
+      ></v-text-field>
+      <v-textarea
+        label="Task Description"
+        clearable
+        variant="underlined"
+        base-color="primary"
+        color="primary"
+        v-model="task.description"
+      ></v-textarea>
+      <v-row>
+        <v-col>
+          <v-select
+            label="Select Difficulty Level"
+            :items="['Beginner', 'Intermediate', 'Advanced']"
+            variant="underlined"
+            base-color="primary"
+            color="primary"
+            v-model="task.difficulty"
+          ></v-select>
+        </v-col>
+        <v-col>
+          <v-select
+            label="Select Task Type"
+            :items="['Neural', 'Attack', 'Defense']"
+            variant="underlined"
+            base-color="primary"
+            color="primary"
+            v-model="task.task_type"
+          ></v-select>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <h2>Acceptance Criteria</h2>
+        </v-col>
+      </v-row>
 
-        <v-row>
-          <v-col>
-            <h3>RegEx</h3>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <SecondaryButton buttonName="Add RegEx"> </SecondaryButton>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <h3>Flag</h3>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <SecondaryButton buttonName="Add Flag"> </SecondaryButton>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <h3>Questionnaire</h3>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <SecondaryButton buttonName="Add Questionnaire">
-              <AddQuestionModal />
-            </SecondaryButton>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <h2>Virtualization</h2>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <SecondaryButton buttonName="Add Virtualization">
-              <AddVirtualizationModal :classroom-id="props.classroomId" :task-id="props.taskId">
-              </AddVirtualizationModal>
-            </SecondaryButton>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <!-- TODO: make this a loop because a task can contain multiple virtualizations -->
-            <v-card
-              v-for="virtualization in task.virtualizations"
-              :key="virtualization.id"
-              variant="flat"
-              color="cardColor"
-              class="elevation-4"
-            >
-              <v-card-text>
-                <v-text-field
-                  label="Name of Virtualization"
-                  clearable
-                  variant="underlined"
-                  base-color="primary"
-                  color="primary"
-                  v-model="virtualization.name"
-                ></v-text-field>
-                <v-select
-                  label="Role"
-                  :items="['UserShell', 'IP']"
-                  variant="underlined"
-                  base-color="primary"
-                  color="primary"
-                  v-model="virtualization.role"
-                ></v-select>
-                <v-file-input
-                  clearable
-                  label="Dockerfile"
-                  variant="underlined"
-                  base-color="primary"
-                  color="primary"
-                ></v-file-input>
-              </v-card-text>
-            </v-card>
-          </v-col>
-        </v-row>
-        <div class="d-flex mt-5 mb-2 align-center justify-space-between">
-          <TextButton
-            buttonName="Close"
-            :go-to="`/instructor/classrooms/${props.classroomId}`"
-          ></TextButton>
-          <PrimaryButton buttonName="Save"></PrimaryButton>
-        </div>
-      </v-form>
+      <v-row>
+        <v-col>
+          <h3>RegEx</h3>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <SecondaryButton buttonName="Add RegEx"> </SecondaryButton>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <h3>Flag</h3>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <SecondaryButton buttonName="Add Flag"> </SecondaryButton>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <h3>Questionnaire</h3>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <SecondaryButton buttonName="Add Questionnaire">
+            <AddQuestionModal />
+          </SecondaryButton>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <h2>Virtualization</h2>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <SecondaryButton buttonName="Add Virtualization">
+            <AddVirtualizationModal :classroom-id="props.classroomId" :task-id="props.taskId">
+            </AddVirtualizationModal>
+          </SecondaryButton>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <!-- TODO: make this a loop because a task can contain multiple virtualizations -->
+          <v-card
+            v-for="virtualization in task.virtualizations"
+            :key="virtualization.id"
+            variant="flat"
+            color="cardColor"
+            class="elevation-4"
+          >
+            <v-card-text>
+              <v-text-field
+                label="Name of Virtualization"
+                clearable
+                variant="underlined"
+                base-color="primary"
+                color="primary"
+                v-model="virtualization.name"
+              ></v-text-field>
+              <v-select
+                label="Role"
+                :items="['UserShell', 'IP']"
+                variant="underlined"
+                base-color="primary"
+                color="primary"
+                v-model="virtualization.role"
+              ></v-select>
+              <v-file-input
+                clearable
+                label="Dockerfile"
+                variant="underlined"
+                base-color="primary"
+                color="primary"
+              ></v-file-input>
+            </v-card-text>
+          </v-card>
+        </v-col>
+      </v-row>
+      <div class="d-flex mt-5 mb-2 align-center justify-space-between">
+        <TextButton
+          buttonName="Close"
+          :go-to="`/instructor/classrooms/${props.classroomId}`"
+        ></TextButton>
+        <PrimaryButton buttonName="Save"></PrimaryButton>
+      </div>
     </template>
   </DefaultLayout>
 </template>
