@@ -44,7 +44,6 @@ const removeAnswerOption = (index: number) => {
           density="compact"
           color="primary"
           group
-          class="mb-4"
         >
           <v-btn :value="true">
             Single choice
@@ -53,7 +52,8 @@ const removeAnswerOption = (index: number) => {
           <v-btn :value="false">
             Multiple Choice
           </v-btn>
-        </v-btn-toggle>
+        </v-btn-toggle><br><br>
+        <v-divider></v-divider><br>
         <v-row no-gutters class="text-caption mb-2">
           <v-col cols="1">Correct</v-col>
           <v-col cols="10">Answer</v-col>
@@ -83,7 +83,8 @@ const removeAnswerOption = (index: number) => {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton @click="addAnswerOption" v-if="answerOptions.length < 10"><v-icon icon="mdi-plus-circle-outline"></v-icon>&nbsp;Add Answer</SecondaryButton>
+            <SecondaryButton @click="addAnswerOption" v-if="answerOptions.length < 10"><v-icon icon="mdi-plus-circle-outline"></v-icon>&nbsp;Add Answer</SecondaryButton><br><br>
+            <v-divider></v-divider>
           </v-col>
         </v-row>
         <v-row>
