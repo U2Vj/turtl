@@ -5,18 +5,17 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import AddTaskModal from '@/components/modals/AddTaskModal.vue'
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal.vue'
 import { ref } from 'vue'
+import type { Task } from '@/stores/CatalogStore'
 
 const emit = defineEmits<{
   (e: 'update:task', id: number, event: any): void
 }>()
 
-// TODO: change tasks type
-
 const props = defineProps<{
   classroomId: number
   projectId: number
   projectTitle: string
-  tasks: { id: number; title: string }[]
+  tasks: Task[]
 }>()
 
 const showDetails = ref(false)

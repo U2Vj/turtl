@@ -30,21 +30,6 @@ const formatDate = (datetime: string) => {
   return dayjs(datetime).format('DD.MM.YYYY HH:mm')
 }
 
-function handleUpdateTaskOrder(projectId: number, event: any) {
-  if (!classroom.value) {
-    return
-  }
-  const project = classroom.value?.projects.find((item) => {
-    if (item.id == projectId) {
-      return true
-    }
-  })
-  if (!project) {
-    return
-  }
-  moveArrayElement(project.tasks, event.oldIndex, event.newIndex)
-}
-
 function deleteHelpfulResource(id: number) {
   if (!classroom.value) {
     return
@@ -108,7 +93,6 @@ function editClassroomTitle(newTitle: string) {
                 :project-id="project.id"
                 :project-title="project.title"
                 :tasks="project.tasks"
-                @update:task="handleUpdateTaskOrder"
                 class="mt-5"
               ></project-card>
               <p class="mt-3" v-if="!classroom.projects.length">
