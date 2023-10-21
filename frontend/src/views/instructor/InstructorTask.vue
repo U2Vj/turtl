@@ -117,7 +117,7 @@ try {
         <v-row>
           <v-col>
             <SecondaryButton buttonName="Add Question" button-type="button">
-              <AddQuestionModal />
+              <AddQuestionModal :task="task" />
             </SecondaryButton>
           </v-col>
         </v-row>
