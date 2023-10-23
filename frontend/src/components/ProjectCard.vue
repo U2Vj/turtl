@@ -4,8 +4,8 @@ import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import AddTaskModal from '@/components/modals/AddTaskModal.vue'
 import DeleteProjectModal from '@/components/modals/DeleteProjectModal.vue'
-import { ref } from 'vue'
 import type { Task } from '@/stores/CatalogStore'
+import { ref } from 'vue'
 
 const emit = defineEmits<{
   (e: 'update:task', id: number, event: any): void
@@ -22,7 +22,7 @@ const showDetails = ref(false)
 </script>
 
 <template>
-  <v-card variant="flat" color="cardColor" class="elevation-4" style="cursor: grab">
+  <v-card variant="flat" color="cardColor" class="elevation-4">
     <v-card-title>{{ projectTitle }} </v-card-title>
     <v-card-actions>
       <TextButton
@@ -41,7 +41,7 @@ const showDetails = ref(false)
     <v-card-text v-show="showDetails">
       Tasks
       <div>
-        <div v-for="task in props.tasks" :key="task.id" style="cursor: grab">
+        <div v-for="task in props.tasks" :key="task.id">
           <router-link
             :to="{
               name: 'InstructorTask',
