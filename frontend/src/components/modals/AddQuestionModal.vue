@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
+import type { Task } from '@/stores/CatalogStore'
 import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
 import SecondaryButton from '../buttons/SecondaryButton.vue'
-import {useToast} from "vue-toastification"
-import type { Task } from "@/stores/CatalogStore"
 
 const showDialog = ref(false)
 const newQuestionnaire = ref('')
@@ -14,17 +14,20 @@ const props = defineProps<{ task: Task }>()
 
 const singleChoice = ref(true)
 
-const answerOptions = ref([{ answer: '', checked: false }, { answer: '', checked: false }])
+const answerOptions = ref([
+  { answer: '', checked: false },
+  { answer: '', checked: false }
+])
 const singleChoiceSelectedAnswerOption = ref<number>(0)
 
 const addAnswerOption = () => {
   answerOptions.value.push({ answer: '', checked: false })
 }
 const removeAnswerOption = (index: number) => {
-  if(answerOptions.value.length > 2) {
+  if (answerOptions.value.length > 2) {
     answerOptions.value.splice(index, 1)
   } else {
-    toast.error("You need at least two possible answers per question.")
+    toast.error('You need at least two possible answers per question.')
   }
 }
 </script>
@@ -43,20 +46,11 @@ const removeAnswerOption = (index: number) => {
             v-model="newQuestionnaire"
             label="Question"
           ></v-text-field>
-          <v-btn-toggle
-            v-model="singleChoice"
-            density="compact"
-            color="primary"
-            group
-          >
-            <v-btn :value="true" button-type="button">
-              Single choice
-            </v-btn>
-            <v-btn :value="false" button-type="button">
-              Multiple Choice
-            </v-btn>
-          </v-btn-toggle><br><br>
-          <v-divider></v-divider><br>
+          <v-btn-toggle v-model="singleChoice" density="compact" color="primary" group>
+            <v-btn :value="true" button-type="button"> Single choice </v-btn>
+            <v-btn :value="false" button-type="button"> Multiple Choice </v-btn> </v-btn-toggle
+          ><br /><br />
+          <v-divider></v-divider><br />
           <v-row no-gutters class="text-caption mb-2">
             <v-col cols="1">Correct</v-col>
             <v-col cols="10">Answer</v-col>
@@ -104,8 +98,12 @@ const removeAnswerOption = (index: number) => {
           </v-row>
           <v-row>
             <v-col>
-              <TextButton button-name="Close" @click="showDialog = false" button-type="button"></TextButton>
-              <PrimaryButton button-name="Create" button-type="submit"></PrimaryButton>
+              <TextButton
+                button-name="Close"
+                @click="showDialog = false"
+                button-type="button"
+              ></TextButton>
+              <PrimaryButton button-name="Add" button-type="submit"></PrimaryButton>
             </v-col>
           </v-row>
         </v-form>

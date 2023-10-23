@@ -49,7 +49,7 @@ const showDialog = ref(false)
                 @click="showDialog = false"
                 button-type="button"
               ></TextButton>
-              <PrimaryButton button-name="Create" button-type="submit"></PrimaryButton>
+              <PrimaryButton button-name="Add" button-type="submit"></PrimaryButton>
             </v-col>
           </v-row>
         </v-form>
