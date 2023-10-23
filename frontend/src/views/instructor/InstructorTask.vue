@@ -10,13 +10,11 @@ import type { Task } from '@/stores/CatalogStore'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import type { Ref } from 'vue'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import DeleteTaskModal from "@/components/modals/DeleteTaskModal.vue";
 
 const props = defineProps<{ classroomId: number; taskId: number }>()
 
-const router = useRouter()
 const toast = useToast()
 const catalogStore = useCatalogStore()
 
@@ -39,7 +37,7 @@ try {
   <DefaultLayout v-if="task">
     <template #heading>{{ task.title }}</template>
     <template #postHeadingButton>
-      <ErrorButton buttonName="Delete">
+      <ErrorButton button-name="Delete">
         <DeleteTaskModal :task="task" :classroom-id="classroomId"></DeleteTaskModal>
       </ErrorButton>
     </template>
@@ -96,7 +94,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton buttonName="Add RegEx"></SecondaryButton>
+            <SecondaryButton button-name="Add RegEx"></SecondaryButton>
           </v-col>
         </v-row>
         <v-row>
@@ -106,7 +104,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton buttonName="Add Flag"> </SecondaryButton>
+            <SecondaryButton button-name="Add Flag" button-type="button"></SecondaryButton>
           </v-col>
         </v-row>
         <v-row>
@@ -116,7 +114,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton buttonName="Add Question" button-type="button">
+            <SecondaryButton button-name="Add Question" button-type="button">
               <AddQuestionModal :task="task" />
             </SecondaryButton>
           </v-col>
@@ -128,7 +126,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton buttonName="Add Virtualization" button-type="button">
+            <SecondaryButton button-name="Add Virtualization" button-type="button">
               <AddVirtualizationModal :classroom-id="props.classroomId" :task-id="props.taskId">
               </AddVirtualizationModal>
             </SecondaryButton>
@@ -174,10 +172,10 @@ try {
         </v-row>
         <div class="d-flex mt-5 mb-2 align-center justify-space-between">
           <TextButton
-            buttonName="Close"
+            button-name="Close"
             :go-to="`/instructor/classrooms/${props.classroomId}`"
           ></TextButton>
-          <PrimaryButton buttonName="Save" button-type="submit"></PrimaryButton>
+          <PrimaryButton button-name="Save" button-type="submit"></PrimaryButton>
         </div>
       </v-form>
     </template>
