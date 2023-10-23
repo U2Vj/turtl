@@ -10,7 +10,7 @@ class Regex(models.Model):
     """
     A regex is a regular expression that is used to check whether the user has completed the task.
     """
-
+    prompt = models.CharField(max_length=200)
     pattern = models.CharField(max_length=200)
 
 
@@ -18,8 +18,8 @@ class Flag(models.Model):
     """
     A flag is a string that the user has to submit to prove that they have completed the task.
     """
-    prompt = models.CharField(max_length=200, blank=True)
-    value = models.CharField(max_length=50)
+    prompt = models.CharField(max_length=200)
+    value = models.CharField(max_length=200)
 
 
 class Question(models.Model):
@@ -217,7 +217,6 @@ class Task(models.Model):
     difficulty = models.CharField(choices=DIFFICULTY_CHOICES, max_length=12)
 
     # The acceptance criteria for this Task, meaning how the user can prove that they have completed the task
-    # TODO: This makes no sense -> a Task should be able to consist of multiple acceptance criteria
     acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
 
 
@@ -245,4 +244,4 @@ class Virtualization(models.Model):
     virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=30)
 
     # File of the Dockerfile that is used to create the virtualization
-    dockerfile = models.FileField(upload_to='')
+    dockerfile = models.TextField()
