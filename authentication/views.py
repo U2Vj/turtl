@@ -1,4 +1,5 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
+from django.db.models import Q
 from django.utils.encoding import smart_bytes, force_str
 from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status
@@ -108,5 +109,5 @@ class InstructorViewSet(ModelViewSet):
         available to all signed-in Users of TURTL.
     """
     permission_classes = (IsAuthenticated,)
-    queryset = User.objects.filter(role=User.Role.INSTRUCTOR)
+    queryset = User.objects.filter(Q(role=User.Role.INSTRUCTOR) | Q(role=User.Role.ADMINISTRATOR))
     serializer_class = UserSerializer

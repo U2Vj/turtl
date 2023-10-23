@@ -60,8 +60,8 @@ def add_test_data(apps, schema_editor):
     QuestionChoice.objects.create(answer='DOM XSS', question=xssq2, is_correct=False)
 
     # Create test regexes and flags
-    sqlinjectionjavaregex = Regex.objects.create(pattern='.*')
-    reflectedxssflag = Flag.objects.create(value='FL4G')
+    sqlinjectionjavaregex = Regex.objects.create(pattern='.*', prompt="Enter your solution")
+    reflectedxssflag = Flag.objects.create(value='FL4G', prompt="Please enter the flag that you found")
 
     # Add acceptance criteria to tasks
     sqlinjectionpythonac = AcceptanceCriteria.objects.create(criteria_type='questionnaire')

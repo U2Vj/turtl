@@ -14,14 +14,15 @@ class Migration(migrations.Migration):
             name='Flag',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('prompt', models.CharField(blank=True, max_length=200)),
-                ('value', models.CharField(max_length=50)),
+                ('prompt', models.CharField(max_length=200)),
+                ('value', models.CharField(max_length=200)),
             ],
         ),
         migrations.CreateModel(
             name='Regex',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
+                ('prompt', models.CharField(max_length=200)),
                 ('pattern', models.CharField(max_length=200)),
             ],
         ),
