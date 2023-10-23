@@ -115,7 +115,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <h3>Questionnaire</h3>
+            <h3>Quiz</h3>
           </v-col>
         </v-row>
         <v-row>
