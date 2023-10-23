@@ -4,14 +4,16 @@ import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import AddFlagModal from '@/components/modals/AddFlagModal.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
+import AddRegexModal from '@/components/modals/AddRegexModal.vue'
 import AddVirtualizationModal from '@/components/modals/AddVirtualizationModal.vue'
+import DeleteTaskModal from '@/components/modals/DeleteTaskModal.vue'
 import type { Task } from '@/stores/CatalogStore'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
-import DeleteTaskModal from "@/components/modals/DeleteTaskModal.vue";
 
 const props = defineProps<{ classroomId: number; taskId: number }>()
 
@@ -94,7 +96,9 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton button-name="Add RegEx"></SecondaryButton>
+            <SecondaryButton button-name="Add RegEx" button-type="button">
+              <AddRegexModal :task="task" />
+            </SecondaryButton>
           </v-col>
         </v-row>
         <v-row>
@@ -104,7 +108,9 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton button-name="Add Flag" button-type="button"></SecondaryButton>
+            <SecondaryButton button-name="Add Flag" button-type="button">
+              <AddFlagModal :task="task" />
+            </SecondaryButton>
           </v-col>
         </v-row>
         <v-row>
