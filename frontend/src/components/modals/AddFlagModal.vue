@@ -1,11 +1,36 @@
 <script setup lang="ts">
+import { useField, useForm, useResetForm } from 'vee-validate'
 import { ref } from 'vue'
+import * as yup from 'yup'
 import PrimaryButton from '../buttons/PrimaryButton.vue'
 import TextButton from '../buttons/TextButton.vue'
 
-const newPromt = ref('')
-const newFlag = ref('')
 const showDialog = ref(false)
+
+const schema = yup.object({
+  promt: yup.string().required('This field is required').max(200),
+  flag: yup.string().required('This field is required')
+})
+const { handleSubmit } = useForm({ validationSchema: schema })
+
+const { value: newPromt, errorMessage: promtError } = useField<string>(
+  'promt',
+  {},
+  { validateOnValueUpdate: false }
+)
+
+const { value: newFlag, errorMessage: flagError } = useField<string>(
+  'flag',
+  {},
+  { validateOnValueUpdate: false }
+)
+
+const resetForm = useResetForm()
+
+function resetDialog() {
+  resetForm()
+  showDialog.value = false
+}
 </script>
 
 <template>
@@ -47,7 +72,7 @@ const showDialog = ref(false)
             <v-col>
               <TextButton
                 button-name="Close"
-                @click="showDialog = false"
+                @click="resetDialog"
                 button-type="button"
               ></TextButton>
               <PrimaryButton button-name="Add" button-type="submit"></PrimaryButton>
