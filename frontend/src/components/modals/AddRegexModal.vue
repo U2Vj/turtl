@@ -25,6 +25,7 @@ const showDialog = ref(false)
                 color="primary"
                 v-model="newPromt"
                 label="Promt"
+                :rules="[(v) => (v || '').length <= 200 || 'Promt must be 200 characters or less']"
               >
               </v-textarea>
             </v-col>
