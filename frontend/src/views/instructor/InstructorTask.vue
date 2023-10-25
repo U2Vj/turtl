@@ -18,8 +18,6 @@ import { useToast } from 'vue-toastification'
 const props = defineProps<{
   classroomId: number
   taskId: number
-  regexPrompt: string
-  regex: string
 }>()
 
 const regexPrompt = ref('')
