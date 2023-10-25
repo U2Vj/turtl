@@ -8,13 +8,13 @@ import TextButton from '../buttons/TextButton.vue'
 const showDialog = ref(false)
 
 const schema = yup.object({
-  promt: yup.string().required('This field is required').max(200),
+  prompt: yup.string().required('This field is required').max(200),
   regex: yup.string().required('This field is required')
 })
 const { handleSubmit } = useForm({ validationSchema: schema })
 
-const { value: newPromt, errorMessage: promtError } = useField<string>(
-  'promt',
+const { value: newPrompt, errorMessage: promptError } = useField<string>(
+  'prompt',
   {},
   { validateOnValueUpdate: false }
 )
@@ -30,6 +30,16 @@ const resetForm = useResetForm()
 function resetDialog() {
   resetForm()
   showDialog.value = false
+}
+
+const emit = defineEmits()
+
+const addRegex = () => {
+  const regexPrompt = newPrompt.value
+  const regex = newRegex.value
+  emit('addRegex', { regexPrompt, regex })
+
+  resetDialog()
 }
 </script>
 
@@ -48,9 +58,9 @@ function resetDialog() {
                 variant="underlined"
                 base-color="primary"
                 color="primary"
-                v-model="newPromt"
-                label="Promt"
-                :rules="[(v) => (v || '').length <= 200 || 'Promt must be 200 characters or less']"
+                v-model="newPrompt"
+                label="Prompt"
+                :rules="[(v) => (v || '').length <= 200 || 'Prompt must be 200 characters or less']"
               >
               </v-textarea>
             </v-col>
@@ -75,7 +85,11 @@ function resetDialog() {
                 @click="resetDialog"
                 button-type="button"
               ></TextButton>
-              <PrimaryButton button-name="Add" button-type="button"></PrimaryButton>
+              <PrimaryButton
+                button-name="Add"
+                button-type="button"
+                @click="addRegex"
+              ></PrimaryButton>
             </v-col>
           </v-row>
         </v-form>

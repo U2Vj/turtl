@@ -15,7 +15,21 @@ import type { Ref } from 'vue'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
 
-const props = defineProps<{ classroomId: number; taskId: number }>()
+const props = defineProps<{
+  classroomId: number
+  taskId: number
+  regexPrompt: string
+  regex: string
+}>()
+
+const regexPrompt = ref('')
+const regex = ref('')
+
+const handleAddRegex = (data: any) => {
+  const { regexPrompt: newRegexPrompt, regex: newRegex } = data
+  regexPrompt.value = newRegexPrompt
+  regex.value = newRegex
+}
 
 const toast = useToast()
 const catalogStore = useCatalogStore()
@@ -96,8 +110,14 @@ try {
         </v-row>
         <v-row>
           <v-col>
+            <p>Prompt: {{ regexPrompt }}</p>
+            <p>Regex: {{ regex }}</p>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
             <SecondaryButton button-name="Add RegEx" button-type="button">
-              <AddRegexModal />
+              <AddRegexModal @addRegex="handleAddRegex" />
             </SecondaryButton>
           </v-col>
         </v-row>
