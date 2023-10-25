@@ -35,11 +35,13 @@ function resetDialog() {
 const emits = defineEmits()
 
 const addRegex = () => {
-  const regexPrompt = newPrompt.value
-  const regex = newRegex.value
-  emits('addRegex', { regexPrompt, regex })
-
-  resetDialog()
+  handleSubmit(async () => {
+    const isValid = await schema.validate({ prompt: newPrompt.value, regex: newRegex.value })
+    if (isValid) {
+      emits('addRegex', { regexPrompt: newPrompt.value, regex: newRegex.value })
+      resetDialog()
+    }
+  })()
 }
 </script>
 
@@ -61,6 +63,7 @@ const addRegex = () => {
                 v-model="newPrompt"
                 label="Prompt"
                 :rules="[(v) => (v || '').length <= 200 || 'Prompt must be 200 characters or less']"
+                :error-messages="promptError"
               >
               </v-textarea>
             </v-col>
@@ -74,6 +77,7 @@ const addRegex = () => {
                 color="primary"
                 v-model="newRegex"
                 label="Regex"
+                :error-messages="regexError"
               >
               </v-text-field>
             </v-col>
