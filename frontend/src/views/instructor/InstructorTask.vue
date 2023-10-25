@@ -20,18 +20,20 @@ const props = defineProps<{
   taskId: number
 }>()
 
-const regexPrompt = ref('')
-const regex = ref('')
-const regexList = ref<string[]>([])
-
 const toast = useToast()
 const catalogStore = useCatalogStore()
 
 let task: Ref<Task | undefined> = ref(undefined)
 
+const regexList = ref<{ regexPrompt: string; regex: string }[]>([])
+
 const handleAddRegex = (data: any) => {
   const { regexPrompt: newRegexPrompt, regex: newRegex } = data
-  regexList.value.push(`Prompt: ${newRegexPrompt}, Regex: ${newRegex}`)
+  regexList.value.push({ regexPrompt: newRegexPrompt, regex: newRegex })
+}
+
+const deleteRegex = (index: number) => {
+  regexList.value.splice(index, 1)
 }
 
 try {
@@ -109,7 +111,34 @@ try {
         <v-row>
           <v-col>
             <div v-for="(regexItem, index) in regexList" :key="index">
-              <p>{{ regexItem }}</p>
+              <v-row>
+                <v-col>
+                  <v-textarea
+                    label="RegEx Prompt"
+                    clearable
+                    variant="underlined"
+                    base-color="primary"
+                    color="primary"
+                    v-model="regexItem.regexPrompt"
+                  ></v-textarea>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    label="RegEx"
+                    clearable
+                    variant="underlined"
+                    base-color="primary"
+                    color="primary"
+                    v-model="regexItem.regex"
+                  ></v-text-field>
+                  <ErrorButton
+                    button-name="Delete"
+                    button-type="button"
+                    @click="deleteRegex(index)"
+                  ></ErrorButton>
+                </v-col>
+              </v-row>
+              <v-divider></v-divider><br />
             </div>
           </v-col>
         </v-row>
