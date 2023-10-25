@@ -27,6 +27,11 @@ const props = defineProps<{
 
 const showDetails = ref(false)
 const projectTitle = ref(props.projectTitle)
+const hasTitleChanged = ref(false)
+
+function onTitleInputChange() {
+  hasTitleChanged.value = projectTitle.value !== props.projectTitle
+}
 
 function editProjectTitle(newTitle: string, projectId: number) {
   if (!classroom.value) {
@@ -77,9 +82,11 @@ function editProjectTitle(newTitle: string, projectId: number) {
         base-color="primary"
         color="primary"
         v-model="projectTitle"
+        @input="onTitleInputChange"
       ></v-text-field>
       <PrimaryButton
         button-name="Save Title"
+        :disabled="!hasTitleChanged"
         @click="editProjectTitle(projectTitle, projectId)"
       ></PrimaryButton>
       <br />
