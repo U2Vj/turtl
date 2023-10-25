@@ -28,9 +28,13 @@ const props = defineProps<{
 const showDetails = ref(false)
 const projectTitle = ref(props.projectTitle)
 const hasTitleChanged = ref(false)
+const titleJustSaved = ref(false)
 
 function onTitleInputChange() {
   hasTitleChanged.value = projectTitle.value !== props.projectTitle
+  if (hasTitleChanged) {
+    titleJustSaved.value = false
+  }
 }
 
 function editProjectTitle(newTitle: string, projectId: number) {
@@ -49,6 +53,7 @@ function editProjectTitle(newTitle: string, projectId: number) {
       .updateClassroom(classroom.value.id, updatedClassroom)
       .then(() => {
         toast.success('Project title created successfully')
+        titleJustSaved.value = true
       })
       .catch((e) => {
         toast.error(e.message)
@@ -86,7 +91,7 @@ function editProjectTitle(newTitle: string, projectId: number) {
       ></v-text-field>
       <PrimaryButton
         button-name="Save Title"
-        :disabled="!hasTitleChanged"
+        :disabled="!hasTitleChanged || titleJustSaved"
         @click="editProjectTitle(projectTitle, projectId)"
       ></PrimaryButton>
       <br />
