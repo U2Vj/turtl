@@ -75,7 +75,7 @@ function resetDialog() {
                 @click="resetDialog"
                 button-type="button"
               ></TextButton>
-              <PrimaryButton button-name="Add" button-type="submit"></PrimaryButton>
+              <PrimaryButton button-name="Add" button-type="button"></PrimaryButton>
             </v-col>
           </v-row>
         </v-form>

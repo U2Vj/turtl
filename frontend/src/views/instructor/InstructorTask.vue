@@ -97,7 +97,7 @@ try {
         <v-row>
           <v-col>
             <SecondaryButton button-name="Add RegEx" button-type="button">
-              <AddRegexModal :task="task" />
+              <AddRegexModal />
             </SecondaryButton>
           </v-col>
         </v-row>
