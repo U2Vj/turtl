@@ -42,15 +42,35 @@ function deleteHelpfulResource(id: number) {
     .catch((e) => toast.error(e.message))
 }
 
+const hasClassroomTitleChanged = ref(false)
+const classroomTitleJustSaved = ref(false)
+
+const classroomTitle = ref(classroom.value?.title)
+
+function onClassroomTitleInputChange() {
+  hasClassroomTitleChanged.value = classroomTitle.value !== classroom.value?.title
+  if (hasClassroomTitleChanged) {
+    classroomTitleJustSaved.value = false
+  }
+}
+
 function editClassroomTitle(newTitle: string) {
   if (!classroom.value) {
     return
   }
+
   const updatedTitle = Object.assign({}, toRaw(classroom.value))
   updatedTitle.title = newTitle
+
   catalogStore
     .updateClassroom(classroom.value.id, updatedTitle)
-    .catch((e) => toast.error(e.message))
+    .then(() => {
+      toast.success('Classroom title created successfully')
+      classroomTitleJustSaved.value = true
+    })
+    .catch((e) => {
+      toast.error(e.message)
+    })
 }
 </script>
 
@@ -65,9 +85,11 @@ function editClassroomTitle(newTitle: string) {
         base-color="primary"
         color="primary"
         v-model="classroom.title"
+        @input="onClassroomTitleInputChange"
       ></v-text-field>
       <PrimaryButton
         button-name="Save Title"
+        :disabled="!hasClassroomTitleChanged || classroomTitleJustSaved"
         @click="editClassroomTitle(classroom.title)"
       ></PrimaryButton>
       <v-tabs v-model="tab" color="primary">

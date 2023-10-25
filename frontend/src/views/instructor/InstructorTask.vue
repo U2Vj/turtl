@@ -4,21 +4,48 @@ import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import AddFlagModal from '@/components/modals/AddFlagModal.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
+import AddRegexModal from '@/components/modals/AddRegexModal.vue'
 import AddVirtualizationModal from '@/components/modals/AddVirtualizationModal.vue'
+import DeleteTaskModal from '@/components/modals/DeleteTaskModal.vue'
 import type { Task } from '@/stores/CatalogStore'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import type { Ref } from 'vue'
 import { ref } from 'vue'
 import { useToast } from 'vue-toastification'
-import DeleteTaskModal from "@/components/modals/DeleteTaskModal.vue";
 
-const props = defineProps<{ classroomId: number; taskId: number }>()
+const props = defineProps<{
+  classroomId: number
+  taskId: number
+}>()
 
 const toast = useToast()
 const catalogStore = useCatalogStore()
 
 let task: Ref<Task | undefined> = ref(undefined)
+
+const regexList = ref<{ regexPrompt: string; regex: string }[]>([])
+
+const handleAddRegex = (data: any) => {
+  const { regexPrompt: newRegexPrompt, regex: newRegex } = data
+  regexList.value.push({ regexPrompt: newRegexPrompt, regex: newRegex })
+}
+
+const deleteRegex = (index: number) => {
+  regexList.value.splice(index, 1)
+}
+
+const flagList = ref<{ flagPrompt: string; flag: string }[]>([])
+
+const handleAddFlag = (data: any) => {
+  const { flagPrompt: newFlagPrompt, flag: newFlag } = data
+  flagList.value.push({ flagPrompt: newFlagPrompt, flag: newFlag })
+}
+
+const deleteFlag = (index: number) => {
+  flagList.value.splice(index, 1)
+}
 
 try {
   catalogStore
@@ -94,7 +121,43 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton button-name="Add RegEx"></SecondaryButton>
+            <div v-for="(regexItem, index) in regexList" :key="index">
+              <v-row>
+                <v-col>
+                  <v-textarea
+                    label="RegEx Prompt"
+                    clearable
+                    variant="underlined"
+                    base-color="primary"
+                    color="primary"
+                    v-model="regexItem.regexPrompt"
+                  ></v-textarea>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    label="RegEx"
+                    clearable
+                    variant="underlined"
+                    base-color="primary"
+                    color="primary"
+                    v-model="regexItem.regex"
+                  ></v-text-field>
+                  <ErrorButton
+                    button-name="Delete"
+                    button-type="button"
+                    @click="deleteRegex(index)"
+                  ></ErrorButton>
+                </v-col>
+              </v-row>
+              <v-divider></v-divider><br />
+            </div>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <SecondaryButton button-name="Add RegEx" button-type="button">
+              <AddRegexModal @addRegex="handleAddRegex" />
+            </SecondaryButton>
           </v-col>
         </v-row>
         <v-row>
@@ -104,12 +167,48 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <SecondaryButton button-name="Add Flag" button-type="button"></SecondaryButton>
+            <div v-for="(flagItem, index) in flagList" :key="index">
+              <v-row>
+                <v-col>
+                  <v-textarea
+                    label="Flag Prompt"
+                    clearable
+                    variant="underlined"
+                    base-color="primary"
+                    color="primary"
+                    v-model="flagItem.flagPrompt"
+                  ></v-textarea>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    label="Flag"
+                    clearable
+                    variant="underlined"
+                    base-color="primary"
+                    color="primary"
+                    v-model="flagItem.flag"
+                  ></v-text-field>
+                  <ErrorButton
+                    button-name="Delete"
+                    button-type="button"
+                    @click="deleteFlag(index)"
+                  ></ErrorButton>
+                </v-col>
+              </v-row>
+              <v-divider></v-divider><br />
+            </div>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
-            <h3>Questionnaire</h3>
+            <SecondaryButton button-name="Add Flag" button-type="button">
+              <AddFlagModal @addFlag="handleAddFlag" />
+            </SecondaryButton>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <h3>Quiz</h3>
           </v-col>
         </v-row>
         <v-row>
