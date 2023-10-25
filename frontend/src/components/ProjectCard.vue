@@ -42,9 +42,12 @@ function editProjectTitle(newTitle: string, projectId: number) {
 
     catalogStore
       .updateClassroom(classroom.value.id, updatedClassroom)
-      .catch((e) => toast.error(e.message))
-  } else {
-    console.error('Projekt nicht gefunden')
+      .then(() => {
+        toast.success('Project title created successfully')
+      })
+      .catch((e) => {
+        toast.error(e.message)
+      })
   }
 }
 </script>
