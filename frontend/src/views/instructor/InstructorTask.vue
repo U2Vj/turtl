@@ -22,17 +22,17 @@ const props = defineProps<{
 
 const regexPrompt = ref('')
 const regex = ref('')
-
-const handleAddRegex = (data: any) => {
-  const { regexPrompt: newRegexPrompt, regex: newRegex } = data
-  regexPrompt.value = newRegexPrompt
-  regex.value = newRegex
-}
+const regexList = ref<string[]>([])
 
 const toast = useToast()
 const catalogStore = useCatalogStore()
 
 let task: Ref<Task | undefined> = ref(undefined)
+
+const handleAddRegex = (data: any) => {
+  const { regexPrompt: newRegexPrompt, regex: newRegex } = data
+  regexList.value.push(`Prompt: ${newRegexPrompt}, Regex: ${newRegex}`)
+}
 
 try {
   catalogStore
@@ -108,8 +108,9 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <p>Prompt: {{ regexPrompt }}</p>
-            <p>Regex: {{ regex }}</p>
+            <div v-for="(regexItem, index) in regexList" :key="index">
+              <p>{{ regexItem }}</p>
+            </div>
           </v-col>
         </v-row>
         <v-row>

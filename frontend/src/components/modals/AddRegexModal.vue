@@ -32,12 +32,12 @@ function resetDialog() {
   showDialog.value = false
 }
 
-const emit = defineEmits()
+const emits = defineEmits()
 
 const addRegex = () => {
   const regexPrompt = newPrompt.value
   const regex = newRegex.value
-  emit('addRegex', { regexPrompt, regex })
+  emits('addRegex', { regexPrompt, regex })
 
   resetDialog()
 }
