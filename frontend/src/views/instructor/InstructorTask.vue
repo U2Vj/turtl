@@ -214,7 +214,9 @@ try {
         <v-row>
           <v-col>
             <SecondaryButton button-name="Add Question" button-type="button">
-              <AddQuestionModal :task="task" />
+              <AddQuestionModal :task="task">
+                <template v-slot:title>Add Question</template>
+              </AddQuestionModal>
             </SecondaryButton>
           </v-col>
         </v-row>

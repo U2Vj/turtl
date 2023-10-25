@@ -35,7 +35,7 @@ const removeAnswerOption = (index: number) => {
 <template>
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
-      <v-card-title>Add Question</v-card-title>
+      <v-card-title><slot name="title"></slot></v-card-title>
       <v-card-text>
         <v-form>
           <v-text-field
