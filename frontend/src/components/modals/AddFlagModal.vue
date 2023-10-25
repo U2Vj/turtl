@@ -31,6 +31,18 @@ function resetDialog() {
   resetForm()
   showDialog.value = false
 }
+
+const emits = defineEmits()
+
+const addFlag = () => {
+  handleSubmit(async () => {
+    const isValid = await schema.validate({ prompt: newPrompt.value, flag: newFlag.value })
+    if (isValid) {
+      emits('addFlag', { flagPrompt: newPrompt.value, flag: newFlag.value })
+      resetDialog()
+    }
+  })()
+}
 </script>
 
 <template>
@@ -51,6 +63,7 @@ function resetDialog() {
                 v-model="newPrompt"
                 label="Prompt"
                 :rules="[(v) => (v || '').length <= 200 || 'Prompt must be 200 characters or less']"
+                :error-messages="promptError"
               >
               </v-textarea>
             </v-col>
@@ -64,6 +77,7 @@ function resetDialog() {
                 color="primary"
                 v-model="newFlag"
                 label="Flag"
+                :error-messages="flagError"
               >
               </v-text-field>
             </v-col>
@@ -75,7 +89,11 @@ function resetDialog() {
                 @click="resetDialog"
                 button-type="button"
               ></TextButton>
-              <PrimaryButton button-name="Add" button-type="submit"></PrimaryButton>
+              <PrimaryButton
+                button-name="Add"
+                button-type="button"
+                @click="addFlag"
+              ></PrimaryButton>
             </v-col>
           </v-row>
         </v-form>

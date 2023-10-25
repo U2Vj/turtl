@@ -36,6 +36,17 @@ const deleteRegex = (index: number) => {
   regexList.value.splice(index, 1)
 }
 
+const flagList = ref<{ flagPrompt: string; flag: string }[]>([])
+
+const handleAddFlag = (data: any) => {
+  const { flagPrompt: newFlagPrompt, flag: newFlag } = data
+  flagList.value.push({ flagPrompt: newFlagPrompt, flag: newFlag })
+}
+
+const deleteFlag = (index: number) => {
+  flagList.value.splice(index, 1)
+}
+
 try {
   catalogStore
     .getClassroom(props.classroomId)
@@ -156,8 +167,42 @@ try {
         </v-row>
         <v-row>
           <v-col>
+            <div v-for="(flagItem, index) in flagList" :key="index">
+              <v-row>
+                <v-col>
+                  <v-textarea
+                    label="Flag Prompt"
+                    clearable
+                    variant="underlined"
+                    base-color="primary"
+                    color="primary"
+                    v-model="flagItem.flagPrompt"
+                  ></v-textarea>
+                </v-col>
+                <v-col>
+                  <v-text-field
+                    label="Flag"
+                    clearable
+                    variant="underlined"
+                    base-color="primary"
+                    color="primary"
+                    v-model="flagItem.flag"
+                  ></v-text-field>
+                  <ErrorButton
+                    button-name="Delete"
+                    button-type="button"
+                    @click="deleteFlag(index)"
+                  ></ErrorButton>
+                </v-col>
+              </v-row>
+              <v-divider></v-divider><br />
+            </div>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
             <SecondaryButton button-name="Add Flag" button-type="button">
-              <AddFlagModal :task="task" />
+              <AddFlagModal @addFlag="handleAddFlag" />
             </SecondaryButton>
           </v-col>
         </v-row>
