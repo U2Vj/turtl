@@ -42,17 +42,6 @@ function deleteHelpfulResource(id: number) {
     .catch((e) => toast.error(e.message))
 }
 
-// function editClassroomTitle(newTitle: string) {
-//   if (!classroom.value) {
-//     return
-//   }
-//   const updatedTitle = Object.assign({}, toRaw(classroom.value))
-//   updatedTitle.title = newTitle
-//   catalogStore
-//     .updateClassroom(classroom.value.id, updatedTitle)
-//     .catch((e) => toast.error(e.message))
-// }
-
 const hasClassroomTitleChanged = ref(false)
 const classroomTitleJustSaved = ref(false)
 
