@@ -1,13 +1,16 @@
 <script setup lang="ts">
 import TextButton from '@/components/buttons/TextButton.vue'
-import { ref } from 'vue'
+import {ref, toRef} from 'vue'
 import { makeAPIRequest } from "@/communication/APIRequests";
 import {useToast} from "vue-toastification";
 import type {User} from "@/stores/UserStore";
+import {useCatalogStore} from "@/stores/CatalogStore";
 
 const toast = useToast()
 const instructors = ref<User[]>()
 
+const catalogStore = useCatalogStore()
+const classroom = toRef(catalogStore, 'classroom')
 
 makeAPIRequest("/users/instructors", 'GET', true, true).then((response) => {
   instructors.value = response.data
@@ -16,6 +19,13 @@ makeAPIRequest("/users/instructors", 'GET', true, true).then((response) => {
 })
 
 const showDialog = ref(false)
+
+function instructorInClassroom(id: number): boolean {
+  if(!classroom.value) {
+    return false
+  }
+  return classroom.value.instructors.filter(item => item.instructor.id === id).length > 0
+}
 </script>
 
 <template>
@@ -32,14 +42,29 @@ const showDialog = ref(false)
         >
           <template #[`item.add`]="{ item }">
             <v-btn
-              icon="mdi-plus"
-              variant="elevated"
-              color="primary"
+              icon="mdi-trash-can-outline"
+              variant="text"
+              color="error"
               @click="
                 () => {
-                  //catalogStore.addInstructor(item.raw.id, item.raw.email)
+                  catalogStore.removeInstructor(item.raw.id)
+                    .then(() => toast.info('Instructor removed'))
+                    .catch((e) => toast.error(e.message))
                 }
               "
+              v-if="instructorInClassroom(item.raw.id)"
+            />
+            <v-btn
+              icon="mdi-plus"
+              variant="text"
+              @click="
+                () => {
+                  catalogStore.addInstructor(item.raw.id)
+                    .then(() => toast.success('Instructor added'))
+                    .catch((e) => toast.error(e.message))
+                }
+              "
+              v-else
             />
           </template>
         </v-data-table>
