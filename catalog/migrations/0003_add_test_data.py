@@ -7,6 +7,7 @@ def add_test_data(apps, schema_editor):
     # Fetch models
     User = apps.get_model('authentication', 'User')
     Classroom = apps.get_model('catalog', 'Classroom')
+    Enrollment = apps.get_model('enrollments', 'Enrollment')
     ClassroomInstructor = apps.get_model('catalog', 'ClassroomInstructor')
     Project = apps.get_model('catalog', 'Project')
     Task = apps.get_model('catalog', 'Task')
@@ -32,6 +33,20 @@ def add_test_data(apps, schema_editor):
     # Create test classrooms
     itsicherheit = Classroom.objects.create(title='IT-Sicherheit')
     rechnernetze = Classroom.objects.create(title='Rechnernetze')
+
+    # Add students to classrooms
+    Enrollment.objects.create(classroom=itsicherheit, student=student1)
+    Enrollment.objects.create(classroom=itsicherheit, student=student2)
+    Enrollment.objects.create(classroom=itsicherheit, student=student3)
+    Enrollment.objects.create(classroom=itsicherheit, student=student4)
+    Enrollment.objects.create(classroom=itsicherheit, student=student5)
+    Enrollment.objects.create(classroom=rechnernetze, student=student1)
+    Enrollment.objects.create(classroom=rechnernetze, student=student4)
+    Enrollment.objects.create(classroom=rechnernetze, student=student5)
+    Enrollment.objects.create(classroom=itsicherheit, student=instructor1)
+    Enrollment.objects.create(classroom=itsicherheit, student=instructor2)
+    Enrollment.objects.create(classroom=rechnernetze, student=instructor2)
+    Enrollment.objects.create(classroom=itsicherheit, student=admin)
 
     # Add instructors to classrooms
     ClassroomInstructor.objects.create(classroom=itsicherheit, instructor=instructor1, added_by=instructor1)
@@ -92,7 +107,8 @@ def add_test_data(apps, schema_editor):
 class Migration(migrations.Migration):
     dependencies = [
         ('catalog', '0002_add_flag_regex_models'),
-        ('authentication', '0009_add_test_users')
+        ('authentication', '0009_add_test_users'),
+        ('enrollments', '0001_initial'),
     ]
 
     operations = [
