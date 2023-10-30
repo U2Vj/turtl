@@ -33,23 +33,41 @@ type Virtualization = {
   dockerfile: string
 }
 
+// TODO: change acceptance criteria type data type
 type AcceptanceCriteria = {
-  acceptance_criteria_questionnaire?: Question[]
+  id?: number
+  type?: string
+  questions?: Question[]
+  flags?: Flag[]
+  regexes?: RegEx[]
 }
 
-enum QuestionType {
-  SingleChoice = 'Single choice',
-  MultipleChoice = 'Multiple choice'
+export type Flag = {
+  id?: number
+  prompt: string
+  value: string
 }
 
-type Question = {
-  id: number
-  title: string
-  type: QuestionType
+export type RegEx = {
+  id?: number
+  prompt: string
+  pattern: string
+}
+
+export enum QuestionType {
+  SingleChoice = 'single_choice',
+  MultipleChoice = 'multiple_choice'
+}
+
+export type Question = {
+  id?: number
+  question: string
+  question_type: QuestionType
   choices: QuestionChoice[]
 }
 
-type QuestionChoice = {
+export type QuestionChoice = {
+  id?: number
   answer: string
   is_correct: boolean
 }

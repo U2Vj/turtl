@@ -9,11 +9,11 @@ import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import AddRegexModal from '@/components/modals/AddRegexModal.vue'
 import AddVirtualizationModal from '@/components/modals/AddVirtualizationModal.vue'
 import DeleteTaskModal from '@/components/modals/DeleteTaskModal.vue'
-import type { Task } from '@/stores/CatalogStore'
-import { useCatalogStore } from '@/stores/CatalogStore'
-import type { Ref } from 'vue'
-import { ref } from 'vue'
-import { useToast } from 'vue-toastification'
+import type {Question, Task} from '@/stores/CatalogStore'
+import {QuestionType, useCatalogStore} from '@/stores/CatalogStore'
+import type {Ref} from 'vue'
+import {ref} from 'vue'
+import {useToast} from 'vue-toastification'
 
 const props = defineProps<{
   classroomId: number
@@ -47,6 +47,31 @@ const deleteFlag = (index: number) => {
   flagList.value.splice(index, 1)
 }
 
+const addQuestion = (question: Question) => {
+  console.log(question)
+  if(!task.value) return
+
+  if(task.value.acceptance_criteria?.questions) {
+    task.value.acceptance_criteria.questions.push(question)
+  } else {
+    task.value.acceptance_criteria.questions = [question]
+  }
+}
+
+const updateQuestion = (question: Question, index: number) => {
+  if(!task.value?.acceptance_criteria?.questions) return
+
+  task.value.acceptance_criteria.questions[index] = question
+}
+
+const deleteQuestion = (question: Question) => {
+  if(!task.value?.acceptance_criteria?.questions) return
+
+  // get the index of the question that should be deleted
+  const index = task.value.acceptance_criteria.questions.indexOf(question)
+  task.value.acceptance_criteria.questions.splice(index, 1)
+}
+
 try {
   catalogStore
     .getClassroom(props.classroomId)
@@ -59,6 +84,7 @@ try {
 } catch (e: any) {
   toast.error(e.message)
 }
+
 </script>
 <template>
   <DefaultLayout v-if="task">
@@ -213,9 +239,42 @@ try {
         </v-row>
         <v-row>
           <v-col>
+            <v-table v-if="task.acceptance_criteria?.questions">
+              <thead>
+                <tr>
+                  <th>Question</th>
+                  <th>Question Type</th>
+                  <th>No. of choices</th>
+                  <th>Edit</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(question, index) in task.acceptance_criteria.questions" :key="index">
+                  <td>{{ question.question }}</td>
+                  <td v-if="question.question_type === QuestionType.SingleChoice">Single Choice</td>
+                  <td v-else>Multiple Choice</td>
+                  <td>{{ question.choices.length }}</td>
+                  <td>
+                    <TextButton button-type="button">
+                      <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
+                      <AddQuestionModal :current-question="question" @question-editing-completed="updateQuestion($event, index)">
+                        <template v-slot:title>Edit Question</template>
+                        <template v-slot:submitButtonText>Edit</template>
+                      </AddQuestionModal>
+                    </TextButton>
+                  </td>
+                  <td>
+                    <v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteQuestion(question)"></v-btn>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+            <p v-else>This Task does not contain any questions yet.</p><br>
             <SecondaryButton button-name="Add Question" button-type="button">
-              <AddQuestionModal :task="task">
+              <AddQuestionModal @question-editing-completed="addQuestion">
                 <template v-slot:title>Add Question</template>
+                <template v-slot:submitButtonText>Add</template>
               </AddQuestionModal>
             </SecondaryButton>
           </v-col>
