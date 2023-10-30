@@ -1,6 +1,7 @@
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
+from authentication.models import User
 from authentication.serializers import UserSerializer
 from catalog.models import (Classroom, Project, ClassroomInstructor, HelpfulResource,
                             Task, Virtualization, AcceptanceCriteria, Question, QuestionChoice,
