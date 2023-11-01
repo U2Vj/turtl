@@ -92,6 +92,7 @@ function editClassroomTitle(newTitle: string) {
         :disabled="!hasClassroomTitleChanged || classroomTitleJustSaved"
         @click="editClassroomTitle(classroom.title)"
       ></PrimaryButton>
+      <br><br>
       <v-tabs v-model="tab" color="primary">
         <v-tab value="0">Projects</v-tab>
         <v-tab value="1">Settings</v-tab>
@@ -211,12 +212,25 @@ function editClassroomTitle(newTitle: string) {
               :headers="[
                 { title: 'E-Mail', key: 'instructor.email' },
                 { title: 'Username', key: 'instructor.username' },
+                { title: 'Added at', key: 'added_at'},
+                { title: 'Added by', key: 'added_by.email'},
                 { title: 'Remove', key: 'remove' }
               ]"
               :items="classroom.instructors"
             >
-              <template #[`item.remove`]>
-                <v-btn icon="mdi-trash-can-outline" variant="text" />
+              <template #[`item.added_at`]="{ item }">{{ formatDate(item.raw.added_at) }}</template>
+              <template #[`item.remove`]="{ item }">
+                <v-btn
+                  icon="mdi-trash-can-outline"
+                  variant="text"
+                  @click="
+                    () => {
+                      catalogStore.removeInstructor(item.raw.instructor.id)
+                        .then(() => toast.info('Instructor removed'))
+                        .catch((e) => toast.error(e.message))
+                    }
+                  "
+                />
               </template>
             </v-data-table>
           </v-container>

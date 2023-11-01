@@ -95,8 +95,8 @@ export type QuestionChoice = {
 type ClassroomInstructor = {
   id?: number
   instructor: User
-  added_at: string
-  added_by: User
+  added_at?: string
+  added_by?: User
 }
 
 type HelpfulResource = {
@@ -259,6 +259,29 @@ export const useCatalogStore = defineStore('catalog', () => {
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
+  async function addInstructor(id: number) {
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot add instructor: No classroom was loaded yet')
+    }
+    const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
+    updatedClassroomData.instructors.push({
+      instructor: {
+        id: id
+      }
+    })
+    return updateClassroom(classroom.value.id, updatedClassroomData)
+  }
+
+  async function removeInstructor(id: number) {
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot remove instructor: No classroom was loaded yet')
+    }
+    const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
+    updatedClassroomData.instructors = updatedClassroomData
+        .instructors.filter(item => item.instructor.id !== id)
+    return updateClassroom(classroom.value.id, updatedClassroomData)
+  }
+
   return {
     classroom,
     classroomList,
@@ -272,6 +295,8 @@ export const useCatalogStore = defineStore('catalog', () => {
     createTask,
     getTask,
     updateTask,
-    deleteTask
+    deleteTask,
+    addInstructor,
+    removeInstructor
   }
 })

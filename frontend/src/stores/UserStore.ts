@@ -25,8 +25,8 @@ type RefreshTokenPayload = {
 
 export type User = {
   id: number,
-  username: string | null
-  email: string
+  username?: string | null
+  email?: string
   role?: string
   role_display?: string
 }
