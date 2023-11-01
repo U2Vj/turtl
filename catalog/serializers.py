@@ -191,8 +191,8 @@ class ClassroomInstructorSerializer(WritableNestedModelSerializer):
         except ObjectDoesNotExist:
             raise serializers.ValidationError("Instructor does not exist.")
 
-        if instructor.role != User.Role.INSTRUCTOR:
-            raise serializers.ValidationError("User is not an instructor.")
+        if not instructor.is_instructor and not instructor.is_administrator:
+            raise serializers.ValidationError("User is not an instructor or administrator.")
 
         instance = ClassroomInstructor.objects.create(added_by=user, instructor=instructor, **validated_data)
         return instance
