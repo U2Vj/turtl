@@ -9,7 +9,7 @@ import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import AddRegexModal from '@/components/modals/AddRegexModal.vue'
 import AddVirtualizationModal from '@/components/modals/AddVirtualizationModal.vue'
 import DeleteTaskModal from '@/components/modals/DeleteTaskModal.vue'
-import type {Question, Task} from '@/stores/CatalogStore'
+import type {Flag, Question, RegEx, Task} from '@/stores/CatalogStore'
 import {QuestionType, useCatalogStore} from '@/stores/CatalogStore'
 import type {Ref} from 'vue'
 import {ref} from 'vue'
@@ -25,30 +25,60 @@ const catalogStore = useCatalogStore()
 
 let task: Ref<Task | undefined> = ref(undefined)
 
-const regexList = ref<{ regexPrompt: string; regex: string }[]>([])
+const addRegEx = (regex: RegEx) => {
+  if(!task.value) return
 
-const handleAddRegex = (data: any) => {
-  const { regexPrompt: newRegexPrompt, regex: newRegex } = data
-  regexList.value.push({ regexPrompt: newRegexPrompt, regex: newRegex })
+  if(task.value.acceptance_criteria?.regexes) {
+    task.value.acceptance_criteria.regexes.push(regex)
+  } else {
+    task.value.acceptance_criteria.regexes = [regex]
+  }
 }
 
-const deleteRegex = (index: number) => {
-  regexList.value.splice(index, 1)
+// TODO: This is prone to errors and there is probably a way more elegant way to solve not having reactive props
+const updateRegEx = (regex: RegEx, index: number) => {
+  // To load the initial values in the modal correctly, we first have to remove the RegEx and then re-add it again
+  deleteRegEx(index)
+  // Re-add it after 2ms
+  setTimeout(() => {
+    if(!task.value?.acceptance_criteria?.regexes) return
+    task.value.acceptance_criteria.regexes.splice(index, 0, regex)
+  }, 2)
+
 }
 
-const flagList = ref<{ flagPrompt: string; flag: string }[]>([])
+const deleteRegEx = (index: number) => {
+  if(!task.value?.acceptance_criteria?.regexes) return
 
-const handleAddFlag = (data: any) => {
-  const { flagPrompt: newFlagPrompt, flag: newFlag } = data
-  flagList.value.push({ flagPrompt: newFlagPrompt, flag: newFlag })
+  task.value.acceptance_criteria.regexes.splice(index, 1)
+}
+
+const addFlag = (flag: Flag) => {
+  if(!task.value) return
+
+  if(task.value.acceptance_criteria?.flags) {
+    task.value.acceptance_criteria.flags.push(flag)
+  } else {
+    task.value.acceptance_criteria.flags = [flag]
+  }
+}
+
+const updateFlag = (flag: Flag, index: number) => {
+  deleteFlag(index)
+  setTimeout(() => {
+    if(!task.value?.acceptance_criteria?.flags) return
+    task.value.acceptance_criteria.flags.splice(index, 0, flag)
+  }, 2)
+
 }
 
 const deleteFlag = (index: number) => {
-  flagList.value.splice(index, 1)
+  if(!task.value?.acceptance_criteria?.flags) return
+
+  task.value.acceptance_criteria.flags.splice(index, 1)
 }
 
 const addQuestion = (question: Question) => {
-  console.log(question)
   if(!task.value) return
 
   if(task.value.acceptance_criteria?.questions) {
@@ -59,16 +89,16 @@ const addQuestion = (question: Question) => {
 }
 
 const updateQuestion = (question: Question, index: number) => {
-  if(!task.value?.acceptance_criteria?.questions) return
-
-  task.value.acceptance_criteria.questions[index] = question
+  deleteQuestion(index)
+  setTimeout(() => {
+    if(!task.value?.acceptance_criteria?.questions) return
+    task.value.acceptance_criteria.questions.splice(index, 0, question)
+  }, 2)
 }
 
-const deleteQuestion = (question: Question) => {
+const deleteQuestion = (index: number) => {
   if(!task.value?.acceptance_criteria?.questions) return
 
-  // get the index of the question that should be deleted
-  const index = task.value.acceptance_criteria.questions.indexOf(question)
   task.value.acceptance_criteria.questions.splice(index, 1)
 }
 
@@ -147,42 +177,41 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <div v-for="(regexItem, index) in regexList" :key="index">
-              <v-row>
-                <v-col>
-                  <v-textarea
-                    label="RegEx Prompt"
-                    clearable
-                    variant="underlined"
-                    base-color="primary"
-                    color="primary"
-                    v-model="regexItem.regexPrompt"
-                  ></v-textarea>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    label="RegEx"
-                    clearable
-                    variant="underlined"
-                    base-color="primary"
-                    color="primary"
-                    v-model="regexItem.regex"
-                  ></v-text-field>
-                  <ErrorButton
-                    button-name="Delete"
-                    button-type="button"
-                    @click="deleteRegex(index)"
-                  ></ErrorButton>
-                </v-col>
-              </v-row>
-              <v-divider></v-divider><br />
-            </div>
+            <v-table v-if="task.acceptance_criteria?.regexes">
+              <thead>
+                <tr>
+                  <th>Prompt</th>
+                  <th>RegEx Pattern</th>
+                  <th>Edit</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(regEx, index) in task.acceptance_criteria.regexes" :key="index">
+                  <td>{{ regEx.prompt }}</td>
+                  <td>{{ regEx.pattern }}</td>
+                  <td>
+                    <TextButton button-type="button">
+                      <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
+                      <AddRegexModal :current-regex="regEx" @reg-ex-editing-completed="updateRegEx($event, index)">
+                        <template v-slot:title>Edit RegEx</template>
+                        <template v-slot:submitButtonText>Edit</template>
+                      </AddRegexModal>
+                    </TextButton>
+                  </td>
+                  <td><v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteRegEx(index)"></v-btn></td>
+                </tr>
+              </tbody>
+            </v-table>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
             <SecondaryButton button-name="Add RegEx" button-type="button">
-              <AddRegexModal @addRegex="handleAddRegex" />
+              <AddRegexModal @reg-ex-editing-completed="addRegEx">
+                <template v-slot:title>Add RegEx</template>
+                <template v-slot:submitButtonText>Add</template>
+              </AddRegexModal>
             </SecondaryButton>
           </v-col>
         </v-row>
@@ -193,42 +222,41 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <div v-for="(flagItem, index) in flagList" :key="index">
-              <v-row>
-                <v-col>
-                  <v-textarea
-                    label="Flag Prompt"
-                    clearable
-                    variant="underlined"
-                    base-color="primary"
-                    color="primary"
-                    v-model="flagItem.flagPrompt"
-                  ></v-textarea>
-                </v-col>
-                <v-col>
-                  <v-text-field
-                    label="Flag"
-                    clearable
-                    variant="underlined"
-                    base-color="primary"
-                    color="primary"
-                    v-model="flagItem.flag"
-                  ></v-text-field>
-                  <ErrorButton
-                    button-name="Delete"
-                    button-type="button"
-                    @click="deleteFlag(index)"
-                  ></ErrorButton>
-                </v-col>
-              </v-row>
-              <v-divider></v-divider><br />
-            </div>
+            <v-table v-if="task.acceptance_criteria?.flags">
+              <thead>
+                <tr>
+                  <th>Prompt</th>
+                  <th>Flag Value</th>
+                  <th>Edit</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(flag, index) in task.acceptance_criteria.flags" :key="index">
+                  <td>{{ flag.prompt }}</td>
+                  <td>{{ flag.value }}</td>
+                  <td>
+                    <TextButton button-type="button">
+                      <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
+                      <AddFlagModal :current-flag="flag" @flag-editing-completed="updateFlag($event, index)">
+                        <template v-slot:title>Edit Flag</template>
+                        <template v-slot:submitButtonText>Edit</template>
+                      </AddFlagModal>
+                    </TextButton>
+                  </td>
+                  <td><v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteFlag(index)"></v-btn></td>
+                </tr>
+              </tbody>
+            </v-table>
           </v-col>
         </v-row>
         <v-row>
           <v-col>
             <SecondaryButton button-name="Add Flag" button-type="button">
-              <AddFlagModal @addFlag="handleAddFlag" />
+              <AddFlagModal @flag-editing-completed="addFlag">
+                <template v-slot:title>Add Flag</template>
+                <template v-slot:submitButtonText>Add</template>
+              </AddFlagModal>
             </SecondaryButton>
           </v-col>
         </v-row>
@@ -265,7 +293,7 @@ try {
                     </TextButton>
                   </td>
                   <td>
-                    <v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteQuestion(question)"></v-btn>
+                    <v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteQuestion(index)"></v-btn>
                   </td>
                 </tr>
               </tbody>

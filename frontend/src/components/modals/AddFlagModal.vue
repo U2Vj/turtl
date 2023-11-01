@@ -1,55 +1,61 @@
 <script setup lang="ts">
-import { useField, useForm, useResetForm } from 'vee-validate'
+import { useField, useForm } from 'vee-validate'
 import { ref } from 'vue'
 import * as yup from 'yup'
 import PrimaryButton from '../buttons/PrimaryButton.vue'
 import TextButton from '../buttons/TextButton.vue'
+import type { Flag } from '@/stores/CatalogStore'
 
 const showDialog = ref(false)
 
+const props = defineProps<{currentFlag?: Flag}>()
+
 const schema = yup.object({
   prompt: yup.string().required('This field is required').max(200),
-  flag: yup.string().required('This field is required')
+  flag: yup.string().required('This field is required').max(200)
 })
-const { handleSubmit } = useForm({ validationSchema: schema })
+const { handleSubmit, resetForm } = useForm({ validationSchema: schema })
 
 const { value: newPrompt, errorMessage: promptError } = useField<string>(
   'prompt',
   {},
-  { validateOnValueUpdate: false }
+  {
+    validateOnValueUpdate: false,
+    initialValue: (props.currentFlag) ? props.currentFlag.prompt : ''
+  }
 )
 
 const { value: newFlag, errorMessage: flagError } = useField<string>(
   'flag',
   {},
-  { validateOnValueUpdate: false }
+  {
+    validateOnValueUpdate: false,
+    initialValue: (props.currentFlag) ? props.currentFlag.value : ''
+  }
 )
-
-const resetForm = useResetForm()
 
 function resetDialog() {
   resetForm()
   showDialog.value = false
 }
 
-const emits = defineEmits()
+const emits = defineEmits<{ flagEditingCompleted: [flag: Flag]}>()
 
-const addFlag = () => {
-  handleSubmit(async () => {
-    const isValid = await schema.validate({ prompt: newPrompt.value, flag: newFlag.value })
-    if (isValid) {
-      emits('addFlag', { flagPrompt: newPrompt.value, flag: newFlag.value })
-      resetDialog()
-    }
-  })()
-}
+const addFlag = handleSubmit(() => {
+  const flag: Flag = { prompt: newPrompt.value, value: newFlag.value }
+  if(props.currentFlag) {
+    flag.id = props.currentFlag.id
+  }
+  emits('flagEditingCompleted', { prompt: newPrompt.value, value: newFlag.value })
+  resetDialog()
+})
 </script>
 
 <template>
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
       <v-card-title>
-        <p>Add Flag</p>
+        <p><slot name="title"></slot></p>
       </v-card-title>
       <v-card-text>
         <v-form>
@@ -62,7 +68,6 @@ const addFlag = () => {
                 color="primary"
                 v-model="newPrompt"
                 label="Prompt"
-                :rules="[(v) => (v || '').length <= 200 || 'Prompt must be 200 characters or less']"
                 :error-messages="promptError"
               >
               </v-textarea>
@@ -89,11 +94,7 @@ const addFlag = () => {
                 @click="resetDialog"
                 button-type="button"
               ></TextButton>
-              <PrimaryButton
-                button-name="Add"
-                button-type="button"
-                @click="addFlag"
-              ></PrimaryButton>
+              <PrimaryButton button-type="button" @click="addFlag"><slot name="submitButtonText"></slot></PrimaryButton>
             </v-col>
           </v-row>
         </v-form>

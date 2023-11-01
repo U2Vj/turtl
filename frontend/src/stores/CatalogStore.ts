@@ -21,22 +21,30 @@ export type Task = {
   acceptance_criteria: AcceptanceCriteria
 }
 
-enum VirtualizationRole {
-  UserShell = 'User Shell',
-  UserAccessible = 'User-accessible via IP'
+export enum VirtualizationRole {
+  UserShell = 'user_shell',
+  UserAccessible = 'user_accessible'
 }
 
 type Virtualization = {
-  id: number
+  id?: number
   name: string
   role: VirtualizationRole
   dockerfile: string
 }
 
-// TODO: change acceptance criteria type data type
+export enum AcceptanceCriteriaType {
+  Disabled = 'disabled',
+  Manual = 'manual',
+  RegEx = 'regex',
+  Flag = 'flag',
+  Questionnaire = 'questionnaire',
+  Mixed = 'mixed'
+}
+
 type AcceptanceCriteria = {
   id?: number
-  type?: string
+  type?: AcceptanceCriteriaType
   questions?: Question[]
   flags?: Flag[]
   regexes?: RegEx[]
