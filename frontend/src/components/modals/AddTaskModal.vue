@@ -6,9 +6,11 @@ import {useField, useForm, useResetForm} from 'vee-validate'
 import {ref} from 'vue'
 import {useToast} from 'vue-toastification'
 import * as yup from 'yup'
+import {useRouter} from "vue-router";
 
 const showDialog = ref(false)
 const toast = useToast()
+const router = useRouter()
 
 const schema = yup.object({
   title: yup
@@ -69,13 +71,21 @@ const addTask = handleSubmit(async (values) => {
       values.task_type,
       values.difficulty
     )
-    .then(() => {
+    .then((classroom) => {
+      if(!classroom) return
       resetAndHideModal()
       toast.success('Task created successfully')
+      const taskList = classroom.projects.filter(p => p.id === props.projectId)[0].tasks
+      const taskId = taskList[taskList.length - 1 ].id
+      router.push({
+        name: 'InstructorTask',
+        params: {
+          classroomId: classroom.id,
+          taskId: taskId
+        }
+      })
     })
-    .catch((e) => {
-      toast.error(e.message)
-    })
+    .catch((e) => toast.error(e.message))
 })
 
 const selectDifficulty = [
