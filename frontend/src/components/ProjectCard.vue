@@ -33,7 +33,7 @@ const projectTitleJustSaved = ref(false)
 
 function onProjectTitleInputChange() {
   hasProjectTitleChanged.value = projectTitle.value !== props.projectTitle
-  if (hasProjectTitleChanged) {
+  if (hasProjectTitleChanged.value) {
     projectTitleJustSaved.value = false
   }
 }
@@ -53,7 +53,7 @@ function editProjectTitle(newTitle: string, projectId: number) {
     catalogStore
       .updateClassroom(classroom.value.id, updatedClassroom)
       .then(() => {
-        toast.success('Project title created successfully')
+        toast.success('Project title changed')
         projectTitleJustSaved.value = true
       })
       .catch((e) => {
@@ -95,7 +95,9 @@ function editProjectTitle(newTitle: string, projectId: number) {
         :disabled="!hasProjectTitleChanged || projectTitleJustSaved"
         @click="editProjectTitle(projectTitle, projectId)"
       ></PrimaryButton>
-      <br />
+      <br><br>
+      <v-divider></v-divider>
+      <br>
       Tasks
       <div>
         <div v-for="task in props.tasks" :key="task.id">
@@ -110,6 +112,7 @@ function editProjectTitle(newTitle: string, projectId: number) {
         </div>
       </div>
       <small v-if="!props.tasks.length">This project does not contain any tasks yet.</small>
+      <br>
       <v-card-actions>
         <SecondaryButton buttonName="Add Task" prependIcon="mdi-plus">
           <AddTaskModal
