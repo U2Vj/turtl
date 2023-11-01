@@ -14,7 +14,7 @@ const emits = defineEmits<{ virtualizationEditingCompleted: [virtualization: Vir
 
 const schema = yup.object({
   name: yup.string().required('This field is required').max(30),
-  role: yup.string().required('This field is required'),
+  virtualization_role: yup.string().required('This field is required'),
   dockerfile: yup.string().required('This field is required')
 })
 const { handleSubmit, resetForm } = useForm({ validationSchema: schema })
@@ -29,11 +29,11 @@ const { value: name, errorMessage: nameError } = useField<string>(
 )
 
 const { value: role, errorMessage: roleError } = useField<string>(
-  'role',
+  'virtualization_role',
   {},
   {
     validateOnValueUpdate: false,
-    initialValue: (props.currentVirtualization) ? props.currentVirtualization.role : ''
+    initialValue: (props.currentVirtualization) ? props.currentVirtualization.virtualization_role : ''
   }
 )
 

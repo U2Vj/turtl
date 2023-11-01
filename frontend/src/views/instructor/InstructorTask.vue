@@ -9,11 +9,20 @@ import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import AddRegexModal from '@/components/modals/AddRegexModal.vue'
 import DeleteTaskModal from '@/components/modals/DeleteTaskModal.vue'
 import type {Flag, Question, RegEx, Task, Virtualization} from '@/stores/CatalogStore'
-import {QuestionType, useCatalogStore, VirtualizationRole} from '@/stores/CatalogStore'
+import {
+  AcceptanceCriteriaType,
+  QuestionType,
+  TaskDifficulty,
+  TaskType,
+  useCatalogStore,
+  VirtualizationRole
+} from '@/stores/CatalogStore'
 import type {Ref} from 'vue'
 import {ref} from 'vue'
 import {useToast} from 'vue-toastification'
-import AddVirtualizationModal from "@/components/modals/AddVirtualizationModal.vue";
+import AddVirtualizationModal from "@/components/modals/AddVirtualizationModal.vue"
+import * as yup from "yup"
+import {useField, useForm} from "vee-validate"
 
 const props = defineProps<{
   classroomId: number
@@ -108,11 +117,123 @@ const deleteVirtualization = (index: number) => {
   task.value?.virtualizations.splice(index, 1)
 }
 
+// Form validation for the Task title, description, type and difficulty
+const schema = yup.object({
+  title: yup.string().required('This field is required').max(50),
+  description: yup.string().required('This field is required'),
+  task_type: yup.string().required('This field is required'),
+  difficulty: yup.string().required('This field is required')
+})
+const { handleSubmit } = useForm({ validationSchema: schema })
+
+const { value: title, errorMessage: titleError } = useField<string>(
+  'title',
+  {},
+  {
+    validateOnValueUpdate: false
+  }
+)
+
+const { value: description, errorMessage: descriptionError } = useField<string>(
+  'description',
+  {},
+  {
+    validateOnValueUpdate: false
+  }
+)
+
+const { value: taskType, errorMessage: taskTypeError } = useField<string>(
+  'task_type',
+  {},
+  {
+    validateOnValueUpdate: false
+  }
+)
+
+const { value: difficulty, errorMessage: difficultyError } = useField<string>(
+  'difficulty',
+  {},
+  {
+    validateOnValueUpdate: false
+  }
+)
+
+const selectDifficulty = [
+  {
+    title: 'Beginner',
+    value: TaskDifficulty.Beginner
+  },
+  {
+    title: 'Intermediate',
+    value: TaskDifficulty.Intermediate
+  },
+  {
+    title: 'Advanced',
+    value: TaskDifficulty.Advanced
+  }
+]
+const selectTaskType = [
+  {
+    title: 'Neutral',
+    value: TaskType.Neutral
+  },
+  {
+    title: 'Attack',
+    value: TaskType.Attack
+  },
+  {
+    title: 'Defense',
+    value: TaskType.Defense
+  }
+]
+
+const saveTask = handleSubmit(async (values) => {
+  if(!task.value) return
+  task.value.title = values.title
+  task.value.description = values.description
+  task.value.difficulty = values.difficulty
+  task.value.task_type = values.task_type
+
+  // Determine AcceptanceCriteria type
+  let differentCriteriaTypes = 0
+  if(task.value.acceptance_criteria.questions && task.value.acceptance_criteria.questions.length > 0) {
+    task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Questionnaire
+    differentCriteriaTypes++
+  }
+  if(task.value.acceptance_criteria.flags && task.value.acceptance_criteria.flags.length > 0) {
+    task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Flag
+    differentCriteriaTypes++
+  }
+  if(task.value.acceptance_criteria.regexes && task.value.acceptance_criteria.regexes.length > 0) {
+    task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.RegEx
+    differentCriteriaTypes++
+  }
+  if(differentCriteriaTypes > 1) {
+    task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Mixed
+  } else if (differentCriteriaTypes === 0) {
+    task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Disabled
+  }
+
+
+  catalogStore
+      .updateTask(task.value)
+      .then(() => {
+        toast.success("Changes saved.")
+        task.value = catalogStore.getTask(props.taskId)
+      }).catch((e) => toast.error(e.message))
+})
+
+// Retrieve the Task from the backend and set the form values
 try {
   catalogStore
     .getClassroom(props.classroomId)
     .then(() => {
       task.value = catalogStore.getTask(props.taskId)
+      if(!task.value) return
+      title.value = task.value.title
+      description.value = task.value.description
+      difficulty.value = task.value.difficulty
+      taskType.value = task.value.task_type
     })
     .catch((e) => {
       toast.error(e.message)
@@ -131,14 +252,15 @@ try {
       </ErrorButton>
     </template>
     <template #default>
-      <v-form>
+      <v-form @submit.prevent="saveTask">
         <v-text-field
           label="Edit Title"
           clearable
           variant="underlined"
           base-color="primary"
           color="primary"
-          v-model="task.title"
+          v-model="title"
+          :error-messages="titleError"
         ></v-text-field>
         <v-textarea
           label="Task Description"
@@ -146,27 +268,30 @@ try {
           variant="underlined"
           base-color="primary"
           color="primary"
-          v-model="task.description"
+          v-model="description"
+          :error-messages="descriptionError"
         ></v-textarea>
         <v-row>
           <v-col>
             <v-select
               label="Select Difficulty Level"
-              :items="['Beginner', 'Intermediate', 'Advanced']"
+              :items="selectDifficulty"
               variant="underlined"
               base-color="primary"
               color="primary"
-              v-model="task.difficulty"
+              v-model="difficulty"
+              :error-messages="difficultyError"
             ></v-select>
           </v-col>
           <v-col>
             <v-select
               label="Select Task Type"
-              :items="['Neural', 'Attack', 'Defense']"
+              :items="selectTaskType"
               variant="underlined"
               base-color="primary"
               color="primary"
-              v-model="task.task_type"
+              v-model="taskType"
+              :error-messages="taskTypeError"
             ></v-select>
           </v-col>
         </v-row>
@@ -209,7 +334,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any RegExes yet.</p><br>
+            <p v-else>This Task does not contain any RegExes yet.</p>
           </v-col>
         </v-row>
         <v-row>
@@ -255,7 +380,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any Flags yet.</p><br>
+            <p v-else>This Task does not contain any Flags yet.</p>
           </v-col>
         </v-row>
         <v-row>
@@ -335,7 +460,7 @@ try {
               <tbody>
                 <tr v-for="(virtualization, index) in task.virtualizations" :key="index">
                   <td>{{ virtualization.name }}</td>
-                  <td v-if="virtualization.role === VirtualizationRole.UserShell">User Shell</td>
+                  <td v-if="virtualization.virtualization_role === VirtualizationRole.UserShell">User Shell</td>
                   <td v-else>User-accessible via IP</td>
                   <td>
                     <TextButton button-type="button">
@@ -368,6 +493,7 @@ try {
               <TextButton
                 button-name="Close"
                 :go-to="`/instructor/classrooms/${props.classroomId}`"
+                button-type="button"
               ></TextButton>
               <PrimaryButton button-name="Save" button-type="submit"></PrimaryButton>
             </div>

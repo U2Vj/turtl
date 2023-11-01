@@ -41,7 +41,7 @@ export enum VirtualizationRole {
 export type Virtualization = {
   id?: number
   name: string
-  role: VirtualizationRole
+  virtualization_role: VirtualizationRole
   dockerfile: string
 }
 
@@ -56,7 +56,7 @@ export enum AcceptanceCriteriaType {
 
 type AcceptanceCriteria = {
   id?: number
-  type?: AcceptanceCriteriaType
+  criteria_type?: AcceptanceCriteriaType
   questions?: Question[]
   flags?: Flag[]
   regexes?: RegEx[]
@@ -183,21 +183,6 @@ export const useCatalogStore = defineStore('catalog', () => {
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
-  function getTask(targetId: number) {
-    if (classroom.value === undefined) {
-      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
-    }
-    let targetTask
-    classroom.value.projects.forEach((project) => {
-      project.tasks.forEach((task) => {
-        if (task.id === targetId) {
-          targetTask = task
-        }
-      })
-    })
-    return targetTask
-  }
-
   async function createTask(
     projectId: number,
     title: string,
@@ -225,6 +210,42 @@ export const useCatalogStore = defineStore('catalog', () => {
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
+  function getTask(targetId: number): Task | undefined {
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
+    }
+    let targetTask
+    classroom.value.projects.forEach((project) => {
+      project.tasks.forEach((task) => {
+        if (task.id === targetId) {
+          targetTask = task
+          return
+        }
+      })
+    })
+    return targetTask
+  }
+
+  async function updateTask(task: Task) {
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
+    }
+
+    const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
+    updatedClassroomData.projects.forEach((project, projectIndex) => {
+      project.tasks.forEach((t, tIndex) => {
+        if (t.id === task.id) {
+          if(classroom.value) {
+            classroom.value.projects[projectIndex].tasks[tIndex] = task
+          }
+          return
+        }
+      })
+    })
+
+    return updateClassroom(classroom.value.id, updatedClassroomData)
+  }
+
   async function deleteTask(taskIdToRemove: number) {
     if (classroom.value === undefined) {
       throw new ClassroomNotLoadedError('Cannot delete task: No classroom was loaded yet')
@@ -248,8 +269,9 @@ export const useCatalogStore = defineStore('catalog', () => {
     deleteClassroom,
     createProject,
     deleteProject,
-    deleteTask,
+    createTask,
     getTask,
-    createTask
+    updateTask,
+    deleteTask
   }
 })
