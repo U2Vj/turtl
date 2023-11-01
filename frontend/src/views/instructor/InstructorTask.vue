@@ -7,13 +7,13 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddFlagModal from '@/components/modals/AddFlagModal.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import AddRegexModal from '@/components/modals/AddRegexModal.vue'
-import AddVirtualizationModal from '@/components/modals/AddVirtualizationModal.vue'
 import DeleteTaskModal from '@/components/modals/DeleteTaskModal.vue'
-import type {Flag, Question, RegEx, Task} from '@/stores/CatalogStore'
-import {QuestionType, useCatalogStore} from '@/stores/CatalogStore'
+import type {Flag, Question, RegEx, Task, Virtualization} from '@/stores/CatalogStore'
+import {QuestionType, useCatalogStore, VirtualizationRole} from '@/stores/CatalogStore'
 import type {Ref} from 'vue'
 import {ref} from 'vue'
 import {useToast} from 'vue-toastification'
+import AddVirtualizationModal from "@/components/modals/AddVirtualizationModal.vue";
 
 const props = defineProps<{
   classroomId: number
@@ -41,16 +41,13 @@ const updateRegEx = (regex: RegEx, index: number) => {
   deleteRegEx(index)
   // Re-add it after 2ms
   setTimeout(() => {
-    if(!task.value?.acceptance_criteria?.regexes) return
-    task.value.acceptance_criteria.regexes.splice(index, 0, regex)
+    task.value?.acceptance_criteria.regexes?.splice(index, 0, regex)
   }, 2)
 
 }
 
 const deleteRegEx = (index: number) => {
-  if(!task.value?.acceptance_criteria?.regexes) return
-
-  task.value.acceptance_criteria.regexes.splice(index, 1)
+  task.value?.acceptance_criteria.regexes?.splice(index, 1)
 }
 
 const addFlag = (flag: Flag) => {
@@ -66,16 +63,13 @@ const addFlag = (flag: Flag) => {
 const updateFlag = (flag: Flag, index: number) => {
   deleteFlag(index)
   setTimeout(() => {
-    if(!task.value?.acceptance_criteria?.flags) return
-    task.value.acceptance_criteria.flags.splice(index, 0, flag)
+    task.value?.acceptance_criteria.flags?.splice(index, 0, flag)
   }, 2)
 
 }
 
 const deleteFlag = (index: number) => {
-  if(!task.value?.acceptance_criteria?.flags) return
-
-  task.value.acceptance_criteria.flags.splice(index, 1)
+  task.value?.acceptance_criteria.flags?.splice(index, 1)
 }
 
 const addQuestion = (question: Question) => {
@@ -91,15 +85,27 @@ const addQuestion = (question: Question) => {
 const updateQuestion = (question: Question, index: number) => {
   deleteQuestion(index)
   setTimeout(() => {
-    if(!task.value?.acceptance_criteria?.questions) return
-    task.value.acceptance_criteria.questions.splice(index, 0, question)
+    task.value?.acceptance_criteria.questions?.splice(index, 0, question)
   }, 2)
 }
 
 const deleteQuestion = (index: number) => {
-  if(!task.value?.acceptance_criteria?.questions) return
+  task.value?.acceptance_criteria.questions?.splice(index, 1)
+}
 
-  task.value.acceptance_criteria.questions.splice(index, 1)
+const addVirtualization = (virtualization: Virtualization) => {
+  task.value?.virtualizations.push(virtualization)
+}
+
+const updateVirtualization = (virtualization: Virtualization, index: number) => {
+  deleteVirtualization(index)
+  setTimeout(() => {
+    task.value?.virtualizations.splice(index, 0, virtualization)
+  }, 2)
+}
+
+const deleteVirtualization = (index: number) => {
+  task.value?.virtualizations.splice(index, 1)
 }
 
 try {
@@ -164,12 +170,12 @@ try {
             ></v-select>
           </v-col>
         </v-row>
+        <v-row><v-col><v-divider></v-divider></v-col></v-row>
         <v-row>
           <v-col>
             <h2>Acceptance Criteria</h2>
           </v-col>
         </v-row>
-
         <v-row>
           <v-col>
             <h3>RegEx</h3>
@@ -177,7 +183,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <v-table v-if="task.acceptance_criteria?.regexes">
+            <v-table v-if="task.acceptance_criteria?.regexes && task.acceptance_criteria.regexes.length > 0">
               <thead>
                 <tr>
                   <th>Prompt</th>
@@ -203,6 +209,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
+            <p v-else>This Task does not contain any RegExes yet.</p><br>
           </v-col>
         </v-row>
         <v-row>
@@ -222,7 +229,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <v-table v-if="task.acceptance_criteria?.flags">
+            <v-table v-if="task.acceptance_criteria?.flags && task.acceptance_criteria.flags.length > 0">
               <thead>
                 <tr>
                   <th>Prompt</th>
@@ -248,6 +255,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
+            <p v-else>This Task does not contain any Flags yet.</p><br>
           </v-col>
         </v-row>
         <v-row>
@@ -267,7 +275,7 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <v-table v-if="task.acceptance_criteria?.questions">
+            <v-table v-if="task.acceptance_criteria?.questions && task.acceptance_criteria.questions.length > 0">
               <thead>
                 <tr>
                   <th>Question</th>
@@ -298,7 +306,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any questions yet.</p><br>
+            <p v-else>This Task does not contain any Questions yet.</p><br>
             <SecondaryButton button-name="Add Question" button-type="button">
               <AddQuestionModal @question-editing-completed="addQuestion">
                 <template v-slot:title>Add Question</template>
@@ -307,6 +315,7 @@ try {
             </SecondaryButton>
           </v-col>
         </v-row>
+        <v-row><v-col><v-divider></v-divider></v-col></v-row>
         <v-row>
           <v-col>
             <h2>Virtualization</h2>
@@ -314,57 +323,56 @@ try {
         </v-row>
         <v-row>
           <v-col>
+            <v-table v-if="task.virtualizations.length > 0">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Role</th>
+                  <th>Edit</th>
+                  <th>Delete</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr v-for="(virtualization, index) in task.virtualizations" :key="index">
+                  <td>{{ virtualization.name }}</td>
+                  <td v-if="virtualization.role === VirtualizationRole.UserShell">User Shell</td>
+                  <td v-else>User-accessible via IP</td>
+                  <td>
+                    <TextButton button-type="button">
+                      <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
+                      <AddVirtualizationModal :current-virtualization="virtualization" @virtualization-editing-completed="updateVirtualization($event, index)">
+                        <template v-slot:title>Edit Virtualization</template>
+                        <template v-slot:submitButtonText>Edit</template>
+                      </AddVirtualizationModal>
+                    </TextButton>
+                  </td>
+                  <td>
+                    <v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteVirtualization(index)"></v-btn>
+                  </td>
+                </tr>
+              </tbody>
+            </v-table>
+            <p v-else>This Task does not contain any virtualizations yet.</p><br>
             <SecondaryButton button-name="Add Virtualization" button-type="button">
-              <AddVirtualizationModal :classroom-id="props.classroomId" :task-id="props.taskId">
+              <AddVirtualizationModal @virtualization-editing-completed="addVirtualization">
+                <template v-slot:title>Add Virtualization</template>
+                <template v-slot:submitButtonText>Add</template>
               </AddVirtualizationModal>
             </SecondaryButton>
           </v-col>
         </v-row>
+        <v-row><v-col><v-divider></v-divider></v-col></v-row>
         <v-row>
           <v-col>
-            <!-- TODO: make this a loop because a task can contain multiple virtualizations -->
-            <v-card
-              v-for="virtualization in task.virtualizations"
-              :key="virtualization.id"
-              variant="flat"
-              color="cardColor"
-              class="elevation-4"
-            >
-              <v-card-text>
-                <v-text-field
-                  label="Name of Virtualization"
-                  clearable
-                  variant="underlined"
-                  base-color="primary"
-                  color="primary"
-                  v-model="virtualization.name"
-                ></v-text-field>
-                <v-select
-                  label="Role"
-                  :items="['UserShell', 'IP']"
-                  variant="underlined"
-                  base-color="primary"
-                  color="primary"
-                  v-model="virtualization.role"
-                ></v-select>
-                <v-file-input
-                  clearable
-                  label="Dockerfile"
-                  variant="underlined"
-                  base-color="primary"
-                  color="primary"
-                ></v-file-input>
-              </v-card-text>
-            </v-card>
+            <div class="d-flex mb-5 align-center justify-space-between">
+              <TextButton
+                button-name="Close"
+                :go-to="`/instructor/classrooms/${props.classroomId}`"
+              ></TextButton>
+              <PrimaryButton button-name="Save" button-type="submit"></PrimaryButton>
+            </div>
           </v-col>
         </v-row>
-        <div class="d-flex mt-5 mb-2 align-center justify-space-between">
-          <TextButton
-            button-name="Close"
-            :go-to="`/instructor/classrooms/${props.classroomId}`"
-          ></TextButton>
-          <PrimaryButton button-name="Save" button-type="submit"></PrimaryButton>
-        </div>
       </v-form>
     </template>
   </DefaultLayout>

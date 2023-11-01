@@ -26,7 +26,7 @@ export enum VirtualizationRole {
   UserAccessible = 'user_accessible'
 }
 
-type Virtualization = {
+export type Virtualization = {
   id?: number
   name: string
   role: VirtualizationRole
