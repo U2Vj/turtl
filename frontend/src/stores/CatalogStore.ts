@@ -11,45 +11,83 @@ type ClassroomShort = {
   updated_at: string
 }
 
+export enum TaskType {
+  Neutral = 'neutral',
+  Attack = 'attack',
+  Defense = 'defense'
+}
+
+export enum TaskDifficulty {
+  Beginner = 'beginner',
+  Intermediate = 'intermediate',
+  Advanced = 'advanced'
+}
+
 export type Task = {
   id?: number
   title: string
   description: string
-  task_type: string
-  difficulty: string
+  task_type: TaskType
+  difficulty: TaskDifficulty
   virtualizations: Virtualization[]
   acceptance_criteria: AcceptanceCriteria
 }
 
-enum VirtualizationRole {
-  UserShell = 'User Shell',
-  UserAccessible = 'User-accessible via IP'
+export enum VirtualizationRole {
+  UserShell = 'user_shell',
+  UserAccessible = 'user_accessible'
 }
 
-type Virtualization = {
-  id: number
+export type Virtualization = {
+  id?: number
   name: string
-  role: VirtualizationRole
+  virtualization_role: VirtualizationRole
   dockerfile: string
 }
 
+export enum AcceptanceCriteriaType {
+  Disabled = 'disabled',
+  Manual = 'manual',
+  RegEx = 'regex',
+  Flag = 'flag',
+  Questionnaire = 'questionnaire',
+  Mixed = 'mixed'
+}
+
 type AcceptanceCriteria = {
-  acceptance_criteria_questionnaire?: Question[]
+  id?: number
+  criteria_type?: AcceptanceCriteriaType
+  questions?: Question[]
+  flags?: Flag[]
+  regexes?: RegEx[]
 }
 
-enum QuestionType {
-  SingleChoice = 'Single choice',
-  MultipleChoice = 'Multiple choice'
+export type Flag = {
+  id?: number
+  prompt: string
+  value: string
 }
 
-type Question = {
-  id: number
-  title: string
-  type: QuestionType
+export type RegEx = {
+  id?: number
+  prompt: string
+  pattern: string
+}
+
+export enum QuestionType {
+  SingleChoice = 'single_choice',
+  MultipleChoice = 'multiple_choice'
+}
+
+export type Question = {
+  id?: number
+  question: string
+  question_type: QuestionType
   choices: QuestionChoice[]
 }
 
-type QuestionChoice = {
+export type QuestionChoice = {
+  id?: number
   answer: string
   is_correct: boolean
 }
@@ -145,27 +183,12 @@ export const useCatalogStore = defineStore('catalog', () => {
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
-  function getTask(targetId: number) {
-    if (classroom.value === undefined) {
-      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
-    }
-    let targetTask
-    classroom.value.projects.forEach((project) => {
-      project.tasks.forEach((task) => {
-        if (task.id === targetId) {
-          targetTask = task
-        }
-      })
-    })
-    return targetTask
-  }
-
   async function createTask(
     projectId: number,
     title: string,
     description: string,
-    task_type: string,
-    difficulty: string
+    taskType: TaskType,
+    difficulty: TaskDifficulty
   ) {
     if (classroom.value === undefined) {
       throw new ClassroomNotLoadedError('Cannot add task: No classroom was loaded yet')
@@ -179,11 +202,47 @@ export const useCatalogStore = defineStore('catalog', () => {
         .push({
           title: title,
           description: description,
-          task_type: task_type,
+          task_type: taskType,
           difficulty: difficulty,
           virtualizations: [],
           acceptance_criteria: {}
         })
+    return updateClassroom(classroom.value.id, updatedClassroomData)
+  }
+
+  function getTask(targetId: number): Task | undefined {
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
+    }
+    let targetTask
+    classroom.value.projects.forEach((project) => {
+      project.tasks.forEach((task) => {
+        if (task.id === targetId) {
+          targetTask = task
+          return
+        }
+      })
+    })
+    return targetTask
+  }
+
+  async function updateTask(task: Task) {
+    if (classroom.value === undefined) {
+      throw new ClassroomNotLoadedError('Cannot get task: No classroom was loaded yet')
+    }
+
+    const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
+    updatedClassroomData.projects.forEach((project, projectIndex) => {
+      project.tasks.forEach((t, tIndex) => {
+        if (t.id === task.id) {
+          if(classroom.value) {
+            classroom.value.projects[projectIndex].tasks[tIndex] = task
+          }
+          return
+        }
+      })
+    })
+
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
@@ -233,9 +292,10 @@ export const useCatalogStore = defineStore('catalog', () => {
     deleteClassroom,
     createProject,
     deleteProject,
-    deleteTask,
-    getTask,
     createTask,
+    getTask,
+    updateTask,
+    deleteTask,
     addInstructor,
     removeInstructor
   }
