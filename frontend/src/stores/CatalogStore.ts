@@ -11,12 +11,24 @@ type ClassroomShort = {
   updated_at: string
 }
 
+export enum TaskType {
+  Neutral = 'neutral',
+  Attack = 'attack',
+  Defense = 'defense'
+}
+
+export enum TaskDifficulty {
+  Beginner = 'beginner',
+  Intermediate = 'intermediate',
+  Advanced = 'advanced'
+}
+
 export type Task = {
   id?: number
   title: string
   description: string
-  task_type: string
-  difficulty: string
+  task_type: TaskType
+  difficulty: TaskDifficulty
   virtualizations: Virtualization[]
   acceptance_criteria: AcceptanceCriteria
 }
@@ -190,8 +202,8 @@ export const useCatalogStore = defineStore('catalog', () => {
     projectId: number,
     title: string,
     description: string,
-    task_type: string,
-    difficulty: string
+    taskType: TaskType,
+    difficulty: TaskDifficulty
   ) {
     if (classroom.value === undefined) {
       throw new ClassroomNotLoadedError('Cannot add task: No classroom was loaded yet')
@@ -205,7 +217,7 @@ export const useCatalogStore = defineStore('catalog', () => {
         .push({
           title: title,
           description: description,
-          task_type: task_type,
+          task_type: taskType,
           difficulty: difficulty,
           virtualizations: [],
           acceptance_criteria: {}

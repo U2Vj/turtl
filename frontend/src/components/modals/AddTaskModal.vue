@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import { useCatalogStore } from '@/stores/CatalogStore'
-import { useField, useForm, useResetForm } from 'vee-validate'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useToast } from 'vue-toastification'
+import {TaskDifficulty, TaskType, useCatalogStore} from '@/stores/CatalogStore'
+import {useField, useForm, useResetForm} from 'vee-validate'
+import {ref} from 'vue'
+import {useToast} from 'vue-toastification'
 import * as yup from 'yup'
 
 const showDialog = ref(false)
 const toast = useToast()
-const router = useRouter()
 
 const schema = yup.object({
   title: yup
@@ -18,8 +16,8 @@ const schema = yup.object({
     .ensure()
     .trim()
     .required('This field is required')
-    .min(3)
-    .max(120)
+    .min(2)
+    .max(50)
     .matches(/.*[a-zA-Z].*/, { message: 'The title should contain at least one letter' }),
   description: yup.string().required('This field is required'),
   task_type: yup.string().required('This field is required'),
@@ -33,22 +31,22 @@ const props = defineProps<{
 
 const { handleSubmit } = useForm({ validationSchema: schema })
 
-const { value: titleNewTask, errorMessage: titleError } = useField<string>(
+const { value: title, errorMessage: titleError } = useField<string>(
   'title',
   {},
   { validateOnValueUpdate: false }
 )
-const { value: descriptionNewTask, errorMessage: descriptionError } = useField<string>(
+const { value: description, errorMessage: descriptionError } = useField<string>(
   'description',
   {},
   { validateOnValueUpdate: false }
 )
-const { value: task_typeNewTask, errorMessage: task_typeError } = useField<string>(
+const { value: taskType, errorMessage: taskTypeError } = useField<string>(
   'task_type',
   {},
   { validateOnValueUpdate: false }
 )
-const { value: difficultyNewTask, errorMessage: difficultyError } = useField<string>(
+const { value: difficulty, errorMessage: difficultyError } = useField<string>(
   'difficulty',
   {},
   { validateOnValueUpdate: false }
@@ -63,7 +61,7 @@ function resetAndHideModal() {
 
 const addTask = handleSubmit(async (values) => {
   const catalogStore = useCatalogStore()
-  const response = catalogStore
+  catalogStore
     .createTask(
       props.projectId,
       values.title,
@@ -73,10 +71,6 @@ const addTask = handleSubmit(async (values) => {
     )
     .then(() => {
       resetAndHideModal()
-      // router.push({
-      //   name: 'InstructorTask',
-      //   params: { classroomId: props.classroomId, taskId: response.id }
-      // })
       toast.success('Task created successfully')
     })
     .catch((e) => {
@@ -84,32 +78,32 @@ const addTask = handleSubmit(async (values) => {
     })
 })
 
-const difficultyLevel = [
+const selectDifficulty = [
   {
     title: 'Beginner',
-    value: 'beginner'
+    value: TaskDifficulty.Beginner
   },
   {
     title: 'Intermediate',
-    value: 'intermediate'
+    value: TaskDifficulty.Intermediate
   },
   {
     title: 'Advanced',
-    value: 'advanced'
+    value: TaskDifficulty.Advanced
   }
 ]
 const selectTaskType = [
   {
     title: 'Neutral',
-    value: 'neutral'
+    value: TaskType.Neutral
   },
   {
     title: 'Attack',
-    value: 'attack'
+    value: TaskType.Attack
   },
   {
     title: 'Defense',
-    value: 'defense'
+    value: TaskType.Defense
   }
 ]
 </script>
@@ -126,7 +120,7 @@ const selectTaskType = [
             variant="underlined"
             base-color="primary"
             color="primary"
-            v-model="titleNewTask"
+            v-model="title"
             :error-messages="titleError"
           ></v-text-field>
           <v-textarea
@@ -135,17 +129,19 @@ const selectTaskType = [
             variant="underlined"
             base-color="primary"
             color="primary"
-            v-model="descriptionNewTask"
+            v-model="description"
+            :error-messages="descriptionError"
           ></v-textarea>
           <v-row>
             <v-col>
               <v-select
                 label="Select Difficulty Level"
-                :items="difficultyLevel"
+                :items="selectDifficulty"
                 variant="underlined"
                 base-color="primary"
                 color="primary"
-                v-model="difficultyNewTask"
+                v-model="difficulty"
+                :error-messages="difficultyError"
               ></v-select>
             </v-col>
             <v-col>
@@ -155,7 +151,8 @@ const selectTaskType = [
                 variant="underlined"
                 base-color="primary"
                 color="primary"
-                v-model="task_typeNewTask"
+                v-model="taskType"
+                :error-messages="taskTypeError"
               ></v-select>
             </v-col>
           </v-row>
