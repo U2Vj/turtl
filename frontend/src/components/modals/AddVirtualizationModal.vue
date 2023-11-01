@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
-import {useCatalogStore, VirtualizationRole} from '@/stores/CatalogStore'
-import { useField, useForm, useResetForm } from 'vee-validate'
-import { ref, toRef } from 'vue'
+import { VirtualizationRole } from '@/stores/CatalogStore'
+import { useField, useForm } from 'vee-validate'
+import { ref } from 'vue'
 import * as yup from 'yup'
 import type { Virtualization } from '@/stores/CatalogStore'
 
