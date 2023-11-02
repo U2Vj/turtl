@@ -8,7 +8,7 @@ PyJWT==1.7.1
 channels==3.0.2
 channels-redis==3.2.0
 cryptography==3.4.7
-pip==21.1.2
+pip==23.3
 attrs==21.2.0
 pytz==2021.1
 Twisted==21.2.0
