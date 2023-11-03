@@ -1,41 +1,22 @@
 <script setup lang="ts">
-import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import JoinClassroomModal from '@/components/modals/JoinClassroomModal.vue'
-import { ref } from 'vue'
+import { useCatalogStore } from '@/stores/CatalogStore'
+import { ref, toRef } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
+
+const router = useRouter()
+
+const catalogStore = useCatalogStore()
+const toast = useToast()
 
 const search = ref('')
-const dialog = ref(false)
-const headers = [
-  { title: 'Title', key: 'title' },
-  { title: 'Instructors', key: 'instructors' },
-  { title: '', key: 'actions', width: '10%', sortable: false }
-]
 
-const classrooms = [
-  {
-    title: 'Test Networks',
-    instructors: 'John Doe'
-  },
-  {
-    title: 'Computer Networks',
-    instructors: 'Tom Doe'
-  },
-  {
-    title: 'Secure Networks',
-    instructors: 'Finn Doe'
-  }
-]
+let classroomList = toRef(catalogStore, 'classroomList')
 
-const selectedClassroom = ref({})
-
-const selectedClassroomTitle = ref('')
-
-function joinClassroomBtn(item: any) {
-  selectedClassroom.value = item
-  selectedClassroomTitle.value = item.title
-  dialog.value = true
-}
+catalogStore.getClassroomList().catch((e) => toast.error(e.message))
 </script>
 
 <template>
@@ -55,30 +36,24 @@ function joinClassroomBtn(item: any) {
           ></v-text-field>
         </v-col>
       </v-row>
-      <v-row>
-        <v-col cols="12" xs="12" sm="12" md="12">
-          <v-data-table
-            :headers="headers"
-            :items="classrooms"
-            :search="search"
-            item-value="classrooms"
-          >
-            <template #top> </template>
-            <template #[`item.actions`]="{ item }">
-              <SecondaryButton buttonName="Join Classroom" @click="joinClassroomBtn(item.raw)">
-                <JoinClassroomModal>
-                  <template #classroomName>{{ selectedClassroomTitle }}</template>
-                </JoinClassroomModal>
-              </SecondaryButton>
-            </template>
-            <template #no-data>
-              <p>No data</p>
-            </template>
-          </v-data-table>
-        </v-col>
-      </v-row>
+      <v-data-table
+        :headers="[
+          {
+            title: 'Title',
+            align: 'start',
+            sortable: true,
+            key: 'title'
+          },
+          { title: 'Join', align: 'end', key: 'link' }
+        ]"
+        :items="classroomList"
+      >
+        <template #[`item.link`]="{ item }">
+          <TextButton buttonName="Join">
+            <JoinClassroomModal :title="item.raw.title" />
+          </TextButton>
+        </template>
+      </v-data-table>
     </template>
   </DefaultLayout>
 </template>
-
-<style></style>
