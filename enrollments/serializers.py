@@ -1,5 +1,6 @@
 from rest_framework import serializers
 
+from authentication.serializers import UserSerializer
 from catalog.models import Classroom
 from catalog.serializers import ClassroomSerializer
 from .models import Enrollment, TaskSolution
@@ -7,6 +8,7 @@ from .models import Enrollment, TaskSolution
 
 class EnrollmentSerializer(serializers.ModelSerializer):
     classroom = serializers.PrimaryKeyRelatedField(queryset=Classroom.objects.all())
+    student = UserSerializer(read_only=True)
 
     class Meta:
         model = Enrollment
