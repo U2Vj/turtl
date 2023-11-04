@@ -5,9 +5,11 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomModal from '@/components/modals/CreateClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import dayjs from 'dayjs'
-import { toRef } from 'vue'
+import { ref, toRef } from 'vue'
 import { useRouter } from 'vue-router'
-import {useToast} from "vue-toastification";
+import { useToast } from 'vue-toastification'
+
+const search = ref('')
 
 const router = useRouter()
 
@@ -40,6 +42,19 @@ function formatReadableDate(date: string) {
       </PrimaryButton>
     </template>
     <template #default>
+      <v-row>
+        <v-col cols="8">
+          <v-text-field
+            clearable
+            label="Search title of Classroom"
+            v-model="search"
+            append-inner-icon="mdi-magnify"
+            variant="underlined"
+            base-color="primary"
+            color="primary"
+          ></v-text-field>
+        </v-col>
+      </v-row>
       <v-data-table
         :headers="[
           {
@@ -54,6 +69,7 @@ function formatReadableDate(date: string) {
         ]"
         :items="classroomList"
         @click:row="handleRowClick"
+        :search="search"
       >
         <template #[`item.link`]="{ item }">
           <TextButton buttonName="Edit" :goTo="`classrooms/${item.raw.id}`"></TextButton>
