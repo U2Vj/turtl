@@ -47,6 +47,7 @@ catalogStore.getClassroomList().catch((e) => toast.error(e.message))
           { title: 'Join', align: 'end', key: 'link' }
         ]"
         :items="classroomList"
+        :search="search"
       >
         <template #[`item.link`]="{ item }">
           <TextButton buttonName="Join">
