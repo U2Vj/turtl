@@ -151,6 +151,9 @@ class ClassroomInstructor(models.Model):
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
                                  related_name='classroominstructor_added_by')
 
+    class Meta:
+        unique_together = ('classroom', 'instructor',)
+
 
 class HelpfulResource(models.Model):
     title = models.CharField(max_length=120)

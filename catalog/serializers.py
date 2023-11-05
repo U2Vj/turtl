@@ -244,6 +244,11 @@ class ClassroomDetailSerializer(WritableNestedModelSerializer):
         if self.instance and not instructors:
             raise serializers.ValidationError('At least one instructor must be associated with the classroom.')
 
+        # Prevent classrooms with duplicate instructors
+        instructor_ids = [instructor['instructor']['id'] for instructor in instructors]
+        if len(instructor_ids) != len(set(instructor_ids)):
+            raise serializers.ValidationError('You cannot add duplicate instructors to a classroom.')
+
         return data
 
     class Meta:
