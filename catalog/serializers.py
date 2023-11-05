@@ -1,3 +1,5 @@
+import re
+
 from django.core.exceptions import ObjectDoesNotExist
 from rest_framework import serializers
 
@@ -17,6 +19,13 @@ class RegexSerializer(serializers.ModelSerializer):
     class Meta:
         model = Regex
         fields = '__all__'
+
+    def validate_pattern(self, value):
+        try:
+            re.compile(value)
+        except re.error:
+            raise serializers.ValidationError(f"The provided regex pattern '{value}' is invalid.")
+        return value
 
 
 class FlagSerializer(serializers.ModelSerializer):
@@ -48,6 +57,25 @@ class QuestionSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Question
         fields = '__all__'
+
+    def validate(self, data):
+        choices = data.get('choices', [])
+        if not choices:
+            raise serializers.ValidationError("Each question must have at least one choice.")
+
+        correct_answer_count = sum(choice.get('is_correct', False) for choice in choices)
+        if data.get('question_type') == Question.SINGLE_CHOICE:
+            if correct_answer_count != 1:
+                raise serializers.ValidationError(
+                    "A single choice question must have exactly one correct answer."
+                )
+        elif data.get('question_type') == Question.MULTIPLE_CHOICE:
+            if correct_answer_count < 1:
+                raise serializers.ValidationError(
+                    "A multiple choice question must have at least one correct answer."
+                )
+
+        return data
 
 
 class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
