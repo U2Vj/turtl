@@ -1,6 +1,8 @@
+import io
 import re
 
 from django.core.exceptions import ObjectDoesNotExist
+from dockerfile_parse import DockerfileParser
 from rest_framework import serializers
 
 from authentication.models import User
@@ -157,11 +159,27 @@ class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
 
 
 class VirtualizationSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    name = serializers.CharField()
+    virtualization_role = serializers.ChoiceField(choices=Virtualization.ROLE_CHOICES)
+    dockerfile = serializers.CharField()
 
     class Meta:
         model = Virtualization
         fields = ['id', 'name', 'virtualization_role', 'dockerfile']
         read_only_fields = ['id']
+
+    def validate_dockerfile(self, value):
+        dfp = DockerfileParser(fileobj=io.StringIO(value))
+
+        if not dfp.baseimage:
+            raise serializers.ValidationError("The Dockerfile must start with a FROM instruction.")
+
+        instructions = dfp.structure
+        if not any(instr['instruction'] == 'RUN' for instr in instructions):
+            raise serializers.ValidationError("The Dockerfile should contain at least one RUN instruction.")
+
+        return value
 
 
 class TaskNewSerializer(serializers.Serializer):
