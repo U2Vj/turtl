@@ -1,7 +1,7 @@
 from django.db import models
 from rules import is_authenticated
 from rules.contrib.models import RulesModel
-from .predicates import manages_classroom
+from .predicates import manages_classroom, manages_project, manages_task
 from authentication.models import User
 from authentication.predicates import is_instructor
 
@@ -179,15 +179,14 @@ class Project(RulesModel):
     # Permissions (Administrators automatically have all permissions)
     class Meta:
         rules_permissions = {
-            # Authenticated Instructors can create projects in our application
-            "add": is_authenticated & is_instructor,
-            # Viewing projects is allowed for every authenticated user
+            # Only instructors managing the specific classroom can add a project
+            "add": is_authenticated & is_instructor & manages_classroom,
+            # All authenticated users can view projects
             "view": is_authenticated,
-            # To edit an existing project, you must be able to create one and also manage the one you are trying to
-            # modify
-            "change": is_authenticated & is_instructor & manages_classroom,
-            # The same applies for deleting projects
-            "delete": is_authenticated & is_instructor & manages_classroom
+            # Only instructors who manage the classroom that the project belongs to can change it
+            "change": is_authenticated & is_instructor & manages_project,
+            # Only instructors managing the specific classroom can delete a project
+            "delete": is_authenticated & is_instructor & manages_project,
         }
 
 
@@ -239,15 +238,14 @@ class Task(RulesModel):
     # Permissions (Administrators automatically have all permissions)
     class Meta:
         rules_permissions = {
-            # Authenticated Instructors can create tasks in our application
-            "add": is_authenticated & is_instructor,
-            # Viewing tasks is allowed for every authenticated user
+            # Instructors can only add tasks if they manage the classroom associated with the project of the task
+            "add": is_authenticated & is_instructor & manages_project,
+            # Tasks can be viewed by all authenticated users
             "view": is_authenticated,
-            # To edit an existing task, you must be able to create one and also manage the one you are trying to
-            # modify
-            "change": is_authenticated & is_instructor & manages_classroom,
-            # The same applies for deleting tasks
-            "delete": is_authenticated & is_instructor & manages_classroom
+            # Editing a task is restricted to instructors managing the related classroom
+            "change": is_authenticated & is_instructor & manages_task,
+            # Deleting a task follows the same permission requirements as editing
+            "delete": is_authenticated & is_instructor & manages_task,
         }
 
 

@@ -28,12 +28,12 @@ class ClassroomDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     queryset = Classroom.objects.all()
 
 
-class ProjectNew(CreateAPIView):
+class ProjectNew(AutoPermissionViewSetMixin, CreateAPIView):
     queryset = Project.objects.all()
     serializer_class = ProjectNewSerializer
 
 
-class ProjectDetailViewSet(ModelViewSet):
+class ProjectDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = ProjectDetailSerializer
 
     def get_queryset(self):
@@ -41,7 +41,7 @@ class ProjectDetailViewSet(ModelViewSet):
         return Project.objects.filter(id=project_id)
 
 
-class TaskNew(APIView):
+class TaskNew(AutoPermissionViewSetMixin, APIView):
     def post(self, request):
         serializer = TaskSerializer(data=request.data)
         if serializer.is_valid():
@@ -50,7 +50,7 @@ class TaskNew(APIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class TaskDetailViewSet(ModelViewSet):
+class TaskDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = TaskSerializer
 
     def get_queryset(self):
