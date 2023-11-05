@@ -176,8 +176,22 @@ class Project(RulesModel):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE,
                                   related_name='projects')
 
+    # Permissions (Administrators automatically have all permissions)
+    class Meta:
+        rules_permissions = {
+            # Authenticated Instructors can create projects in our application
+            "add": is_authenticated & is_instructor,
+            # Viewing projects is allowed for every authenticated user
+            "view": is_authenticated,
+            # To edit an existing project, you must be able to create one and also manage the one you are trying to
+            # modify
+            "change": is_authenticated & is_instructor & manages_classroom,
+            # The same applies for deleting projects
+            "delete": is_authenticated & is_instructor & manages_classroom
+        }
 
-class Task(models.Model):
+
+class Task(RulesModel):
     """
         A Task is part of a Project.
     """
@@ -221,6 +235,20 @@ class Task(models.Model):
 
     # The acceptance criteria for this Task, meaning how the user can prove that they have completed the task
     acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
+
+    # Permissions (Administrators automatically have all permissions)
+    class Meta:
+        rules_permissions = {
+            # Authenticated Instructors can create tasks in our application
+            "add": is_authenticated & is_instructor,
+            # Viewing tasks is allowed for every authenticated user
+            "view": is_authenticated,
+            # To edit an existing task, you must be able to create one and also manage the one you are trying to
+            # modify
+            "change": is_authenticated & is_instructor & manages_classroom,
+            # The same applies for deleting tasks
+            "delete": is_authenticated & is_instructor & manages_classroom
+        }
 
 
 class Virtualization(models.Model):
