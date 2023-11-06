@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import { ref } from 'vue'
@@ -237,6 +236,12 @@ function getNumberOfDoneProjects() {
   }
   return count
 }
+
+function openResourceLink(link: string) {
+  if (link) {
+    window.open(link, '_blank')
+  }
+}
 </script>
 
 <template>
@@ -274,30 +279,10 @@ function getNumberOfDoneProjects() {
                       </template>
                     </v-progress-linear>
                   </v-card-text>
-                  <v-card-actions>
-                    <TextButton
-                      v-if="!showTask"
-                      buttonName="View Tasks"
-                      @click="showTask = true"
-                      appendIcon="mdi-chevron-down"
-                    ></TextButton>
-                    <TextButton
-                      v-if="showTask"
-                      buttonName="Hide Tasks"
-                      @click="showTask = false"
-                      appendIcon="mdi-chevron-up"
-                    ></TextButton>
-                    <v-spacer></v-spacer>
-                    <SecundaryButton
-                      v-if="getTaskProgressOfProject(item.id) < 100"
-                      buttonName="Continue"
-                    >
-                    </SecundaryButton>
-                  </v-card-actions>
-                  <v-card-text v-show="showTask">
+                  <v-card-text>
                     <div>
-                      <div v-for="(task, index) in item.taskList" :key="task.id">
-                        {{ index + 1 }}. {{ task.task }}
+                      <div v-for="task in item.taskList" :key="task.id">
+                        <TextButton :button-name="task.task"></TextButton>
                         <v-icon
                           v-if="task.done === true"
                           icon="mdi-check-circle-outline"
@@ -318,14 +303,8 @@ function getNumberOfDoneProjects() {
               <v-col cols="6">
                 <div>
                   <v-card variant="flat" color="cardColor" class="elevation-4">
-                    <v-card-title>Information</v-card-title>
+                    <v-card-title>Instructors</v-card-title>
                     <v-card-text>
-                      <div><h3>Contact Information</h3></div>
-                      <div>{{ classroom.information.contactInfo }}</div>
-                      <div class="mt-5"><h3>Manager</h3></div>
-                      {{ classroom.information.managers.managerName }} <br />
-                      {{ classroom.information.managers.managerMail }}
-                      <div class="mt-5"><h3>Instructors</h3></div>
                       <div
                         v-for="instructors in classroom.information.instructors"
                         :key="instructors.instructorMail"
@@ -340,13 +319,12 @@ function getNumberOfDoneProjects() {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>Helpful Resources</v-card-title>
                     <v-card-text>
-                      <a
-                        v-for="(resource, index) in classroom.helpfulResources"
-                        :key="index"
-                        :href="resource.link"
-                      >
-                        {{ index + 1 }}. {{ resource.name }}<br />
-                      </a>
+                      <div v-for="resource in classroom.helpfulResources">
+                        <TextButton
+                          :button-name="resource.name"
+                          @click="openResourceLink(resource.link)"
+                        ></TextButton>
+                      </div>
                     </v-card-text>
                   </v-card>
                 </div>
@@ -398,21 +376,6 @@ function getNumberOfDoneProjects() {
                     </v-card-text>
                   </v-card>
                 </div>
-                <div class="mt-5">
-                  <v-card variant="flat" color="cardColor" class="elevation-4">
-                    <v-card-title>My Team</v-card-title>
-                    <v-card-text>
-                      <h3>Attacker</h3>
-                      <div v-for="attacker in classroom.team.attackers" :key="attacker">
-                        {{ attacker }}
-                      </div>
-                      <div class="mt-5"><h3>Defender</h3></div>
-                      <div v-for="defender in classroom.team.defenders" :key="defender">
-                        {{ defender }}
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </div>
               </v-col>
             </v-row>
           </v-container>
@@ -421,5 +384,3 @@ function getNumberOfDoneProjects() {
     </template>
   </DefaultLayout>
 </template>
-
-<style scoped></style>
