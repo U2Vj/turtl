@@ -5,11 +5,11 @@ app_name = 'enrollments'
 
 
 urlpatterns = [
-    path('my/', EnrollmentViewSet.as_view({
+    path('my', EnrollmentViewSet.as_view({
         'get': 'list',
         'post': 'create',
     })),
-    path('my/<int:pk>/', EnrollmentViewSet.as_view({
+    path('my/<int:pk>', EnrollmentViewSet.as_view({
         'get': 'retrieve',
         'delete': 'destroy'
     })),

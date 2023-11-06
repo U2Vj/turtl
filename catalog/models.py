@@ -1,7 +1,7 @@
 from django.db import models
 from rules import is_authenticated
 from rules.contrib.models import RulesModel
-from .predicates import manages_classroom
+from .predicates import manages_classroom, manages_project, manages_task
 from authentication.models import User
 from authentication.predicates import is_instructor
 
@@ -151,6 +151,9 @@ class ClassroomInstructor(models.Model):
     added_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True,
                                  related_name='classroominstructor_added_by')
 
+    class Meta:
+        unique_together = ('classroom', 'instructor',)
+
 
 class HelpfulResource(models.Model):
     title = models.CharField(max_length=120)
@@ -173,8 +176,22 @@ class Project(RulesModel):
     classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE,
                                   related_name='projects')
 
+    # Permissions (Administrators automatically have all permissions)
+    class Meta:
+        rules_permissions = {
+            # Only instructors managing the specific classroom can add a project
+            "add": is_authenticated & is_instructor,
+            # All authenticated users can view projects
+            "view": is_authenticated,
+            # Only instructors who manage the classroom that the project belongs to can change it
+            "change": is_authenticated & is_instructor & manages_project,
+            # Only instructors managing the specific classroom can delete a project
+            "delete": is_authenticated & is_instructor & manages_project,
+        }
+        unique_together = ('title', 'classroom',)
 
-class Task(models.Model):
+
+class Task(RulesModel):
     """
         A Task is part of a Project.
     """
@@ -218,6 +235,19 @@ class Task(models.Model):
 
     # The acceptance criteria for this Task, meaning how the user can prove that they have completed the task
     acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
+
+    # Permissions (Administrators automatically have all permissions)
+    class Meta:
+        rules_permissions = {
+            # Instructors can only add tasks if they manage the classroom associated with the project of the task
+            "add": is_authenticated & is_instructor,
+            # Tasks can be viewed by all authenticated users
+            "view": is_authenticated,
+            # Editing a task is restricted to instructors managing the related classroom
+            "change": is_authenticated & is_instructor & manages_task,
+            # Deleting a task follows the same permission requirements as editing
+            "delete": is_authenticated & is_instructor & manages_task,
+        }
 
 
 class Virtualization(models.Model):

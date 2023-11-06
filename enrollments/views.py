@@ -28,7 +28,7 @@ class EnrollmentViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
         student = self.request.user
 
         try:
-            classroom = Classroom.objects.get(id=classroom_id)
+            Classroom.objects.get(id=classroom_id)
         except ObjectDoesNotExist:
             raise ValidationError('The classroom you\'re trying to enroll in does not exist.')
 
