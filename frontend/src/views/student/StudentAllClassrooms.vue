@@ -69,7 +69,7 @@ function getInstructor(instructors: any[]) {
       >
         <template #[`item.link`]="{ item }">
           <TextButton buttonName="Join">
-            <JoinClassroomModal :title="item.raw.title" />
+            <JoinClassroomModal :title="item.raw.title" :id="item.raw.id" />
           </TextButton>
         </template>
       </v-data-table>
