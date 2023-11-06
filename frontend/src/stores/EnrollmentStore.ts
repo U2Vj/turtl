@@ -20,7 +20,7 @@ export const useEnrollmentStore = defineStore('invitation', () => {
     return myEnrollments.value
   }
 
-  async function createEnrollment(classroomId: number) {
+  async function enroll(classroomId: number) {
     const response = await makeAPIRequest(
       '/enrollments/my',
       'POST',
@@ -33,14 +33,14 @@ export const useEnrollmentStore = defineStore('invitation', () => {
     return response.data as EnrollmentShort
   }
 
-  async function deleteEnrollment(enrollmentId: number) {
+  async function unenroll(enrollmentId: number) {
     await makeAPIRequest(`/enrollments/${id}`, 'DELETE', true, true)
   }
 
   return {
     myEnrollments,
     getMyEnrollments,
-    createEnrollment,
-    deleteEnrollment
+    enroll,
+    unenroll
   }
 })
