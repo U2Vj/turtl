@@ -17,6 +17,18 @@ const search = ref('')
 let classroomList = toRef(catalogStore, 'classroomList')
 
 catalogStore.getClassroomList().catch((e) => toast.error(e.message))
+
+function getInstructor(instructors: any[]) {
+  return instructors
+    .map((instructor: any) => {
+      if (instructor.username !== null) {
+        return instructor.username
+      } else {
+        return instructor.email
+      }
+    })
+    .join(', ')
+}
 </script>
 
 <template>
@@ -43,6 +55,12 @@ catalogStore.getClassroomList().catch((e) => toast.error(e.message))
             align: 'start',
             sortable: true,
             key: 'title'
+          },
+          {
+            title: 'Instructors',
+            align: 'end',
+            key: 'instructors',
+            value: (item) => getInstructor(item.instructors)
           },
           { title: 'Join', align: 'end', key: 'link' }
         ]"

@@ -31,6 +31,18 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
 function formatReadableDate(date: string) {
   return dayjs(date).format('DD.MM.YYYY HH:mm')
 }
+
+function getInstructor(instructors: any[]) {
+  return instructors
+    .map((instructor: any) => {
+      if (instructor.username !== null) {
+        return instructor.username
+      } else {
+        return instructor.email
+      }
+    })
+    .join(', ')
+}
 </script>
 
 <template>
@@ -62,6 +74,12 @@ function formatReadableDate(date: string) {
             align: 'start',
             sortable: true,
             key: 'title'
+          },
+          {
+            title: 'Instructors',
+            align: 'end',
+            key: 'instructors',
+            value: (item) => getInstructor(item.instructors)
           },
           { title: 'Last edited', align: 'end', key: 'updated_at' },
           { title: 'Created at', align: 'end', key: 'created_at' },
