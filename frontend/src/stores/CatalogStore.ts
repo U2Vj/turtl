@@ -4,11 +4,12 @@ import { ClassroomNotLoadedError } from '@/stores/exceptions'
 import { defineStore } from 'pinia'
 import { ref, toRaw } from 'vue'
 
-type ClassroomShort = {
+export type ClassroomShort = {
   id: number
   title: string
   created_at: string
   updated_at: string
+  instructors: User[]
 }
 
 export enum TaskType {
@@ -111,18 +112,19 @@ type Project = {
   tasks: Task[]
 }
 
-type AdditionalClassroomData = {
+export type ClassroomDetail = {
+  id: number
+  title: string
+  created_at: string
+  updated_at: string
   projects: Project[]
   helpful_resources: HelpfulResource[]
   instructors: ClassroomInstructor[]
 }
 
-export type ClassroomDetail = ClassroomShort & AdditionalClassroomData
-
 export const useCatalogStore = defineStore('catalog', () => {
   const classroom = ref<ClassroomDetail | undefined>()
   const classroomList = ref<ClassroomShort[]>()
-  const project = ref<Project | undefined>()
 
   async function getClassroomList() {
     const response = await makeAPIRequest('/catalog/classrooms', 'GET', true, true)
