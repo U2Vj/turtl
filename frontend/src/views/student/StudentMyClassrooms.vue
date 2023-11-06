@@ -4,18 +4,13 @@ import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import { useEnrollmentStore } from '@/stores/EnrollmentStore'
 import dayjs from 'dayjs'
-import { ref, toRef } from 'vue'
-import { useRouter } from 'vue-router'
+import { toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
 const progress = 33
 
-const router = useRouter()
-
 const enrollmentStore = useEnrollmentStore()
 const toast = useToast()
-
-const search = ref('')
 
 let myEnrollments = toRef(enrollmentStore, 'myEnrollments')
 
