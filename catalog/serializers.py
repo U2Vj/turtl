@@ -3,6 +3,7 @@ import re
 
 from django.core.exceptions import ObjectDoesNotExist
 from dockerfile_parse import DockerfileParser
+from drf_writable_nested.serializers import WritableNestedModelSerializer
 from rest_framework import serializers
 
 from authentication.models import User
@@ -10,8 +11,7 @@ from authentication.serializers import UserSerializer
 from catalog.models import (Classroom, Project, ClassroomInstructor, HelpfulResource,
                             Task, Virtualization, AcceptanceCriteria, Question, QuestionChoice,
                             Regex, Flag)
-
-from drf_writable_nested.serializers import WritableNestedModelSerializer
+from catalog.predicates import manages_classroom, manages_project
 
 
 class RegexSerializer(serializers.ModelSerializer):
@@ -182,10 +182,27 @@ class VirtualizationSerializer(serializers.ModelSerializer):
         return value
 
 
-class TaskNewSerializer(serializers.Serializer):
+class TaskNewSerializer(WritableNestedModelSerializer):
+    id = serializers.IntegerField(read_only=True)
     title = serializers.CharField()
     description = serializers.CharField()
-    project_id = serializers.IntegerField()
+    task_type = serializers.ChoiceField(choices=Task.TASK_TYPE_CHOICES)
+    difficulty = serializers.ChoiceField(choices=Task.DIFFICULTY_CHOICES)
+    acceptance_criteria = AcceptanceCriteriaSerializer()
+    project_id = serializers.PrimaryKeyRelatedField(source='project',
+                                                    queryset=Project.objects.all())
+
+    class Meta:
+        model = Task
+        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'acceptance_criteria', 'project_id']
+        read_only_fields = ['id']
+
+    def validate(self, data):
+        user = self.context['request'].user
+        project = data.get('project')
+        if not manages_project(user, project):
+            raise serializers.ValidationError("You are not an instructor of this project.")
+        return data
 
 
 class TaskSerializer(WritableNestedModelSerializer):
@@ -203,6 +220,8 @@ class TaskSerializer(WritableNestedModelSerializer):
 
 
 class ProjectNewSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(read_only=True)
+    title = serializers.CharField()
     classroom_id = serializers.PrimaryKeyRelatedField(source='classroom',
                                                       queryset=Classroom.objects.all())
 
@@ -210,6 +229,13 @@ class ProjectNewSerializer(serializers.ModelSerializer):
         model = Project
         fields = ['id', 'title', 'classroom_id']
         read_only_fields = ['id']
+
+    def validate(self, data):
+        user = self.context['request'].user
+        classroom = data.get('classroom')
+        if not manages_classroom(user, classroom):
+            raise serializers.ValidationError("You are not an instructor of this classroom.")
+        return data
 
 
 class ProjectDetailSerializer(WritableNestedModelSerializer):

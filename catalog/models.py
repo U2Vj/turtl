@@ -180,7 +180,7 @@ class Project(RulesModel):
     class Meta:
         rules_permissions = {
             # Only instructors managing the specific classroom can add a project
-            "add": is_authenticated & is_instructor & manages_classroom,
+            "add": is_authenticated & is_instructor,
             # All authenticated users can view projects
             "view": is_authenticated,
             # Only instructors who manage the classroom that the project belongs to can change it
@@ -188,6 +188,7 @@ class Project(RulesModel):
             # Only instructors managing the specific classroom can delete a project
             "delete": is_authenticated & is_instructor & manages_project,
         }
+        unique_together = ('title', 'classroom',)
 
 
 class Task(RulesModel):
@@ -239,7 +240,7 @@ class Task(RulesModel):
     class Meta:
         rules_permissions = {
             # Instructors can only add tasks if they manage the classroom associated with the project of the task
-            "add": is_authenticated & is_instructor & manages_project,
+            "add": is_authenticated & is_instructor,
             # Tasks can be viewed by all authenticated users
             "view": is_authenticated,
             # Editing a task is restricted to instructors managing the related classroom
