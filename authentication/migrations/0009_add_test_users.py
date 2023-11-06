@@ -19,12 +19,18 @@ def add_test_users(apps, schema_editor):
     User.objects.create(email='student5@localhost', password=hashed_student_password, role='STUDENT')
 
     # Create test instructors
-    User.objects.create(email='instructor@localhost', password=hashed_instructor_password, role='INSTRUCTOR')
+    User.objects.create(
+        email='instructor@localhost',
+        username='Prof. Dr. Test Instructor',
+        password=hashed_instructor_password,
+        role='INSTRUCTOR'
+    )
     User.objects.create(email='instructor2@localhost', password=hashed_instructor_password, role='INSTRUCTOR')
     User.objects.create(email='instructor3@localhost', password=hashed_instructor_password, role='INSTRUCTOR')
 
     # Create test administrator
     User.objects.create(email='admin@localhost', password=hashed_admin_password, role='ADMINISTRATOR')
+
 
 class Migration(migrations.Migration):
     dependencies = [
