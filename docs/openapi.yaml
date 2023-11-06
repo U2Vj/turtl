@@ -13,6 +13,8 @@ tags:
   - name: Tasks
   - name: Users
     description: User actions (login, logout, update profile etc.)
+  - name: Enrollments
+    description: Actions related to enrolling in a Classroom
 paths:
   /catalog/classrooms:
     get:
@@ -465,7 +467,7 @@ paths:
       description: This endpoint is used to log in a User.
       # does not require authentication
       security:
-        - []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -521,7 +523,7 @@ paths:
       description: This endpoint is used to refresh a User's access token. Because it is intended to refresh expired access tokens, it does not require authentication via the HTTP Authentication header.
       # does not require authentication
       security:
-        - []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -549,7 +551,7 @@ paths:
                    token.
       # does not require authentication
       security:
-        - []
+        - bearerAuth: []
       requestBody:
         required: true
         content:
@@ -636,6 +638,115 @@ paths:
           $ref: '#/components/responses/InvalidAccessToken'
         '403':
           $ref: '#/components/responses/NoAccessToken'
+  /enrollments/my:
+    get:
+      tags:
+        - Enrollments
+      summary: List all Enrollments of the current User
+      description: This endpoint returns a list of all Enrollments of the current User. It is available to all signed-in Users of TURTL.
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Enrollment'
+        '401':
+          $ref: '#/components/responses/InvalidAccessToken'
+        '403':
+          $ref: '#/components/responses/NoAccessToken'
+    post:
+      tags:
+        - Enrollments
+      summary: Enroll current User in a Classroom
+      description: This endpoint is used to enroll the current User in a Classroom. It is available to all signed-in Users of TURTL.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                classroom:
+                  type: integer
+                  description: The ID of the Classroom the User wants to enroll in.
+                  example: 1
+      responses:
+        '201':
+          description: 'Created: The Enrollment has been created successfully.'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+        '400':
+          description: 'Bad Request: You are already enrolled in this classroom.'
+          content:
+            application/json:
+              example: {
+                "errors": {
+                  "classroom_id": [
+                    "You are already enrolled in this classroom."
+                  ]
+                }
+              }
+        '401':
+          $ref: '#/components/responses/InvalidAccessToken'
+        '403':
+          $ref: '#/components/responses/NoAccessToken'
+        '404':
+          $ref: '#/components/responses/EnrollmentClassroomNotFound'
+  /enrollments/{id}:
+    get:
+      tags:
+        - Enrollments
+      summary: View Enrollment
+      description: 'This endpoint returns an Enrollment. It is accessible to signed-in Users of TURTL and only shows
+                    enrollments associated with the requesting user''s account.'
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: The ID of the target Enrollment
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: 'OK'
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Enrollment'
+        '401':
+          $ref: '#/components/responses/InvalidAccessToken'
+        '403':
+          $ref: '#/components/responses/NoAccessToken'
+        '404':
+          $ref: '#/components/responses/EnrollmentClassroomNotFound'
+    delete:
+        tags:
+            - Enrollments
+        summary: Delete Enrollment
+        description: 'This endpoint is used to delete an existing Enrollment. It is available to all signed-in Users of
+                      TURTL. Admin users have the ability to delete any enrollment, while other users can only delete
+                      their own enrollments.'
+        parameters:
+            - name: id
+              in: path
+              required: true
+              description: The ID of the target Enrollment
+              schema:
+                type: integer
+        responses:
+            '204':
+              $ref: '#/components/responses/SuccessfulDeletion'
+            '401':
+              $ref: '#/components/responses/InvalidAccessToken'
+            '403':
+              $ref: '#/components/responses/NoAccessToken'
+            '404':
+              $ref: '#/components/responses/EnrollmentNotFound'
 components:
   schemas:
     ListClassrooms:
@@ -677,6 +788,11 @@ components:
           readOnly: true
           description: Timestamp of when the Classroom has been last updated.
           example: "2023-09-19T09:09:42.509748Z"
+        instructors:
+          type: array
+          description: The Instructors that manage this Classroom.
+          items:
+            $ref: "#/components/schemas/Instructor"
     ClassroomDetail:
       type: object
       properties:
@@ -1020,7 +1136,7 @@ components:
           readOnly: true
           description: Email address of the current User. Cannot be changed, hence it is read-only.
           example: "user@example.com"
-        role_display:
+        role:
           type: string
           readOnly: true
           description: A display-friendly string describing the current User's role. Cannot be changed here, hence it is read-only.
@@ -1053,6 +1169,44 @@ components:
           required: false
           description: Has to be equal to the new password. Required when new_password is present, ignored otherwise.
           example: "123456789"
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: ID of the current User
+          example: 12
+        email:
+          type: string
+          readOnly: true
+          description: Email address of the current User. Cannot be changed, hence it is read-only.
+          example: "user@example.com"
+        username:
+          type: string
+          nullable: true
+          required: false
+          description: Username, optional. Null by default. To remove a User's username, set it to null.
+          minLength: 2
+          maxLength: 128
+          example: "John Doe"
+    Enrollment:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+          description: ID of the Enrollment
+          example: 1
+        classroom:
+          $ref: '#/components/schemas/ClassroomShort'
+        student:
+          $ref: '#/components/schemas/User'
+        date_enrolled:
+          type: string
+          readOnly: true
+          description: Timestamp of when the Student was enrolled
+          example: "2023-09-19T11:42:48.129472Z"
     NoPermission:
       type: object
       properties:
@@ -1201,6 +1355,18 @@ components:
                 enum:
                   - token_not_valid
                 example: "token_not_valid"
+    EnrollmentNotFound:
+      description: 'Not Found: This response is returned when no Enrollment exists with the specified ID.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFound'
+    EnrollmentClassroomNotFound:
+      description: 'Not Found: This response is returned when no Classroom exists with the specified ID.'
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotFound'
   securitySchemes:
     bearerAuth:
       type: http
