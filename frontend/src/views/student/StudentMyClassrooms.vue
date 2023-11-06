@@ -48,7 +48,7 @@ const items = ref([
   <DefaultLayout>
     <template #heading>My Classrooms</template>
     <template #postHeadingButton>
-      <PrimaryButton buttonName="Join Classroom" goTo="/allclassrooms-stud"> </PrimaryButton>
+      <PrimaryButton buttonName="Join Classroom" goTo="/student/classrooms/all"> </PrimaryButton>
     </template>
     <template #default>
       <v-row>
