@@ -2,46 +2,40 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import { ref } from 'vue'
+import { useEnrollmentStore } from '@/stores/EnrollmentStore'
+import dayjs from 'dayjs'
+import { ref, toRef } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
-const items = ref([
-  {
-    id: '1',
-    room: 'Brute-Force',
-    role: 'Attack',
-    description: 'testtext',
-    progress: 33,
-    manager_name: 'Frank Doe',
-    completed: true
-  },
-  {
-    id: '2',
-    room: 'Man in the middle',
-    role: 'Defense',
-    description: 'testtext',
-    progress: 33,
-    manager_name: 'Jan Doe',
-    completed: false
-  },
-  {
-    id: '3',
-    room: 'Computer Networks',
-    role: 'Attack',
-    description: 'testtext',
-    progress: 100,
-    manager_name: 'Tom Doe',
-    completed: false
-  },
-  {
-    id: '4',
-    room: 'Firewall',
-    role: 'Defense',
-    description: 'testtext',
-    progress: 50,
-    manager_name: 'John Doe',
-    completed: false
-  }
-])
+const progress = 33
+
+const router = useRouter()
+
+const enrollmentStore = useEnrollmentStore()
+const toast = useToast()
+
+const search = ref('')
+
+let myEnrollments = toRef(enrollmentStore, 'myEnrollments')
+
+enrollmentStore.getMyEnrollments().catch((e: any) => toast.error(e.message))
+
+function getInstructor(instructors: any[]) {
+  return instructors
+    .map((instructor: any) => {
+      if (instructor.username !== null) {
+        return instructor.username
+      } else {
+        return instructor.email
+      }
+    })
+    .join(', ')
+}
+
+function formatReadableDate(date: string) {
+  return dayjs(date).format('DD.MM.YYYY')
+}
 </script>
 
 <template>
@@ -52,36 +46,31 @@ const items = ref([
     </template>
     <template #default>
       <v-row>
-        <v-col v-for="item in items" :key="item.id" cols="12" xs="12" sm="6" md="4">
+        <v-col v-for="item in myEnrollments" :key="item.id" cols="12" xs="12" sm="6" md="4">
           <v-card
             :key="item.id"
-            :title="item.room"
-            :subtitle="item.manager_name"
+            :title="item.classroom.title"
+            :subtitle="getInstructor(item.classroom.instructors)"
             variant="elevated"
             class="elevation-4"
             color="cardColor"
           >
-            <v-card-text v-if="item.role === 'Attack'">
-              <v-icon icon="mdi-sword"></v-icon>
-              Role: {{ item.role }}
-            </v-card-text>
-            <v-card-text v-else>
-              <v-icon icon="mdi-shield"></v-icon>
-              Role: {{ item.role }}
+            <v-card-text>
+              Eingeschrieben am {{ formatReadableDate(item.date_enrolled) }}
             </v-card-text>
             <v-card-text>
               <v-progress-linear
                 id="probar"
-                :color="item.progress === 100 ? 'finished' : 'progress'"
+                color="progress"
                 :height="25"
-                :model-value="item.progress"
+                :model-value="progress"
                 rounded
                 rounded-bar
                 bg-color="#ffffff"
                 bg-opacity="1"
               >
                 <template #default>
-                  <strong>{{ Math.ceil(item.progress) }}%</strong>
+                  <strong>{{ Math.ceil(progress) }}%</strong>
                 </template>
               </v-progress-linear>
             </v-card-text>

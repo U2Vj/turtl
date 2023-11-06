@@ -1,8 +1,8 @@
-import {defineStore} from 'pinia'
-import type {User} from '@/stores/UserStore'
-import {ref} from 'vue/dist/vue'
-import type {ClassroomShort} from '@/stores/CatalogStore'
-import {makeAPIRequest} from '@/communication/APIRequests'
+import { makeAPIRequest } from '@/communication/APIRequests'
+import type { ClassroomShort } from '@/stores/CatalogStore'
+import type { User } from '@/stores/UserStore'
+import { defineStore } from 'pinia'
+import { ref } from 'vue'
 
 export type EnrollmentShort = {
   id: number
@@ -21,15 +21,9 @@ export const useEnrollmentStore = defineStore('invitation', () => {
   }
 
   async function enroll(classroomId: number) {
-    const response = await makeAPIRequest(
-      '/enrollments/my',
-      'POST',
-      true,
-      true,
-      {
-        classroom: classroomId
-      }
-    )
+    const response = await makeAPIRequest('/enrollments/my', 'POST', true, true, {
+      classroom: classroomId
+    })
     return response.data as EnrollmentShort
   }
 
