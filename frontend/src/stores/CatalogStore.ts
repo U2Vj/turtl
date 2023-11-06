@@ -4,7 +4,7 @@ import { ClassroomNotLoadedError } from '@/stores/exceptions'
 import { defineStore } from 'pinia'
 import { ref, toRaw } from 'vue'
 
-type ClassroomShort = {
+export type ClassroomShort = {
   id: number
   title: string
   created_at: string
