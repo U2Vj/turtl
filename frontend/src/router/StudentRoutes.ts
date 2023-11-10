@@ -16,14 +16,25 @@ export const studentRoutes = [
     component: StudentMyClassrooms
   },
   {
-    path: '/student/classrooms/:classroomId',
+    path: '/student/classrooms/:enrollmentId',
     name: 'StudentClassroom',
-    component: StudentClassroom
+    component: StudentClassroom,
+    props: (route: any) => {
+      return {
+        enrollmentId: Number.parseInt(route.params.enrollmentId)
+      }
+    }
   },
   {
-    path: '/student/classrooms/:classroomId/tasks/:taskId',
+    path: '/student/classrooms/:enrollmentId/tasks/:taskId',
     name: 'StudentTask',
-    component: StudentTask
+    component: StudentTask,
+    props: (route: any) => {
+      return {
+        enrollmentId: Number.parseInt(route.params.enrollmentId),
+        taskId: Number.parseInt(route.params.taskId)
+      }
+    }
   },
   {
     path: '/student/classrooms/all',
