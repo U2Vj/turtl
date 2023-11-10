@@ -2,6 +2,15 @@
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import { ref } from 'vue'
+import ErrorButton from '@/components/buttons/ErrorButton.vue'
+import {useEnrollmentStore} from '@/stores/EnrollmentStore'
+import {useToast} from 'vue-toastification'
+import {useRouter} from 'vue-router'
+
+const props = defineProps<{ enrollmentId: number }>()
+const enrollmentStore = useEnrollmentStore()
+const toast = useToast()
+const router = useRouter()
 
 const tab = ref(null)
 const classroom = ref({
@@ -242,6 +251,14 @@ function openResourceLink(link: string) {
     window.open(link, '_blank')
   }
 }
+
+function unenroll() {
+  enrollmentStore.unenroll(props.enrollmentId).then(async () => {
+    // TODO: add classroom name
+    toast.info("You have unenrolled from this classroom")
+    await router.push({ name: 'StudentMyClassrooms' })
+  }).catch((e) => toast.error(e.message))
+}
 </script>
 
 <template>
@@ -315,19 +332,6 @@ function openResourceLink(link: string) {
                     </v-card-text>
                   </v-card>
                 </div>
-                <div class="mt-5">
-                  <v-card variant="flat" color="cardColor" class="elevation-4">
-                    <v-card-title>Helpful Resources</v-card-title>
-                    <v-card-text>
-                      <div v-for="resource in classroom.helpfulResources">
-                        <TextButton
-                          :button-name="resource.name"
-                          @click="openResourceLink(resource.link)"
-                        ></TextButton>
-                      </div>
-                    </v-card-text>
-                  </v-card>
-                </div>
               </v-col>
               <v-col cols="6">
                 <div>
@@ -373,6 +377,35 @@ function openResourceLink(link: string) {
                           >
                         </template>
                       </v-progress-linear>
+                    </v-card-text>
+                  </v-card>
+                </div>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col cols="6">
+                <div class="mt-5">
+                  <v-card variant="flat" color="cardColor" class="elevation-4">
+                    <v-card-title>Helpful Resources</v-card-title>
+                    <v-card-text>
+                      <div v-for="resource in classroom.helpfulResources">
+                        <TextButton
+                          :button-name="resource.name"
+                          @click="openResourceLink(resource.link)"
+                        ></TextButton>
+                      </div>
+                    </v-card-text>
+                  </v-card>
+                </div>
+              </v-col>
+              <v-col cols="6">
+                <div class="mt-5">
+                  <v-card variant="flat" color="cardColor" class="elevation-4">
+                    <v-card-title>Unenroll</v-card-title>
+                    <v-card-subtitle>Unenroll from this classroom</v-card-subtitle>
+                    <v-card-text>
+                      <!-- TODO: add modal -->
+                      <ErrorButton @click="unenroll">Unenroll</ErrorButton>
                     </v-card-text>
                   </v-card>
                 </div>
