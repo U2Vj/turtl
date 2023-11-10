@@ -9,7 +9,7 @@ urlpatterns = [
         'get': 'list',
         'post': 'create',
     })),
-    path('my/<int:pk>', EnrollmentViewSet.as_view({
+    path('<int:pk>', EnrollmentViewSet.as_view({
         'get': 'retrieve',
         'delete': 'destroy'
     })),
