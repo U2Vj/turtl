@@ -28,7 +28,7 @@ enrollmentStore.getMyEnrollments().catch((e: any) => toast.error(e.message))
 async function join(id: number) {
   try {
     const enrollment = await enrollmentStore.enroll(id)
-    await router.push({ name: 'StudentClassroom', params: { classroomId: enrollment.id }})
+    await router.push({ name: 'StudentClassroom', params: { enrollmentId: enrollment.id }})
     showDialog.value = false
   } catch (e: any) {
     toast.error(e.message)
