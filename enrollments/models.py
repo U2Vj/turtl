@@ -3,7 +3,9 @@ from rules import is_authenticated
 from rules.contrib.models import RulesModel
 
 from authentication.models import User
+from authentication.predicates import is_instructor
 from catalog.models import Classroom, Task
+from enrollments.predicates import owns_enrollment, manages_enrollment_classroom
 
 
 class Enrollment(RulesModel):
@@ -20,8 +22,8 @@ class Enrollment(RulesModel):
         unique_together = ('classroom', 'student',)
         rules_permissions = {
             "add": is_authenticated,
-            "view": is_authenticated,
-            "delete": is_authenticated,
+            "view": is_authenticated & (owns_enrollment | (is_instructor & manages_enrollment_classroom)),
+            "delete": is_authenticated & (owns_enrollment | (is_instructor & manages_enrollment_classroom)),
         }
 
 
