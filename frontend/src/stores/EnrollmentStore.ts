@@ -28,7 +28,7 @@ export const useEnrollmentStore = defineStore('invitation', () => {
   }
 
   async function unenroll(enrollmentId: number) {
-    await makeAPIRequest(`/enrollments/${id}`, 'DELETE', true, true)
+    await makeAPIRequest(`/enrollments/${enrollmentId}`, 'DELETE', true, true)
   }
 
   return {
