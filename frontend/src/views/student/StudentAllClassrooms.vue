@@ -3,13 +3,13 @@ import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref, toRef } from 'vue'
-import { useRouter } from 'vue-router'
+import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import EnrollModal from '@/components/modals/EnrollModal.vue'
-
-const router = useRouter()
+import {useEnrollmentStore} from '@/stores/EnrollmentStore'
 
 const catalogStore = useCatalogStore()
+const enrollmentStore = useEnrollmentStore()
 const toast = useToast()
 
 const search = ref('')
@@ -17,6 +17,13 @@ const search = ref('')
 let classroomList = toRef(catalogStore, 'classroomList')
 
 catalogStore.getClassroomList().catch((e) => toast.error(e.message))
+
+const enrolledClassrooms: Ref<number[]> = ref([])
+enrollmentStore.getMyEnrollments().then((enrollments) => {
+  enrollments.forEach((enrollment) => {
+    enrolledClassrooms.value.push(enrollment.classroom.id)
+  })
+}).catch((e) => toast.error(e.message))
 
 function getInstructor(instructors: any[]) {
   return instructors
@@ -67,7 +74,7 @@ function getInstructor(instructors: any[]) {
         :search="search"
       >
         <template #[`item.link`]="{ item }">
-          <TextButton buttonName="Enroll">
+          <TextButton buttonName="Enroll" :disabled="enrolledClassrooms.includes(item.raw.id)">
             <EnrollModal :title="item.raw.title" :id="item.raw.id" />
           </TextButton>
         </template>
