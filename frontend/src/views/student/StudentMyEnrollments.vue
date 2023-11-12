@@ -37,10 +37,10 @@ function formatReadableDate(date: string) {
   <DefaultLayout>
     <template #heading>My Classrooms</template>
     <template #postHeadingButton>
-      <PrimaryButton buttonName="Join Classroom" goTo="/student/classrooms/all"> </PrimaryButton>
+      <PrimaryButton go-to="/student/classrooms/all">Enroll</PrimaryButton>
     </template>
     <template #default>
-      <v-row>
+      <v-row class="mt-1">
         <v-col v-for="enrollment in myEnrollments" :key="enrollment.id" cols="12" xs="12" sm="6" md="4">
           <v-card
             :key="enrollment.id"
