@@ -81,7 +81,7 @@ export const useEnrollmentStore = defineStore('invitation', () => {
   async function getMyEnrollments() {
     const response = await makeAPIRequest('/enrollments/my', 'GET', true, true)
     myEnrollments.value = response.data
-    return myEnrollments.value
+    return response.data as EnrollmentShort[]
   }
 
   async function enroll(classroomId: number) {
