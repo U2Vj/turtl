@@ -100,7 +100,7 @@ type ClassroomInstructor = {
   added_by?: User
 }
 
-type HelpfulResource = {
+export type HelpfulResource = {
   id?: number
   title: string
   url: string

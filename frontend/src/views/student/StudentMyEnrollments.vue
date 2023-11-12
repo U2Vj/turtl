@@ -70,7 +70,7 @@ function formatReadableDate(date: string) {
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <SecundaryButton buttonName="Visit Classroom" class="d-flex flex-fill elevation-2" :go-to="`/student/classrooms/${enrollment.id}`">
+              <SecundaryButton buttonName="Visit Classroom" class="d-flex flex-fill elevation-2" :go-to="`/student/enrollment/${enrollment.id}`">
               </SecundaryButton>
             </v-card-actions>
           </v-card>

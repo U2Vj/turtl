@@ -19,7 +19,7 @@ function handleLogout() {
     <v-app-bar sticky color="cardColor" class="elevation-4">
       <div class="flex-grow-1">
         <v-btn to="/student/dashboard">S Dashboard</v-btn>
-        <v-btn to="/student/classrooms">S My Classrooms</v-btn>
+        <v-btn to="/student/enrollments">S My Classrooms</v-btn>
         <v-btn to="/student/classrooms/all">S All Classrooms</v-btn>
         <v-btn to="/instructor/classrooms">I Classrooms</v-btn>
       </div>
