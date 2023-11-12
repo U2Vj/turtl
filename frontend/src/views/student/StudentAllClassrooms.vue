@@ -7,6 +7,7 @@ import type { Ref } from 'vue'
 import { useToast } from 'vue-toastification'
 import EnrollModal from '@/components/modals/EnrollModal.vue'
 import {useEnrollmentStore} from '@/stores/EnrollmentStore'
+import type {EnrollmentShort} from '@/stores/EnrollmentStore'
 
 const catalogStore = useCatalogStore()
 const enrollmentStore = useEnrollmentStore()
@@ -19,10 +20,12 @@ let classroomList = toRef(catalogStore, 'classroomList')
 catalogStore.getClassroomList().catch((e) => toast.error(e.message))
 
 const enrolledClassrooms: Ref<number[]> = ref([])
+const myEnrollments: Ref<EnrollmentShort[]> = ref([])
 enrollmentStore.getMyEnrollments().then((enrollments) => {
   enrollments.forEach((enrollment) => {
     enrolledClassrooms.value.push(enrollment.classroom.id)
   })
+  myEnrollments.value = enrollments
 }).catch((e) => toast.error(e.message))
 
 function getInstructor(instructors: any[]) {
@@ -73,8 +76,19 @@ function getInstructor(instructors: any[]) {
         :items="classroomList"
         :search="search"
       >
+        <template #[`item.title`]="{ item }">
+          {{ item.raw.title }}
+          <small class="text-grey" v-if="enrolledClassrooms.includes(item.raw.id)">
+            <em>(already enrolled)</em>
+          </small>
+        </template>
         <template #[`item.link`]="{ item }">
-          <TextButton buttonName="Enroll" :disabled="enrolledClassrooms.includes(item.raw.id)">
+          <template v-if="enrolledClassrooms.includes(item.raw.id)">
+            <TextButton :go-to="`/student/enrollments/${myEnrollments[enrolledClassrooms.indexOf(item.raw.id)].id}`">
+              Visit
+            </TextButton>
+          </template>
+          <TextButton buttonName="Enroll" v-else>
             <EnrollModal :title="item.raw.title" :id="item.raw.id" />
           </TextButton>
         </template>
