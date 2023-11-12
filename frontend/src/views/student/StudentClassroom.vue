@@ -70,7 +70,7 @@ function unenroll() {
                     <div v-for="task in project.tasks" :key="task.id">
                       <TextButton
                         :button-name="task.title"
-                        :go-to="`/student/enrollment/${enrollmentId}/task/${task.id}`"
+                        :go-to="`/student/enrollments/${enrollmentId}/tasks/${task.id}`"
                       ></TextButton>
                       <!--<v-icon
                         v-if="task.done === true"

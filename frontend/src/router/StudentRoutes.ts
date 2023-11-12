@@ -16,7 +16,7 @@ export const studentRoutes = [
     component: StudentMyEnrollments
   },
   {
-    path: '/student/enrollment/:enrollmentId',
+    path: '/student/enrollments/:enrollmentId',
     name: 'StudentClassroom',
     component: StudentClassroom,
     props: (route: any) => {
@@ -26,7 +26,7 @@ export const studentRoutes = [
     }
   },
   {
-    path: '/student/enrollment/:enrollmentId/task/:taskId',
+    path: '/student/enrollments/:enrollmentId/tasks/:taskId',
     name: 'StudentTask',
     component: StudentTask,
     props: (route: any) => {
