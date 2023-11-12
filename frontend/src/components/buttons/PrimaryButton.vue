@@ -4,6 +4,7 @@ defineProps<{
   buttonName?: string
   goTo?: string
   buttonType?: string
+  href?: string
 }>()
 </script>
 
@@ -15,6 +16,7 @@ defineProps<{
     :append-icon="appendIcon"
     :to="goTo"
     :type="buttonType"
+    :href="href"
   >
     <slot></slot>
     {{ buttonName }}

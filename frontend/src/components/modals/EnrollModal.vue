@@ -21,13 +21,10 @@ const router = useRouter()
 const enrollmentStore = useEnrollmentStore()
 const toast = useToast()
 
-let myEnrollments = toRef(enrollmentStore, 'myEnrollments')
-
-enrollmentStore.getMyEnrollments().catch((e: any) => toast.error(e.message))
-
-async function join(id: number) {
+async function enroll(id: number) {
   try {
     const enrollment = await enrollmentStore.enroll(id)
+    toast.success(`You have enrolled in the classroom ‘${props.title}’.`)
     await router.push({ name: 'StudentClassroom', params: { enrollmentId: enrollment.id }})
     showDialog.value = false
   } catch (e: any) {
@@ -38,11 +35,14 @@ async function join(id: number) {
 <template>
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
-      <v-card-title> Join the classroom: {{ props.title }} </v-card-title>
+      <v-card-title>Enroll</v-card-title>
+      <v-card-text>
+        <p>Do you want to enroll in the classroom &lsquo;{{ props.title }}&rsquo;?</p>
+      </v-card-text>
       <v-card-actions>
         <v-spacer></v-spacer>
         <TextButton buttonName="Cancel" @click="close"></TextButton>
-        <PrimaryButton buttonName="Join Classroom" @click="join(props.id)"> </PrimaryButton>
+        <PrimaryButton @click="enroll(props.id)">Enroll</PrimaryButton>
       </v-card-actions>
     </v-card>
   </v-dialog>
