@@ -4,6 +4,7 @@ import type { User } from '@/stores/UserStore'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import {AcceptanceCriteriaType, QuestionType, TaskDifficulty, TaskType} from '@/stores/CatalogStore'
+import {EnrollmentNotLoadedError} from '@/stores/exceptions'
 
 export type EnrollmentShort = {
   id: number
@@ -42,7 +43,7 @@ type AcceptanceCriteriaStudent = {
   regexes?: RegExStudent[]
 }
 
-type TaskStudent = {
+export type TaskStudent = {
   id: number
   title: string
   description: string
@@ -101,12 +102,29 @@ export const useEnrollmentStore = defineStore('invitation', () => {
     return enrollment.value
   }
 
+  function getTask(targetTaskId: number): TaskStudent | undefined {
+    if(!enrollment.value) {
+      throw new EnrollmentNotLoadedError('Cannot get task: No enrollment was loaded yet')
+    }
+    let targetTask
+    enrollment.value.classroom.projects.forEach((project) => {
+      project.tasks.forEach((task) => {
+        if (task.id === targetTaskId) {
+          targetTask = task
+          return
+        }
+      })
+    })
+    return targetTask
+  }
+
   return {
     myEnrollments,
     enrollment,
     getMyEnrollments,
     enroll,
     unenroll,
-    getEnrollment
+    getEnrollment,
+    getTask
   }
 })
