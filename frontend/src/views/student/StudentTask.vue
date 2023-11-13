@@ -2,20 +2,31 @@
 import Shell from '@/components/ShellView.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import { ref } from 'vue'
+import type {TaskStudent} from '@/stores/EnrollmentStore'
+import type {Ref} from 'vue'
+import {ref} from 'vue'
+import {useEnrollmentStore} from '@/stores/EnrollmentStore'
+import {useToast} from 'vue-toastification'
 
-const taskDescription = ref(
-  'Text that explains the task. Get the code and enter it in the field below. Text that explains the task. Get the code and enter it in the field below.'
-)
+const props = defineProps<{ enrollmentId: number, taskId: number }>()
+
+const task: Ref<TaskStudent | undefined> = ref()
+const enrollmentStore = useEnrollmentStore()
+const toast = useToast()
+
+enrollmentStore.getEnrollment(props.enrollmentId).then(() => {
+  task.value = enrollmentStore.getTask(props.taskId)
+}).catch((e) => toast.error(e.message))
+
 </script>
 
 <template>
-  <DefaultLayout>
-    <template #heading>Task 1</template>
+  <DefaultLayout v-if="task">
+    <template #heading>{{ task.title }}</template>
     <template #default>
       <v-row>
         <v-col cols="12">
-          {{ taskDescription }}
+          {{ task.description }}
         </v-col>
       </v-row>
       <v-row>
