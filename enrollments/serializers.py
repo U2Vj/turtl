@@ -83,6 +83,15 @@ class EnrollmentDetailSerializer(serializers.ModelSerializer):
         read_only_fields = ['id', 'classroom', 'student', 'date_enrolled']
 
 
+class EnrollmentUserSerializer(serializers.ModelSerializer):
+    student = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Enrollment
+        fields = ['id', 'student', 'date_enrolled']
+        read_only_fields = ['id', 'student', 'date_enrolled']
+
+
 class TaskSolutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskSolution
