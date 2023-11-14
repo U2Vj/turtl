@@ -12,6 +12,7 @@ from catalog.models import (Classroom, Project, ClassroomInstructor, HelpfulReso
                             Task, Virtualization, AcceptanceCriteria, Question, QuestionChoice,
                             Regex, Flag)
 from catalog.predicates import manages_classroom, manages_project
+from enrollments.models import TaskSolution
 
 
 class RegexSerializer(serializers.ModelSerializer):
@@ -213,10 +214,21 @@ class TaskSerializer(WritableNestedModelSerializer):
     difficulty = serializers.ChoiceField(choices=Task.DIFFICULTY_CHOICES)
     virtualizations = VirtualizationSerializer(many=True)
     acceptance_criteria = AcceptanceCriteriaSerializer()
+    done = serializers.BooleanField(read_only=True, required=False, default=False)
+    date_submitted = serializers.DateTimeField(read_only=True, required=False, allow_null=True, default=None)
+
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        del representation['done']
+        del representation['date_submitted']
+
+        return representation
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'virtualizations', 'acceptance_criteria']
+        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'virtualizations', 'acceptance_criteria',
+                  'done', 'date_submitted']
 
 
 class ProjectNewSerializer(serializers.ModelSerializer):
