@@ -2,8 +2,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from authentication.serializers import UserSerializer
-from catalog.models import Classroom
-from catalog.serializers import ClassroomSerializer, ClassroomDetailSerializer
+from catalog.models import Classroom, Regex, Flag, Question, QuestionChoice
+from catalog.serializers import ClassroomSerializer, ClassroomDetailSerializer, RegexSerializer, FlagSerializer, \
+    QuestionSerializer, QuestionChoiceSerializer
 from .models import Enrollment, TaskSolution
 
 
@@ -97,3 +98,21 @@ class TaskSolutionSerializer(serializers.ModelSerializer):
         model = TaskSolution
         fields = ['id', 'enrollment', 'task']
         read_only_fields = ['id', 'enrollment', 'task']
+
+
+class RegexSolutionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    solution = serializers.CharField()
+
+
+class FlagSolutionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    solution = serializers.CharField()
+
+
+class QuestionSolutionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    selected_choices = serializers.ListField(
+        child=serializers.IntegerField(),
+        allow_empty=False
+    )
