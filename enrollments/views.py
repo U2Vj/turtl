@@ -3,14 +3,14 @@ import re
 from django.db.models import Prefetch
 from rest_framework import status
 from rest_framework.decorators import action
-from rest_framework.exceptions import NotFound
+from rest_framework.exceptions import NotFound, ValidationError
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.viewsets import ModelViewSet
 from rules.contrib.rest_framework import AutoPermissionViewSetMixin
 
-from catalog.models import Classroom
+from catalog.models import Classroom, Question
 from catalog.models import Task, QuestionChoice
 from catalog.predicates import manages_classroom
 from .models import Enrollment

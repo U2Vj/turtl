@@ -2,8 +2,9 @@ from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
 
 from authentication.serializers import UserSerializer
-from catalog.models import Classroom
-from catalog.serializers import ClassroomSerializer, ClassroomDetailSerializer
+from catalog.models import Classroom, Regex, Flag, Question, QuestionChoice
+from catalog.serializers import ClassroomSerializer, ClassroomDetailSerializer, RegexSerializer, FlagSerializer, \
+    QuestionSerializer, QuestionChoiceSerializer
 from .models import Enrollment, TaskSolution
 
 
