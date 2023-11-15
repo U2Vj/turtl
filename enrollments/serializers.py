@@ -97,3 +97,21 @@ class TaskSolutionSerializer(serializers.ModelSerializer):
         model = TaskSolution
         fields = ['id', 'enrollment', 'task']
         read_only_fields = ['id', 'enrollment', 'task']
+
+
+class RegexSolutionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    solution = serializers.CharField()
+
+
+class FlagSolutionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    solution = serializers.CharField()
+
+
+class QuestionSolutionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    selected_choices = serializers.ListField(
+        child=serializers.IntegerField(),
+        allow_empty=False
+    )
