@@ -1,7 +1,7 @@
 from django.urls import path
 
 from .views import EnrollmentViewSet, EnrollmentDetailViewSet, ClassroomEnrollmentListView
-from .views import TaskSolutionVerificationView
+from .views import TaskSubmissionView
 
 app_name = 'enrollments'
 
@@ -18,7 +18,7 @@ urlpatterns = [
     path('for-classroom/<int:pk>', ClassroomEnrollmentListView.as_view({
         'get': 'list_enrollments'
     }), name='classroom-enrollments'),
-    path('<int:enrollment_id>/tasks/<int:task_id>/solve', TaskSolutionVerificationView.as_view({
+    path('<int:enrollment_id>/tasks/<int:task_id>/submit', TaskSubmissionView.as_view({
         'post': 'create'
     }), name='verify_task_solution')
 ]
