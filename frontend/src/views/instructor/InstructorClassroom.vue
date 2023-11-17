@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { makeAPIRequest } from '@/communication/APIRequests'
 import ProjectCard from '@/components/ProjectCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
@@ -10,10 +11,8 @@ import AddProjectModal from '@/components/modals/AddProjectModal.vue'
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import dayjs from 'dayjs'
-import { ref, toRaw, toRef } from 'vue'
+import { onMounted, ref, toRaw, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
-
-import { makeAPIRequest } from '@/communication/APIRequests'
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
@@ -74,9 +73,6 @@ function editClassroomTitle(newTitle: string) {
       toast.error(e.message)
     })
 }
-
-// ----------------------------------
-import { onMounted } from 'vue'
 
 async function getEnrolledStudents(classroomId: number) {
   try {
