@@ -2,9 +2,11 @@
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import {EnrollmentShort, useEnrollmentStore} from '@/stores/EnrollmentStore'
+import type { EnrollmentShort } from '@/stores/EnrollmentStore'
+import { useEnrollmentStore } from '@/stores/EnrollmentStore'
 import dayjs from 'dayjs'
-import {Ref, toRef} from 'vue'
+import type { Ref } from 'vue'
+import { toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
 const progress = 33
@@ -41,7 +43,14 @@ function formatReadableDate(date: string) {
     </template>
     <template #default>
       <v-row class="mt-1">
-        <v-col v-for="enrollment in myEnrollments" :key="enrollment.id" cols="12" xs="12" sm="6" md="4">
+        <v-col
+          v-for="enrollment in myEnrollments"
+          :key="enrollment.id"
+          cols="12"
+          xs="12"
+          sm="6"
+          md="4"
+        >
           <v-card
             :key="enrollment.id"
             :title="enrollment.classroom.title"
@@ -70,7 +79,11 @@ function formatReadableDate(date: string) {
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <SecundaryButton buttonName="Visit Classroom" class="d-flex flex-fill elevation-2" :go-to="`/student/enrollments/${enrollment.id}`">
+              <SecundaryButton
+                buttonName="Visit Classroom"
+                class="d-flex flex-fill elevation-2"
+                :go-to="`/student/enrollments/${enrollment.id}`"
+              >
               </SecundaryButton>
             </v-card-actions>
           </v-card>
