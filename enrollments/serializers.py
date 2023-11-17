@@ -95,8 +95,8 @@ class EnrollmentUserSerializer(serializers.ModelSerializer):
 class TaskSolutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskSolution
-        fields = ['id', 'enrollment', 'task']
-        read_only_fields = ['id', 'enrollment', 'task']
+        fields = ['id', 'enrollment', 'task', 'date_submitted']
+        read_only_fields = ['id', 'enrollment', 'task', 'date_submitted']
 
 
 class RegexSubmissionSerializer(serializers.Serializer):
@@ -111,7 +111,10 @@ class FlagSubmissionSerializer(serializers.Serializer):
 
 class QuestionSubmissionSerializer(serializers.Serializer):
     id = serializers.IntegerField()
-    selected_choices = serializers.ListField(
-        child=serializers.IntegerField(),
-        allow_empty=False
-    )
+    selected_choices = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+
+
+class TaskSubmissionSerializer(serializers.Serializer):
+    regexes = RegexSubmissionSerializer(many=True)
+    flags = FlagSubmissionSerializer(many=True)
+    questions = QuestionSubmissionSerializer(many=True)
