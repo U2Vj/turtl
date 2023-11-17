@@ -124,15 +124,10 @@ def task_submission_view(request, enrollment_id, task_id):
     flag_submission = {item['id']: item for item in serializer.validated_data['flags']}
     question_submission = {item['id']: item for item in serializer.validated_data['questions']}
 
-    try:
-        # Ensure that the enrollment belongs to the current user
-        enrollment = Enrollment.objects.get(id=enrollment_id, student=request.user)
-        # Ensure that the task is part of the enrollment classroom
-        task = Task.objects.get(id=task_id, project__classroom=enrollment.classroom)
-    except Enrollment.DoesNotExist:
-        raise NotFound('Enrollment not found.')
-    except Task.DoesNotExist:
-        raise NotFound('Task not found.')
+    # Ensure that the enrollment belongs to the current user
+    enrollment = get_object_or_404(Enrollment, id=enrollment_id, student=request.user)
+    # Ensure that the task is part of the enrollment classroom
+    task = get_object_or_404(Task, id=task_id, project__classroom=enrollment.classroom)
 
     response_data = {
         "regexes": {},
