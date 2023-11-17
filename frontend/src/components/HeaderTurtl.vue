@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useUserStore } from '@/stores/UserStore'
 import { useRouter } from 'vue-router'
-import {useToast} from "vue-toastification";
+import { useToast } from 'vue-toastification'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -9,9 +9,8 @@ const toast = useToast()
 
 function handleLogout() {
   userStore.logout(router)
-  toast.info("You have been signed out.")
+  toast.info('You have been signed out.')
 }
-
 </script>
 
 <template>
@@ -22,6 +21,7 @@ function handleLogout() {
         <v-btn to="/student/enrollments">S My Classrooms</v-btn>
         <v-btn to="/student/classrooms/all">S All Classrooms</v-btn>
         <v-btn to="/instructor/classrooms">I Classrooms</v-btn>
+        <v-btn to="/instructor/enrollments">I My Enrollments</v-btn>
       </div>
       <template #prepend>
         <router-link to="/">

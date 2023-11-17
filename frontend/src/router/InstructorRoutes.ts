@@ -1,8 +1,9 @@
-import InstructorClassroomList from '@/views/instructor/InstructorClassroomList.vue'
 import InstructorClassroom from '@/views/instructor/InstructorClassroom.vue'
+import InstructorClassroomList from '@/views/instructor/InstructorClassroomList.vue'
+import InstructorInvitationList from '@/views/instructor/InstructorInvitationList.vue'
+import InstructorEnrollments from '@/views/instructor/InstructorMyEnrollments.vue'
+import InstructorSendInvitation from '@/views/instructor/InstructorSendInvitation.vue'
 import InstructorTask from '@/views/instructor/InstructorTask.vue'
-import InstructorSendInvitation from "@/views/instructor/InstructorSendInvitation.vue"
-import InstructorInvitationList from "@/views/instructor/InstructorInvitationList.vue"
 
 export const instructorRoutes = [
   {
@@ -40,5 +41,10 @@ export const instructorRoutes = [
     path: '/instructor/invitations/send',
     name: 'InstructorSendInvitation',
     component: InstructorSendInvitation
+  },
+  {
+    path: '/instructor/enrollments',
+    name: 'InstructorEnrollments',
+    component: InstructorEnrollments
   }
 ]
