@@ -3,6 +3,7 @@
 from django.db import migrations
 
 
+# noinspection PyPep8Naming,DuplicatedCode,SpellCheckingInspection
 def add_test_data(apps, schema_editor):
     # Fetch models
     User = apps.get_model('authentication', 'User')

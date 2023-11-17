@@ -37,6 +37,7 @@ class TaskSolution(RulesModel):
     date_submitted = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:
+        unique_together = ('enrollment', 'task',)
         rules_permissions = {
             "add": is_authenticated,
             "view": is_authenticated,

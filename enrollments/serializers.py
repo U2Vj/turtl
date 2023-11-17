@@ -63,14 +63,58 @@ class EnrollmentDetailSerializer(serializers.ModelSerializer):
     classroom = ClassroomStudentSerializer(read_only=True)
     student = UserSerializer(read_only=True)
 
+    def to_representation(self, instance):
+        representation = super().to_representation(instance)
+
+        task_solutions = TaskSolution.objects.filter(enrollment=instance).select_related('task')
+        solutions_dict = {solution.task_id: solution.date_submitted for solution in task_solutions}
+
+        for project in representation['classroom']['projects']:
+            for task in project['tasks']:
+                task_id = task['id']
+                task['done'] = task_id in solutions_dict
+                task['date_submitted'] = solutions_dict.get(task_id)
+
+        return representation
+
     class Meta:
         model = Enrollment
         fields = ['id', 'classroom', 'student', 'date_enrolled']
         read_only_fields = ['id', 'classroom', 'student', 'date_enrolled']
 
 
+class EnrollmentUserSerializer(serializers.ModelSerializer):
+    student = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Enrollment
+        fields = ['id', 'student', 'date_enrolled']
+        read_only_fields = ['id', 'student', 'date_enrolled']
+
+
 class TaskSolutionSerializer(serializers.ModelSerializer):
     class Meta:
         model = TaskSolution
-        fields = ['id', 'enrollment', 'task']
-        read_only_fields = ['id', 'enrollment', 'task']
+        fields = ['id', 'enrollment', 'task', 'date_submitted']
+        read_only_fields = ['id', 'enrollment', 'task', 'date_submitted']
+
+
+class RegexSubmissionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    solution = serializers.CharField()
+
+
+class FlagSubmissionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    solution = serializers.CharField()
+
+
+class QuestionSubmissionSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    selected_choices = serializers.ListField(child=serializers.IntegerField(), allow_empty=False)
+
+
+class TaskSubmissionSerializer(serializers.Serializer):
+    regexes = RegexSubmissionSerializer(many=True)
+    flags = FlagSubmissionSerializer(many=True)
+    questions = QuestionSubmissionSerializer(many=True)
