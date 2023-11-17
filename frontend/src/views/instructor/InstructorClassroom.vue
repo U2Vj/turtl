@@ -28,7 +28,7 @@ catalogStore.getClassroom(props.classroomId).catch((e) => {
 })
 
 const formatDate = (datetime: string) => {
-  return dayjs(datetime).format('DD.MM.YYYY HH:mm')
+  return dayjs(datetime).format('DD.MM.YYYY')
 }
 
 function deleteHelpfulResource(id: number) {
@@ -270,11 +270,15 @@ onMounted(async () => {
             <v-data-table
               :headers="[
                 { title: 'E-Mail', key: 'student.email' },
-                { title: 'Username', key: 'student.username' }
+                { title: 'Username', key: 'student.username' },
+                { title: 'Date Enrolled', key: 'date_enrolled' }
               ]"
               :items="enrolledStudents"
               item-key="id"
             >
+              <template #[`item.date_enrolled`]="{ item }">{{
+                formatDate(item.raw.date_enrolled)
+              }}</template>
             </v-data-table>
           </v-container>
         </v-window-item>
