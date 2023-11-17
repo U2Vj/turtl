@@ -77,7 +77,7 @@ function formatReadableDate(date: string) {
             </v-card-text>
             <v-card-actions>
               <SecundaryButton
-                buttonName="Visit Classroom"
+                buttonName="Edit Classroom"
                 class="d-flex flex-fill elevation-2"
                 :go-to="`/instructor/classrooms/${classroom.id}`"
               >
