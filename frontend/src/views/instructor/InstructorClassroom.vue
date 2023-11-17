@@ -87,7 +87,7 @@ async function getEnrolledStudents(classroomId: number) {
       true
     )
     return response.data
-  } catch (e) {
+  } catch (e: any) {
     toast.error(e.message)
   }
 }
