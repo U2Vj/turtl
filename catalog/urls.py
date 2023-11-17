@@ -1,16 +1,16 @@
 from django.urls import path
 
 from .views import (ProjectViewSet, ProjectDetailViewSet, TaskViewSet, TaskDetailViewSet,
-                    ClassroomViewSet, ClassroomDetailViewSet)
-
-# This file maps the api endpoints to the corresponding URLs.
-# https://docs.djangoproject.com/en/3.1/topics/http/urls/
+                    ClassroomViewSet, ClassroomDetailViewSet, MyClassroomsViewSet)
 
 app_name = 'catalog'
 urlpatterns = [
     path('classrooms', ClassroomViewSet.as_view({
         'get': 'list',
         'post': 'create'
+    })),
+    path('classrooms/my', MyClassroomsViewSet.as_view({
+        'get': 'list'
     })),
     path('classrooms/<int:pk>', ClassroomDetailViewSet.as_view({
         'get': 'retrieve',
