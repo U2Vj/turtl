@@ -1,3 +1,4 @@
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.viewsets import ModelViewSet
 from rules.contrib.rest_framework import AutoPermissionViewSetMixin
 
@@ -17,6 +18,14 @@ class ClassroomViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
         ClassroomInstructor.objects.create(instructor=self.request.user,
                                            classroom=classroom,
                                            added_by=self.request.user).save()
+
+
+class MyClassroomsViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
+    serializer_class = ClassroomSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        return self.request.user.classrooms
 
 
 class ClassroomDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
