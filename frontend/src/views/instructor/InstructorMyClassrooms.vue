@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
-import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
+import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import CreateClassroomModal from '@/components/modals/CreateClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 
 import dayjs from 'dayjs'
@@ -36,9 +37,9 @@ function formatReadableDate(date: string) {
 
 <template>
   <DefaultLayout>
-    <template #heading>My Enrollments</template>
+    <template #heading>My Classrooms</template>
     <template #postHeadingButton>
-      <PrimaryButton go-to="/student/classrooms/all">Enroll</PrimaryButton>
+      <PrimaryButton button-name="Create"> <CreateClassroomModal /> </PrimaryButton>
     </template>
     <template #default>
       <v-row class="mt-1">
@@ -76,12 +77,12 @@ function formatReadableDate(date: string) {
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <SecundaryButton
+              <SecondaryButton
                 buttonName="Edit Classroom"
                 class="d-flex flex-fill elevation-2"
                 :go-to="`/instructor/classrooms/${classroom.id}`"
               >
-              </SecundaryButton>
+              </SecondaryButton>
             </v-card-actions>
           </v-card>
         </v-col>

@@ -37,7 +37,7 @@ function formatReadableDate(date: string) {
 
 <template>
   <DefaultLayout>
-    <template #heading>My Classrooms</template>
+    <template #heading>My Enrollments</template>
     <template #postHeadingButton>
       <PrimaryButton go-to="/student/classrooms/all">Enroll</PrimaryButton>
     </template>
