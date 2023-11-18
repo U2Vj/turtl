@@ -20,17 +20,17 @@ const drawer = ref(false)
   <div>
     <v-app-bar sticky color="cardColor" class="elevation-4">
       <v-app-bar-nav-icon @click="drawer = true" class="d-flex d-sm-none"></v-app-bar-nav-icon>
-      <div v-if="userStore.isAdministrator()" class="flex-grow-1">
+      <div v-if="userStore.isAdministrator()" class="flex-grow-1 d-none d-sm-flex">
         <v-btn to="/instructor/classrooms/my">My Classrooms</v-btn>
         <v-btn to="/student/enrollments">My Enrollments</v-btn>
         <v-btn to="/instructor/invitations">Invite Users</v-btn>
       </div>
-      <div v-if="userStore.isInstructor()" class="flex-grow-1">
+      <div v-if="userStore.isInstructor()" class="flex-grow-1 d-none d-sm-flex">
         <v-btn to="/instructor/classrooms/my">My Classrooms</v-btn>
         <v-btn to="/student/enrollments">My Enrollments</v-btn>
         <v-btn to="/instructor/invitations">Invite Users</v-btn>
       </div>
-      <div v-if="userStore.isStudent()" class="flex-grow-1">
+      <div v-if="userStore.isStudent()" class="flex-grow-1 d-none d-sm-flex">
         <v-btn to="/student/enrollments">My Enrollments</v-btn>
         <v-btn to="/student/classrooms/all">All Classrooms</v-btn>
       </div>
@@ -65,7 +65,7 @@ const drawer = ref(false)
         </v-menu>
       </template>
     </v-app-bar>
-    <v-navigation-drawer v-model="drawer" absolute temporary>
+    <v-navigation-drawer v-model="drawer" absolute temporary color="cardColor">
       <v-list nav dense>
         <v-list-item-group v-if="userStore.isAdministrator()">
           <v-list-item to="/instructor/classrooms/my">
