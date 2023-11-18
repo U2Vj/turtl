@@ -90,6 +90,15 @@ function formatReadableDate(date: string) {
           <p>You have not enrolled in any classrooms yet.</p>
         </v-col>
       </v-row>
+      <v-row>
+        <v-col>
+          <p>
+            As an administrator, you can also edit all classrooms, including classrooms you do not
+            manage.
+            <router-link to="/admin/classrooms/all">View All Classrooms</router-link>
+          </p>
+        </v-col>
+      </v-row>
     </template>
   </DefaultLayout>
 </template>

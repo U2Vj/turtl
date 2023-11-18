@@ -1,16 +1,10 @@
 import InstructorClassroom from '@/views/instructor/InstructorClassroom.vue'
-import InstructorClassroomList from '@/views/instructor/InstructorClassroomList.vue'
 import InstructorInvitationList from '@/views/instructor/InstructorInvitationList.vue'
 import InstructorMyClassrooms from '@/views/instructor/InstructorMyClassrooms.vue'
 import InstructorSendInvitation from '@/views/instructor/InstructorSendInvitation.vue'
 import InstructorTask from '@/views/instructor/InstructorTask.vue'
 
 export const instructorRoutes = [
-  {
-    path: '/instructor/classrooms/all',
-    name: 'InstructorClassroomList',
-    component: InstructorClassroomList
-  },
   {
     path: '/instructor/classrooms/:classroomId',
     name: 'InstructorClassroom',
