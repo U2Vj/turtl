@@ -16,12 +16,19 @@ function handleLogout() {
 <template>
   <div>
     <v-app-bar sticky color="cardColor" class="elevation-4">
-      <div class="flex-grow-1">
-        <v-btn to="/student/dashboard">S Dashboard</v-btn>
-        <v-btn to="/student/enrollments">S My Enrollments</v-btn>
-        <v-btn to="/student/classrooms/all">S All Classrooms</v-btn>
-        <v-btn to="/instructor/classrooms/all">I Classrooms</v-btn>
-        <v-btn to="/instructor/classrooms/my">I My Classrooms</v-btn>
+      <div v-if="userStore.isAdministrator()" class="flex-grow-1">
+        <v-btn to="/instructor/classrooms/my">My Classrooms</v-btn>
+        <v-btn to="/student/enrollments">My Enrollments</v-btn>
+        <v-btn to="/instructor/invitations">Invite Users</v-btn>
+      </div>
+      <div v-if="userStore.isInstructor()" class="flex-grow-1">
+        <v-btn to="/instructor/classrooms/my">My Classrooms</v-btn>
+        <v-btn to="/student/enrollments">My Enrollments</v-btn>
+        <v-btn to="/instructor/invitations">Invite Users</v-btn>
+      </div>
+      <div v-if="userStore.isStudent()" class="flex-grow-1">
+        <v-btn to="/student/enrollments">My Enrollments</v-btn>
+        <v-btn to="/student/classrooms/all">All Classrooms</v-btn>
       </div>
       <template #prepend>
         <router-link to="/">

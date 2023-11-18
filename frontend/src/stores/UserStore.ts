@@ -1,10 +1,10 @@
+import { makeAPIRequest } from '@/communication/APIRequests'
 import { useStorage } from '@vueuse/core'
 import axios from 'axios'
 import jwt_decode from 'jwt-decode'
 import { defineStore } from 'pinia'
 import { computed, type Ref } from 'vue'
 import type { Router } from 'vue-router'
-import { makeAPIRequest } from '@/communication/APIRequests'
 
 type LoginData = {
   email: string
@@ -24,7 +24,7 @@ type RefreshTokenPayload = {
 }
 
 export type User = {
-  id: number,
+  id: number
   username?: string | null
   email?: string
   role?: string
@@ -47,7 +47,7 @@ export const useUserStore = defineStore('user', () => {
   })
 
   const user: Ref<User | null> = computed(() => {
-    if(refreshTokenPayload.value === null) {
+    if (refreshTokenPayload.value === null) {
       return null
     }
     return {
@@ -98,8 +98,8 @@ export const useUserStore = defineStore('user', () => {
     const data = { refresh: refreshToken.value }
     try {
       await makeAPIRequest('/users/logout', 'POST', false, false, data)
-    } catch(e: any) {
-      if(e.name !== "UnauthorizedError") {
+    } catch (e: any) {
+      if (e.name !== 'UnauthorizedError') {
         console.error(e)
       }
     }
@@ -113,7 +113,13 @@ export const useUserStore = defineStore('user', () => {
   }
 
   function isAdministrator() {
-    return user.value != null && user.value.role == "ADMINISTRATOR"
+    return user.value != null && user.value.role == 'ADMINISTRATOR'
+  }
+  function isInstructor() {
+    return user.value != null && user.value.role == 'INSTRUCTOR'
+  }
+  function isStudent() {
+    return user.value != null && user.value.role == 'STUDENT'
   }
 
   async function resetPassword(email: string, newPassword: string) {
@@ -140,6 +146,8 @@ export const useUserStore = defineStore('user', () => {
     login,
     logout,
     isAdministrator,
+    isInstructor,
+    isStudent,
     resetPasswordRequest,
     resetPassword,
     refreshLogin,
