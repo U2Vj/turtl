@@ -5,9 +5,12 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomModal from '@/components/modals/CreateClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 
+import { useUserStore } from '@/stores/UserStore'
 import dayjs from 'dayjs'
 import { toRef } from 'vue'
 import { useToast } from 'vue-toastification'
+
+const userStore = useUserStore()
 
 const progress = 33
 
@@ -90,7 +93,7 @@ function formatReadableDate(date: string) {
           <p>You have not enrolled in any classrooms yet.</p>
         </v-col>
       </v-row>
-      <v-row>
+      <v-row v-if="userStore.isAdministrator()">
         <v-col>
           <p>
             As an administrator, you can also edit all classrooms, including classrooms you do not
