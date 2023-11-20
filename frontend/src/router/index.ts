@@ -1,6 +1,7 @@
 import { useUserStore } from '@/stores/UserStore'
 import AcceptInvitation from '@/views/general/AcceptInvitation.vue'
 import Imprint from '@/views/general/Imprint.vue'
+import NotFound from '@/views/general/NotFound.vue'
 import PrivacyPolicy from '@/views/general/PrivacyPolicy.vue'
 import SignIn from '@/views/general/SignIn.vue'
 import UserProfile from '@/views/general/UserProfile.vue'
@@ -61,6 +62,11 @@ const router = createRouter({
       path: '/imprint',
       name: 'Imprint',
       component: Imprint
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: NotFound
     }
   ]
 })
