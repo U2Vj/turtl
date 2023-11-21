@@ -6,8 +6,6 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
   <DefaultLayout>
     <template #heading>Imprint</template>
     <template #default>
-      <!-- Imprint Section -->
-      <h2>Imprint</h2>
       <p>
         Project Title: TURTL<br />
         Institution: Hochschule Düsseldorf - University of Applied Sciences<br />
