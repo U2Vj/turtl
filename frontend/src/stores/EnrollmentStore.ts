@@ -16,19 +16,22 @@ export type EnrollmentShort = {
 type FlagStudent = {
   id: number
   prompt: string
+  solution?: string
 }
 
 type RegExStudent = {
   id: number
   prompt: string
+  solution?: string
 }
 
 type QuestionChoiceStudent = {
   id: number
   answer: string
+  checked?: boolean
 }
 
-type QuestionStudent = {
+export type QuestionStudent = {
   id: number
   question: string
   question_type: QuestionType
@@ -47,6 +50,7 @@ export type TaskStudent = {
   id: number
   title: string
   description: string
+  done: boolean
   task_type: TaskType
   difficulty: TaskDifficulty
   acceptance_criteria: AcceptanceCriteriaStudent
@@ -73,6 +77,19 @@ export type EnrollmentDetail = {
   student: User
   date_enrolled: string
   classroom: ClassroomStudent
+}
+
+export enum AcceptanceCriteriaSolutionResult {
+  Correct = "correct",
+  Incorrect = "incorrect",
+  Missing = "missing"
+}
+
+type TaskSubmitResponse = {
+  regexes: Record<number, AcceptanceCriteriaSolutionResult>
+  flags: Record<number, AcceptanceCriteriaSolutionResult>
+  questions: Record<number, AcceptanceCriteriaSolutionResult>
+  passed: boolean
 }
 
 export const useEnrollmentStore = defineStore('invitation', () => {
@@ -118,6 +135,42 @@ export const useEnrollmentStore = defineStore('invitation', () => {
     return targetTask
   }
 
+  async function submitSolution(task: TaskStudent) {
+    if(!enrollment.value) {
+      throw new EnrollmentNotLoadedError('Cannot submit solution: No enrollment was loaded yet')
+    }
+
+    const requestBody: {
+      questions: {
+        id: number,
+        selected_choices: number[]
+      }[],
+      regexes: RegExStudent[],
+      flags: FlagStudent[]
+    } = {
+      questions: [],
+      regexes: (task.acceptance_criteria.regexes) ? task.acceptance_criteria.regexes : [],
+      flags: (task.acceptance_criteria.flags) ? task.acceptance_criteria.flags : []
+    }
+
+    task.acceptance_criteria.questions?.forEach((question) => {
+      requestBody.questions.push({
+        id: question.id,
+        selected_choices: question.choices.filter(choice => choice.checked).map(choice => choice.id)
+      })
+    })
+
+    const response = await makeAPIRequest(
+      `/enrollments/${enrollment.value.id}/tasks/${task.id}/submit`,
+      'POST',
+      true,
+      true,
+      requestBody
+      )
+
+    return response.data as TaskSubmitResponse
+  }
+
   return {
     myEnrollments,
     enrollment,
@@ -125,6 +178,7 @@ export const useEnrollmentStore = defineStore('invitation', () => {
     enroll,
     unenroll,
     getEnrollment,
-    getTask
+    getTask,
+    submitSolution
   }
 })

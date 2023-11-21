@@ -72,11 +72,11 @@ function unenroll() {
                         :button-name="task.title"
                         :go-to="`/student/enrollments/${enrollmentId}/tasks/${task.id}`"
                       ></TextButton>
-                      <!--<v-icon
-                        v-if="task.done === true"
+                      <v-icon
+                        v-if="task.done"
                         icon="mdi-check-circle-outline"
                         color="success"
-                      ></v-icon>-->
+                      ></v-icon>
                     </div>
                     <p v-if="project.tasks.length === 0">This project does not contain any tasks.</p>
                   </v-card-text>
