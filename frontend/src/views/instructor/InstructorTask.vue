@@ -7,22 +7,22 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddFlagModal from '@/components/modals/AddFlagModal.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import AddRegexModal from '@/components/modals/AddRegexModal.vue'
+import AddVirtualizationModal from '@/components/modals/AddVirtualizationModal.vue'
 import DeleteTaskModal from '@/components/modals/DeleteTaskModal.vue'
-import type {Flag, Question, RegEx, Task, Virtualization} from '@/stores/CatalogStore'
+import type { Flag, Question, RegEx, Task, Virtualization } from '@/stores/CatalogStore'
 import {
   AcceptanceCriteriaType,
   QuestionType,
   TaskDifficulty,
   TaskType,
-  useCatalogStore,
-  VirtualizationRole
+  VirtualizationRole,
+  useCatalogStore
 } from '@/stores/CatalogStore'
-import type {Ref} from 'vue'
-import {ref} from 'vue'
-import {useToast} from 'vue-toastification'
-import AddVirtualizationModal from "@/components/modals/AddVirtualizationModal.vue"
-import * as yup from "yup"
-import {useField, useForm} from "vee-validate"
+import { useField, useForm } from 'vee-validate'
+import type { Ref } from 'vue'
+import { ref } from 'vue'
+import { useToast } from 'vue-toastification'
+import * as yup from 'yup'
 
 const props = defineProps<{
   classroomId: number
@@ -35,9 +35,9 @@ const catalogStore = useCatalogStore()
 let task: Ref<Task | undefined> = ref(undefined)
 
 const addRegEx = (regex: RegEx) => {
-  if(!task.value) return
+  if (!task.value) return
 
-  if(task.value.acceptance_criteria?.regexes) {
+  if (task.value.acceptance_criteria?.regexes) {
     task.value.acceptance_criteria.regexes.push(regex)
   } else {
     task.value.acceptance_criteria.regexes = [regex]
@@ -52,7 +52,6 @@ const updateRegEx = (regex: RegEx, index: number) => {
   setTimeout(() => {
     task.value?.acceptance_criteria.regexes?.splice(index, 0, regex)
   }, 2)
-
 }
 
 const deleteRegEx = (index: number) => {
@@ -60,9 +59,9 @@ const deleteRegEx = (index: number) => {
 }
 
 const addFlag = (flag: Flag) => {
-  if(!task.value) return
+  if (!task.value) return
 
-  if(task.value.acceptance_criteria?.flags) {
+  if (task.value.acceptance_criteria?.flags) {
     task.value.acceptance_criteria.flags.push(flag)
   } else {
     task.value.acceptance_criteria.flags = [flag]
@@ -74,7 +73,6 @@ const updateFlag = (flag: Flag, index: number) => {
   setTimeout(() => {
     task.value?.acceptance_criteria.flags?.splice(index, 0, flag)
   }, 2)
-
 }
 
 const deleteFlag = (index: number) => {
@@ -82,9 +80,9 @@ const deleteFlag = (index: number) => {
 }
 
 const addQuestion = (question: Question) => {
-  if(!task.value) return
+  if (!task.value) return
 
-  if(task.value.acceptance_criteria?.questions) {
+  if (task.value.acceptance_criteria?.questions) {
     task.value.acceptance_criteria.questions.push(question)
   } else {
     task.value.acceptance_criteria.questions = [question]
@@ -188,7 +186,7 @@ const selectTaskType = [
 ]
 
 const saveTask = handleSubmit(async (values) => {
-  if(!task.value) return
+  if (!task.value) return
   task.value.title = values.title
   task.value.description = values.description
   task.value.difficulty = values.difficulty
@@ -196,31 +194,34 @@ const saveTask = handleSubmit(async (values) => {
 
   // Determine AcceptanceCriteria type
   let differentCriteriaTypes = 0
-  if(task.value.acceptance_criteria.questions && task.value.acceptance_criteria.questions.length > 0) {
+  if (
+    task.value.acceptance_criteria.questions &&
+    task.value.acceptance_criteria.questions.length > 0
+  ) {
     task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Questionnaire
     differentCriteriaTypes++
   }
-  if(task.value.acceptance_criteria.flags && task.value.acceptance_criteria.flags.length > 0) {
+  if (task.value.acceptance_criteria.flags && task.value.acceptance_criteria.flags.length > 0) {
     task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Flag
     differentCriteriaTypes++
   }
-  if(task.value.acceptance_criteria.regexes && task.value.acceptance_criteria.regexes.length > 0) {
+  if (task.value.acceptance_criteria.regexes && task.value.acceptance_criteria.regexes.length > 0) {
     task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.RegEx
     differentCriteriaTypes++
   }
-  if(differentCriteriaTypes > 1) {
+  if (differentCriteriaTypes > 1) {
     task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Mixed
   } else if (differentCriteriaTypes === 0) {
     task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Disabled
   }
 
-
   catalogStore
-      .updateTask(task.value)
-      .then(() => {
-        toast.success("Changes saved.")
-        task.value = catalogStore.getTask(props.taskId)
-      }).catch((e) => toast.error(e.message))
+    .updateTask(task.value)
+    .then(() => {
+      toast.success('Changes saved.')
+      task.value = catalogStore.getTask(props.taskId)
+    })
+    .catch((e) => toast.error(e.message))
 })
 
 // Retrieve the Task from the backend and set the form values
@@ -229,7 +230,7 @@ try {
     .getClassroom(props.classroomId)
     .then(() => {
       task.value = catalogStore.getTask(props.taskId)
-      if(!task.value) return
+      if (!task.value) return
       title.value = task.value.title
       description.value = task.value.description
       difficulty.value = task.value.difficulty
@@ -241,7 +242,6 @@ try {
 } catch (e: any) {
   toast.error(e.message)
 }
-
 </script>
 <template>
   <DefaultLayout v-if="task">
@@ -295,7 +295,9 @@ try {
             ></v-select>
           </v-col>
         </v-row>
-        <v-row><v-col><v-divider></v-divider></v-col></v-row>
+        <v-row
+          ><v-col><v-divider></v-divider></v-col
+        ></v-row>
         <v-row>
           <v-col>
             <h2>Acceptance Criteria</h2>
@@ -308,7 +310,11 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <v-table v-if="task.acceptance_criteria?.regexes && task.acceptance_criteria.regexes.length > 0">
+            <v-table
+              v-if="
+                task.acceptance_criteria?.regexes && task.acceptance_criteria.regexes.length > 0
+              "
+            >
               <thead>
                 <tr>
                   <th>Prompt</th>
@@ -324,13 +330,22 @@ try {
                   <td>
                     <TextButton button-type="button">
                       <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
-                      <AddRegexModal :current-regex="regEx" @reg-ex-editing-completed="updateRegEx($event, index)">
+                      <AddRegexModal
+                        :current-regex="regEx"
+                        @reg-ex-editing-completed="updateRegEx($event, index)"
+                      >
                         <template v-slot:title>Edit RegEx</template>
                         <template v-slot:submitButtonText>Edit</template>
                       </AddRegexModal>
                     </TextButton>
                   </td>
-                  <td><v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteRegEx(index)"></v-btn></td>
+                  <td>
+                    <v-btn
+                      icon="mdi-trash-can-outline"
+                      variant="text"
+                      @click="deleteRegEx(index)"
+                    ></v-btn>
+                  </td>
                 </tr>
               </tbody>
             </v-table>
@@ -354,7 +369,9 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <v-table v-if="task.acceptance_criteria?.flags && task.acceptance_criteria.flags.length > 0">
+            <v-table
+              v-if="task.acceptance_criteria?.flags && task.acceptance_criteria.flags.length > 0"
+            >
               <thead>
                 <tr>
                   <th>Prompt</th>
@@ -370,13 +387,22 @@ try {
                   <td>
                     <TextButton button-type="button">
                       <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
-                      <AddFlagModal :current-flag="flag" @flag-editing-completed="updateFlag($event, index)">
+                      <AddFlagModal
+                        :current-flag="flag"
+                        @flag-editing-completed="updateFlag($event, index)"
+                      >
                         <template v-slot:title>Edit Flag</template>
                         <template v-slot:submitButtonText>Edit</template>
                       </AddFlagModal>
                     </TextButton>
                   </td>
-                  <td><v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteFlag(index)"></v-btn></td>
+                  <td>
+                    <v-btn
+                      icon="mdi-trash-can-outline"
+                      variant="text"
+                      @click="deleteFlag(index)"
+                    ></v-btn>
+                  </td>
                 </tr>
               </tbody>
             </v-table>
@@ -400,7 +426,11 @@ try {
         </v-row>
         <v-row>
           <v-col>
-            <v-table v-if="task.acceptance_criteria?.questions && task.acceptance_criteria.questions.length > 0">
+            <v-table
+              v-if="
+                task.acceptance_criteria?.questions && task.acceptance_criteria.questions.length > 0
+              "
+            >
               <thead>
                 <tr>
                   <th>Question</th>
@@ -419,19 +449,27 @@ try {
                   <td>
                     <TextButton button-type="button">
                       <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
-                      <AddQuestionModal :current-question="question" @question-editing-completed="updateQuestion($event, index)">
+                      <AddQuestionModal
+                        :current-question="question"
+                        @question-editing-completed="updateQuestion($event, index)"
+                      >
                         <template v-slot:title>Edit Question</template>
                         <template v-slot:submitButtonText>Edit</template>
                       </AddQuestionModal>
                     </TextButton>
                   </td>
                   <td>
-                    <v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteQuestion(index)"></v-btn>
+                    <v-btn
+                      icon="mdi-trash-can-outline"
+                      variant="text"
+                      @click="deleteQuestion(index)"
+                    ></v-btn>
                   </td>
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any Questions yet.</p><br>
+            <p v-else>This Task does not contain any Questions yet.</p>
+            <br />
             <SecondaryButton button-name="Add Question" button-type="button">
               <AddQuestionModal @question-editing-completed="addQuestion">
                 <template v-slot:title>Add Question</template>
@@ -440,7 +478,9 @@ try {
             </SecondaryButton>
           </v-col>
         </v-row>
-        <v-row><v-col><v-divider></v-divider></v-col></v-row>
+        <v-row
+          ><v-col><v-divider></v-divider></v-col
+        ></v-row>
         <v-row>
           <v-col>
             <h2>Virtualization</h2>
@@ -460,24 +500,34 @@ try {
               <tbody>
                 <tr v-for="(virtualization, index) in task.virtualizations" :key="index">
                   <td>{{ virtualization.name }}</td>
-                  <td v-if="virtualization.virtualization_role === VirtualizationRole.UserShell">User Shell</td>
+                  <td v-if="virtualization.virtualization_role === VirtualizationRole.UserShell">
+                    User Shell
+                  </td>
                   <td v-else>User-accessible via IP</td>
                   <td>
                     <TextButton button-type="button">
                       <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
-                      <AddVirtualizationModal :current-virtualization="virtualization" @virtualization-editing-completed="updateVirtualization($event, index)">
+                      <AddVirtualizationModal
+                        :current-virtualization="virtualization"
+                        @virtualization-editing-completed="updateVirtualization($event, index)"
+                      >
                         <template v-slot:title>Edit Virtualization</template>
                         <template v-slot:submitButtonText>Edit</template>
                       </AddVirtualizationModal>
                     </TextButton>
                   </td>
                   <td>
-                    <v-btn icon="mdi-trash-can-outline" variant="text" @click="deleteVirtualization(index)"></v-btn>
+                    <v-btn
+                      icon="mdi-trash-can-outline"
+                      variant="text"
+                      @click="deleteVirtualization(index)"
+                    ></v-btn>
                   </td>
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any virtualizations yet.</p><br>
+            <p v-else>This Task does not contain any virtualizations yet.</p>
+            <br />
             <SecondaryButton button-name="Add Virtualization" button-type="button">
               <AddVirtualizationModal @virtualization-editing-completed="addVirtualization">
                 <template v-slot:title>Add Virtualization</template>
@@ -486,7 +536,9 @@ try {
             </SecondaryButton>
           </v-col>
         </v-row>
-        <v-row><v-col><v-divider></v-divider></v-col></v-row>
+        <v-row
+          ><v-col><v-divider></v-divider></v-col
+        ></v-row>
         <v-row>
           <v-col>
             <div class="d-flex mb-5 align-center justify-space-between">
@@ -502,4 +554,16 @@ try {
       </v-form>
     </template>
   </DefaultLayout>
+  <div v-else class="center-screen">
+    <v-progress-circular indeterminate color="primary" :size="50"></v-progress-circular>
+  </div>
 </template>
+
+<style scoped>
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
