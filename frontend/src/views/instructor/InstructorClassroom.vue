@@ -271,6 +271,7 @@ onMounted(async () => {
               ]"
               :items="enrolledStudents"
               item-key="id"
+              no-data-text="There are no students who are currently enrolled in this classroom."
             >
               <template #[`item.date_enrolled`]="{ item }">{{
                 formatDate(item.raw.date_enrolled)
