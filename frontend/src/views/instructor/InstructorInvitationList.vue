@@ -1,19 +1,18 @@
 <script setup lang="ts">
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import { useInvitationStore } from '@/stores/InvitationStore'
+import { useUserStore } from '@/stores/UserStore'
 import dayjs from 'dayjs'
-import {ref, toRef} from 'vue'
-import {useToast} from "vue-toastification"
-import { useInvitationStore } from "@/stores/InvitationStore"
-import {useUserStore} from "@/stores/UserStore";
-import PrimaryButton from "@/components/buttons/PrimaryButton.vue";
-import CreateClassroomModal from "@/components/modals/CreateClassroomModal.vue";
+import { ref, toRef } from 'vue'
+import { useToast } from 'vue-toastification'
 
-const currentTab = ref("myInvitations")
+const currentTab = ref('myInvitations')
 
 const renewInvitationButtonDisabled = ref(false)
 const deleteInvitationButtonDisabled = ref(false)
-const searchMyInvitations = ref("")
-const searchAllInvitations = ref("")
+const searchMyInvitations = ref('')
+const searchAllInvitations = ref('')
 
 const userStore = useUserStore()
 const invitationStore = useInvitationStore()
@@ -26,21 +25,23 @@ invitationStore.getMyInvitations().catch((e) => toast.error(e.message))
 
 function deleteInvitation(id: number) {
   deleteInvitationButtonDisabled.value = true
-  invitationStore.deleteInvitation(id)
-      .then(() => toast.info("Invitation deleted"))
-      .catch((e) => toast.error(e.message))
-      .finally(() => {
-        deleteInvitationButtonDisabled.value = false
-      })
+  invitationStore
+    .deleteInvitation(id)
+    .then(() => toast.info('Invitation deleted'))
+    .catch((e) => toast.error(e.message))
+    .finally(() => {
+      deleteInvitationButtonDisabled.value = false
+    })
 }
 function renewInvitation(id: number) {
   renewInvitationButtonDisabled.value = true
-  invitationStore.renewInvitation(id)
-      .then(() => toast.success("Invitation renewed"))
-      .catch((e) => toast.error(e.message))
-      .finally(() => {
-        renewInvitationButtonDisabled.value = false
-      })
+  invitationStore
+    .renewInvitation(id)
+    .then(() => toast.success('Invitation renewed'))
+    .catch((e) => toast.error(e.message))
+    .finally(() => {
+      renewInvitationButtonDisabled.value = false
+    })
 }
 
 function formatReadableDate(date: string) {
@@ -50,19 +51,22 @@ function formatReadableDate(date: string) {
 function isExpired(expiration_date: string): boolean {
   return dayjs().isAfter(dayjs(expiration_date))
 }
-
 </script>
 
 <template>
-  <DefaultLayout>
+  <DefaultLayout v-if="myInvitations">
     <template #heading>Manage Invitations</template>
     <template #postHeadingButton>
       <PrimaryButton buttonName="Invite Users" go-to="/instructor/invitations/send"></PrimaryButton>
     </template>
     <template #default>
       <v-tabs v-model="currentTab" color="primary">
-        <v-tab value="myInvitations" @click="invitationStore.getMyInvitations()">My open Invitations</v-tab>
-        <v-tab value="allInvitations" @click="invitationStore.getAllInvitations()">All open Invitations</v-tab>
+        <v-tab value="myInvitations" @click="invitationStore.getMyInvitations()"
+          >My open Invitations</v-tab
+        >
+        <v-tab value="allInvitations" @click="invitationStore.getAllInvitations()"
+          >All open Invitations</v-tab
+        >
       </v-tabs>
       <v-window v-model="currentTab" class="mt-5">
         <v-window-item value="myInvitations">
@@ -99,7 +103,11 @@ function isExpired(expiration_date: string): boolean {
             no-data-text="Could not find any open invitations that you sent."
           >
             <template #[`item.expiration_date`]="{ item }">
-              <span v-if="isExpired(item.raw.expiration_date)" style="color:red;font-weight:bold">{{ formatReadableDate(item.raw.expiration_date) }}</span>
+              <span
+                v-if="isExpired(item.raw.expiration_date)"
+                style="color: red; font-weight: bold"
+                >{{ formatReadableDate(item.raw.expiration_date) }}</span
+              >
               <span v-else>{{ formatReadableDate(item.raw.expiration_date) }}</span>
             </template>
             <template #[`item.id`]="{ item }">
@@ -157,7 +165,11 @@ function isExpired(expiration_date: string): boolean {
             no-data-text="Could not find any open invitations."
           >
             <template #[`item.expiration_date`]="{ item }">
-              <span v-if="isExpired(item.raw.expiration_date)" style="color:red;font-weight:bold">{{ formatReadableDate(item.raw.expiration_date) }}</span>
+              <span
+                v-if="isExpired(item.raw.expiration_date)"
+                style="color: red; font-weight: bold"
+                >{{ formatReadableDate(item.raw.expiration_date) }}</span
+              >
               <span v-else>{{ formatReadableDate(item.raw.expiration_date) }}</span>
             </template>
             <template #[`item.id`]="{ item }">
@@ -181,4 +193,16 @@ function isExpired(expiration_date: string): boolean {
       </v-window>
     </template>
   </DefaultLayout>
+  <div v-else class="center-screen">
+    <v-progress-circular indeterminate color="primary" :size="50"></v-progress-circular>
+  </div>
 </template>
+
+<style scoped>
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
