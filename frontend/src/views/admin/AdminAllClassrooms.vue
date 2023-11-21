@@ -46,7 +46,7 @@ function getInstructor(instructors: any[]) {
 </script>
 
 <template>
-  <DefaultLayout>
+  <DefaultLayout v-if="classroomList">
     <template #heading>Classrooms</template>
     <template #postHeadingButton>
       <PrimaryButton buttonName="Create Classroom">
@@ -101,4 +101,16 @@ function getInstructor(instructors: any[]) {
       </v-data-table>
     </template>
   </DefaultLayout>
+  <div v-else class="center-screen">
+    <v-progress-circular indeterminate color="primary" :size="50"></v-progress-circular>
+  </div>
 </template>
+
+<style scoped>
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
