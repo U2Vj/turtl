@@ -1,13 +1,13 @@
 <script setup lang="ts">
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import { useCatalogStore } from '@/stores/CatalogStore'
-import { ref, toRef } from 'vue'
-import type { Ref } from 'vue'
-import { useToast } from 'vue-toastification'
 import EnrollModal from '@/components/modals/EnrollModal.vue'
-import {useEnrollmentStore} from '@/stores/EnrollmentStore'
-import type {EnrollmentShort} from '@/stores/EnrollmentStore'
+import { useCatalogStore } from '@/stores/CatalogStore'
+import type { EnrollmentShort } from '@/stores/EnrollmentStore'
+import { useEnrollmentStore } from '@/stores/EnrollmentStore'
+import type { Ref } from 'vue'
+import { ref, toRef } from 'vue'
+import { useToast } from 'vue-toastification'
 
 const catalogStore = useCatalogStore()
 const enrollmentStore = useEnrollmentStore()
@@ -21,12 +21,15 @@ catalogStore.getClassroomList().catch((e) => toast.error(e.message))
 
 const enrolledClassrooms: Ref<number[]> = ref([])
 const myEnrollments: Ref<EnrollmentShort[]> = ref([])
-enrollmentStore.getMyEnrollments().then((enrollments) => {
-  enrollments.forEach((enrollment) => {
-    enrolledClassrooms.value.push(enrollment.classroom.id)
+enrollmentStore
+  .getMyEnrollments()
+  .then((enrollments) => {
+    enrollments.forEach((enrollment) => {
+      enrolledClassrooms.value.push(enrollment.classroom.id)
+    })
+    myEnrollments.value = enrollments
   })
-  myEnrollments.value = enrollments
-}).catch((e) => toast.error(e.message))
+  .catch((e) => toast.error(e.message))
 
 function getInstructor(instructors: any[]) {
   return instructors
@@ -41,7 +44,7 @@ function getInstructor(instructors: any[]) {
 }
 </script>
 <template>
-  <DefaultLayout>
+  <DefaultLayout v-if="classroomList">
     <template #heading>All Classrooms</template>
     <template #default>
       <v-row>
@@ -84,7 +87,11 @@ function getInstructor(instructors: any[]) {
         </template>
         <template #[`item.link`]="{ item }">
           <template v-if="enrolledClassrooms.includes(item.raw.id)">
-            <TextButton :go-to="`/student/enrollments/${myEnrollments[enrolledClassrooms.indexOf(item.raw.id)].id}`">
+            <TextButton
+              :go-to="`/student/enrollments/${
+                myEnrollments[enrolledClassrooms.indexOf(item.raw.id)].id
+              }`"
+            >
               Visit
             </TextButton>
           </template>
@@ -95,4 +102,16 @@ function getInstructor(instructors: any[]) {
       </v-data-table>
     </template>
   </DefaultLayout>
+  <div v-else class="center-screen">
+    <v-progress-circular indeterminate color="primary" :size="50"></v-progress-circular>
+  </div>
 </template>
+
+<style scoped>
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
