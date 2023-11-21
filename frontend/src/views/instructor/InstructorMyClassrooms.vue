@@ -1,22 +1,25 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
-import SecundaryButton from '@/components/buttons/SecondaryButton.vue'
+import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import type { EnrollmentShort } from '@/stores/EnrollmentStore'
-import { useEnrollmentStore } from '@/stores/EnrollmentStore'
+import CreateClassroomModal from '@/components/modals/CreateClassroomModal.vue'
+import { useCatalogStore } from '@/stores/CatalogStore'
+
+import { useUserStore } from '@/stores/UserStore'
 import dayjs from 'dayjs'
-import type { Ref } from 'vue'
 import { toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
+const userStore = useUserStore()
+
 const progress = 33
 
-const enrollmentStore = useEnrollmentStore()
+const catalogStore = useCatalogStore()
 const toast = useToast()
 
-let myEnrollments: Ref<EnrollmentShort[] | undefined> = toRef(enrollmentStore, 'myEnrollments')
+let classroomList = toRef(catalogStore, 'classroomList')
 
-enrollmentStore.getMyEnrollments().catch((e: any) => toast.error(e.message))
+catalogStore.getMyClassroomList().catch((e: any) => toast.error(e.message))
 
 function getInstructor(instructors: any[]) {
   return instructors
@@ -37,31 +40,29 @@ function formatReadableDate(date: string) {
 
 <template>
   <DefaultLayout>
-    <template #heading>My Enrollments</template>
+    <template #heading>My Classrooms</template>
     <template #postHeadingButton>
-      <PrimaryButton go-to="/student/classrooms/all">Enroll</PrimaryButton>
+      <PrimaryButton button-name="Create"> <CreateClassroomModal /> </PrimaryButton>
     </template>
     <template #default>
       <v-row class="mt-1">
         <v-col
-          v-for="enrollment in myEnrollments"
-          :key="enrollment.id"
+          v-for="classroom in classroomList"
+          :key="classroom.id"
           cols="12"
           xs="12"
           sm="6"
           md="4"
         >
           <v-card
-            :key="enrollment.id"
-            :title="enrollment.classroom.title"
-            :subtitle="getInstructor(enrollment.classroom.instructors)"
+            :key="classroom.id"
+            :title="classroom.title"
+            :subtitle="getInstructor(classroom.instructors)"
             variant="elevated"
             class="elevation-4"
             color="cardColor"
           >
-            <v-card-text>
-              Enrolled on {{ formatReadableDate(enrollment.date_enrolled) }}
-            </v-card-text>
+            <v-card-text> Created at {{ formatReadableDate(classroom.created_at) }} </v-card-text>
             <v-card-text>
               <v-progress-linear
                 id="probar"
@@ -79,17 +80,26 @@ function formatReadableDate(date: string) {
               </v-progress-linear>
             </v-card-text>
             <v-card-actions>
-              <SecundaryButton
-                buttonName="Visit Classroom"
+              <SecondaryButton
+                buttonName="Edit Classroom"
                 class="d-flex flex-fill elevation-2"
-                :go-to="`/student/enrollments/${enrollment.id}`"
+                :go-to="`/instructor/classrooms/${classroom.id}`"
               >
-              </SecundaryButton>
+              </SecondaryButton>
             </v-card-actions>
           </v-card>
         </v-col>
-        <v-col v-if="myEnrollments?.length === 0">
+        <v-col v-if="classroomList?.length === 0">
           <p>You have not enrolled in any classrooms yet.</p>
+        </v-col>
+      </v-row>
+      <v-row v-if="userStore.isAdministrator()">
+        <v-col>
+          <p>
+            As an administrator, you can also edit all classrooms, including classrooms you do not
+            manage.
+            <router-link to="/admin/classrooms/all">View All Classrooms</router-link>
+          </p>
         </v-col>
       </v-row>
     </template>

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { makeAPIRequest } from '@/communication/APIRequests'
 import ProjectCard from '@/components/ProjectCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
@@ -10,7 +11,7 @@ import AddProjectModal from '@/components/modals/AddProjectModal.vue'
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import dayjs from 'dayjs'
-import { ref, toRaw, toRef } from 'vue'
+import { onMounted, ref, toRaw, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
 const props = defineProps<{ classroomId: number }>()
@@ -26,7 +27,7 @@ catalogStore.getClassroom(props.classroomId).catch((e) => {
 })
 
 const formatDate = (datetime: string) => {
-  return dayjs(datetime).format('DD.MM.YYYY HH:mm')
+  return dayjs(datetime).format('DD.MM.YYYY')
 }
 
 function deleteHelpfulResource(id: number) {
@@ -72,6 +73,26 @@ function editClassroomTitle(newTitle: string) {
       toast.error(e.message)
     })
 }
+
+async function getEnrolledStudents(classroomId: number) {
+  try {
+    const response = await makeAPIRequest(
+      `/enrollments/for-classroom/${classroomId}`,
+      'GET',
+      true,
+      true
+    )
+    return response.data
+  } catch (e: any) {
+    toast.error(e.message)
+  }
+}
+
+const enrolledStudents = ref([])
+
+onMounted(async () => {
+  enrolledStudents.value = await getEnrolledStudents(props.classroomId)
+})
 </script>
 
 <template>
@@ -92,11 +113,12 @@ function editClassroomTitle(newTitle: string) {
         :disabled="!hasClassroomTitleChanged || classroomTitleJustSaved"
         @click="editClassroomTitle(classroom.title)"
       ></PrimaryButton>
-      <br><br>
+      <br /><br />
       <v-tabs v-model="tab" color="primary">
         <v-tab value="0">Projects</v-tab>
         <v-tab value="1">Settings</v-tab>
         <v-tab value="2">Instructors</v-tab>
+        <v-tab value="3">Students</v-tab>
       </v-tabs>
       <v-window v-model="tab" class="mt-5">
         <v-window-item eager value="0">
@@ -212,8 +234,8 @@ function editClassroomTitle(newTitle: string) {
               :headers="[
                 { title: 'E-Mail', key: 'instructor.email' },
                 { title: 'Username', key: 'instructor.username' },
-                { title: 'Added at', key: 'added_at'},
-                { title: 'Added by', key: 'added_by.email'},
+                { title: 'Added at', key: 'added_at' },
+                { title: 'Added by', key: 'added_by.email' },
                 { title: 'Remove', key: 'remove' }
               ]"
               :items="classroom.instructors"
@@ -225,13 +247,34 @@ function editClassroomTitle(newTitle: string) {
                   variant="text"
                   @click="
                     () => {
-                      catalogStore.removeInstructor(item.raw.instructor.id)
+                      catalogStore
+                        .removeInstructor(item.raw.instructor.id)
                         .then(() => toast.info('Instructor removed'))
                         .catch((e) => toast.error(e.message))
                     }
                   "
                 />
               </template>
+            </v-data-table>
+          </v-container>
+        </v-window-item>
+        <v-window-item value="3">
+          <v-container fluid>
+            <div class="d-flex flex-row mb-2 align-center justify-space-between">
+              <h2>Enrolled Students</h2>
+            </div>
+            <v-data-table
+              :headers="[
+                { title: 'E-Mail', key: 'student.email' },
+                { title: 'Username', key: 'student.username' },
+                { title: 'Date Enrolled', key: 'date_enrolled' }
+              ]"
+              :items="enrolledStudents"
+              item-key="id"
+            >
+              <template #[`item.date_enrolled`]="{ item }">{{
+                formatDate(item.raw.date_enrolled)
+              }}</template>
             </v-data-table>
           </v-container>
         </v-window-item>

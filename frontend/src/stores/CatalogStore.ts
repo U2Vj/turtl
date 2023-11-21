@@ -197,18 +197,16 @@ export const useCatalogStore = defineStore('catalog', () => {
     }
     const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
 
-    updatedClassroomData
-        .projects
-        .filter((project) => project.id == projectId)[0]
-        .tasks
-        .push({
-          title: title,
-          description: description,
-          task_type: taskType,
-          difficulty: difficulty,
-          virtualizations: [],
-          acceptance_criteria: {}
-        })
+    updatedClassroomData.projects
+      .filter((project) => project.id == projectId)[0]
+      .tasks.push({
+        title: title,
+        description: description,
+        task_type: taskType,
+        difficulty: difficulty,
+        virtualizations: [],
+        acceptance_criteria: {}
+      })
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
@@ -237,7 +235,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     updatedClassroomData.projects.forEach((project, projectIndex) => {
       project.tasks.forEach((t, tIndex) => {
         if (t.id === task.id) {
-          if(classroom.value) {
+          if (classroom.value) {
             classroom.value.projects[projectIndex].tasks[tIndex] = task
           }
           return
@@ -257,7 +255,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     updatedClassroomData.projects.forEach((project) => {
       project.tasks = project.tasks.filter((task) => task.id !== taskIdToRemove)
     })
-    
+
     return updateClassroom(classroom.value.id, updatedClassroomData)
   }
 
@@ -279,9 +277,16 @@ export const useCatalogStore = defineStore('catalog', () => {
       throw new ClassroomNotLoadedError('Cannot remove instructor: No classroom was loaded yet')
     }
     const updatedClassroomData = Object.assign({}, toRaw(classroom.value))
-    updatedClassroomData.instructors = updatedClassroomData
-        .instructors.filter(item => item.instructor.id !== id)
+    updatedClassroomData.instructors = updatedClassroomData.instructors.filter(
+      (item) => item.instructor.id !== id
+    )
     return updateClassroom(classroom.value.id, updatedClassroomData)
+  }
+
+  async function getMyClassroomList() {
+    const response = await makeAPIRequest('/catalog/classrooms/my', 'GET', true, true)
+    classroomList.value = response.data
+    return response.data
   }
 
   return {
@@ -299,6 +304,7 @@ export const useCatalogStore = defineStore('catalog', () => {
     updateTask,
     deleteTask,
     addInstructor,
-    removeInstructor
+    removeInstructor,
+    getMyClassroomList
   }
 })
