@@ -1,15 +1,9 @@
-import StudentClassroom from '@/views/student/StudentClassroom.vue'
 import StudentAllClassrooms from '@/views/student/StudentAllClassrooms.vue'
+import StudentClassroom from '@/views/student/StudentClassroom.vue'
 import StudentMyEnrollments from '@/views/student/StudentMyEnrollments.vue'
-import StudentDashboard from '@/views/student/StudentDashboard.vue'
 import StudentTask from '@/views/student/StudentTask.vue'
 
 export const studentRoutes = [
-  {
-    path: '/student/dashboard',
-    name: 'StudentDashboard',
-    component: StudentDashboard
-  },
   {
     path: '/student/enrollments',
     name: 'StudentMyEnrollments',
