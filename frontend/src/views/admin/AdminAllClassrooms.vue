@@ -25,7 +25,7 @@ function handleRowClick(event: Event, item: { item: { raw: any } }) {
   // See https://stackoverflow.com/questions/31982407/prevent-onclick-event-when-selecting-text
   const selection = window.getSelection()
   if (selection?.toString().length === 0) {
-    router.push(`classrooms/${item.item.raw.id}`)
+    router.push(`/instructor/classrooms/${item.item.raw.id}`)
   }
 }
 function formatReadableDate(date: string) {
@@ -90,7 +90,7 @@ function getInstructor(instructors: any[]) {
         :search="search"
       >
         <template #[`item.link`]="{ item }">
-          <TextButton buttonName="Edit" :goTo="`classrooms/${item.raw.id}`"></TextButton>
+          <TextButton buttonName="Edit" :goTo="`/instructor/classrooms/${item.raw.id}`"></TextButton>
         </template>
         <template v-slot:[`item.updated_at`]="{ item }">
           {{ formatReadableDate(item.raw.updated_at) }}
