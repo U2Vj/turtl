@@ -39,7 +39,7 @@ function formatReadableDate(date: string) {
 </script>
 
 <template>
-  <DefaultLayout>
+  <DefaultLayout v-if="classroomList">
     <template #heading>My Classrooms</template>
     <template #postHeadingButton>
       <PrimaryButton button-name="Create"> <CreateClassroomModal /> </PrimaryButton>
@@ -104,6 +104,16 @@ function formatReadableDate(date: string) {
       </v-row>
     </template>
   </DefaultLayout>
+  <div v-else class="center-screen">
+    <v-progress-circular indeterminate color="primary" :size="50"></v-progress-circular>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
