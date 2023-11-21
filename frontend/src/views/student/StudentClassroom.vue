@@ -1,14 +1,14 @@
 <script setup lang="ts">
+import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
-import {ref, toRef} from 'vue'
-import type {Ref} from 'vue'
-import ErrorButton from '@/components/buttons/ErrorButton.vue'
-import type {EnrollmentDetail} from '@/stores/EnrollmentStore'
-import {useEnrollmentStore} from '@/stores/EnrollmentStore'
-import {useToast} from 'vue-toastification'
-import {useRouter} from 'vue-router'
 import VisitLinkModal from '@/components/modals/VisitLinkModal.vue'
+import type { EnrollmentDetail } from '@/stores/EnrollmentStore'
+import { useEnrollmentStore } from '@/stores/EnrollmentStore'
+import type { Ref } from 'vue'
+import { ref, toRef } from 'vue'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 
 const props = defineProps<{ enrollmentId: number }>()
 const enrollmentStore = useEnrollmentStore()
@@ -18,16 +18,22 @@ const router = useRouter()
 
 const tab = ref(null)
 
-enrollmentStore.getEnrollment(props.enrollmentId).then((result) => {
-  enrollment.value = result
-}).catch((e) => toast.error(e.message))
+enrollmentStore
+  .getEnrollment(props.enrollmentId)
+  .then((result) => {
+    enrollment.value = result
+  })
+  .catch((e) => toast.error(e.message))
 
 function unenroll() {
-  if(!enrollment.value) return
-  enrollmentStore.unenroll(enrollment.value.id).then(async () => {
-    toast.info(`You have unenrolled from '${enrollment.value?.classroom.title}'`)
-    await router.push({ name: 'StudentMyEnrollments' })
-  }).catch((e) => toast.error(e.message))
+  if (!enrollment.value) return
+  enrollmentStore
+    .unenroll(enrollment.value.id)
+    .then(async () => {
+      toast.info(`You have unenrolled from '${enrollment.value?.classroom.title}'`)
+      await router.push({ name: 'StudentMyEnrollments' })
+    })
+    .catch((e) => toast.error(e.message))
 }
 </script>
 
@@ -43,7 +49,14 @@ function unenroll() {
         <v-window-item value="1">
           <v-container>
             <v-row>
-              <v-col v-for="project in enrollment.classroom.projects" :key="project.id" cols="12" xs="12" sm="6" md="4">
+              <v-col
+                v-for="project in enrollment.classroom.projects"
+                :key="project.id"
+                cols="12"
+                xs="12"
+                sm="6"
+                md="4"
+              >
                 <v-card
                   :key="project.id"
                   :title="project.title"
@@ -78,7 +91,9 @@ function unenroll() {
                         color="success"
                       ></v-icon>-->
                     </div>
-                    <p v-if="project.tasks.length === 0">This project does not contain any tasks.</p>
+                    <p v-if="project.tasks.length === 0">
+                      This project does not contain any tasks.
+                    </p>
                   </v-card-text>
                 </v-card>
               </v-col>
@@ -99,9 +114,13 @@ function unenroll() {
                     <v-card-text>
                       <div v-for="(instructor, index) in enrollment.classroom.instructors">
                         <a :href="`mailto:${instructor.email}`">
-                          <span v-if="instructor.username">{{ instructor.username }} &lt;{{ instructor.email }}&gt;</span>
+                          <span v-if="instructor.username"
+                            >{{ instructor.username }} &lt;{{ instructor.email }}&gt;</span
+                          >
                           <span v-else>{{ instructor.email }}</span>
-                          <span v-if="!(index === enrollment.classroom.instructors.length - 1)">,</span>
+                          <span v-if="!(index === enrollment.classroom.instructors.length - 1)"
+                            >,</span
+                          >
                         </a>
                       </div>
                     </v-card-text>
@@ -153,20 +172,20 @@ function unenroll() {
               <v-col cols="6">
                 <v-card variant="flat" color="cardColor" class="elevation-4">
                   <v-card-title>Helpful Resources</v-card-title>
-                  <v-card-subtitle>These are helpful links that your instructors provided.</v-card-subtitle>
+                  <v-card-subtitle
+                    >These are helpful links that your instructors provided.</v-card-subtitle
+                  >
                   <v-card-text>
                     <v-list bg-color="cardColor" base-color="primary">
                       <v-list-item v-for="resource in enrollment.classroom.helpful_resources">
-                        <v-list-item-title style="cursor:pointer">
-                          <v-icon
-                            icon="mdi-link-variant"
-                            size="small"
-                          ></v-icon>&nbsp;
-                          {{resource.title}}
+                        <v-list-item-title style="cursor: pointer">
+                          <v-icon icon="mdi-link-variant" size="small"></v-icon>&nbsp;
+                          {{ resource.title }}
                           <visit-link-modal :url="resource.url">
                             <template #title>Visit external website</template>
                             <template #content>
-                              You will be redirected to <em>{{ resource.url }}</em><br>
+                              You will be redirected to <em>{{ resource.url }}</em
+                              ><br />
                               Are you sure that you want to visit this website?
                             </template>
                             <template #visitButtonText>Visit</template>
@@ -196,4 +215,16 @@ function unenroll() {
       </v-window>
     </template>
   </DefaultLayout>
+  <div v-else class="center-screen">
+    <v-progress-circular indeterminate color="primary" :size="50"></v-progress-circular>
+  </div>
 </template>
+
+<style scoped>
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
