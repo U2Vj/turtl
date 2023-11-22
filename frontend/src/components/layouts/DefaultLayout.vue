@@ -9,20 +9,22 @@ const props = defineProps({
 </script>
 <template>
   <DefaultHeader />
-  <v-main class="d-flex justify-center">
+  <v-main class="mt-5 ml-10 justify-center">
     <div>
       <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
     </div>
-    <div class="main-container mt-5 ml-3 mr-3">
-      <v-container fluid>
-        <div class="d-flex mb-2 align-center justify-space-between">
-          <h1>
-            <slot name="heading"></slot>
-          </h1>
-          <slot name="postHeadingButton"></slot>
-        </div>
-        <slot name="default"></slot>
-      </v-container>
+    <div class="d-flex justify-center">
+      <div class="main-container mt-5 ml-3 mr-3">
+        <v-container fluid>
+          <div class="d-flex mb-2 align-center justify-space-between">
+            <h1>
+              <slot name="heading"></slot>
+            </h1>
+            <slot name="postHeadingButton"></slot>
+          </div>
+          <slot name="default"></slot>
+        </v-container>
+      </div>
     </div>
   </v-main>
   <DefaultFooter />
