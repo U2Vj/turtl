@@ -11,6 +11,7 @@ import AddProjectModal from '@/components/modals/AddProjectModal.vue'
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import dayjs from 'dayjs'
+import type { Ref } from 'vue'
 import { onMounted, ref, toRaw, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -20,11 +21,30 @@ const tab = ref(0)
 const catalogStore = useCatalogStore()
 const toast = useToast()
 
+const breadcrumbItems: Ref<any[]> = ref([])
+
 let classroom = toRef(catalogStore, 'classroom')
 
-catalogStore.getClassroom(props.classroomId).catch((e) => {
-  toast.error(e.message)
-})
+catalogStore
+  .getClassroom(props.classroomId)
+  .then(() => {
+    breadcrumbItems.value = [
+      {
+        title: 'My Classrooms',
+        disabled: false,
+        to: {
+          name: 'InstructorMyClassrooms'
+        }
+      },
+      {
+        title: classroom.value?.title,
+        disabled: true
+      }
+    ]
+  })
+  .catch((e) => {
+    toast.error(e.message)
+  })
 
 const formatDate = (datetime: string) => {
   return dayjs(datetime).format('DD.MM.YYYY')
@@ -99,6 +119,11 @@ onMounted(async () => {
   <DefaultLayout v-if="classroom">
     <template #heading>{{ classroom.title }}</template>
     <template #default>
+      <v-row>
+        <v-col>
+          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+        </v-col>
+      </v-row>
       <v-text-field
         label="Edit Title"
         clearable
@@ -268,7 +293,7 @@ onMounted(async () => {
                 { title: 'E-Mail', key: 'student.email' },
                 { title: 'Username', key: 'student.username' },
                 { title: 'Date Enrolled', key: 'date_enrolled' },
-                { title: 'Progress', key: 'progress'}
+                { title: 'Progress', key: 'progress' }
               ]"
               :items="enrolledStudents"
               item-key="id"
@@ -277,9 +302,7 @@ onMounted(async () => {
               <template #[`item.date_enrolled`]="{ item }">{{
                 formatDate(item.raw.date_enrolled)
               }}</template>
-              <template #[`item.progress`]="{ item }">
-                {{ item.raw.progress }}&percnt;
-              </template>
+              <template #[`item.progress`]="{ item }"> {{ item.raw.progress }}&percnt; </template>
             </v-data-table>
           </v-container>
         </v-window-item>

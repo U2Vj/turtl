@@ -4,10 +4,10 @@ import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomModal from '@/components/modals/CreateClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
-
 import { useUserStore } from '@/stores/UserStore'
 import dayjs from 'dayjs'
-import { toRef } from 'vue'
+import type { Ref } from 'vue'
+import { ref, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
 const userStore = useUserStore()
@@ -17,9 +17,21 @@ const progress = 33
 const catalogStore = useCatalogStore()
 const toast = useToast()
 
+const breadcrumbItems: Ref<any[]> = ref([])
+
 let classroomList = toRef(catalogStore, 'classroomList')
 
-catalogStore.getMyClassroomList().catch((e: any) => toast.error(e.message))
+catalogStore
+  .getMyClassroomList()
+  .then(() => {
+    breadcrumbItems.value = [
+      {
+        title: 'My Classrooms',
+        disabled: true
+      }
+    ]
+  })
+  .catch((e: any) => toast.error(e.message))
 
 function getInstructor(instructors: any[]) {
   return instructors
@@ -45,6 +57,11 @@ function formatReadableDate(date: string) {
       <PrimaryButton button-name="Create"> <CreateClassroomModal /> </PrimaryButton>
     </template>
     <template #default>
+      <v-row>
+        <v-col>
+          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+        </v-col>
+      </v-row>
       <v-row class="mt-1">
         <v-col
           v-for="classroom in classroomList"
