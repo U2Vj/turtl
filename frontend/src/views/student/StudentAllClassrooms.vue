@@ -12,6 +12,7 @@ import { useToast } from 'vue-toastification'
 const catalogStore = useCatalogStore()
 const enrollmentStore = useEnrollmentStore()
 const toast = useToast()
+const breadcrumbItems: Ref<any[]> = ref([])
 
 const search = ref('')
 
@@ -24,6 +25,19 @@ const myEnrollments: Ref<EnrollmentShort[]> = ref([])
 enrollmentStore
   .getMyEnrollments()
   .then((enrollments) => {
+    breadcrumbItems.value = [
+      {
+        title: 'My Enrollments',
+        disabled: false,
+        to: {
+          name: 'StudentMyEnrollments'
+        }
+      },
+      {
+        title: 'All Classrooms',
+        disabled: true
+      }
+    ]
     enrollments.forEach((enrollment) => {
       enrolledClassrooms.value.push(enrollment.classroom.id)
     })
@@ -47,6 +61,11 @@ function getInstructor(instructors: any[]) {
   <DefaultLayout v-if="classroomList">
     <template #heading>All Classrooms</template>
     <template #default>
+      <v-row>
+        <v-col>
+          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+        </v-col>
+      </v-row>
       <v-row>
         <v-col cols="8">
           <v-text-field

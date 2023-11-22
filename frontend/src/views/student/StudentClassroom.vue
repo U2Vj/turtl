@@ -15,12 +15,25 @@ const enrollmentStore = useEnrollmentStore()
 const enrollment: Ref<EnrollmentDetail | undefined> = toRef(enrollmentStore, 'enrollment')
 const toast = useToast()
 const router = useRouter()
-
+const breadcrumbItems: Ref<any[]> = ref([])
 const tab = ref(null)
 
 enrollmentStore
   .getEnrollment(props.enrollmentId)
   .then((result) => {
+    breadcrumbItems.value = [
+      {
+        title: 'My Enrollments',
+        disabled: false,
+        to: {
+          name: 'StudentMyEnrollments'
+        }
+      },
+      {
+        title: enrollment.value?.classroom.title,
+        disabled: true
+      }
+    ]
     enrollment.value = result
   })
   .catch((e) => toast.error(e.message))
@@ -85,6 +98,11 @@ function getProjectsDonePercentage(): number {
   <DefaultLayout v-if="enrollment">
     <template #heading>{{ enrollment.classroom.title }}</template>
     <template #default>
+      <v-row>
+        <v-col>
+          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+        </v-col>
+      </v-row>
       <v-tabs v-model="tab" color="primary" align-tabs="start">
         <v-tab value="1">Projects</v-tab>
         <v-tab value="2">Information</v-tab>

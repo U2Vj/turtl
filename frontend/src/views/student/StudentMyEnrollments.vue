@@ -6,15 +6,26 @@ import type { EnrollmentShort } from '@/stores/EnrollmentStore'
 import { useEnrollmentStore } from '@/stores/EnrollmentStore'
 import dayjs from 'dayjs'
 import type { Ref } from 'vue'
-import { toRef } from 'vue'
+import { ref, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
 const enrollmentStore = useEnrollmentStore()
 const toast = useToast()
+const breadcrumbItems: Ref<any[]> = ref([])
 
 let myEnrollments: Ref<EnrollmentShort[] | undefined> = toRef(enrollmentStore, 'myEnrollments')
 
-enrollmentStore.getMyEnrollments().catch((e: any) => toast.error(e.message))
+enrollmentStore
+  .getMyEnrollments()
+  .then(() => {
+    breadcrumbItems.value = [
+      {
+        title: 'My Enrollments',
+        disabled: true
+      }
+    ]
+  })
+  .catch((e: any) => toast.error(e.message))
 
 function getInstructor(instructors: any[]) {
   return instructors
@@ -40,6 +51,11 @@ function formatReadableDate(date: string) {
       <PrimaryButton go-to="/student/classrooms/all">Enroll</PrimaryButton>
     </template>
     <template #default>
+      <v-row>
+        <v-col>
+          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+        </v-col>
+      </v-row>
       <v-row class="mt-1">
         <v-col
           v-for="enrollment in myEnrollments"
