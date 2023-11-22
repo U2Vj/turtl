@@ -66,7 +66,7 @@ function getInstructor(instructors: any[]) {
 </script>
 
 <template>
-  <DefaultLayout v-if="classroomList">
+  <DefaultLayout v-if="classroomList" :breadcrumb-items="breadcrumbItems">
     <template #heading>Classrooms</template>
     <template #postHeadingButton>
       <PrimaryButton buttonName="Create Classroom">
@@ -74,11 +74,6 @@ function getInstructor(instructors: any[]) {
       </PrimaryButton>
     </template>
     <template #default>
-      <v-row>
-        <v-col>
-          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
-        </v-col>
-      </v-row>
       <v-row>
         <v-col cols="8">
           <v-text-field

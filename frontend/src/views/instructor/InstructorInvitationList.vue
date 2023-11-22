@@ -67,17 +67,12 @@ function isExpired(expiration_date: string): boolean {
 </script>
 
 <template>
-  <DefaultLayout v-if="myInvitations">
+  <DefaultLayout v-if="myInvitations" :breadcrumb-items="breadcrumbItems">
     <template #heading>Manage Invitations</template>
     <template #postHeadingButton>
       <PrimaryButton buttonName="Invite Users" go-to="/instructor/invitations/send"></PrimaryButton>
     </template>
     <template #default>
-      <v-row>
-        <v-col>
-          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
-        </v-col>
-      </v-row>
       <v-tabs v-model="currentTab" color="primary">
         <v-tab value="myInvitations" @click="invitationStore.getMyInvitations()"
           >My open Invitations</v-tab

@@ -202,7 +202,7 @@ function submitSolution() {
     <DefaultHeader />
     <v-main class="mb-4">
       <v-container fluid>
-        <v-row>
+        <v-row class="ml-14">
           <v-col>
             <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
           </v-col>

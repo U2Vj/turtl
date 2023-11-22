@@ -51,17 +51,12 @@ function formatReadableDate(date: string) {
 </script>
 
 <template>
-  <DefaultLayout v-if="classroomList">
+  <DefaultLayout v-if="classroomList" :breadcrumb-items="breadcrumbItems">
     <template #heading>My Classrooms</template>
     <template #postHeadingButton>
       <PrimaryButton button-name="Create"> <CreateClassroomModal /> </PrimaryButton>
     </template>
     <template #default>
-      <v-row>
-        <v-col>
-          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
-        </v-col>
-      </v-row>
       <v-row class="mt-1">
         <v-col
           v-for="classroom in classroomList"

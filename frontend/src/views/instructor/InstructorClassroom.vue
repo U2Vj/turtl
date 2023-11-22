@@ -116,14 +116,9 @@ onMounted(async () => {
 </script>
 
 <template>
-  <DefaultLayout v-if="classroom">
+  <DefaultLayout v-if="classroom" :breadcrumb-items="breadcrumbItems">
     <template #heading>{{ classroom.title }}</template>
     <template #default>
-      <v-row>
-        <v-col>
-          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
-        </v-col>
-      </v-row>
       <v-text-field
         label="Edit Title"
         clearable

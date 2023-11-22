@@ -277,7 +277,7 @@ try {
 }
 </script>
 <template>
-  <DefaultLayout v-if="task">
+  <DefaultLayout v-if="task" :breadcrumb-items="breadcrumbItems">
     <template #heading>{{ task.title }}</template>
     <template #postHeadingButton>
       <ErrorButton button-name="Delete">
@@ -285,11 +285,6 @@ try {
       </ErrorButton>
     </template>
     <template #default>
-      <v-row>
-        <v-col>
-          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
-        </v-col>
-      </v-row>
       <v-form @submit.prevent="saveTask">
         <v-text-field
           label="Edit Title"

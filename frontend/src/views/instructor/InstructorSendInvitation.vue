@@ -23,14 +23,9 @@ breadcrumbItems.value = [
 </script>
 
 <template>
-  <DefaultLayout>
+  <DefaultLayout :breadcrumb-items="breadcrumbItems">
     <template #heading>Invite Users</template>
     <template #default>
-      <v-row>
-        <v-col>
-          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
-        </v-col>
-      </v-row>
       <v-tabs v-model="tab" color="primary">
         <v-tab value="single">Single User</v-tab>
         <v-tab value="multiple">Multiple Users</v-tab>
