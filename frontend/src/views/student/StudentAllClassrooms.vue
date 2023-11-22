@@ -5,6 +5,7 @@ import EnrollModal from '@/components/modals/EnrollModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import type { EnrollmentShort } from '@/stores/EnrollmentStore'
 import { useEnrollmentStore } from '@/stores/EnrollmentStore'
+import { useUserStore } from '@/stores/UserStore'
 import type { Ref } from 'vue'
 import { ref, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
@@ -13,7 +14,7 @@ const catalogStore = useCatalogStore()
 const enrollmentStore = useEnrollmentStore()
 const toast = useToast()
 const breadcrumbItems: Ref<any[]> = ref([])
-
+const userStore = useUserStore()
 const search = ref('')
 
 let classroomList = toRef(catalogStore, 'classroomList')
@@ -25,19 +26,28 @@ const myEnrollments: Ref<EnrollmentShort[]> = ref([])
 enrollmentStore
   .getMyEnrollments()
   .then((enrollments) => {
-    breadcrumbItems.value = [
-      {
-        title: 'My Enrollments',
-        disabled: false,
-        to: {
-          name: 'StudentMyEnrollments'
+    if (userStore.isStudent()) {
+      breadcrumbItems.value = [
+        {
+          title: 'All Classrooms',
+          disabled: true
         }
-      },
-      {
-        title: 'All Classrooms',
-        disabled: true
-      }
-    ]
+      ]
+    } else {
+      breadcrumbItems.value = [
+        {
+          title: 'My Enrollments',
+          disabled: false,
+          to: {
+            name: 'StudentMyEnrollments'
+          }
+        },
+        {
+          title: 'All Classrooms',
+          disabled: true
+        }
+      ]
+    }
     enrollments.forEach((enrollment) => {
       enrolledClassrooms.value.push(enrollment.classroom.id)
     })
