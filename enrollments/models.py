@@ -18,6 +18,18 @@ class Enrollment(RulesModel):
     date_enrolled = models.DateTimeField(auto_now_add=True, editable=False)
     # TODO for later: last_visited = models.DateTimeField()
 
+    def get_progress(self):
+        number_of_tasks_total = 0
+        for project in self.classroom.projects.all():
+            number_of_tasks_total += project.tasks.all().count()
+
+        if number_of_tasks_total == 0:
+            return 100
+
+        number_of_tasks_solved = self.solutions.all().count()
+
+        return round((number_of_tasks_solved / number_of_tasks_total) * 100)
+
     class Meta:
         unique_together = ('classroom', 'student',)
         rules_permissions = {
@@ -32,8 +44,8 @@ class TaskSolution(RulesModel):
     A TaskSolution is created when a student submits a solution to a task.
     """
     id = models.AutoField(primary_key=True)
-    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, editable=False)
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, editable=False)
+    enrollment = models.ForeignKey(Enrollment, on_delete=models.CASCADE, editable=False, related_name='solutions')
+    task = models.ForeignKey(Task, on_delete=models.CASCADE, editable=False, related_name='solutions')
     date_submitted = models.DateTimeField(auto_now_add=True, editable=False)
 
     class Meta:

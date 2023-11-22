@@ -1,23 +1,37 @@
 from rest_framework import serializers
 from rest_framework.exceptions import ValidationError
+from rest_framework.fields import SerializerMethodField
 
 from authentication.serializers import UserSerializer
-from catalog.models import Classroom
-from catalog.serializers import ClassroomSerializer, ClassroomDetailSerializer
+from catalog.models import Classroom, Project, Task
+from catalog.serializers import ClassroomSerializer, ClassroomDetailSerializer, ProjectDetailSerializer, TaskSerializer
 from .models import Enrollment, TaskSolution
 
 
-class EnrollmentSerializer(serializers.ModelSerializer):
+class EnrollmentUserSerializer(serializers.ModelSerializer):
+    student = UserSerializer(read_only=True)
+    progress = SerializerMethodField()
+
+    @staticmethod
+    def get_progress(enrollment):
+        return enrollment.get_progress()
+
+    class Meta:
+        model = Enrollment
+        fields = ['id', 'student', 'date_enrolled', 'progress']
+        read_only_fields = ['id', 'student', 'date_enrolled', 'progress']
+
+
+class EnrollmentSerializer(EnrollmentUserSerializer):
     classroom = serializers.PrimaryKeyRelatedField(
         queryset=Classroom.objects.all(),
         error_messages={'does_not_exist': 'The classroom you are trying to enroll in does not exist.'}
     )
-    student = UserSerializer(read_only=True)
 
     class Meta:
         model = Enrollment
-        fields = ['id', 'classroom', 'student', 'date_enrolled']
-        read_only_fields = ['id', 'student', 'date_enrolled']
+        fields = ['id', 'classroom', 'student', 'date_enrolled', 'progress']
+        read_only_fields = ['id', 'student', 'date_enrolled', 'progress']
 
     def validate_classroom(self, classroom):
         if Enrollment.objects.filter(classroom=classroom, student=self.context['request'].user).exists():
@@ -30,66 +44,100 @@ class EnrollmentSerializer(serializers.ModelSerializer):
         return rep
 
 
-class ClassroomStudentSerializer(ClassroomDetailSerializer):
-    instructors = UserSerializer(many=True)
+class TaskStudentSerializer(TaskSerializer):
+    done = SerializerMethodField()
+    date_submitted = SerializerMethodField()
+
+    def get_done(self, task):
+        enrollment: Enrollment = self.context['enrollment']
+        return enrollment.solutions.filter(task=task).exists()
+
+    def get_date_submitted(self, task):
+        enrollment: Enrollment = self.context['enrollment']
+        solution = enrollment.solutions.filter(task=task).first()
+        if solution is None:
+            return None
+        return solution.date_submitted
 
     def to_representation(self, instance):
-        classroom = super().to_representation(instance)
+        # This is a serializer for students, hence we have to remove every acceptance criteria solution from the task
 
-        # This is a serializer for students, hence we have to remove the
-        # virtualizations and the solutions from the tasks
-
-        for project in classroom['projects']:
-            for task in project['tasks']:
-                del task['virtualizations']
-
-                if 'flags' in task['acceptance_criteria']:
-                    for flag in task['acceptance_criteria']['flags']:
-                        del flag['value']
-
-                if 'regexes' in task['acceptance_criteria']:
-                    for regex in task['acceptance_criteria']['regexes']:
-                        del regex['pattern']
-
-                if 'questions' in task['acceptance_criteria']:
-                    for question in task['acceptance_criteria']['questions']:
-                        for choice in question['choices']:
-                            del choice['is_correct']
-
-        return classroom
-
-
-class EnrollmentDetailSerializer(serializers.ModelSerializer):
-    classroom = ClassroomStudentSerializer(read_only=True)
-    student = UserSerializer(read_only=True)
-
-    def to_representation(self, instance):
         representation = super().to_representation(instance)
 
-        task_solutions = TaskSolution.objects.filter(enrollment=instance).select_related('task')
-        solutions_dict = {solution.task_id: solution.date_submitted for solution in task_solutions}
+        if 'flags' in representation['acceptance_criteria']:
+            for flag in representation['acceptance_criteria']['flags']:
+                del flag['value']
 
-        for project in representation['classroom']['projects']:
-            for task in project['tasks']:
-                task_id = task['id']
-                task['done'] = task_id in solutions_dict
-                task['date_submitted'] = solutions_dict.get(task_id)
+        if 'regexes' in representation['acceptance_criteria']:
+            for regex in representation['acceptance_criteria']['regexes']:
+                del regex['pattern']
+
+        if 'questions' in representation['acceptance_criteria']:
+            for question in representation['acceptance_criteria']['questions']:
+                for choice in question['choices']:
+                    del choice['is_correct']
 
         return representation
 
     class Meta:
-        model = Enrollment
-        fields = ['id', 'classroom', 'student', 'date_enrolled']
-        read_only_fields = ['id', 'classroom', 'student', 'date_enrolled']
+        model = Task
+        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'acceptance_criteria', 'done',
+                  'date_submitted']
 
 
-class EnrollmentUserSerializer(serializers.ModelSerializer):
-    student = UserSerializer(read_only=True)
+class ProjectStudentSerializer(ProjectDetailSerializer):
+    tasks = SerializerMethodField()
+    progress = SerializerMethodField()
+
+    def get_tasks(self, project):
+        return TaskStudentSerializer(
+            many=True,
+            instance=project.tasks,
+            read_only=True,
+            context=self.context
+        ).data
+
+    def get_progress(self, project: Project):
+        enrollment: Enrollment = self.context['enrollment']
+        number_of_total_tasks = project.tasks.all().count()
+        if number_of_total_tasks == 0:
+            return 100
+        number_of_solved_tasks = enrollment.solutions.filter(task__in=project.tasks.all()).count()
+        return round((number_of_solved_tasks / number_of_total_tasks) * 100)
+
+    class Meta:
+        model = Project
+        fields = ['id', 'title', 'tasks', 'progress']
+
+
+class ClassroomStudentDetailSerializer(ClassroomDetailSerializer):
+    instructors = UserSerializer(many=True)
+    projects = SerializerMethodField()
+
+    def get_projects(self, classroom):
+        return ProjectStudentSerializer(
+            many=True,
+            instance=classroom.projects,
+            read_only=True,
+            context=self.context
+        ).data
+
+
+class EnrollmentDetailSerializer(EnrollmentUserSerializer):
+    classroom = SerializerMethodField(read_only=True)
+
+    @staticmethod
+    def get_classroom(enrollment):
+        return ClassroomStudentDetailSerializer(
+            instance=enrollment.classroom,
+            context={'enrollment': enrollment},
+            read_only=True
+        ).data
 
     class Meta:
         model = Enrollment
-        fields = ['id', 'student', 'date_enrolled']
-        read_only_fields = ['id', 'student', 'date_enrolled']
+        fields = ['id', 'classroom', 'student', 'date_enrolled', 'progress']
+        read_only_fields = ['id', 'classroom', 'student', 'date_enrolled', 'progress']
 
 
 class TaskSolutionSerializer(serializers.ModelSerializer):
