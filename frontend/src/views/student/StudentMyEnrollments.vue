@@ -9,8 +9,6 @@ import type { Ref } from 'vue'
 import { toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
-const progress = 33
-
 const enrollmentStore = useEnrollmentStore()
 const toast = useToast()
 
@@ -67,14 +65,14 @@ function formatReadableDate(date: string) {
                 id="probar"
                 color="progress"
                 :height="25"
-                :model-value="progress"
+                :model-value="enrollment.progress"
                 rounded
                 rounded-bar
                 bg-color="#ffffff"
                 bg-opacity="1"
               >
                 <template #default>
-                  <strong>{{ Math.ceil(progress) }}%</strong>
+                  <strong>{{ enrollment.progress }}&percnt;</strong>
                 </template>
               </v-progress-linear>
             </v-card-text>

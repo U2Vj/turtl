@@ -90,7 +90,7 @@ function formatReadableDate(date: string) {
           </v-card>
         </v-col>
         <v-col v-if="classroomList?.length === 0">
-          <p>You have not enrolled in any classrooms yet.</p>
+          <p>You do not manage any classrooms yet. Click above to create a new classroom.</p>
         </v-col>
       </v-row>
       <v-row v-if="userStore.isAdministrator()">

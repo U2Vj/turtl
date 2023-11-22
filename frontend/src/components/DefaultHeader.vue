@@ -2,7 +2,8 @@
 import { useUserStore } from '@/stores/UserStore'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import { useToast } from 'vue-toastification'
+import {useToast} from "vue-toastification";
+import LogoutMenu from '@/components/menus/LogoutMenu.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -44,25 +45,7 @@ const drawer = ref(false)
       </template>
 
       <template #append>
-        <v-menu>
-          <template #activator="{ props }">
-            <v-btn icon="mdi-dots-vertical" v-bind="props"> </v-btn>
-          </template>
-          <v-list>
-            <v-list-item to="/profile">
-              <template #prepend>
-                <v-icon icon="mdi-account"></v-icon>
-              </template>
-              <v-list-item-title>Profile</v-list-item-title>
-            </v-list-item>
-            <v-list-item @click="handleLogout">
-              <template #prepend>
-                <v-icon icon="mdi-logout"></v-icon>
-              </template>
-              <v-list-item-title>Logout</v-list-item-title>
-            </v-list-item>
-          </v-list>
-        </v-menu>
+        <LogoutMenu />
       </template>
     </v-app-bar>
     <v-navigation-drawer v-model="drawer" absolute temporary color="cardColor">
