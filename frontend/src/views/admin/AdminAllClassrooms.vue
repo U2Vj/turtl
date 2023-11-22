@@ -5,6 +5,7 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomModal from '@/components/modals/CreateClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import dayjs from 'dayjs'
+import type { Ref } from 'vue'
 import { ref, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -16,9 +17,28 @@ const router = useRouter()
 const catalogStore = useCatalogStore()
 const toast = useToast()
 
+const breadcrumbItems: Ref<any[]> = ref([])
+
 let classroomList = toRef(catalogStore, 'classroomList')
 
-catalogStore.getClassroomList().catch((e) => toast.error(e.message))
+catalogStore
+  .getClassroomList()
+  .then(() => {
+    breadcrumbItems.value = [
+      {
+        title: 'My Classrooms',
+        disabled: false,
+        to: {
+          name: 'InstructorMyClassrooms'
+        }
+      },
+      {
+        title: 'Classrooms',
+        disabled: true
+      }
+    ]
+  })
+  .catch((e) => toast.error(e.message))
 
 function handleRowClick(event: Event, item: { item: { raw: any } }) {
   // Allow text selection.
@@ -55,6 +75,11 @@ function getInstructor(instructors: any[]) {
     </template>
     <template #default>
       <v-row>
+        <v-col>
+          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+        </v-col>
+      </v-row>
+      <v-row>
         <v-col cols="8">
           <v-text-field
             clearable
@@ -90,7 +115,10 @@ function getInstructor(instructors: any[]) {
         :search="search"
       >
         <template #[`item.link`]="{ item }">
-          <TextButton buttonName="Edit" :goTo="`/instructor/classrooms/${item.raw.id}`"></TextButton>
+          <TextButton
+            buttonName="Edit"
+            :goTo="`/instructor/classrooms/${item.raw.id}`"
+          ></TextButton>
         </template>
         <template v-slot:[`item.updated_at`]="{ item }">
           {{ formatReadableDate(item.raw.updated_at) }}
