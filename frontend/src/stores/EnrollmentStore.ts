@@ -116,6 +116,9 @@ export const useEnrollmentStore = defineStore('invitation', () => {
   }
 
   async function getEnrollment(enrollmentId: number) {
+    if(enrollment.value?.id !== enrollmentId) {
+      enrollment.value = undefined
+    }
     const response = await makeAPIRequest(`/enrollments/${enrollmentId}`, 'GET', true, true)
     enrollment.value = response.data as EnrollmentDetail
     return enrollment.value

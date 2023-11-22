@@ -141,6 +141,9 @@ export const useCatalogStore = defineStore('catalog', () => {
   }
 
   async function getClassroom(id: number) {
+    if(classroom.value?.id !== id) {
+      classroom.value = undefined
+    }
     const response = await makeAPIRequest(`/catalog/classrooms/${id}`, 'GET', true, true)
     classroom.value = response.data
     return classroom.value
