@@ -4,12 +4,14 @@ import ProjectCard from '@/components/ProjectCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddHelpfulResourceModal from '@/components/modals/AddHelpfulResourceModal.vue'
 import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
 import AddProjectModal from '@/components/modals/AddProjectModal.vue'
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
+import { useUserStore } from '@/stores/UserStore'
 import dayjs from 'dayjs'
 import type { Ref } from 'vue'
 import { onMounted, ref, toRaw, toRef } from 'vue'
@@ -17,11 +19,12 @@ import { useToast } from 'vue-toastification'
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
-
 const catalogStore = useCatalogStore()
 const toast = useToast()
-
 const breadcrumbItems: Ref<any[]> = ref([])
+const currentInstructorId = ref()
+const showDialog = ref(false)
+const userStore = useUserStore()
 
 let classroom = toRef(catalogStore, 'classroom')
 
@@ -106,6 +109,11 @@ async function getEnrolledStudents(classroomId: number) {
   } catch (e: any) {
     toast.error(e.message)
   }
+}
+
+function confirmInstructorRemoval(instructorId: number) {
+  currentInstructorId.value = instructorId
+  showDialog.value = true
 }
 
 const enrolledStudents = ref([])
@@ -253,6 +261,7 @@ onMounted(async () => {
             <v-data-table
               :headers="[
                 { title: 'E-Mail', key: 'instructor.email' },
+                { title: 'ID', key: 'instructor.id' },
                 { title: 'Username', key: 'instructor.username' },
                 { title: 'Added at', key: 'added_at' },
                 { title: 'Added by', key: 'added_by.email' },
@@ -267,13 +276,43 @@ onMounted(async () => {
                   variant="text"
                   @click="
                     () => {
-                      catalogStore
-                        .removeInstructor(item.raw.instructor.id)
-                        .then(() => toast.info('Instructor removed'))
-                        .catch((e) => toast.error(e.message))
+                      if (item.raw.instructor.id === userStore.user?.id) {
+                        confirmInstructorRemoval(item.raw.instructor.id)
+                      } else {
+                        catalogStore
+                          .removeInstructor(item.raw.instructor.id)
+                          .then(() => toast.info('Instructor removed'))
+                          .catch((e) => toast.error(e.message))
+                      }
                     }
                   "
                 />
+                <v-dialog v-model="showDialog">
+                  <v-card>
+                    <v-card-title>Delete Task</v-card-title>
+                    <v-card-text>
+                      <p>Are you sure you want to remove yourself from this classroom?</p>
+                    </v-card-text>
+                    <v-card-actions>
+                      <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
+                      <PrimaryButton
+                        buttonName="Delete"
+                        @click="
+                          () => {
+                            catalogStore
+                              .removeInstructor(currentInstructorId)
+                              .then(() => toast.info('Instructor removed'))
+                              .catch((e) => toast.error(e.message))
+                            showDialog = false
+                            $router.push({
+                              name: 'InstructorMyClassrooms'
+                            })
+                          }
+                        "
+                      ></PrimaryButton>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </template>
             </v-data-table>
           </v-container>
