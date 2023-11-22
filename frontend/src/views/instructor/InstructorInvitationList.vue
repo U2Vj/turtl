@@ -4,6 +4,7 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import { useInvitationStore } from '@/stores/InvitationStore'
 import { useUserStore } from '@/stores/UserStore'
 import dayjs from 'dayjs'
+import type { Ref } from 'vue'
 import { ref, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
@@ -14,6 +15,8 @@ const deleteInvitationButtonDisabled = ref(false)
 const searchMyInvitations = ref('')
 const searchAllInvitations = ref('')
 
+const breadcrumbItems: Ref<any[]> = ref([])
+
 const userStore = useUserStore()
 const invitationStore = useInvitationStore()
 const toast = useToast()
@@ -21,7 +24,17 @@ const toast = useToast()
 const myInvitations = toRef(invitationStore, 'myInvitations')
 const allInvitations = toRef(invitationStore, 'allInvitations')
 
-invitationStore.getMyInvitations().catch((e) => toast.error(e.message))
+invitationStore
+  .getMyInvitations()
+  .then(() => {
+    breadcrumbItems.value = [
+      {
+        title: 'Manage Invitations',
+        disabled: true
+      }
+    ]
+  })
+  .catch((e) => toast.error(e.message))
 
 function deleteInvitation(id: number) {
   deleteInvitationButtonDisabled.value = true
@@ -60,6 +73,11 @@ function isExpired(expiration_date: string): boolean {
       <PrimaryButton buttonName="Invite Users" go-to="/instructor/invitations/send"></PrimaryButton>
     </template>
     <template #default>
+      <v-row>
+        <v-col>
+          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+        </v-col>
+      </v-row>
       <v-tabs v-model="currentTab" color="primary">
         <v-tab value="myInvitations" @click="invitationStore.getMyInvitations()"
           >My open Invitations</v-tab

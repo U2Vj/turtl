@@ -20,7 +20,8 @@ import {
 } from '@/stores/CatalogStore'
 import { useField, useForm } from 'vee-validate'
 import type { Ref } from 'vue'
-import { ref } from 'vue'
+import { ref, toRef } from 'vue'
+import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import * as yup from 'yup'
 
@@ -31,8 +32,11 @@ const props = defineProps<{
 
 const toast = useToast()
 const catalogStore = useCatalogStore()
+const breadcrumbItems: Ref<any[]> = ref([])
+const router = useRouter()
 
 let task: Ref<Task | undefined> = ref(undefined)
+let classroom = toRef(catalogStore, 'classroom')
 
 const addRegEx = (regex: RegEx) => {
   if (!task.value) return
@@ -218,6 +222,12 @@ const saveTask = handleSubmit(async (values) => {
   catalogStore
     .updateTask(task.value)
     .then(() => {
+      router.push({
+        name: 'InstructorClassroom',
+        params: {
+          classroomId: props.classroomId
+        }
+      })
       toast.success('Changes saved.')
       task.value = catalogStore.getTask(props.taskId)
     })
@@ -230,6 +240,29 @@ try {
     .getClassroom(props.classroomId)
     .then(() => {
       task.value = catalogStore.getTask(props.taskId)
+      breadcrumbItems.value = [
+        {
+          title: 'My Classrooms',
+          disabled: false,
+          to: {
+            name: 'InstructorMyClassrooms'
+          }
+        },
+        {
+          title: classroom.value?.title,
+          disabled: false,
+          to: {
+            name: 'InstructorClassroom',
+            params: {
+              classroomId: props.classroomId
+            }
+          }
+        },
+        {
+          title: task.value?.title,
+          disabled: true
+        }
+      ]
       if (!task.value) return
       title.value = task.value.title
       description.value = task.value.description
@@ -252,6 +285,11 @@ try {
       </ErrorButton>
     </template>
     <template #default>
+      <v-row>
+        <v-col>
+          <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+        </v-col>
+      </v-row>
       <v-form @submit.prevent="saveTask">
         <v-text-field
           label="Edit Title"
