@@ -267,14 +267,19 @@ onMounted(async () => {
               :headers="[
                 { title: 'E-Mail', key: 'student.email' },
                 { title: 'Username', key: 'student.username' },
-                { title: 'Date Enrolled', key: 'date_enrolled' }
+                { title: 'Date Enrolled', key: 'date_enrolled' },
+                { title: 'Progress', key: 'progress'}
               ]"
               :items="enrolledStudents"
               item-key="id"
+              no-data-text="There are no students who are currently enrolled in this classroom."
             >
               <template #[`item.date_enrolled`]="{ item }">{{
                 formatDate(item.raw.date_enrolled)
               }}</template>
+              <template #[`item.progress`]="{ item }">
+                {{ item.raw.progress }}&percnt;
+              </template>
             </v-data-table>
           </v-container>
         </v-window-item>

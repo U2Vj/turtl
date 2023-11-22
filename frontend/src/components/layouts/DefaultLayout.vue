@@ -1,9 +1,9 @@
 <script setup lang="ts">
-import FooterTurtl from '@/components/FooterTurtl.vue'
-import HeaderTurtl from '@/components/HeaderTurtl.vue'
+import DefaultFooter from '@/components/DefaultFooter.vue'
+import DefaultHeader from '@/components/DefaultHeader.vue'
 </script>
 <template>
-  <HeaderTurtl />
+  <DefaultHeader />
   <v-main class="d-flex justify-center">
     <div class="main-container mt-5 ml-3 mr-3">
       <v-container fluid>
@@ -18,7 +18,7 @@ import HeaderTurtl from '@/components/HeaderTurtl.vue'
       </v-container>
     </div>
   </v-main>
-  <FooterTurtl />
+  <DefaultFooter />
 </template>
 
 <style>

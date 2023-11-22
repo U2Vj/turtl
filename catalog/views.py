@@ -6,12 +6,12 @@ from catalog.models import Classroom, Task, Project, ClassroomInstructor
 from catalog.serializers import (ClassroomSerializer, ProjectDetailSerializer,
                                  TaskSerializer, ClassroomDetailSerializer,
                                  ProjectNewSerializer, TaskNewSerializer)
-from turtl.utils.permissions import AutoPermissionViewSetWithListMixin
 
 
-class ClassroomViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
+class ClassroomViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = ClassroomSerializer
     queryset = Classroom.objects.all()
+    permission_classes = (IsAuthenticated,)
 
     def perform_create(self, serializer):
         classroom: Classroom = serializer.save()
@@ -20,7 +20,7 @@ class ClassroomViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
                                            added_by=self.request.user).save()
 
 
-class MyClassroomsViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
+class MyClassroomsViewSet(ModelViewSet):
     serializer_class = ClassroomSerializer
     permission_classes = (IsAuthenticated,)
 
