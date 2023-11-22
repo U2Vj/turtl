@@ -11,6 +11,7 @@ export type EnrollmentShort = {
   student: User
   date_enrolled: string
   classroom: ClassroomShort
+  progress: number
 }
 
 type FlagStudent = {
@@ -60,9 +61,10 @@ type ProjectStudent = {
   id: number
   title: string
   tasks: TaskStudent[]
+  progress: number
 }
 
-type ClassroomStudent = {
+export type ClassroomStudent = {
   id: number
   title: string
   created_at: string

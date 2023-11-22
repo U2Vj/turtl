@@ -4,9 +4,8 @@ import dayjs from 'dayjs'
 import {ref, toRef} from 'vue'
 import {useToast} from "vue-toastification"
 import { useInvitationStore } from "@/stores/InvitationStore"
-import {useUserStore} from "@/stores/UserStore";
-import PrimaryButton from "@/components/buttons/PrimaryButton.vue";
-import CreateClassroomModal from "@/components/modals/CreateClassroomModal.vue";
+import {useUserStore} from "@/stores/UserStore"
+import PrimaryButton from "@/components/buttons/PrimaryButton.vue"
 
 const currentTab = ref("myInvitations")
 

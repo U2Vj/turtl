@@ -4,7 +4,7 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import {ref, toRef} from 'vue'
 import type {Ref} from 'vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
-import type {EnrollmentDetail} from '@/stores/EnrollmentStore'
+import type {ClassroomStudent, EnrollmentDetail} from '@/stores/EnrollmentStore'
 import {useEnrollmentStore} from '@/stores/EnrollmentStore'
 import {useToast} from 'vue-toastification'
 import {useRouter} from 'vue-router'
@@ -28,6 +28,48 @@ function unenroll() {
     toast.info(`You have unenrolled from '${enrollment.value?.classroom.title}'`)
     await router.push({ name: 'StudentMyEnrollments' })
   }).catch((e) => toast.error(e.message))
+}
+
+function getTasksInClassroom(classroom: ClassroomStudent) {
+  return classroom.projects.map(project => project.tasks).flat(1)
+}
+
+function getTasksDone(): number {
+  if(!enrollment.value) return 0
+  const tasks = getTasksInClassroom(enrollment.value.classroom)
+  return tasks.filter(task => task.done).length
+}
+function getTasksTotal(): number {
+  if(!enrollment.value) return 0
+  return getTasksInClassroom(enrollment.value.classroom).length
+}
+
+function getTasksDonePercentage(): number {
+  const doneTasks = getTasksDone()
+  const totalTasks = getTasksTotal()
+  if(totalTasks === 0) {
+    return 100
+  }
+
+  return Math.round((doneTasks / totalTasks) * 100)
+}
+
+function getProjectsDone(): number {
+  if(!enrollment.value) return 0
+  return enrollment.value.classroom.projects.filter(project => !project.tasks.some(task => !task.done)).length
+}
+function getProjectsTotal(): number {
+  if(!enrollment.value) return 0
+  return enrollment.value.classroom.projects.length
+}
+function getProjectsDonePercentage(): number {
+  const doneProjects = getProjectsDone()
+  const totalProjects = getProjectsTotal()
+  if(totalProjects === 0) {
+    return 100
+  }
+
+  return Math.round((doneProjects / totalProjects) * 100)
 }
 </script>
 
@@ -59,10 +101,10 @@ function unenroll() {
                       rounded-bar
                       bg-color="#ffffff"
                       bg-opacity="1"
-                      :model-value="50"
+                      :model-value="project.progress"
                     >
                       <template #default>
-                        <strong>50%</strong>
+                        <strong>{{ project.progress }}&percnt;</strong>
                       </template>
                     </v-progress-linear>
                   </v-card-text>
@@ -82,7 +124,7 @@ function unenroll() {
                   </v-card-text>
                 </v-card>
               </v-col>
-              <v-col v-if="enrollment.classroom.projects.length === 0">
+              <v-col v-if="getProjectsTotal() === 0">
                 <p>This classroom does not contain any projects yet.</p>
               </v-col>
             </v-row>
@@ -113,23 +155,23 @@ function unenroll() {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>My Progress</v-card-title>
                     <v-card-text>
-                      5 / 10 Tasks Done:
+                      {{ getTasksDone() }} / {{ getTasksTotal() }} Tasks Done:
 
                       <v-progress-linear
                         color="progress"
                         :height="25"
-                        :model-value="50"
+                        :model-value="getTasksDonePercentage()"
                         rounded
                         rounded-bar
                         bg-color="#ffffff"
                         bg-opacity="1"
                       >
                         <template #default>
-                          <strong>50%</strong>
+                          <strong>{{ getTasksDonePercentage() }}&percnt;</strong>
                         </template>
                       </v-progress-linear>
 
-                      2 / 4 Projects Done
+                      {{ getProjectsDone() }} / {{ getProjectsTotal() }} Projects Done
 
                       <v-progress-linear
                         :height="25"
@@ -138,10 +180,10 @@ function unenroll() {
                         bg-color="#ffffff"
                         bg-opacity="1"
                         color="progress"
-                        :model-value="50"
+                        :model-value="getProjectsDonePercentage()"
                       >
                         <template #default>
-                          <strong>50%</strong>
+                          <strong>{{ getProjectsDonePercentage() }}&percnt;</strong>
                         </template>
                       </v-progress-linear>
                     </v-card-text>
