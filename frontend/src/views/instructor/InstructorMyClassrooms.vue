@@ -75,22 +75,6 @@ function formatReadableDate(date: string) {
             color="cardColor"
           >
             <v-card-text> Created at {{ formatReadableDate(classroom.created_at) }} </v-card-text>
-            <v-card-text>
-              <v-progress-linear
-                id="probar"
-                color="progress"
-                :height="25"
-                :model-value="progress"
-                rounded
-                rounded-bar
-                bg-color="#ffffff"
-                bg-opacity="1"
-              >
-                <template #default>
-                  <strong>{{ Math.ceil(progress) }}%</strong>
-                </template>
-              </v-progress-linear>
-            </v-card-text>
             <v-card-actions>
               <SecondaryButton
                 buttonName="Edit Classroom"
