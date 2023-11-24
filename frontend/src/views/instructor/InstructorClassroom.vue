@@ -1,32 +1,56 @@
 <script setup lang="ts">
+import { makeAPIRequest } from '@/communication/APIRequests'
 import ProjectCard from '@/components/ProjectCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
+import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddHelpfulResourceModal from '@/components/modals/AddHelpfulResourceModal.vue'
 import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
 import AddProjectModal from '@/components/modals/AddProjectModal.vue'
 import DeleteClassroomModal from '@/components/modals/DeleteClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
+import { useUserStore } from '@/stores/UserStore'
 import dayjs from 'dayjs'
-import { ref, toRaw, toRef } from 'vue'
+import type { Ref } from 'vue'
+import { onMounted, ref, toRaw, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
 
 const props = defineProps<{ classroomId: number }>()
 const tab = ref(0)
-
 const catalogStore = useCatalogStore()
 const toast = useToast()
+const breadcrumbItems: Ref<any[]> = ref([])
+const currentInstructorId = ref()
+const showDialog = ref(false)
+const userStore = useUserStore()
 
 let classroom = toRef(catalogStore, 'classroom')
 
-catalogStore.getClassroom(props.classroomId).catch((e) => {
-  toast.error(e.message)
-})
+catalogStore
+  .getClassroom(props.classroomId)
+  .then(() => {
+    breadcrumbItems.value = [
+      {
+        title: 'My Classrooms',
+        disabled: false,
+        to: {
+          name: 'InstructorMyClassrooms'
+        }
+      },
+      {
+        title: classroom.value?.title,
+        disabled: true
+      }
+    ]
+  })
+  .catch((e) => {
+    toast.error(e.message)
+  })
 
 const formatDate = (datetime: string) => {
-  return dayjs(datetime).format('DD.MM.YYYY HH:mm')
+  return dayjs(datetime).format('DD.MM.YYYY')
 }
 
 function deleteHelpfulResource(id: number) {
@@ -72,10 +96,35 @@ function editClassroomTitle(newTitle: string) {
       toast.error(e.message)
     })
 }
+
+async function getEnrolledStudents(classroomId: number) {
+  try {
+    const response = await makeAPIRequest(
+      `/enrollments/for-classroom/${classroomId}`,
+      'GET',
+      true,
+      true
+    )
+    return response.data
+  } catch (e: any) {
+    toast.error(e.message)
+  }
+}
+
+function confirmInstructorRemoval(instructorId: number) {
+  currentInstructorId.value = instructorId
+  showDialog.value = true
+}
+
+const enrolledStudents = ref([])
+
+onMounted(async () => {
+  enrolledStudents.value = await getEnrolledStudents(props.classroomId)
+})
 </script>
 
 <template>
-  <DefaultLayout v-if="classroom">
+  <DefaultLayout v-if="classroom" :breadcrumb-items="breadcrumbItems">
     <template #heading>{{ classroom.title }}</template>
     <template #default>
       <v-text-field
@@ -92,11 +141,12 @@ function editClassroomTitle(newTitle: string) {
         :disabled="!hasClassroomTitleChanged || classroomTitleJustSaved"
         @click="editClassroomTitle(classroom.title)"
       ></PrimaryButton>
-      <br><br>
+      <br /><br />
       <v-tabs v-model="tab" color="primary">
         <v-tab value="0">Projects</v-tab>
         <v-tab value="1">Settings</v-tab>
         <v-tab value="2">Instructors</v-tab>
+        <v-tab value="3">Students</v-tab>
       </v-tabs>
       <v-window v-model="tab" class="mt-5">
         <v-window-item eager value="0">
@@ -211,9 +261,10 @@ function editClassroomTitle(newTitle: string) {
             <v-data-table
               :headers="[
                 { title: 'E-Mail', key: 'instructor.email' },
+                { title: 'ID', key: 'instructor.id' },
                 { title: 'Username', key: 'instructor.username' },
-                { title: 'Added at', key: 'added_at'},
-                { title: 'Added by', key: 'added_by.email'},
+                { title: 'Added at', key: 'added_at' },
+                { title: 'Added by', key: 'added_by.email' },
                 { title: 'Remove', key: 'remove' }
               ]"
               :items="classroom.instructors"
@@ -225,19 +276,83 @@ function editClassroomTitle(newTitle: string) {
                   variant="text"
                   @click="
                     () => {
-                      catalogStore.removeInstructor(item.raw.instructor.id)
-                        .then(() => toast.info('Instructor removed'))
-                        .catch((e) => toast.error(e.message))
+                      if (item.raw.instructor.id === userStore.user?.id) {
+                        confirmInstructorRemoval(item.raw.instructor.id)
+                      } else {
+                        catalogStore
+                          .removeInstructor(item.raw.instructor.id)
+                          .then(() => toast.info('Instructor removed'))
+                          .catch((e) => toast.error(e.message))
+                      }
                     }
                   "
                 />
+                <v-dialog v-model="showDialog">
+                  <v-card>
+                    <v-card-title>Delete Task</v-card-title>
+                    <v-card-text>
+                      <p>Are you sure you want to remove yourself from this classroom?</p>
+                    </v-card-text>
+                    <v-card-actions>
+                      <TextButton buttonName="Close" @click="showDialog = false"></TextButton>
+                      <PrimaryButton
+                        buttonName="Delete"
+                        @click="
+                          () => {
+                            catalogStore
+                              .removeInstructor(currentInstructorId)
+                              .then(() => toast.info('Instructor removed'))
+                              .catch((e) => toast.error(e.message))
+                            showDialog = false
+                            $router.push({
+                              name: 'InstructorMyClassrooms'
+                            })
+                          }
+                        "
+                      ></PrimaryButton>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
               </template>
+            </v-data-table>
+          </v-container>
+        </v-window-item>
+        <v-window-item value="3">
+          <v-container fluid>
+            <div class="d-flex flex-row mb-2 align-center justify-space-between">
+              <h2>Enrolled Students</h2>
+            </div>
+            <v-data-table
+              :headers="[
+                { title: 'E-Mail', key: 'student.email' },
+                { title: 'Username', key: 'student.username' },
+                { title: 'Date Enrolled', key: 'date_enrolled' },
+                { title: 'Progress', key: 'progress' }
+              ]"
+              :items="enrolledStudents"
+              item-key="id"
+              no-data-text="There are no students who are currently enrolled in this classroom."
+            >
+              <template #[`item.date_enrolled`]="{ item }">{{
+                formatDate(item.raw.date_enrolled)
+              }}</template>
+              <template #[`item.progress`]="{ item }"> {{ item.raw.progress }}&percnt; </template>
             </v-data-table>
           </v-container>
         </v-window-item>
       </v-window>
     </template>
   </DefaultLayout>
+  <div v-else class="center-screen">
+    <v-progress-circular indeterminate color="primary" :size="50"></v-progress-circular>
+  </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>

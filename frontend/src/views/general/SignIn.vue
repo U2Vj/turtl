@@ -4,8 +4,8 @@ import { useUserStore } from '@/stores/UserStore'
 import { toTypedSchema } from '@vee-validate/yup'
 import { useField, useForm } from 'vee-validate'
 import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 import * as yup from 'yup'
-import {useToast} from "vue-toastification";
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -34,14 +34,26 @@ const { value: passwordValue, errorMessage: passwordError } = useField<string>(
 )
 
 const submit = handleSubmit((values) => {
-  userStore.login({
-    email: values.email, password: values.password
-  }).then(() => {
-    router.push({ name: 'UserProfile' })
-    toast.info("Welcome back!")
-  }).catch((e) => {
-    toast.error(e.message)
-  })
+  userStore
+    .login({
+      email: values.email,
+      password: values.password
+    })
+    .then(() => {
+      if (userStore.isAdministrator()) {
+        router.push({ name: 'InstructorMyClassrooms' })
+      } else if (userStore.isInstructor()) {
+        router.push({ name: 'InstructorMyClassrooms' })
+      } else if (userStore.isStudent()) {
+        router.push({ name: 'StudentMyEnrollments' })
+      } else {
+        router.push({ name: 'UserProfile' })
+      }
+      toast.info('Welcome back!')
+    })
+    .catch((e) => {
+      toast.error(e.message)
+    })
 })
 </script>
 
@@ -79,23 +91,23 @@ const submit = handleSubmit((values) => {
 </template>
 
 <style scoped>
-  #container {
-    height: fit-content;
-    min-height: 100vh;
-    position: relative;
-  }
+#container {
+  height: fit-content;
+  min-height: 100vh;
+  position: relative;
+}
 
-  #background::before {
-    content: '';
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    width: 100%;
-    height: 100%;
-    background-image: url(@/assets/logo.svg);
-    background-size: contain;
-    background-repeat: space;
-    opacity: 0.2;
-  }
+#background::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 100%;
+  height: 100%;
+  background-image: url(@/assets/logo.svg);
+  background-size: contain;
+  background-repeat: space;
+  opacity: 0.2;
+}
 </style>

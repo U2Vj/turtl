@@ -123,8 +123,8 @@ class Classroom(RulesModel):
         rules_permissions = {
             # Authenticated Instructors can create classrooms in our application
             "add": is_authenticated & is_instructor,
-            # Viewing classrooms is allowed for every authenticated user
-            "view": is_authenticated,
+            # Viewing classrooms is allowed for every authenticated instructor
+            "view": is_authenticated & is_instructor,
             # To edit an existing classroom, you must be able to create one and also manage the one you are trying to
             # modify
             "change": is_authenticated & is_instructor & manages_classroom,
@@ -181,8 +181,8 @@ class Project(RulesModel):
         rules_permissions = {
             # Only instructors managing the specific classroom can add a project
             "add": is_authenticated & is_instructor,
-            # All authenticated users can view projects
-            "view": is_authenticated,
+            # All authenticated instructors can view projects
+            "view": is_authenticated & is_instructor,
             # Only instructors who manage the classroom that the project belongs to can change it
             "change": is_authenticated & is_instructor & manages_project,
             # Only instructors managing the specific classroom can delete a project
@@ -241,8 +241,8 @@ class Task(RulesModel):
         rules_permissions = {
             # Instructors can only add tasks if they manage the classroom associated with the project of the task
             "add": is_authenticated & is_instructor,
-            # Tasks can be viewed by all authenticated users
-            "view": is_authenticated,
+            # Tasks can be viewed by all authenticated instructors
+            "view": is_authenticated & is_instructor,
             # Editing a task is restricted to instructors managing the related classroom
             "change": is_authenticated & is_instructor & manages_task,
             # Deleting a task follows the same permission requirements as editing

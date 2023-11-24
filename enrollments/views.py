@@ -135,9 +135,11 @@ def task_submission_view(request, enrollment_id, task_id):
         "passed": False
     }
 
-    response_data["passed"] = (verify_regexes(task, regex_submission, response_data["regexes"])
-                               and verify_flags(task, flag_submission, response_data["flags"])
-                               and verify_questions(task, question_submission, response_data["questions"]))
+    regexes_valid = verify_regexes(task, regex_submission, response_data["regexes"])
+    flags_valid = verify_flags(task, flag_submission, response_data["flags"])
+    questions_valid = verify_questions(task, question_submission, response_data["questions"])
+
+    response_data["passed"] = regexes_valid and flags_valid and questions_valid
 
     status_code = status.HTTP_200_OK
     if response_data["passed"]:

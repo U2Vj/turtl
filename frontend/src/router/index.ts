@@ -1,18 +1,21 @@
-import { instructorRoutes } from './InstructorRoutes'
-import { studentRoutes } from './StudentRoutes'
 import { useUserStore } from '@/stores/UserStore'
+import AcceptInvitation from '@/views/general/AcceptInvitation.vue'
 import Imprint from '@/views/general/Imprint.vue'
+import NotFound from '@/views/general/NotFound.vue'
 import PrivacyPolicy from '@/views/general/PrivacyPolicy.vue'
 import SignIn from '@/views/general/SignIn.vue'
 import UserProfile from '@/views/general/UserProfile.vue'
 import { createRouter, createWebHistory } from 'vue-router'
-import AcceptInvitation from "@/views/general/AcceptInvitation.vue"
+import { adminRoutes } from './AdminRoutes'
+import { instructorRoutes } from './InstructorRoutes'
+import { studentRoutes } from './StudentRoutes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
     ...studentRoutes,
     ...instructorRoutes,
+    ...adminRoutes,
     {
       path: '/',
       component: SignIn,
@@ -59,6 +62,11 @@ const router = createRouter({
       path: '/imprint',
       name: 'Imprint',
       component: Imprint
+    },
+    {
+      path: '/:pathMatch(.*)*',
+      name: 'NotFound',
+      component: NotFound
     }
   ]
 })

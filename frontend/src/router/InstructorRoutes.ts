@@ -1,15 +1,10 @@
-import InstructorClassroomList from '@/views/instructor/InstructorClassroomList.vue'
 import InstructorClassroom from '@/views/instructor/InstructorClassroom.vue'
+import InstructorInvitationList from '@/views/instructor/InstructorInvitationList.vue'
+import InstructorMyClassrooms from '@/views/instructor/InstructorMyClassrooms.vue'
+import InstructorSendInvitation from '@/views/instructor/InstructorSendInvitation.vue'
 import InstructorTask from '@/views/instructor/InstructorTask.vue'
-import InstructorSendInvitation from "@/views/instructor/InstructorSendInvitation.vue"
-import InstructorInvitationList from "@/views/instructor/InstructorInvitationList.vue"
 
 export const instructorRoutes = [
-  {
-    path: '/instructor/classrooms',
-    name: 'InstructorClassroomList',
-    component: InstructorClassroomList
-  },
   {
     path: '/instructor/classrooms/:classroomId',
     name: 'InstructorClassroom',
@@ -40,5 +35,10 @@ export const instructorRoutes = [
     path: '/instructor/invitations/send',
     name: 'InstructorSendInvitation',
     component: InstructorSendInvitation
+  },
+  {
+    path: '/instructor/classrooms/my',
+    name: 'InstructorMyClassrooms',
+    component: InstructorMyClassrooms
   }
 ]

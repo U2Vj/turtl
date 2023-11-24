@@ -5,6 +5,7 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import CreateClassroomModal from '@/components/modals/CreateClassroomModal.vue'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import dayjs from 'dayjs'
+import type { Ref } from 'vue'
 import { ref, toRef } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -16,16 +17,35 @@ const router = useRouter()
 const catalogStore = useCatalogStore()
 const toast = useToast()
 
+const breadcrumbItems: Ref<any[]> = ref([])
+
 let classroomList = toRef(catalogStore, 'classroomList')
 
-catalogStore.getClassroomList().catch((e) => toast.error(e.message))
+catalogStore
+  .getClassroomList()
+  .then(() => {
+    breadcrumbItems.value = [
+      {
+        title: 'My Classrooms',
+        disabled: false,
+        to: {
+          name: 'InstructorMyClassrooms'
+        }
+      },
+      {
+        title: 'Classrooms',
+        disabled: true
+      }
+    ]
+  })
+  .catch((e) => toast.error(e.message))
 
 function handleRowClick(event: Event, item: { item: { raw: any } }) {
   // Allow text selection.
   // See https://stackoverflow.com/questions/31982407/prevent-onclick-event-when-selecting-text
   const selection = window.getSelection()
   if (selection?.toString().length === 0) {
-    router.push(`classrooms/${item.item.raw.id}`)
+    router.push(`/instructor/classrooms/${item.item.raw.id}`)
   }
 }
 function formatReadableDate(date: string) {
@@ -46,7 +66,7 @@ function getInstructor(instructors: any[]) {
 </script>
 
 <template>
-  <DefaultLayout>
+  <DefaultLayout v-if="classroomList" :breadcrumb-items="breadcrumbItems">
     <template #heading>Classrooms</template>
     <template #postHeadingButton>
       <PrimaryButton buttonName="Create Classroom">
@@ -90,7 +110,10 @@ function getInstructor(instructors: any[]) {
         :search="search"
       >
         <template #[`item.link`]="{ item }">
-          <TextButton buttonName="Edit" :goTo="`classrooms/${item.raw.id}`"></TextButton>
+          <TextButton
+            buttonName="Edit"
+            :goTo="`/instructor/classrooms/${item.raw.id}`"
+          ></TextButton>
         </template>
         <template v-slot:[`item.updated_at`]="{ item }">
           {{ formatReadableDate(item.raw.updated_at) }}
@@ -101,4 +124,16 @@ function getInstructor(instructors: any[]) {
       </v-data-table>
     </template>
   </DefaultLayout>
+  <div v-else class="center-screen">
+    <v-progress-circular indeterminate color="primary" :size="50"></v-progress-circular>
+  </div>
 </template>
+
+<style scoped>
+.center-screen {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+}
+</style>
