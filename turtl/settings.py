@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'authentication',
     'catalog',
     'enrollments',
-    'dockerService',
     'shell',
     'environment'
 ]

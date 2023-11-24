@@ -1,16 +1,17 @@
+{% load static %}
 <!-- shell/templates/shell/room.html -->
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
     <meta charset="utf-8"/>
     <title>shell Room</title>
 </head>
 <body>
-    <textarea id="shell-log" cols="100" rows="20"></textarea><br>
-    <input id="shell-message-input" type="text" size="100"><br>
+    <div id="shell-log" style="width: 100%; height: 300px; overflow-y: scroll;"></div>    <input id="shell-message-input" type="text" size="100"><br>
     <input id="shell-message-submit" type="button" value="Send">
     {{ room_name|json_script:"room-name" }}
-    <script>
+    <script type="module">
+        import { AnsiUp } from '{% static 'shell/js/ansi-up.js' %}'
         const roomName = JSON.parse(document.getElementById('room-name').textContent);
         const isLocalHost = window.location.host.includes('127.0.0.1') || window.location.host.includes('localhost');
         const shellSocket = new WebSocket(
@@ -23,7 +24,9 @@
 
         shellSocket.onmessage = function(e) {
             const data = JSON.parse(e.data);
-            document.querySelector('#shell-log').value += (data.message + '\n');
+            const ansi_up = new AnsiUp();
+            const html = ansi_up.ansi_to_html(data.message);
+            document.querySelector('#shell-log').innerHTML += html + '<br>';
         };
 
         shellSocket.onclose = function(e) {
