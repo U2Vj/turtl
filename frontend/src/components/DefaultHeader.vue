@@ -1,9 +1,9 @@
 <script setup lang="ts">
+import LogoutMenu from '@/components/menus/LogoutMenu.vue'
 import { useUserStore } from '@/stores/UserStore'
 import { ref } from 'vue'
 import { useRouter } from 'vue-router'
-import {useToast} from "vue-toastification";
-import LogoutMenu from '@/components/menus/LogoutMenu.vue'
+import { useToast } from 'vue-toastification'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -24,12 +24,12 @@ const drawer = ref(false)
       <div v-if="userStore.isAdministrator()" class="flex-grow-1 d-none d-sm-flex">
         <v-btn to="/instructor/classrooms/my">My Classrooms</v-btn>
         <v-btn to="/student/enrollments">My Enrollments</v-btn>
-        <v-btn to="/instructor/invitations">Invite Users</v-btn>
+        <v-btn to="/instructor/invitations">Manage Invitations</v-btn>
       </div>
       <div v-if="userStore.isInstructor()" class="flex-grow-1 d-none d-sm-flex">
         <v-btn to="/instructor/classrooms/my">My Classrooms</v-btn>
         <v-btn to="/student/enrollments">My Enrollments</v-btn>
-        <v-btn to="/instructor/invitations">Invite Users</v-btn>
+        <v-btn to="/instructor/invitations">Manage Invitations</v-btn>
       </div>
       <div v-if="userStore.isStudent()" class="flex-grow-1 d-none d-sm-flex">
         <v-btn to="/student/enrollments">My Enrollments</v-btn>
