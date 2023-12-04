@@ -1,18 +1,13 @@
-from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.db.models import Q
-from django.utils.encoding import smart_bytes, force_str
-from django.utils.http import urlsafe_base64_encode, urlsafe_base64_decode
 from rest_framework import status
-from rest_framework.generics import RetrieveUpdateAPIView
 from rest_framework.permissions import IsAuthenticated
-from rest_framework.exceptions import AuthenticationFailed, ValidationError, PermissionDenied, NotFound
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
-from rest_framework.viewsets import ModelViewSet, ViewSet
+from rest_framework.viewsets import ModelViewSet
 from rest_framework_simplejwt.views import TokenRefreshView
 from turtl.utils.permissions import AutoPermissionViewSetWithListMixin
-from .emails import send_invitation_email
 
 from .models import User, Invitation
 from .serializers import (ProfileUpdateSerializer, LoginRefreshSerializer,
@@ -51,16 +46,10 @@ class LoginRefreshView(TokenRefreshView):
     serializer_class = LoginRefreshSerializer
 
 
-class TestProtectedView(APIView):
-    permission_classes = (IsAuthenticated,)
-
-    def get(self, request):
-        return Response({'token_valid': True})
-
-
 class InvitationViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
     queryset = Invitation.objects.all()
     serializer_class = InvitationSerializer
+    permission_classes = (IsAuthenticated,)
 
     def get_serializer_context(self):
         context = super().get_serializer_context()
@@ -71,6 +60,7 @@ class InvitationViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
 class BulkInvitationViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
     queryset = Invitation.objects.all()
     serializer_class = BulkInvitationSerializer
+    permission_classes = (IsAuthenticated,)
 
     def create(self, request, *args, **kwargs):
         serializer = self.serializer_class(data=request.data, context={'request': request})
@@ -89,8 +79,10 @@ class AcceptInvitationView(CreateAPIView):
 
 
 class RenewInvitationView(APIView):
+    permission_classes = (IsAuthenticated,)
 
-    def post(self, request, pk:int=None):
+    @staticmethod
+    def post(request, pk: int = None):
         invitation = Invitation.objects.filter(id=pk).first()
 
         if not request.user.has_perm('authentication.change_invitation', invitation):
