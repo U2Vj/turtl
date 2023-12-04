@@ -190,6 +190,7 @@ class InvitationManager(models.Manager):
         invitation.save()
         send_invitation_email(invitation, token)
         return invitation
+
     def invite_student(self, email: str, issuer: User):
         invitation = self._create_and_send_invitation(email, issuer)
         return invitation
@@ -268,4 +269,3 @@ class Invitation(RulesModel):
             "change": is_authenticated & is_instructor & issued_invitation,
             "delete": is_authenticated & is_instructor & issued_invitation
         }
-

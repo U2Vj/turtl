@@ -4,6 +4,7 @@ from rules.contrib.models import RulesModel
 from .predicates import manages_classroom, manages_project, manages_task
 from authentication.models import User
 from authentication.predicates import is_instructor
+from django.utils.translation import gettext_lazy as _
 
 
 class Regex(models.Model):
@@ -25,23 +26,19 @@ class Flag(models.Model):
 class Question(models.Model):
     """
     A question that the user has to answer to prove that they have completed the task.
-    Part of an AcceptanceCriteriaQuestionnaire.
+    Part of a quiz.
     """
 
     # The question that the user has to answer to prove that they have completed the task
     question = models.CharField(max_length=200)
 
-    SINGLE_CHOICE = "single_choice"  # Single choice question
-    MULTIPLE_CHOICE = "multiple_choice"  # Multiple choice question
-
-    # Possible choices for the question type
-    QUESTION_TYPE_CHOICES = [
-        (SINGLE_CHOICE, "Single choice"),
-        (MULTIPLE_CHOICE, "Multiple choice")
-    ]
+    # The different types a question can have
+    class QuestionType(models.TextChoices):
+        SINGLE_CHOICE = 'SINGLE_CHOICE', _('Single choice')
+        MULTIPLE_CHOICE = 'MULTIPLE_CHOICE', _('Multiple choice')
 
     # Type of the question, i.e. whether it is a single choice or multiple choice question
-    question_type = models.CharField(choices=QUESTION_TYPE_CHOICES, default=SINGLE_CHOICE, max_length=20)
+    question_type = models.CharField(choices=QuestionType.choices, default=QuestionType.SINGLE_CHOICE, max_length=15)
 
 
 class QuestionChoice(models.Model):
@@ -63,27 +60,16 @@ class AcceptanceCriteria(models.Model):
     This is the superclass of all supported acceptance criteria types.
     """
 
-    DISABLED = 'disabled'
-    MANUAL = 'manual'
-    QUESTIONNAIRE = 'questionnaire'
-    REGEX = 'regex'
-    FLAG = 'flag'
-    MIXED = 'mixed'
+    # The different types the AcceptanceCriteria of a task can have
+    class CriteriaType(models.TextChoices):
+        DISABLED = 'DISABLED', _('Disabled')
+        MANUAL = 'MANUAL', _('Manual')
+        QUIZ = 'QUIZ', _('Quiz')
+        REGEX = 'REGEX', _('Regular expression')
+        FLAG = 'FLAG', _('Flag')
+        MIXED = 'MIXED', _('Mixed')
 
-    CRITERIA_TYPE_CHOICES = [
-        (DISABLED, 'Disabled'),
-        (MANUAL, 'Manual'),
-        (QUESTIONNAIRE, 'Questionnaire'),
-        (REGEX, 'Regex'),
-        (FLAG, 'Flag'),
-        (MIXED, 'Mixed')
-    ]
-
-    criteria_type = models.CharField(
-        choices=CRITERIA_TYPE_CHOICES,
-        default=DISABLED,
-        max_length=20
-    )
+    criteria_type = models.CharField(choices=CriteriaType.choices, default=CriteriaType.DISABLED, max_length=8)
 
     # Additional fields for each criteria type, if necessary
     questions = models.ManyToManyField(Question, blank=True)
@@ -160,8 +146,7 @@ class HelpfulResource(models.Model):
 
     url = models.URLField(max_length=200)
 
-    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE,
-                                  related_name="helpful_resources")
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name="helpful_resources")
 
 
 class Project(RulesModel):
@@ -173,8 +158,7 @@ class Project(RulesModel):
     title = models.CharField(max_length=120)
 
     # The corresponding classroom which this Project is a part of
-    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE,
-                                  related_name='projects')
+    classroom = models.ForeignKey(Classroom, on_delete=models.CASCADE, related_name='projects')
 
     # Permissions (Administrators automatically have all permissions)
     class Meta:
@@ -205,33 +189,21 @@ class Task(RulesModel):
     # Description of the Task
     description = models.TextField()
 
-    NEUTRAL = 'neutral'  # Neutral type
-    DEFENSE = 'defense'  # Defense type
-    ATTACK = 'attack'  # Attack type
+    # Tasks can have one of three types: neutral, attack and defense
+    class TaskType(models.TextChoices):
+        NEUTRAL = 'NEUTRAL', _('Neutral')
+        DEFENSE = 'DEFENSE', _('Defense')
+        ATTACK = 'ATTACK', _('Attack')
 
-    # Possible choices for the Task type
-    TASK_TYPE_CHOICES = [
-        (NEUTRAL, "Neutral"),
-        (DEFENSE, "Defense"),
-        (ATTACK, "Attack")
-    ]
+    task_type = models.CharField(choices=TaskType.choices, default=TaskType.NEUTRAL, max_length=7)
 
-    # Type of the Task, i.e. whether it is a neutral, defense or attack Task
-    task_type = models.CharField(choices=TASK_TYPE_CHOICES, max_length=12)
+    # Tasks have a difficulty level (beginner, intermediate or advanced)
+    class Difficulty(models.TextChoices):
+        BEGINNER = 'BEGINNER', _('Beginner')
+        INTERMEDIATE = 'INTERMEDIATE', _('Intermediate')
+        ADVANCED = 'ADVANCED', _('Advanced')
 
-    BEGINNER = "beginner"  # Beginner difficulty
-    INTERMEDIATE = "intermediate"  # Intermediate difficulty
-    ADVANCED = "advanced"  # Advanced difficulty
-
-    # Possible choices for the difficulty of a Task
-    DIFFICULTY_CHOICES = [
-        (BEGINNER, "Beginner"),
-        (INTERMEDIATE, "Intermediate"),
-        (ADVANCED, "Advanced")
-    ]
-
-    # Difficulty of the Task
-    difficulty = models.CharField(choices=DIFFICULTY_CHOICES, max_length=12)
+    difficulty = models.CharField(choices=Difficulty.choices, max_length=12)
 
     # The acceptance criteria for this Task, meaning how the user can prove that they have completed the task
     acceptance_criteria = models.ForeignKey(AcceptanceCriteria, on_delete=models.CASCADE)
@@ -261,17 +233,13 @@ class Virtualization(models.Model):
     # The task that this virtualization belongs to
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='virtualizations')
 
-    USER_SHELL = "user_shell"  # The user interacts with the virtualization via a shell
-    USER_ACCESSIBLE = "user_accessible"  # The user interacts with the virtualization via an IP address
+    # Virtualizations have a role: they are either a shell visible to the user, or accessible by the user shell
+    # via an IP address
+    class Role(models.TextChoices):
+        USER_SHELL = 'USER_SHELL', _('User Shell')
+        USER_ACCESSIBLE = 'USER_ACCESSIBLE', _('User-accessible via IP')
 
-    # Choices for the virtualization role (i.e. how the user interacts with the virtualization)
-    ROLE_CHOICES = [
-        (USER_SHELL, "User Shell"),
-        (USER_ACCESSIBLE, "User-accessible via IP"),
-    ]
-
-    # Role of virtualization (i.e. how the user interacts with the virtualization)
-    virtualization_role = models.CharField(choices=ROLE_CHOICES, max_length=30)
+    virtualization_role = models.CharField(choices=Role.choices, max_length=15)
 
     # File of the Dockerfile that is used to create the virtualization
     dockerfile = models.TextField()

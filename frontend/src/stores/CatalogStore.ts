@@ -13,15 +13,15 @@ export type ClassroomShort = {
 }
 
 export enum TaskType {
-  Neutral = 'neutral',
-  Attack = 'attack',
-  Defense = 'defense'
+  Neutral = 'NEUTRAL',
+  Attack = 'ATTACK',
+  Defense = 'DEFENSE'
 }
 
 export enum TaskDifficulty {
-  Beginner = 'beginner',
-  Intermediate = 'intermediate',
-  Advanced = 'advanced'
+  Beginner = 'BEGINNER',
+  Intermediate = 'INTERMEDIATE',
+  Advanced = 'ADVANCED'
 }
 
 export type Task = {
@@ -35,8 +35,8 @@ export type Task = {
 }
 
 export enum VirtualizationRole {
-  UserShell = 'user_shell',
-  UserAccessible = 'user_accessible'
+  UserShell = 'USER_SHELL',
+  UserAccessible = 'USER_ACCESSIBLE'
 }
 
 export type Virtualization = {
@@ -47,12 +47,12 @@ export type Virtualization = {
 }
 
 export enum AcceptanceCriteriaType {
-  Disabled = 'disabled',
-  Manual = 'manual',
-  RegEx = 'regex',
-  Flag = 'flag',
-  Questionnaire = 'questionnaire',
-  Mixed = 'mixed'
+  Disabled = 'DISABLED',
+  Manual = 'MANUAL',
+  RegEx = 'REGEX',
+  Flag = 'FLAG',
+  Quiz = 'QUIZ',
+  Mixed = 'MIXED'
 }
 
 type AcceptanceCriteria = {
@@ -76,8 +76,8 @@ export type RegEx = {
 }
 
 export enum QuestionType {
-  SingleChoice = 'single_choice',
-  MultipleChoice = 'multiple_choice'
+  SingleChoice = 'SINGLE_CHOICE',
+  MultipleChoice = 'MULTIPLE_CHOICE'
 }
 
 export type Question = {
