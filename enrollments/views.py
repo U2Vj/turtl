@@ -36,12 +36,13 @@ class EnrollmentViewSet(ModelViewSet):
 
 class EnrollmentDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = EnrollmentDetailSerializer
+    permission_classes = (IsAuthenticated,)
     queryset = Enrollment.objects.all()
 
 
 class ClassroomEnrollmentListView(ModelViewSet):
-    permission_classes = (IsAuthenticated,)
     serializer_class = EnrollmentUserSerializer
+    permission_classes = (IsAuthenticated,)
 
     @action(detail=False, methods=['get'], url_path='for-classroom')
     def list_enrollments(self, request, pk=None):

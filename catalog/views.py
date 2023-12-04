@@ -10,8 +10,8 @@ from catalog.serializers import (ClassroomSerializer, ProjectDetailSerializer,
 
 class ClassroomViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = ClassroomSerializer
-    queryset = Classroom.objects.all()
     permission_classes = (IsAuthenticated,)
+    queryset = Classroom.objects.all()
 
     def perform_create(self, serializer):
         classroom: Classroom = serializer.save()
@@ -30,24 +30,29 @@ class MyClassroomsViewSet(ModelViewSet):
 
 class ClassroomDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = ClassroomDetailSerializer
+    permission_classes = (IsAuthenticated,)
     queryset = Classroom.objects.all()
 
 
 class ProjectViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = ProjectNewSerializer
+    permission_classes = (IsAuthenticated,)
     queryset = Project.objects.all()
 
 
 class ProjectDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = ProjectDetailSerializer
+    permission_classes = (IsAuthenticated,)
     queryset = Project.objects.all()
 
 
 class TaskViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = TaskNewSerializer
+    permission_classes = (IsAuthenticated,)
     queryset = Task.objects.all()
 
 
 class TaskDetailViewSet(AutoPermissionViewSetMixin, ModelViewSet):
     serializer_class = TaskSerializer
+    permission_classes = (IsAuthenticated,)
     queryset = Task.objects.all()

@@ -55,7 +55,6 @@ INSTALLED_APPS = [
     'catalog',
     'enrollments',
     'shell',
-    'environment'
 ]
 
 MIDDLEWARE = [
@@ -166,8 +165,6 @@ AUTHENTICATION_BACKENDS = ('rules.permissions.ObjectPermissionBackend',
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-# Closes #34
 
 TIME_ZONE = 'UTC'
 
