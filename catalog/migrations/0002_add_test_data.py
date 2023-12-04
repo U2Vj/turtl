@@ -65,8 +65,14 @@ def add_test_data(apps, schema_editor):
     dhcp = Project.objects.create(title='DHCP', classroom=rechnernetze)
 
     # Create test questions
-    sqlinjectionpythonq1 = Question.objects.create(question='Is this code safe from SQL Injection?', question_type='single_choice')
-    xssq2 = Question.objects.create(question='Which of the following are types of XSS?', question_type='multiple_choice')
+    sqlinjectionpythonq1 = Question.objects.create(
+        question='Is this code safe from SQL Injection?',
+        question_type='SINGLE_CHOICE'
+    )
+    xssq2 = Question.objects.create(
+        question='Which of the following are types of XSS?',
+        question_type='MULTIPLE_CHOICE'
+    )
 
     # Create test question choices
     QuestionChoice.objects.create(answer='Yes', question=sqlinjectionpythonq1, is_correct=False)
@@ -80,11 +86,11 @@ def add_test_data(apps, schema_editor):
     reflectedxssflag = Flag.objects.create(value='FL4G', prompt="Please enter the flag that you found")
 
     # Add acceptance criteria to tasks
-    sqlinjectionpythonac = AcceptanceCriteria.objects.create(criteria_type='questionnaire')
-    sqlinjectionjavaac = AcceptanceCriteria.objects.create(criteria_type='regex')
-    reflectedxssac = AcceptanceCriteria.objects.create(criteria_type='flag')
-    storedxssac = AcceptanceCriteria.objects.create(criteria_type='questionnaire')
-    bufferoverflowcac = AcceptanceCriteria.objects.create(criteria_type='manual')
+    sqlinjectionpythonac = AcceptanceCriteria.objects.create(criteria_type='QUIZ')
+    sqlinjectionjavaac = AcceptanceCriteria.objects.create(criteria_type='REGEX')
+    reflectedxssac = AcceptanceCriteria.objects.create(criteria_type='FLAG')
+    storedxssac = AcceptanceCriteria.objects.create(criteria_type='QUIZ')
+    bufferoverflowcac = AcceptanceCriteria.objects.create(criteria_type='MANUAL')
 
     sqlinjectionjavaac.regexes.add(sqlinjectionjavaregex)
     reflectedxssac.flags.add(reflectedxssflag)
@@ -92,23 +98,74 @@ def add_test_data(apps, schema_editor):
     storedxssac.questions.set([xssq2])
 
     # Add tasks to projects
-    sqlinjectionpython = Task.objects.create(title='SQL Injection in Python', description='SQL Injection in Python', task_type='attack', difficulty='beginner', project=sqlinjection, acceptance_criteria=sqlinjectionpythonac)
-    sqlinjectionjava = Task.objects.create(title='SQL Injection in Java', description='SQL Injection in Java', task_type='attack', difficulty='beginner', project=sqlinjection, acceptance_criteria=sqlinjectionjavaac)
-    reflectedxss = Task.objects.create(title='Reflected XSS', description='Reflected XSS', task_type='neutral', difficulty='intermediate', project=xss, acceptance_criteria=reflectedxssac)
-    storedxss = Task.objects.create(title='Stored XSS', description='Stored XSS', task_type='neutral', difficulty='intermediate', project=xss, acceptance_criteria=storedxssac)
-    bufferoverflowc = Task.objects.create(title='Buffer Overflow in C', description='Buffer Overflow in C', task_type='defense', difficulty='advanced', project=bufferoverflow, acceptance_criteria=bufferoverflowcac)
+    sqlinjectionpython = Task.objects.create(
+        title='SQL Injection in Python',
+        description='SQL Injection in Python',
+        task_type='ATTACK',
+        difficulty='BEGINNER',
+        project=sqlinjection,
+        acceptance_criteria=sqlinjectionpythonac
+    )
+    sqlinjectionjava = Task.objects.create(
+        title='SQL Injection in Java',
+        description='SQL Injection in Java',
+        task_type='ATTACK',
+        difficulty='BEGINNER',
+        project=sqlinjection,
+        acceptance_criteria=sqlinjectionjavaac
+    )
+    reflectedxss = Task.objects.create(
+        title='Reflected XSS',
+        description='Reflected XSS',
+        task_type='NEUTRAL',
+        difficulty='INTERMEDIATE',
+        project=xss,
+        acceptance_criteria=reflectedxssac
+    )
+    storedxss = Task.objects.create(
+        title='Stored XSS',
+        description='Stored XSS',
+        task_type='NEUTRAL',
+        difficulty='INTERMEDIATE',
+        project=xss,
+        acceptance_criteria=storedxssac
+    )
+    bufferoverflowc = Task.objects.create(
+        title='Buffer Overflow in C',
+        description='Buffer Overflow in C',
+        task_type='DEFENSE',
+        difficulty='ADVANCED',
+        project=bufferoverflow,
+        acceptance_criteria=bufferoverflowcac
+    )
 
     # Add helpful resources to classrooms
-    HelpfulResource.objects.create(title='SQL Injection', url='https://www.w3schools.com/sql/sql_injection.asp', classroom=itsicherheit)
-    HelpfulResource.objects.create(title='XSS', url='https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting', classroom=itsicherheit)
-    HelpfulResource.objects.create(title='Buffer Overflow', url='https://www.geeksforgeeks.org/buffer-overflow-attack-with-example/', classroom=itsicherheit)
-    HelpfulResource.objects.create(title='DDoS', url='https://www.cloudflare.com/learning/ddos/what-is-a-ddos-attack/', classroom=itsicherheit)
+    HelpfulResource.objects.create(
+        title='SQL Injection',
+        url='https://www.w3schools.com/sql/sql_injection.asp',
+        classroom=itsicherheit
+    )
+    HelpfulResource.objects.create(
+        title='XSS',
+        url='https://developer.mozilla.org/en-US/docs/Glossary/Cross-site_scripting',
+        classroom=itsicherheit
+    )
+    HelpfulResource.objects.create(
+        title='Buffer Overflow',
+        url='https://www.geeksforgeeks.org/buffer-overflow-attack-with-example/',
+        classroom=itsicherheit
+    )
+    HelpfulResource.objects.create(
+        title='DDoS',
+        url='https://www.cloudflare.com/learning/ddos/what-is-a-ddos-attack/',
+        classroom=itsicherheit
+    )
 
 
 class Migration(migrations.Migration):
     dependencies = [
-        ('catalog', '0002_add_flag_regex_models'),
-        ('authentication', '0009_add_test_users'),
+        ('catalog', '0001_initial'),
+        ('authentication', '0002_add_test_users'),
         ('enrollments', '0001_initial'),
     ]
 

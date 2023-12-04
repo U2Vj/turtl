@@ -202,7 +202,7 @@ const saveTask = handleSubmit(async (values) => {
     task.value.acceptance_criteria.questions &&
     task.value.acceptance_criteria.questions.length > 0
   ) {
-    task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Questionnaire
+    task.value.acceptance_criteria.criteria_type = AcceptanceCriteriaType.Quiz
     differentCriteriaTypes++
   }
   if (task.value.acceptance_criteria.flags && task.value.acceptance_criteria.flags.length > 0) {
