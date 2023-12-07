@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import DefaultFooter from '@/components/DefaultFooter.vue'
-import DefaultHeader from '@/components/DefaultHeader.vue'
-import Shell from '@/components/ShellView.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
+import DefaultFooter from '@/components/menus/DefaultFooter.vue'
+import DefaultHeader from '@/components/menus/DefaultHeader.vue'
+import Shell from '@/components/shell/ShellView.vue'
 import { QuestionType } from '@/stores/CatalogStore'
 import type { TaskStudent } from '@/stores/EnrollmentStore'
 import { AcceptanceCriteriaSolutionResult, useEnrollmentStore } from '@/stores/EnrollmentStore'

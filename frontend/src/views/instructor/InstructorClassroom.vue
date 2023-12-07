@@ -1,11 +1,11 @@
 <script setup lang="ts">
 import { makeAPIRequest } from '@/communication/APIRequests'
-import ProjectCard from '@/components/ProjectCard.vue'
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
+import ProjectCard from '@/components/layouts/ProjectCard.vue'
 import AddHelpfulResourceModal from '@/components/modals/AddHelpfulResourceModal.vue'
 import AddInstructorModal from '@/components/modals/AddInstructorModal.vue'
 import AddProjectModal from '@/components/modals/AddProjectModal.vue'
