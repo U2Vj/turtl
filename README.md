@@ -1,4 +1,5 @@
 # TURTL (Vir**TU**al Netwo**R**k Securi**T**y **L**ab)
+TURTL is an acronym for VirTUal NetwoRk SecuriTy Lab. TURTL is an innovative, virtual and expandable learning environment for IT security in computer networks. TURTL started as a "Fellowship für Innovationen in der digitalen Hochschullehre" (Digi-Fellow) project funded by the "Ministerium für Kultur und Wissenschaft NRW". TURTL was initiated by Prof. Dr. Gundula Dörries (deceased) and Prof. Dr. Holger Schmidt.
 
  ## Eine virtuelle und erweiterbare Lernumgebung für IT-Sicherheit in Rechnernetzen
 
