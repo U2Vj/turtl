@@ -4,16 +4,11 @@
 # The ID and status of the container can be found with the command: docker ps -a
 version: "3"
 services:
-
   app:
     image: kalilinux/kali-rolling
     networks:
       - network1
-    command: tail -F /dev/null
-  app2:
-    image: praqma/network-multitool:latest
-    networks:
-      - network1
+      - default
     command: tail -F /dev/null
   redis:
     image: 'redis:latest'
