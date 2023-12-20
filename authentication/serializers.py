@@ -25,7 +25,8 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     email = serializers.CharField(read_only=True)
 
-    role = serializers.CharField(read_only=True, source='get_role_display')
+    role = serializers.CharField(read_only=True)
+    role_display = serializers.CharField(read_only=True, source='get_role_display')
 
     # Usernames must be 2 or more and 255 or fewer characters and are optional
     username = serializers.CharField(min_length=2, max_length=128, allow_null=True, required=False, default=None)
@@ -43,7 +44,7 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'role', 'username', 'new_password', 'current_password']
+        fields = ['id', 'email', 'role', 'role_display', 'username', 'new_password', 'current_password']
 
     def validate(self, data):
         # First, we perform the standard validation procedure
