@@ -39,26 +39,19 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         min_length=8,
         write_only=True
     )
-    new_password_confirm = serializers.CharField(
-        max_length=128,
-        min_length=8,
-        write_only=True
-    )
-
     current_password = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ['id', 'email', 'role', 'username', 'new_password', 'new_password_confirm', 'current_password']
+        fields = ['id', 'email', 'role', 'username', 'new_password', 'current_password']
 
     def validate(self, data):
         # First, we perform the standard validation procedure
         validated_data = super().validate(data)
 
-        # The current password and the confirmation is not necessary for the actual update,
-        # hence we can remove it from our pre-validated data
+        # The current password is not necessary for the actual update which is why we can remove it from our
+        # pre-validated data
         current_password = validated_data.pop('current_password', None)
-        new_password_confirm = validated_data.pop('new_password_confirm', None)
 
         # The actual new password is necessary for the update however, which is why we need to get, not pop it
         new_password = validated_data.get('new_password', None)
@@ -66,14 +59,9 @@ class ProfileUpdateSerializer(serializers.ModelSerializer):
         # This section should only apply if the password should be changed and new_password exists
         if new_password is not None:
 
-            if new_password_confirm is None or current_password is None:
+            if current_password is None:
                 raise ValidationError({
-                    "new_password_confirm": "This field is required when updating a password.",
                     "current_password": "This field is required when updating a password."
-                })
-            if new_password != new_password_confirm:
-                raise ValidationError({
-                    "new_password_confirm": "Passwords do not match."
                 })
 
             # Check whether the provided current password is correct

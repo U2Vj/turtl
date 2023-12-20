@@ -53,7 +53,7 @@ const { value: username, errorMessage: usernameError } = useField<string>(
   {},
   {
     validateOnValueUpdate: false,
-    initialValue: userStore.user?.username
+    initialValue: (userStore.user?.username) ? userStore.user?.username : ''
   }
 )
 
@@ -86,8 +86,7 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
   if('oldPassword' in values && 'newPassword' in values && 'newPasswordValidate' in values && newPassword.value) {
     data = Object.assign(data, {
       current_password: values.oldPassword,
-      new_password: values.newPassword,
-      new_password_confirm: values.newPasswordValidate
+      new_password: values.newPassword
     })
   }
 
@@ -167,11 +166,8 @@ const submit = handleSubmit(async (values, { setFieldValue }) => {
           color="primary"
         >
         </v-text-field>
-        <PrimaryButton buttonName="Save changes" buttonType="submit"> </PrimaryButton>
+        <PrimaryButton buttonName="Save changes" buttonType="submit"></PrimaryButton>
       </v-form>
-      <div class="d-flex flex-row mt-5 align-center justify-end">
-        <ErrorButton buttonName="Permanently Delete Account"></ErrorButton>
-      </div>
     </template>
   </DefaultLayout>
 </template>
