@@ -3,8 +3,7 @@ import socket
 
 import docker
 from channels.generic.websocket import AsyncJsonWebsocketConsumer
-
-KALI_CONTAINER_ID = "81129827f0f4"
+from django.conf import settings
 
 
 class ShellConsumer(AsyncJsonWebsocketConsumer):
@@ -16,7 +15,7 @@ class ShellConsumer(AsyncJsonWebsocketConsumer):
         client = docker.from_env()
 
         # Get the container. Please ensure the container ID is correct
-        container = client.containers.get(KALI_CONTAINER_ID)
+        container = client.containers.get(settings.KALI_CONTAINER_ID)
 
         # Spawn shell
         exec_instance = container.exec_run(cmd="/bin/bash", stdin=True, tty=True, socket=True)

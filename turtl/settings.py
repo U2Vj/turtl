@@ -189,7 +189,11 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 FRONTEND_URL = 'http://localhost:5173'
 
+# No. of days for which invitation links sent via the email invitation system are valid
 INVITATION_EXPIRY_DAYS = 14
+
+# ID of the Kali container used to demonstrate the web shell
+KALI_CONTAINER_ID = "ac4bb0ffc14a"
 
 EMAIL_HOST = ""
 DEFAULT_FROM_EMAIL = ""
