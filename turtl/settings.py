@@ -87,7 +87,7 @@ REST_FRAMEWORK = {
     ),
 }
 SIMPLE_JWT = {
-    # It will work instead of the default serializer(TokenObtainPairSerializer).
+    # This serializer replaces the default serializer (TokenObtainPairSerializer).
     "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.LoginSerializer",
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
@@ -116,13 +116,9 @@ WSGI_APPLICATION = 'turtl.wsgi.application'
 ASGI_APPLICATION = "turtl.asgi.application"
 CHANNEL_LAYERS = {
     'default': {
-        #"BACKEND": "channels.layers.InMemoryChannelLayer" #Do not use in Production!
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('172.25.0.2', 6379)],
-            # IP für Redis host mit Befehl ermitteln:
-            # docker inspect -f  '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' turtl-redis-1
-            # turtl-redis-1 ist der Docker Container Name
+            'hosts': [('172.19.0.2', 6379)],
         },
     },
 }
@@ -175,17 +171,17 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
 
-# Dateiupload
+# File upload
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CSRF_COOKIE_SECURE = True
 
-# URL für Uploads
+# URL for uploads
 APPLICATION_URL = 'http://localhost:8000'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
