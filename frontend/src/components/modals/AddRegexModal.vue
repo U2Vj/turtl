@@ -82,10 +82,11 @@ const addRegex = handleSubmit((values) => {
                 base-color="primary"
                 color="primary"
                 v-model="newRegex"
-                label="Regex"
+                label="RegEx"
                 :error-messages="regexError"
               >
               </v-text-field>
+              <small>You do not need the opening or closing forward slashes, just the expression itself.</small>
             </v-col>
           </v-row>
           <v-row>
