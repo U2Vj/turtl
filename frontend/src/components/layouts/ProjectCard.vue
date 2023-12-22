@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import ErrorButton from '@/components/buttons/ErrorButton.vue'
+import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
 import SecondaryButton from '@/components/buttons/SecondaryButton.vue'
 import TextButton from '@/components/buttons/TextButton.vue'
 import AddTaskModal from '@/components/modals/AddTaskModal.vue'
@@ -8,7 +9,6 @@ import type { Task } from '@/stores/CatalogStore'
 import { useCatalogStore } from '@/stores/CatalogStore'
 import { ref, toRef } from 'vue'
 import { useToast } from 'vue-toastification'
-import PrimaryButton from './buttons/PrimaryButton.vue'
 
 const catalogStore = useCatalogStore()
 const toast = useToast()
@@ -95,9 +95,9 @@ function editProjectTitle(newTitle: string, projectId: number) {
         :disabled="!hasProjectTitleChanged || projectTitleJustSaved"
         @click="editProjectTitle(projectTitle, projectId)"
       ></PrimaryButton>
-      <br><br>
+      <br /><br />
       <v-divider></v-divider>
-      <br>
+      <br />
       Tasks
       <div>
         <div v-for="task in props.tasks" :key="task.id">
@@ -112,7 +112,7 @@ function editProjectTitle(newTitle: string, projectId: number) {
         </div>
       </div>
       <small v-if="!props.tasks.length">This project does not contain any tasks yet.</small>
-      <br>
+      <br />
       <v-card-actions>
         <SecondaryButton buttonName="Add Task" prependIcon="mdi-plus">
           <AddTaskModal

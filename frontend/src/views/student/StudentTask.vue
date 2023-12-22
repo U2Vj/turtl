@@ -1,8 +1,8 @@
 <script setup lang="ts">
-import DefaultFooter from '@/components/DefaultFooter.vue'
-import DefaultHeader from '@/components/DefaultHeader.vue'
-import Shell from '@/components/ShellView.vue'
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
+import DefaultFooter from '@/components/menus/DefaultFooter.vue'
+import DefaultHeader from '@/components/menus/DefaultHeader.vue'
+import Shell from '@/components/shell/ShellView.vue'
 import { QuestionType } from '@/stores/CatalogStore'
 import type { TaskStudent } from '@/stores/EnrollmentStore'
 import { AcceptanceCriteriaSolutionResult, useEnrollmentStore } from '@/stores/EnrollmentStore'
@@ -11,6 +11,7 @@ import { ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
 import { VCheckbox, VForm, VRow } from 'vuetify/components'
+import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 
 const props = defineProps<{ enrollmentId: number; taskId: number }>()
 
@@ -198,20 +199,10 @@ function submitSolution() {
 </script>
 
 <template>
-  <template v-if="task">
-    <DefaultHeader />
-    <v-main class="mb-4">
+  <DefaultLayout v-if="task" :breadcrumb-items="breadcrumbItems">
+    <template #heading>{{ task.title }}</template>
+    <template #default>
       <v-container fluid>
-        <v-row class="ml-14">
-          <v-col>
-            <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <h1>{{ task.title }}</h1>
-          </v-col>
-        </v-row>
         <v-row>
           <v-col cols="6">
             <p style="white-space: pre-wrap">{{ task.description }}</p>
@@ -333,9 +324,8 @@ function submitSolution() {
           </v-row>
         </v-form>
       </v-container>
-    </v-main>
-    <DefaultFooter />
-  </template>
+    </template>
+  </DefaultLayout>
 </template>
 
 <style scoped>

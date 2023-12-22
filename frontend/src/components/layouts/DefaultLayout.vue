@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import DefaultFooter from '@/components/DefaultFooter.vue'
-import DefaultHeader from '@/components/DefaultHeader.vue'
+import DefaultFooter from '@/components/menus/DefaultFooter.vue'
+import DefaultHeader from '@/components/menus/DefaultHeader.vue'
 import { defineProps } from 'vue'
 
 const props = defineProps({

@@ -54,6 +54,7 @@ INSTALLED_APPS = [
     'authentication',
     'catalog',
     'enrollments',
+    'seeder',
     'shell',
 ]
 
