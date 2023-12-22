@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import PrimaryButton from '@/components/buttons/PrimaryButton.vue'
-import DefaultFooter from '@/components/menus/DefaultFooter.vue'
-import DefaultHeader from '@/components/menus/DefaultHeader.vue'
 import Shell from '@/components/shell/ShellView.vue'
-import { QuestionType } from '@/stores/CatalogStore'
-import type { TaskStudent } from '@/stores/EnrollmentStore'
-import { AcceptanceCriteriaSolutionResult, useEnrollmentStore } from '@/stores/EnrollmentStore'
-import type { Ref } from 'vue'
-import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useToast } from 'vue-toastification'
-import { VCheckbox, VForm, VRow } from 'vuetify/components'
+import {AcceptanceCriteriaType, QuestionType} from '@/stores/CatalogStore'
+import type {TaskStudent} from '@/stores/EnrollmentStore'
+import {AcceptanceCriteriaSolutionResult, useEnrollmentStore} from '@/stores/EnrollmentStore'
+import type {Ref} from 'vue'
+import {ref} from 'vue'
+import {useRouter} from 'vue-router'
+import {useToast} from 'vue-toastification'
+import {VCheckbox, VForm, VRow} from 'vuetify/components'
 import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 
 const props = defineProps<{ enrollmentId: number; taskId: number }>()
@@ -306,7 +304,7 @@ function submitSolution() {
             "
             class="mt-4 mb-4"
           />
-          <v-row v-if="task.done">
+          <v-row v-if="task.done && task.acceptance_criteria.criteria_type !== AcceptanceCriteriaType.Disabled">
             <v-col>
               <v-sheet color="cardColor" class="pa-4">
                 <p>
@@ -319,7 +317,14 @@ function submitSolution() {
           </v-row>
           <v-row>
             <v-col>
-              <PrimaryButton button-type="submit">Submit solution</PrimaryButton>
+              <PrimaryButton button-type="submit">
+                <template v-if="task.acceptance_criteria.criteria_type == AcceptanceCriteriaType.Disabled">
+                  Mark as done
+                </template>
+                <template v-else>
+                  Submit solution
+                </template>
+              </PrimaryButton>
             </v-col>
           </v-row>
         </v-form>
