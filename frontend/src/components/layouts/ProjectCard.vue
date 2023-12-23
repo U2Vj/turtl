@@ -14,10 +14,6 @@ const catalogStore = useCatalogStore()
 const toast = useToast()
 let classroom = toRef(catalogStore, 'classroom')
 
-const emit = defineEmits<{
-  (e: 'update:task', id: number, event: any): void
-}>()
-
 const props = defineProps<{
   classroomId: number
   projectId: number
