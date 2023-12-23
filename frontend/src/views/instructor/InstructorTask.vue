@@ -222,12 +222,6 @@ const saveTask = handleSubmit(async (values) => {
   catalogStore
     .updateTask(task.value)
     .then(() => {
-      router.push({
-        name: 'InstructorClassroom',
-        params: {
-          classroomId: props.classroomId
-        }
-      })
       toast.success('Changes saved.')
       task.value = catalogStore.getTask(props.taskId)
     })
