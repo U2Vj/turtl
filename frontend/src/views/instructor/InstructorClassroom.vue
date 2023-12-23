@@ -73,7 +73,7 @@ const classroomTitle = ref(classroom.value?.title)
 
 function onClassroomTitleInputChange() {
   hasClassroomTitleChanged.value = classroomTitle.value !== classroom.value?.title
-  if (hasClassroomTitleChanged) {
+  if (hasClassroomTitleChanged.value) {
     classroomTitleJustSaved.value = false
   }
 }
@@ -89,7 +89,7 @@ function editClassroomTitle(newTitle: string) {
   catalogStore
     .updateClassroom(classroom.value.id, updatedTitle)
     .then(() => {
-      toast.success('Classroom title created successfully')
+      toast.success('Classroom title changed')
       classroomTitleJustSaved.value = true
     })
     .catch((e) => {
@@ -212,7 +212,7 @@ onMounted(async () => {
                             }
                           ]"
                           :items="classroom.helpful_resources"
-                          no-data-text="This Classroom does not contain any Helpful Resources yet."
+                          no-data-text="This classroom does not contain any helpful resources yet."
                         >
                           <template #[`item.url`]="{ item }">
                             <a :href="item.columns.url" target="_blank">{{ item.columns.url }}</a>
