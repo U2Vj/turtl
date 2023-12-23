@@ -382,7 +382,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any RegExes yet.</p>
+            <p v-else>This task does not contain any regular expressions yet.</p>
           </v-col>
         </v-row>
         <v-row>
@@ -439,7 +439,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any Flags yet.</p>
+            <p v-else>This task does not contain any flags yet.</p>
           </v-col>
         </v-row>
         <v-row>
@@ -501,7 +501,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any Questions yet.</p>
+            <p v-else>This task does not contain any questions yet.</p>
             <br />
             <SecondaryButton button-name="Add Question" button-type="button">
               <AddQuestionModal @question-editing-completed="addQuestion">
@@ -559,7 +559,7 @@ try {
                 </tr>
               </tbody>
             </v-table>
-            <p v-else>This Task does not contain any virtualizations yet.</p>
+            <p v-else>This task does not contain any virtualizations yet.</p>
             <br />
             <SecondaryButton button-name="Add Virtualization" button-type="button">
               <AddVirtualizationModal @virtualization-editing-completed="addVirtualization">
