@@ -51,7 +51,6 @@ paths:
                 $ref: '#/components/schemas/ClassroomShort'
         '400':
           description: 'Bad Request: This response is returned when validation has failed, e.g. the title is empty.'
-          # TODO: Add validation example with unique title
           content:
             application/json:
               schema:
@@ -1389,7 +1388,6 @@ components:
           type: string
           description: Title of the project. Cannot be blank or null, must be less than 120 characters and unique within
             the classroom this project is a part of.
-          # TODO: add validation example with non-unique title
           example: "Introduction to firewalls"
     Project:
       allOf:
