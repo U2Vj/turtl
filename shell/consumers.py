@@ -1,67 +1,74 @@
-import json
 import asyncio
+import socket
+
 import docker
-from channels.generic.websocket import AsyncWebsocketConsumer
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from django.conf import settings
 
 
-class ShellConsumer(AsyncWebsocketConsumer):
+class ShellConsumer(AsyncJsonWebsocketConsumer):
     socket = None
+    docker_listener = None
 
     async def connect(self):
+        # Create docker api client
+        client = docker.from_env()
+
+        # Get the container. Please ensure the container ID is correct
+        container = client.containers.get(settings.KALI_CONTAINER_ID)
+
+        # Spawn shell
+        exec_instance = container.exec_run(cmd="/bin/bash", stdin=True, tty=True, socket=True)
+        self.socket: socket.socket = exec_instance.output._sock
+
+        # Set the socket to non-blocking mode
+        self.socket.setblocking(False)
+
         await self.accept()
+
         try:
-            # Create docker api client
-            client = docker.from_env()
-
-            # Get container - ensure the container ID is correct
-            container = client.containers.get("ee4e4821b163")
-
-            # Spawn shell
-            exec_instance = container.exec_run(cmd="/bin/bash", stdin=True, tty=True, socket=True)
-            self.socket = exec_instance.output._sock
-
-            # Set the socket to non-blocking mode
-            self.socket.setblocking(0)
-
-            # Start Coroutine to pull output from docker container
-            asyncio.create_task(self.receive_data())
+            # Create a task that listens to the output of the docker container and sends it to the frontend via the
+            # WebSocket connection
+            self.docker_listener = asyncio.create_task(self._container_listen())
         except Exception as e:
-            print(f"An error occurred: {e}")
             await self.close()
+            raise e
 
     async def disconnect(self, close_code):
         # Clean up (close socket, etc.) when WebSocket disconnects
+
+        if self.docker_listener is not None:
+            # Stop listening to the output of the docker container
+            self.docker_listener.cancel()
+
         if self.socket is not None:
+            # Close the docker container socket
             self.socket.close()
 
-    async def receive(self, text_data=None, bytes_data=None):
-        if text_data is None:
-            return
+    async def receive_json(self, content, **kwargs):
+        # Get the command that the user sent
+        command = content.get("message")
 
-        print(f"Received data: {text_data}")
+        if command:
+            # Append newline to execute the command in the shell
+            command_with_newline = command + '\n'
+            # Send the command to the Docker container's shell
+            self.socket.sendall(command_with_newline.encode('utf-8'))
 
-        try:
-            command_data = json.loads(text_data)
-            command = command_data.get("message")
-
-            if command:
-                # Append newline to execute the command in the shell
-                command_with_newline = command + '\n'
-                # Send the command to the Docker container's shell
-                self.socket.sendall(command_with_newline.encode('utf-8'))
-        except json.JSONDecodeError:
-            print("Received non-JSON data")
-
-    async def receive_data(self):
+    async def _container_listen(self):
+        """
+        This function listens for output of the docker container and sends it to the websocket client (i.e. the
+        frontend).
+        """
         while True:
             try:
                 data = self.socket.recv(1024)
                 if data:
                     # Send data to the WebSocket client
-                    await self.send(text_data=data.decode())
+                    await self.send(text_data=f'\n{data.decode()}')
             except BlockingIOError:
                 # Wait briefly before trying to read again
                 await asyncio.sleep(0.1)
-            except Exception as e:
-                print(f"An error occurred while receiving data: {e}")
+            except asyncio.CancelledError:
+                # When the task should be cancelled (i.e. the websocket connection should be closed), break the loop
                 break

@@ -79,6 +79,9 @@ class Migration(migrations.Migration):
                 ('acceptance_criteria', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='catalog.acceptancecriteria')),
                 ('project', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='tasks', to='catalog.project')),
             ],
+            options={
+                'unique_together': {('title', 'project')},
+            },
             bases=(rules.contrib.models.RulesModelMixin, models.Model),
         ),
         migrations.CreateModel(

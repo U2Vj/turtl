@@ -220,6 +220,7 @@ class Task(RulesModel):
             # Deleting a task follows the same permission requirements as editing
             "delete": is_authenticated & is_instructor & manages_task,
         }
+        unique_together = ('title', 'project',)
 
 
 class Virtualization(models.Model):

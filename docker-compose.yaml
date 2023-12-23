@@ -4,20 +4,29 @@
 # The ID and status of the container can be found with the command: docker ps -a
 version: "3"
 services:
-
-  app:
-    image: kalilinux/kali-rolling
+  kali-container:
+    build:
+      context: ./demo-virtualizations/kali-linux
+      dockerfile: ./Dockerfile
     networks:
-      - network1
-    command: tail -F /dev/null
-  app2:
-    image: praqma/network-multitool:latest
+      task_network:
+        ipv4_address: 192.168.254.2
+      default:
+  ubuntu-server:
+    build:
+      context: ./demo-virtualizations/ubuntu-nginx
+      dockerfile: ./Dockerfile
     networks:
-      - network1
-    command: tail -F /dev/null
+      task_network:
+        ipv4_address: 192.168.254.3
+      default:
   redis:
     image: 'redis:latest'
 
 networks:
-  network1:
+  task_network:
     internal: true
+    ipam:
+      driver: default
+      config:
+        - subnet: 192.168.254.0/24

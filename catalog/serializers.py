@@ -15,12 +15,11 @@ from catalog.predicates import manages_classroom, manages_project
 
 
 class RegexSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    pattern = serializers.CharField()
 
     class Meta:
         model = Regex
         fields = '__all__'
+        read_only_fields = ['id']
 
     @staticmethod
     def validate_pattern(value):
@@ -32,29 +31,23 @@ class RegexSerializer(serializers.ModelSerializer):
 
 
 class FlagSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    prompt = serializers.CharField(allow_blank=True)
-    value = serializers.CharField()
 
     class Meta:
         model = Flag
         fields = '__all__'
+        read_only_fields = ['id']
 
 
 class QuestionChoiceSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    answer = serializers.CharField()
-    is_correct = serializers.BooleanField()
 
     class Meta:
         model = QuestionChoice
         fields = ['id', 'answer', 'is_correct']
+        read_only_fields = ['id']
 
 
 class QuestionSerializer(WritableNestedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
     choices = QuestionChoiceSerializer(required=False, many=True, read_only=False)
-    question = serializers.CharField()
     question_type = serializers.ChoiceField(
         choices=Question.QuestionType.choices,
         default=Question.QuestionType.SINGLE_CHOICE
@@ -63,6 +56,7 @@ class QuestionSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Question
         fields = '__all__'
+        read_only_fields = ['id']
 
     def validate(self, data):
         choices = data.get('choices', [])
@@ -85,7 +79,6 @@ class QuestionSerializer(WritableNestedModelSerializer):
 
 
 class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
     questions = QuestionSerializer(many=True, read_only=False, required=False)
     regexes = RegexSerializer(many=True, read_only=False, required=False)
     flags = FlagSerializer(many=True, read_only=False, required=False)
@@ -93,6 +86,7 @@ class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
     class Meta:
         model = AcceptanceCriteria
         fields = '__all__'
+        read_only_fields = ['id']
 
     def update(self, instance, validated_data):
         instance.criteria_type = validated_data.get('criteria_type', instance.criteria_type)
@@ -166,8 +160,6 @@ class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
 
 
 class VirtualizationSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    name = serializers.CharField()
     virtualization_role = serializers.ChoiceField(choices=Virtualization.Role.choices)
     dockerfile = serializers.CharField()
 
@@ -191,9 +183,6 @@ class VirtualizationSerializer(serializers.ModelSerializer):
 
 
 class TaskNewSerializer(WritableNestedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
-    description = serializers.CharField()
     task_type = serializers.ChoiceField(choices=Task.TaskType.choices)
     difficulty = serializers.ChoiceField(choices=Task.Difficulty.choices)
     acceptance_criteria = AcceptanceCriteriaSerializer()
@@ -214,9 +203,6 @@ class TaskNewSerializer(WritableNestedModelSerializer):
 
 
 class TaskSerializer(WritableNestedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
-    description = serializers.CharField()
     task_type = serializers.ChoiceField(choices=Task.TaskType.choices)
     difficulty = serializers.ChoiceField(choices=Task.Difficulty.choices)
     virtualizations = VirtualizationSerializer(many=True)
@@ -225,11 +211,10 @@ class TaskSerializer(WritableNestedModelSerializer):
     class Meta:
         model = Task
         fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'virtualizations', 'acceptance_criteria']
+        read_only_fields = ['id']
 
 
 class ProjectNewSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
     classroom_id = serializers.PrimaryKeyRelatedField(source='classroom',
                                                       queryset=Classroom.objects.all())
 
@@ -247,19 +232,16 @@ class ProjectNewSerializer(serializers.ModelSerializer):
 
 
 class ProjectDetailSerializer(WritableNestedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
     tasks = TaskSerializer(many=True)
 
     class Meta:
         model = Project
         fields = ['id', 'title', 'tasks']
+        read_only_fields = ['id']
 
 
 class ClassroomInstructorSerializer(WritableNestedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
     instructor = UserSerializer()
-    added_at = serializers.DateTimeField(read_only=True)
     added_by = UserSerializer(read_only=True)
 
     def create(self, validated_data):
@@ -280,16 +262,15 @@ class ClassroomInstructorSerializer(WritableNestedModelSerializer):
     class Meta:
         model = ClassroomInstructor
         fields = ['id', 'instructor', 'added_at', 'added_by']
+        read_only_fields = ['id', 'added_at', 'added_by']
 
 
 class HelpfulResourceSerializer(serializers.ModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField(max_length=120)
-    url = serializers.URLField(max_length=200)
 
     class Meta:
         model = HelpfulResource
         fields = ['id', 'title', 'url']
+        read_only_fields = ['id']
 
 
 class ClassroomSerializer(serializers.ModelSerializer):
@@ -302,10 +283,6 @@ class ClassroomSerializer(serializers.ModelSerializer):
 
 
 class ClassroomDetailSerializer(WritableNestedModelSerializer):
-    id = serializers.IntegerField(read_only=True)
-    title = serializers.CharField()
-    created_at = serializers.DateTimeField()
-    updated_at = serializers.DateTimeField()
     projects = ProjectDetailSerializer(many=True)
     helpful_resources = HelpfulResourceSerializer(many=True)
     instructors = ClassroomInstructorSerializer(many=True, source='classroominstructor_set')
@@ -335,3 +312,4 @@ class ClassroomDetailSerializer(WritableNestedModelSerializer):
         model = Classroom
         fields = ['id', 'title', 'created_at', 'updated_at', 'projects', 'helpful_resources',
                   'instructors']
+        read_only_fields = ['id', 'created_at', 'updated_at']
