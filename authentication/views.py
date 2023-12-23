@@ -1,76 +1,105 @@
+from django.db.models import Q
 from rest_framework import status
-from rest_framework.permissions import AllowAny, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.exceptions import PermissionDenied, NotFound
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveUpdateAPIView
+from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
+from rest_framework.viewsets import ModelViewSet
+from rest_framework_simplejwt.views import TokenRefreshView
+from turtl.utils.permissions import AutoPermissionViewSetWithListMixin
 
-from .serializers import (LoginSerializer, RegistrationSerializer, UserSerializer)
-from .renderers import UserJSONRenderer
-
-
-# This file contains the views for the authentication REST API.
-# A view is like an endpoit.
-# It can handle incoming requests.
-# https://docs.djangoproject.com/en/3.1/topics/http/views/
+from .models import User, Invitation
+from .serializers import (ProfileUpdateSerializer, LoginRefreshSerializer,
+                          InvitationSerializer, AcceptInvitationSerializer, BulkInvitationSerializer, UserSerializer)
 
 
-# RegistrationAPIView is the endpoint to register a new user
-class RegistrationAPIView(APIView):
-    # Allow any user (authenticated or not) to hit this endpoint.
-    permission_classes = (AllowAny,)
-    renderer_classes = (UserJSONRenderer,)
-    serializer_class = RegistrationSerializer
-
-    # Only accept POST requests to create new users
-    def post(self, request):
-        user = request.data.get('user', {})
-
-        # The create serializer, validate serializer, save serializer pattern
-        # below is common and you will see it a lot throughout this course and
-        # your own work later on. Get familiar with it.
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-        serializer.save()
-
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-
-# LoginAPIView is the endpoint to login a new user
-class LoginAPIView(APIView):
-    permission_classes = (AllowAny,)
-    renderer_classes = (UserJSONRenderer,)
-    serializer_class = LoginSerializer
-
-    # Only allow POST requests to login a user.
-    def post(self, request):
-        user = request.data.get('user', {})
-        serializer = self.serializer_class(data=user)
-        serializer.is_valid(raise_exception=True)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-# LoginAPIView is the endpoint to update a new user
-class UserRetrieveUpdateAPIView(RetrieveUpdateAPIView):
+class ProfileUpdateView(RetrieveUpdateAPIView):
+    """
+        This defines an API view to update a user's profile. It only accepts PUT-Requests
+    """
     # A user must be authenticated to update a user
     permission_classes = (IsAuthenticated,)
-    renderer_classes = (UserJSONRenderer,)
-    serializer_class = UserSerializer
+    serializer_class = ProfileUpdateSerializer
 
-    def retrieve(self, request, *args, **kwargs):
-        # There is nothing to validate or save here. Instead, we just want the
-        # serializer to handle turning our `User` object into something that
-        # can be JSONified and sent to the client.
-        serializer = self.serializer_class(request.user)
-
-        return Response(serializer.data, status=status.HTTP_200_OK)
+    def get_object(self):
+        return User.objects.get(id=self.request.user.id)
 
     def update(self, request, *args, **kwargs):
-        serializer_data = request.data.get('user', {})
-
         # serialize, validate, save pattern
         serializer = self.serializer_class(
-            request.user, data=serializer_data, partial=True
+            request.user, data=request.data, partial=True, context={'request': request}
         )
         serializer.is_valid(raise_exception=True)
         serializer.save()
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class LoginRefreshView(TokenRefreshView):
+    """
+        This view is responsible for receiving a refresh token and issuing a new pair of access and refresh tokens.
+        It is necessary because the standard implementation simply copies the token claims from the old token when
+        refreshing. This poses a problem when updating a user's profile since the username (which is part of a token's
+        payload) might have been changed.
+    """
+    serializer_class = LoginRefreshSerializer
+
+
+class InvitationViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
+    queryset = Invitation.objects.all()
+    serializer_class = InvitationSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context.update({"request": self.request})
+        return context
+
+
+class BulkInvitationViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):
+    queryset = Invitation.objects.all()
+    serializer_class = BulkInvitationSerializer
+    permission_classes = (IsAuthenticated,)
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data, context={'request': request})
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(status=status.HTTP_201_CREATED)
+
+
+class MyInvitationsViewSet(InvitationViewSet):
+    def get_queryset(self):
+        return Invitation.objects.filter(issuer=self.request.user).all()
+
+
+class AcceptInvitationView(CreateAPIView):
+    serializer_class = AcceptInvitationSerializer
+
+
+class RenewInvitationView(APIView):
+    permission_classes = (IsAuthenticated,)
+
+    @staticmethod
+    def post(request, pk: int = None):
+        invitation = Invitation.objects.filter(id=pk).first()
+
+        if not request.user.has_perm('authentication.change_invitation', invitation):
+            raise PermissionDenied
+        if not invitation:
+            raise NotFound
+
+        invitation.renew()
+
+        return Response(status=status.HTTP_200_OK)
+
+
+class InstructorViewSet(ModelViewSet):
+    """
+        This view returns a list of all Instructors or Administrators (everyone who can manage a Classroom). It is
+        available to all signed-in Users of TURTL.
+    """
+    permission_classes = (IsAuthenticated,)
+    queryset = User.objects.filter(Q(role=User.Role.INSTRUCTOR) | Q(role=User.Role.ADMINISTRATOR))
+    serializer_class = UserSerializer

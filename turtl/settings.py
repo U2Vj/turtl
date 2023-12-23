@@ -37,7 +37,7 @@ AUTH_USER_MODEL = 'authentication.User'
 # Application definition
 
 INSTALLED_APPS = [
-    'channels',
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -49,13 +49,13 @@ INSTALLED_APPS = [
     'rest_auth',
     'rest_auth.registration',
     'rest_framework',
-    'rest_framework.authtoken',
+    'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'authentication',
     'catalog',
-    'dockerService',
+    'enrollments',
+    'seeder',
     'shell',
-    'environment',
-    'classroom'
 ]
 
 MIDDLEWARE = [
@@ -80,15 +80,19 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1:8080',
 )
 
-#Closes 34
-
 REST_FRAMEWORK = {
-    'EXCEPTION_HANDLER': 'authentication.exceptions.core_exception_handler',
+    'EXCEPTION_HANDLER': 'turtl.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
-        #'authentication.backends.JWTAuthentication',
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+}
+SIMPLE_JWT = {
+    # This serializer replaces the default serializer (TokenObtainPairSerializer).
+    "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.LoginSerializer",
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
+    "UPDATE_LAST_LOGIN": True
 }
 
 ROOT_URLCONF = 'turtl.urls'
@@ -113,13 +117,9 @@ WSGI_APPLICATION = 'turtl.wsgi.application'
 ASGI_APPLICATION = "turtl.asgi.application"
 CHANNEL_LAYERS = {
     'default': {
-        #"BACKEND": "channels.layers.InMemoryChannelLayer" #Do not use in Production!
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            "hosts": [('172.19.0.2', 6379)],
-            # IP für Redis host mit Befehl ermitteln:
-            # docker inspect -f  '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' turtl-redis-1
-            # turtl-redis-1 ist der Docker Container Name
+            'hosts': [('172.19.0.2', 6379)],
         },
     },
 }
@@ -153,13 +153,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+AUTHENTICATION_BACKENDS = ('rules.permissions.ObjectPermissionBackend',
+                           'django.contrib.auth.backends.ModelBackend'
+                           )
+
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
 LANGUAGE_CODE = 'en-us'
-
-#Closes #34
 
 TIME_ZONE = 'UTC'
 
@@ -170,15 +172,33 @@ USE_L10N = True
 USE_TZ = True
 
 
-# Static files (CSS, JavaScript, Images)
+# Static files (CSS, JavaScript, images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
 
-# Dateiupload
+# File upload
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CSRF_COOKIE_SECURE = True
 
-# URL für Uploads
+# URL for uploads
 APPLICATION_URL = 'http://localhost:8000'
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+
+FRONTEND_URL = 'http://localhost:5173'
+
+# No. of days for which invitation links sent via the email invitation system are valid
+INVITATION_EXPIRY_DAYS = 14
+
+# ID of the Kali container used to demonstrate the web shell
+KALI_CONTAINER_ID = "ac4bb0ffc14a"
+
+EMAIL_HOST = ""
+DEFAULT_FROM_EMAIL = ""
+EMAIL_PORT = 465
+EMAIL_HOST_USER = ""
+EMAIL_HOST_PASSWORD = ""
+EMAIL_USE_SSL = True

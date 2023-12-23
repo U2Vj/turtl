@@ -1,64 +1,74 @@
-# shell/consumers.py
-import json
-from channels.generic.websocket import AsyncWebsocketConsumer
-import docker
 import asyncio
+import socket
 
-# This file is a django channels consumer,
-# to connect a websocket with a docker container socket.
-# No authentication is currently checked, but can be implemented like:
-# https://stackoverflow.com/questions/43392889/how-do-you-authenticate-a-websocket-with-token-authentication-on-django-channels
+import docker
+from channels.generic.websocket import AsyncJsonWebsocketConsumer
+from django.conf import settings
 
 
-class ShellConsumer(AsyncWebsocketConsumer):
-    socket = ""
-    bytes = b""
+class ShellConsumer(AsyncJsonWebsocketConsumer):
+    socket = None
+    docker_listener = None
 
-    # Method handles incoming  websocket connections
     async def connect(self):
         # Create docker api client
-        # Hardcoded for prototyping
         client = docker.from_env()
-        # Get container
-        container = client.containers.get("212d500779af")
+
+        # Get the container. Please ensure the container ID is correct
+        container = client.containers.get(settings.KALI_CONTAINER_ID)
+
         # Spawn shell
-        result, socket = container.exec_run(cmd="/bin/bash", stdin=True, tty=True, socket=True)
-        # Get the socket object and assign it to consumer
-        self.socket = socket._sock
-        # Activate none blocking mode (https://docs.python.org/2/library/socket.html#socket.socket.setblocking)
-        self.socket.setblocking(0)
-        # Accept websocket connecting
+        exec_instance = container.exec_run(cmd="/bin/bash", stdin=True, tty=True, socket=True)
+        self.socket: socket.socket = exec_instance.output._sock
+
+        # Set the socket to non-blocking mode
+        self.socket.setblocking(False)
+
         await self.accept()
-        # Start Coroutine to pull output from docker container
-        asyncio.create_task(self.receiveData())
+
+        try:
+            # Create a task that listens to the output of the docker container and sends it to the frontend via the
+            # WebSocket connection
+            self.docker_listener = asyncio.create_task(self._container_listen())
+        except Exception as e:
+            await self.close()
+            raise e
 
     async def disconnect(self, close_code):
-        #Disconnect websocket
-        pass
+        # Clean up (close socket, etc.) when WebSocket disconnects
 
-    # Method handles incoming commands from the frontend
-    # Commands are send as bytes, so features like autocomplete etc. will work
-    async def receive(self, text_data):
-        # Encode commands from frontend into binary data
-        self.bytes = text_data.encode('utf-8')
-        # Send binary data to docker container
-        self.socket.sendall(self.bytes)
+        if self.docker_listener is not None:
+            # Stop listening to the output of the docker container
+            self.docker_listener.cancel()
 
-    # Method receives Data from the container and sends
-    # it to the frontend
-    async def receiveData(self):
-        # Pull output from container
-        # Always listen for output inside the buffer
+        if self.socket is not None:
+            # Close the docker container socket
+            self.socket.close()
+
+    async def receive_json(self, content, **kwargs):
+        # Get the command that the user sent
+        command = content.get("message")
+
+        if command:
+            # Append newline to execute the command in the shell
+            command_with_newline = command + '\n'
+            # Send the command to the Docker container's shell
+            self.socket.sendall(command_with_newline.encode('utf-8'))
+
+    async def _container_listen(self):
+        """
+        This function listens for output of the docker container and sends it to the websocket client (i.e. the
+        frontend).
+        """
         while True:
             try:
-                # Pull 1Kb of data from docker socket
                 data = self.socket.recv(1024)
-                # Send binary data to frontend
-                await self.send(bytes_data=data)
-            except:
-                # If no data is present to read, an execption is thrown.
-                # Catch the exception and wait for 0.01 Seconds.
-                await asyncio.sleep(.01)
-                pass
-
-
+                if data:
+                    # Send data to the WebSocket client
+                    await self.send(text_data=f'\n{data.decode()}')
+            except BlockingIOError:
+                # Wait briefly before trying to read again
+                await asyncio.sleep(0.1)
+            except asyncio.CancelledError:
+                # When the task should be cancelled (i.e. the websocket connection should be closed), break the loop
+                break
