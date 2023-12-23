@@ -46,7 +46,10 @@ const createHelpfulResource = handleSubmit(async (values) => {
       url: values.url
     }
     classroom.value?.helpful_resources.push(newResource)
-    catalogStore.updateClassroom(props.classroomId, classroom.value).then(resetDialog).catch((e) => {
+    catalogStore.updateClassroom(props.classroomId, classroom.value).then(() => {
+      resetDialog()
+      toast.success("Resource created")
+    }).catch((e) => {
       toast.error(e.message)
     })
   }

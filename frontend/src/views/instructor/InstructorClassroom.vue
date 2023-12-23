@@ -63,6 +63,7 @@ function deleteHelpfulResource(id: number) {
   )
   catalogStore
     .updateClassroom(classroom.value.id, updatedClassroom)
+    .then(() => toast.info("Resource deleted"))
     .catch((e) => toast.error(e.message))
 }
 
@@ -261,7 +262,6 @@ onMounted(async () => {
             <v-data-table
               :headers="[
                 { title: 'E-Mail', key: 'instructor.email' },
-                { title: 'ID', key: 'instructor.id' },
                 { title: 'Username', key: 'instructor.username' },
                 { title: 'Added at', key: 'added_at' },
                 { title: 'Added by', key: 'added_by.email' },
