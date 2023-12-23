@@ -57,7 +57,7 @@ const createHelpfulResource = handleSubmit(async (values) => {
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
       <v-card-title>Add Helpful Resource</v-card-title>
-      <v-card-subtitle>Helpful Resources are displayed to Students in a Classroom as a list of links.</v-card-subtitle>
+      <v-card-subtitle>Helpful resources are displayed to students in a classroom as a list of links.</v-card-subtitle>
       <v-card-text>
         <v-text-field
           clearable

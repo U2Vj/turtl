@@ -89,7 +89,10 @@ function confirmInstructorRemoval(instructorId: number) {
               <v-card>
                 <v-card-title>Delete Task</v-card-title>
                 <v-card-text>
-                  <p>Are you sure you want to remove yourself from this classroom?</p>
+                  <p>
+                    Are you sure that you want to remove yourself from this classroom? You will no longer have access to
+                    this classroom if you continue.
+                  </p>
                 </v-card-text>
                 <v-card-actions>
                   <TextButton buttonName="Close" @click="showDialogInstructor = false"></TextButton>
