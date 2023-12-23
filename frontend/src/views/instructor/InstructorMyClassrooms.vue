@@ -12,8 +12,6 @@ import { useToast } from 'vue-toastification'
 
 const userStore = useUserStore()
 
-const progress = 33
-
 const catalogStore = useCatalogStore()
 const toast = useToast()
 
