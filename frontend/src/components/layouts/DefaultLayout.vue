@@ -3,15 +3,15 @@ import DefaultFooter from '@/components/menus/DefaultFooter.vue'
 import DefaultHeader from '@/components/menus/DefaultHeader.vue'
 import { defineProps } from 'vue'
 
-const props = defineProps({
-  breadcrumbItems: Array
-})
+const props = defineProps<{
+  breadcrumbItems: any[]
+}>()
 </script>
 <template>
   <DefaultHeader />
   <v-main class="mt-5 ml-10 justify-center">
     <div>
-      <v-breadcrumbs :items="breadcrumbItems" density="compact"></v-breadcrumbs>
+      <v-breadcrumbs :items="props.breadcrumbItems" density="compact"></v-breadcrumbs>
     </div>
     <div class="d-flex justify-center">
       <div class="main-container mt-5 ml-3 mr-3">
