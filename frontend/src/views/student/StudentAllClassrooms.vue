@@ -75,7 +75,7 @@ function getInstructor(instructors: any[]) {
         <v-col cols="8">
           <v-text-field
             clearable
-            label="Search title of Classroom"
+            label="Search classroom title..."
             v-model="search"
             append-inner-icon="mdi-magnify"
             variant="underlined"

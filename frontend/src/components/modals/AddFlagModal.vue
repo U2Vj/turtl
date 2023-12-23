@@ -75,7 +75,7 @@ const addFlag = handleSubmit(() => {
           </v-row>
           <v-row>
             <v-col>
-              <v-text-field
+              <v-textarea
                 clearable
                 variant="underlined"
                 base-color="primary"
@@ -84,7 +84,7 @@ const addFlag = handleSubmit(() => {
                 label="Flag"
                 :error-messages="flagError"
               >
-              </v-text-field>
+              </v-textarea>
             </v-col>
           </v-row>
           <v-row>

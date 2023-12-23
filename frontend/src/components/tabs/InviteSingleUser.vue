@@ -70,7 +70,7 @@ const roles = [
 </script>
 
 <template>
-  <p>With this form, you can invite a <span v-if="userStore.isAdministrator()">User</span><span v-else>Student</span> via email.</p><br>
+  <p>With this form, you can invite a <span v-if="userStore.isAdministrator()">user</span><span v-else>student</span> via email.</p><br>
   <v-form @submit="submit">
     <v-text-field
       type="email"

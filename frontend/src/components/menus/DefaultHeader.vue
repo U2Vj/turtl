@@ -2,17 +2,8 @@
 import LogoutMenu from '@/components/menus/LogoutMenu.vue'
 import { useUserStore } from '@/stores/UserStore'
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
-import { useToast } from 'vue-toastification'
 
-const router = useRouter()
 const userStore = useUserStore()
-const toast = useToast()
-
-function handleLogout() {
-  userStore.logout(router)
-  toast.info('You have been signed out.')
-}
 
 const drawer = ref(false)
 </script>

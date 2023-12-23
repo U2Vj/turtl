@@ -46,7 +46,10 @@ const createHelpfulResource = handleSubmit(async (values) => {
       url: values.url
     }
     classroom.value?.helpful_resources.push(newResource)
-    catalogStore.updateClassroom(props.classroomId, classroom.value).then(resetDialog).catch((e) => {
+    catalogStore.updateClassroom(props.classroomId, classroom.value).then(() => {
+      resetDialog()
+      toast.success("Resource created")
+    }).catch((e) => {
       toast.error(e.message)
     })
   }
@@ -57,7 +60,7 @@ const createHelpfulResource = handleSubmit(async (values) => {
   <v-dialog v-model="showDialog" activator="parent" persistent width="50%">
     <v-card>
       <v-card-title>Add Helpful Resource</v-card-title>
-      <v-card-subtitle>Helpful Resources are displayed to Students in a Classroom as a list of links.</v-card-subtitle>
+      <v-card-subtitle>Helpful resources are displayed to students in a classroom as a list of links.</v-card-subtitle>
       <v-card-text>
         <v-text-field
           clearable

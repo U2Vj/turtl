@@ -71,9 +71,9 @@ const submit = handleSubmit( (values) => {
 
 <template>
   <p>
-    Here, you can invite multiple Students at once. In the text field below, you can enter a list of email addresses
+    Here, you can invite multiple students at once. In the text field below, you can enter a list of email addresses
     separated either by a space, a newline, a comma, a semicolon or any combination of these delimiters.
-    <span v-if="userStore.isAdministrator()"> Please note: It is not possible to bulk-invite Instructors.</span>
+    <span v-if="userStore.isAdministrator()"> Please note: It is not possible to bulk-invite instructors.</span>
   </p><br>
   <v-form @submit="submit">
     <v-textarea

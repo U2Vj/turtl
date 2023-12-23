@@ -189,7 +189,7 @@ function getProjectsDonePercentage(): number {
                   <v-card variant="flat" color="cardColor" class="elevation-4">
                     <v-card-title>My Progress</v-card-title>
                     <v-card-text>
-                      {{ getTasksDone() }} / {{ getTasksTotal() }} Tasks Done:
+                      {{ getTasksDone() }} / {{ getTasksTotal() }} tasks done
 
                       <v-progress-linear
                         color="progress"
@@ -199,13 +199,14 @@ function getProjectsDonePercentage(): number {
                         rounded-bar
                         bg-color="#ffffff"
                         bg-opacity="1"
+                        class="mb-2"
                       >
                         <template #default>
                           <strong>{{ getTasksDonePercentage() }}&percnt;</strong>
                         </template>
                       </v-progress-linear>
 
-                      {{ getProjectsDone() }} / {{ getProjectsTotal() }} Projects Done
+                      {{ getProjectsDone() }} / {{ getProjectsTotal() }} projects done
 
                       <v-progress-linear
                         :height="25"
