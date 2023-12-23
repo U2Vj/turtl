@@ -240,7 +240,7 @@ class InvitationSerializer(serializers.ModelSerializer):
 
         if(validated_data['target_role'] == Invitation.TargetRole.INSTRUCTOR
                 and not self.context['request'].user.is_administrator):
-            raise PermissionDenied("Only Administrators can invite Instructors.")
+            raise PermissionDenied("Only administrators can invite instructors.")
 
         return validated_data
 
