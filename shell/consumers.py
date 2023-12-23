@@ -29,7 +29,7 @@ class ShellConsumer(AsyncJsonWebsocketConsumer):
         try:
             # Create a task that listens to the output of the docker container and sends it to the frontend via the
             # WebSocket connection
-            self.docker_listener = asyncio.create_task(self.container_listen())
+            self.docker_listener = asyncio.create_task(self._container_listen())
         except Exception as e:
             await self.close()
             raise e
@@ -55,7 +55,7 @@ class ShellConsumer(AsyncJsonWebsocketConsumer):
             # Send the command to the Docker container's shell
             self.socket.sendall(command_with_newline.encode('utf-8'))
 
-    async def container_listen(self):
+    async def _container_listen(self):
         """
         This function listens for output of the docker container and sends it to the websocket client (i.e. the
         frontend).
