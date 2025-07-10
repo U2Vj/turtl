@@ -119,7 +119,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('172.19.0.2', 6379)],
+            'hosts': [('172.18.0.2', 6379)],
         },
     },
 }
@@ -194,7 +194,7 @@ FRONTEND_URL = 'http://localhost:5173'
 INVITATION_EXPIRY_DAYS = 14
 
 # ID of the Kali container used to demonstrate the web shell
-KALI_CONTAINER_ID = "ac4bb0ffc14a"
+KALI_CONTAINER_ID = "da19410bb512"
 
 EMAIL_HOST = ""
 DEFAULT_FROM_EMAIL = ""
