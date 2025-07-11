@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'enrollments',
     'seeder',
     'shell',
+    'vm_manager',
 ]
 
 MIDDLEWARE = [
