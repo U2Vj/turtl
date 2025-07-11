@@ -25,7 +25,7 @@ SECRET_KEY = 'dkzvccm3u=hxujl)q1a9jz1ush82b-*w@w5gx))%v_86+p4_$x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.178.87']
 
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
@@ -181,7 +181,7 @@ STATIC_URL = '/static/'
 # File upload
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 
 # URL for uploads
 APPLICATION_URL = 'http://localhost:8000'
