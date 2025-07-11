@@ -28,6 +28,7 @@ idna==3.6
 incremental==22.10.0
 msgpack==1.0.7
 packaging==23.2
+proxmoxer==2.2.0
 pyasn1==0.5.1
 pyasn1-modules==0.3.0
 pycparser==2.21
