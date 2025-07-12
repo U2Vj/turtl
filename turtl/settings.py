@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
+
+# take environment variables
+load_dotenv()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -121,18 +125,22 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('172.18.0.2', 6379)],
+            'hosts': [('172.18.0.3', 6379)],
         },
     },
 }
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-# Can be modified to use a MariaDB etc.
+# PostgreSQL configuration
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -196,7 +204,7 @@ FRONTEND_URL = 'http://localhost:5173'
 INVITATION_EXPIRY_DAYS = 14
 
 # ID of the Kali container used to demonstrate the web shell
-KALI_CONTAINER_ID = "da19410bb512"
+KALI_CONTAINER_ID = "95731b391915"
 
 EMAIL_HOST = ""
 DEFAULT_FROM_EMAIL = ""
