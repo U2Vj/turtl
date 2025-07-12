@@ -1,5 +1,10 @@
 from proxmoxer import ProxmoxAPI
 import os
+from dotenv import load_dotenv
+
+# take environment variables
+load_dotenv()
+
 
 class ProxmoxManager:
     def __init__(self):
