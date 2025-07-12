@@ -64,3 +64,13 @@ def slugify(value, max_length=40):
         value = value[:max_length].rstrip("-")
         if not value or len(value) < 2:
             return "default"
+        
+def format_ip(ip_address, network):
+    if "/" not in str(ip_address):
+        subnet = network.subnet
+        if "/" in subnet:
+            cidr = subnet.split("/")[1]
+            formatted_ip = f"{ip_address}/{cidr}"
+        else:
+            formatted_ip = f"{ip_address}/24"
+    return formatted_ip
