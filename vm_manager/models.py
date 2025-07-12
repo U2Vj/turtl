@@ -15,6 +15,11 @@ class Network(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='networks')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = [
+            ('user', 'task')
+        ]
+
     def __str__(self):
         return f"{self.name} ({self.subnet}) for {self.user} in {self.task}"
 
@@ -164,6 +169,3 @@ class VirtualMachine(models.Model):
     #Dates
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-
-    #class Meta:
-        #unique_together = (('lab_environment', 'template'),)
