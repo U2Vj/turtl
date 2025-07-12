@@ -1,4 +1,6 @@
 import hashlib
+import re
+import unicodedata
 from django.db import connection, utils
 
 def _get_lock_id(name: str) -> int:
@@ -42,3 +44,23 @@ class AdvisoryLock:
             # Release the lock
             cursor.execute("SELECT pg_advisory_unlock(%s);", [self.lock_id])
             
+def slugify(value, max_length=40):
+    """
+    Cleans string so it is valid to use in proxmox names
+    """
+    value = str(value)
+    value = unicodedata.normalize("NFKD", value)
+    value = value.encode("ascii", "ignore").decode("ascii")
+    value = value.lower()
+    value = re.sub(r"[^a-z0-9]+", "-", value)
+    value = value.strip("-")
+
+    # ensure starts with letter
+    if value and not value[0].isalpha():
+        value = "n" + value
+    
+    # Truncate and ensure valid ending
+    if max_length and len(value) > max_length:
+        value = value[:max_length].rstrip("-")
+        if not value or len(value) < 2:
+            return "default"
