@@ -302,3 +302,107 @@ class ProxmoxManager:
         except Exception as e:
             print(f"DEBUG: Error configuring VM {vm_id}: {str(e)}")
             raise
+
+    def start_environment(self, lab_env):
+        """
+        Starts all VMs inside a lab environment
+        """
+        env_operation_lock = f"lab_env_operation_{lab_env.id}"
+
+        with AdvisoryLock(env_operation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
+            if not acquired:
+                raise TimeoutError(f"Could not acquire lock for starting environment {lab_env.id}")
+            
+            try:
+                node = self.get_node()
+
+                with transaction.atomic():
+                    for vm in lab_env.virtual_machines.select_for_update().all():
+                        if vm.status != 'running':
+                            # Start the VM
+                            self.proxmox.nodes(node).qemu(vm.vmid).status.start.post()
+                            # Update VM status
+                            vm.status = 'running'
+                            vm.save()
+                return True
+            except Exception as e:
+                print(f"Error starting lab environment: {str(e)}")
+                raise
+
+    def stop_environment(self, lab_env):
+        """
+        Stops all VMs inside a lab environment
+        """
+        env_operation_lock = f"lab_env_operation_{lab_env.id}"
+
+        with AdvisoryLock(env_operation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
+            if not acquired:
+                raise TimeoutError(f"Could not acquire lock for starting environment {lab_env.id}")
+            
+            try:
+                node = self.get_node()
+
+                with transaction.atomic():
+                    for vm in lab_env.virtual_machines.select_for_update().all():
+                        if vm.status == 'running':
+                            # Stop the VM
+                            self.proxmox.nodes(node).qemu(vm.vmid).status.stop.post()
+                            # Update VM status
+                            vm.status = 'stopped'
+                            vm.save()
+                return True
+            except Exception as e:
+                print(f"Error starting lab environment: {str(e)}")
+                raise
+
+    def cleanup_environment(self, user, task):
+        """
+        Deletes all VMs and the network of a lab environment for a given user and task. Then deletes the lab environment.
+        """
+        env_cleanup_lock = f"lab_env_cleanup_{user.id}_{task.id}"
+
+        with AdvisoryLock(env_cleanup_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
+            if not acquired:
+                print(f"Could not acquire lock for cleanup, skipping...")
+                return
+            
+            try:
+                # Get the lab environment
+                lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+                # Delete all VMs
+                for vm in lab_env.virtual_machines.all():
+                    try:
+                        node = self.get_node()
+                        # Delete the VM
+                        self.proxmox.nodes(node).qemu(vm.vmid).delete()
+                        # Delete VM from database
+                        vm.delete()
+                    except Exception as e:
+                        print(f"Warning: Could not delete VM {vm.vmid}: {str(e)}")
+                
+                # Delete the network
+                if lab_env.network:
+                    try:
+                        if lab_env.network.vlan_id:
+                            node = self.get_node()
+                            bridge_name = f"vmbr{lab_env.network.vlan_id}"
+                            
+                            # Delete the bridge
+                            try:
+                                # Bring down bridge first
+                                self.proxmox.nodes(node).network(bridge_name).delete()
+                                # Apply network changes
+                                self.proxmox.nodes(node).network.put()
+                            except Exception as e:
+                                print(f"Warning: Could not delete bridge {bridge_name}: {str(e)}")
+    
+                        # Delete network from database
+                        lab_env.network.delete()
+                    except Exception as e:
+                        print(f"Warning: Error deleting network: {str(e)}")
+
+                # Delete lab environment
+                lab_env.delete()
+                            
+            except Exception as e:
+                print(f"Error during cleanup: {str(e)}")
