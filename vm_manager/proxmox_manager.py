@@ -82,6 +82,10 @@ class ProxmoxManager:
                     )
                     
                     # 3. Create all VMs for env
+                    for vm_template_config in task_config.vm_templates.all():
+                        self.provision_vm(lab_env, vm_template_config, network, user, task)
+
+                    return lab_env
 
             except Exception as e:
                 print(f"Error creating lab environment for task : {task.title}")
