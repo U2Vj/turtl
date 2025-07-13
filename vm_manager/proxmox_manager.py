@@ -1,5 +1,7 @@
 import os
 import time
+import threading
+from concurrent.futures import ThreadPoolExecutor
 from proxmoxer import ProxmoxAPI
 from django.db import transaction, IntegrityError
 from dotenv import load_dotenv
@@ -9,6 +11,8 @@ from .models import LabEnvironment, TaskVMConfiguration, Network, VirtualMachine
 # take environment variables
 load_dotenv()
 
+# Global ThreadPool
+_thread_pool = ThreadPoolExecutor(max_workers=10, thread_name_prefix="proxmox_ops")
 
 class ProxmoxManager:
     # Constants
@@ -197,7 +201,8 @@ class ProxmoxManager:
                     node=node,
                     template_id=template.template_id,
                     new_id=vmid,
-                    new_name=vm_name
+                    new_name=vm_name,
+                    threaded_wait=False
                 )
 
                 bridge_name = f"vmbr{network.vlan_id}"
@@ -243,7 +248,7 @@ class ProxmoxManager:
                 print(f"Error provisioning VM: {e}")
                 raise
 
-    def clone_vm(self, node, template_id, new_id, new_name, linked_clone=True):
+    def clone_vm(self, node, template_id, new_id, new_name, linked_clone=True, threaded_wait=True):
         """
         Clones a VM from a template_id as a linked clone
         """
@@ -262,10 +267,14 @@ class ProxmoxManager:
             raise
 
         print(f"DEBUG: Waiting for lock to be removed on VM {new_id}...")
-        self.wait_for_unlock(node, new_id)
-        print(f"DEBUG: Lock removed from VM {new_id}")
+        if threaded_wait:
+            future = self.wait_for_unlock(node, new_id, threaded=True)
+            return future
+        else:
+            self.wait_for_unlock(node, new_id)
+            print(f"DEBUG: Lock removed from VM {new_id}")
 
-    def wait_for_unlock(self, node, vm_id, timeout=None, interval=None):
+    def wait_for_unlock(self, node, vm_id, timeout=None, interval=None, threaded=False):
         """
         Waits until the VM Lock is removed by Proxmox
         """
@@ -274,14 +283,21 @@ class ProxmoxManager:
         if interval is None:
             interval = self.POLL_INTERVAL
 
-        start = time.time()
-        while True:
-            locks = self.proxmox.nodes(node).qemu(vm_id).status.current.get().get('lock')
-            if not locks:
-                return
-            if time.time() - start > timeout:
-                raise TimeoutError(f"Timeout waiting for unlock of VM {vm_id}")
-            time.sleep(interval)
+        def _wait():
+            start = time.time()
+            while True:
+                locks = self.proxmox.nodes(node).qemu(vm_id).status.current.get().get('lock')
+                if not locks:
+                    return
+                if time.time() - start > timeout:
+                    raise TimeoutError(f"Timeout waiting for unlock of VM {vm_id}")
+                time.sleep(interval)
+
+        if threaded:
+            future = _thread_pool.submit(_wait)
+            return future
+        else:
+            _wait()
 
     def configure_vm(self, node, vm_id, storage, ci_user, ci_password, bridge, ip_address):
         """
@@ -359,60 +375,71 @@ class ProxmoxManager:
                 print(f"Error starting lab environment: {str(e)}")
                 raise
 
-    def cleanup_environment(self, user, task):
+    def cleanup_environment(self, user, task, threaded=False):
         """
         Deletes all VMs and the network of a lab environment for a given user and task. Then deletes the lab environment.
         """
-        env_cleanup_lock = f"lab_env_cleanup_{user.id}_{task.id}"
 
-        with AdvisoryLock(env_cleanup_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
-            if not acquired:
-                print(f"Could not acquire lock for cleanup, skipping...")
-                return
-            
-            try:
-                # Get the lab environment
-                lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
-                # Delete all VMs
-                for vm in lab_env.virtual_machines.all():
-                    try:
-                        node = self.get_node()
-                        # Stop the VM
-                        try:
-                            self.proxmox.nodes(node).qemu(vm.vmid).status.stop.post()
-                            # Wait for VM to stop
-                            time.sleep(5)
-                        except Exception as e:
-                            print(f"Warning: Could not stop VM {vm.vmid}: {str(e)}")
-                        self.proxmox.nodes(node).qemu(vm.vmid).delete()
-                        # Delete VM from database
-                        vm.delete()
-                    except Exception as e:
-                        print(f"Warning: Could not delete VM {vm.vmid}: {str(e)}")
+        def _cleanup():
+            env_cleanup_lock = f"lab_env_cleanup_{user.id}_{task.id}"
+
+            with AdvisoryLock(env_cleanup_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
+                if not acquired:
+                    print(f"Could not acquire lock for cleanup, skipping...")
+                    return
                 
-                # Delete the network
-                if lab_env.network:
-                    try:
-                        if lab_env.network.vlan_id:
+                try:
+                    # Get the lab environment
+                    lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+                    if not lab_env:
+                        print(f"No lab environment found for user {user.id} and task {task.id}")
+                        return
+                    # Delete all VMs
+                    for vm in lab_env.virtual_machines.all():
+                        try:
                             node = self.get_node()
-                            bridge_name = f"vmbr{lab_env.network.vlan_id}"
-                            
-                            # Delete the bridge
+                            # Stop the VM
                             try:
-                                # Bring down bridge first
-                                self.proxmox.nodes(node).network(bridge_name).delete()
-                                # Apply network changes
-                                self.proxmox.nodes(node).network.put()
+                                self.proxmox.nodes(node).qemu(vm.vmid).status.stop.post()
+                                # Wait for VM to stop
+                                time.sleep(5)
                             except Exception as e:
-                                print(f"Warning: Could not delete bridge {bridge_name}: {str(e)}")
-    
-                        # Delete network from database
-                        lab_env.network.delete()
-                    except Exception as e:
-                        print(f"Warning: Error deleting network: {str(e)}")
+                                print(f"Warning: Could not stop VM {vm.vmid}: {str(e)}")
+                            self.proxmox.nodes(node).qemu(vm.vmid).delete()
+                            # Delete VM from database
+                            vm.delete()
+                        except Exception as e:
+                            print(f"Warning: Could not delete VM {vm.vmid}: {str(e)}")
+                    
+                    # Delete the network
+                    if lab_env.network:
+                        try:
+                            if lab_env.network.vlan_id:
+                                node = self.get_node()
+                                bridge_name = f"vmbr{lab_env.network.vlan_id}"
+                                
+                                # Delete the bridge
+                                try:
+                                    # Bring down bridge first
+                                    self.proxmox.nodes(node).network(bridge_name).delete()
+                                    # Apply network changes
+                                    self.proxmox.nodes(node).network.put()
+                                except Exception as e:
+                                    print(f"Warning: Could not delete bridge {bridge_name}: {str(e)}")
+        
+                            # Delete network from database
+                            lab_env.network.delete()
+                        except Exception as e:
+                            print(f"Warning: Error deleting network: {str(e)}")
 
-                # Delete lab environment
-                lab_env.delete()
-                            
-            except Exception as e:
-                print(f"Error during cleanup: {str(e)}")
+                    # Delete lab environment
+                    lab_env.delete()
+                                
+                except Exception as e:
+                    print(f"Error during cleanup: {str(e)}")
+
+        if threaded:
+            future = _thread_pool.submit(_cleanup)
+            return future
+        else:
+            _cleanup()
