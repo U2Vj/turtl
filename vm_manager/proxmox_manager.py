@@ -377,7 +377,13 @@ class ProxmoxManager:
                 for vm in lab_env.virtual_machines.all():
                     try:
                         node = self.get_node()
-                        # Delete the VM
+                        # Stop the VM
+                        try:
+                            self.proxmox.nodes(node).qemu(vm.vmid).status.stop.post()
+                            # Wait for VM to stop
+                            time.sleep(5)
+                        except Exception as e:
+                            print(f"Warning: Could not stop VM {vm.vmid}: {str(e)}")
                         self.proxmox.nodes(node).qemu(vm.vmid).delete()
                         # Delete VM from database
                         vm.delete()
