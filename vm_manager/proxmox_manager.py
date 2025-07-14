@@ -1,6 +1,7 @@
 import os
 import time
 import threading
+import requests
 from concurrent.futures import ThreadPoolExecutor
 from proxmoxer import ProxmoxAPI
 from django.db import transaction, IntegrityError
@@ -28,10 +29,51 @@ class ProxmoxManager:
                 password=os.environ.get('PROXMOX_PASSWORD'),
                 verify_ssl=False
             )
+            # Add attributes to store auth credentials
+            self.auth_cookie = None
+            self.csrf_token = None
         except Exception as e:
             print(f"Failed to connect to Proxmox: {e}")
             raise e
-        
+
+    def _authenticate(self):
+        """
+        Ensures the manager is authenticated and has a valid cookie and CSRF token.
+        If not authenticated, it will perform a login request and store the credentials.
+        """
+        # If we already have a cookie, assume we are authenticated.
+        # For production, you might want to add expiration logic here.
+        if self.auth_cookie and self.csrf_token:
+            return
+
+        try:
+            print("DEBUG: Authenticating with Proxmox...")
+            login_response = requests.post(
+                f"https://{os.environ.get('PROXMOX_HOST')}/api2/json/access/ticket",
+                data={
+                    "username": os.environ.get('PROXMOX_USER'),
+                    "password": os.environ.get('PROXMOX_PASSWORD')
+                },
+                verify=False
+            )
+            login_response.raise_for_status()
+            login_data = login_response.json()["data"]
+            
+            self.auth_cookie = login_data["ticket"]
+            self.csrf_token = login_data.get("CSRFPreventionToken", "")
+            print("DEBUG: Successfully authenticated and stored credentials.")
+        except requests.exceptions.RequestException as e:
+            print(f"FATAL: Proxmox authentication failed: {e}")
+            raise
+
+    def get_auth_cookie(self):
+        """
+        Returns the stored authentication cookie, authenticating if necessary.
+        """
+        if not self.auth_cookie:
+            self._authenticate()
+        return self.auth_cookie
+
     # Helper functions
     def get_node(self):
         """
@@ -228,8 +270,8 @@ class ProxmoxManager:
                 print(f"DEBUG: Configuring VM {vmid} with networking")
                 #TODO Set better and custom passwords for production use
                 storage = 'local-lvm'
-                ci_user = 'root'
-                ci_password = 'changeme'
+                ci_user = 'student'
+                ci_password = 'student'
 
                 self.configure_vm(
                     node=node,
@@ -330,8 +372,6 @@ class ProxmoxManager:
                 'cipassword': ci_password,
                 'agent': 'enabled=1',
                 'boot': 'order=scsi0',
-                'serial0': 'socket',
-                'vga': 'serial0',
                 'cicustom': 'user=local:snippets/user-data.yaml'
             }
 
@@ -444,7 +484,7 @@ class ProxmoxManager:
                                     self.proxmox.nodes(node).network.put()
                                 except Exception as e:
                                     print(f"Warning: Could not delete bridge {bridge_name}: {str(e)}")
-        
+    
                             # Delete network from database
                             lab_env.network.delete()
                         except Exception as e:
@@ -485,3 +525,72 @@ class ProxmoxManager:
             print(f"Error  syncing VM status: {str(e)}")
             raise
 
+    def get_vm_xterm_ticket(self, node, vmid, vm_name):
+        """
+        Gets a console ticket for a text-based xterm.js session by using the /termproxy endpoint
+        with a special Referer header.
+        """
+        try:
+            self._authenticate()  # Ensure we are logged in
+            proxmox_host = os.environ.get('PROXMOX_HOST')
+            
+            # The Referer header is crucial to get an xterm.js-compatible ticket.
+            api_url = f"https://{proxmox_host}/api2/json/nodes/{node}/qemu/{vmid}/termproxy"
+            referer = f"https://{proxmox_host}/?console=kvm&xtermjs=1&vmid={vmid}&vmname={vm_name}&node={node}&cmd="
+            
+            headers = {
+                'CSRFPreventionToken': self.csrf_token,
+                'Referer': referer,
+            }
+            
+            cookies = {
+                'PVEAuthCookie': self.auth_cookie
+            }
+            
+            # Make the POST request to get the terminal ticket
+            termproxy_response = requests.post(api_url, headers=headers, cookies=cookies, verify=False)
+            termproxy_response.raise_for_status()
+            
+            ticket_data = termproxy_response.json()['data']
+            
+            # Return all necessary data for the websocket connection
+            return {
+                'ticket': ticket_data['ticket'],
+                'port': ticket_data['port'],
+                'user': ticket_data['user'],
+                'pve_auth_cookie': self.auth_cookie,
+            }
+            
+        except requests.exceptions.RequestException as e:
+            print(f"HTTP Error getting xterm console ticket for VM {vmid}: {e}")
+            if e.response:
+                print(f"Response body: {e.response.text}")
+            raise
+        except Exception as e:
+            print(f"Error getting xterm console ticket for VM {vmid}: {e}")
+            raise
+
+    def get_vm_console_ticket(self, node, vmid):
+        """
+        Get console access ticket for a VM (for binary VNC).
+        """
+        try:
+            self._authenticate() # Ensure we are logged in
+            
+            # Use the proxmoxer API which is already authenticated
+            ticket_data = self.proxmox.nodes(node).qemu(vmid).vncproxy.post(
+                websocket=1  # Enable websocket support
+            )
+            
+            # Return all necessary authentication data
+            return {
+                'pve_auth_cookie': self.auth_cookie,
+                'csrf_token': self.csrf_token,
+                'ticket': ticket_data['ticket'],
+                'port': ticket_data['port'],
+                'cert': ticket_data.get('cert', ''),
+                'user': ticket_data.get('user', os.environ.get('PROXMOX_USER'))
+            }
+        except Exception as e:
+            print(f"Error getting console ticket: {e}")
+            raise
