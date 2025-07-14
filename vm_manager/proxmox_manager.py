@@ -89,11 +89,17 @@ class ProxmoxManager:
                     for vm_template_config in task_config.vm_templates.all():
                         self.provision_vm(lab_env, vm_template_config, network, user, task)
 
+                    # 4. Update lab_env status
+                    lab_env.status = 'active'
+                    lab_env.save()
+
                     return lab_env
 
             except Exception as e:
                 print(f"Error creating lab environment for task : {task.title}")
+                print(f"Exception: {str(e)}")
                 #TODO Cleanup here
+                raise e
     
     def provision_network(self, user, task, task_config):
         """
@@ -443,3 +449,27 @@ class ProxmoxManager:
             return future
         else:
             _cleanup()
+
+    def sync_vm_status(self, lab_env):
+        """
+        Synchronizes VM status with Proxmox for a lab environment
+        """
+
+        try:
+            node = self.get_node()
+
+            for vm in lab_env.virtual_machines.all():
+                try:
+                    # Get VM status from Proxmox
+                    vm_status = self.proxmox.nodes(node).qemu(vm.vmid).status.current.get().get('status')
+
+                    if vm.status != vm_status:
+                        vm.status = vm_status
+                        vm.save()
+                except Exception as e:
+                    print(f"Warning: Could not sync status for VM {vm.vmid}: {str(e)}")
+
+        except Exception as e:
+            print(f"Error  syncing VM status: {str(e)}")
+            raise
+
