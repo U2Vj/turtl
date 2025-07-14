@@ -274,7 +274,7 @@ function submitSolution() {
                       v-if="question.question_type == QuestionType.SingleChoice"
                       :model-value="getSingleChoiceSelectedAnswerOption(question.id)"
                       @update:model-value="
-                        (choiceId) => setSingleChoiceSelectedAnswerOption(question.id, choiceId)
+                        (choiceId: number) => setSingleChoiceSelectedAnswerOption(question.id, choiceId)
                       "
                     >
                       <v-radio :label="choice.answer" :value="choice.id" />
