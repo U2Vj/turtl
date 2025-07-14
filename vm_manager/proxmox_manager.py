@@ -116,37 +116,49 @@ class ProxmoxManager:
             if not acquired:
                 raise TimeoutError("Could not acquire lock for bridge allocation")
             
-            with transaction.atomic():
-                # 1. Find next available Bridge ID
-                highest_vlan = Network.objects.select_for_update().filter(vlan_id__isnull=False).order_by('-vlan_id').first()
-
-                bridge_id = highest_vlan.vlan_id + 1 if highest_vlan else 100
-                bridge_name = f"vmbr{bridge_id}"
-                network_name = f"{slugify(task.title)}-{slugify(user.username)}-net"
-                node = self.get_node()
-
-                # 2. Create network in database
-                network = Network.objects.create(
-                    name=network_name,
-                    subnet=network_template.subnet,
-                    vlan_id=bridge_id,
-                    template=network_template,
-                    user=user,
-                    task=task
-                )
-
+            max_retries = 10
+            for attempt in range(max_retries):
                 try:
-                    # 3. Create bridge in Proxmox
-                    self.create_bridge(
-                        node=node,
-                        bridge=bridge_name,
-                        cidr=network_template.subnet
-                    )
-                except Exception as e:
-                    print(f"Error creating bridge in Proxmox: {str(e)}")
-                    raise
+                    with transaction.atomic():
+                        # 1. Find next available Bridge ID
+                        highest_vlan = Network.objects.select_for_update().filter(vlan_id__isnull=False).order_by('-vlan_id').first()
 
-                return network
+                        bridge_id = highest_vlan.vlan_id + 1 if highest_vlan else 100
+                        bridge_name = f"vmbr{bridge_id}"
+                        network_name = f"{slugify(task.title)}-{slugify(user.username)}-net"
+                        node = self.get_node()
+
+                        # 2. Create network in database
+                        network = Network.objects.create(
+                            name=network_name,
+                            subnet=network_template.subnet,
+                            vlan_id=bridge_id,
+                            template=network_template,
+                            user=user,
+                            task=task
+                        )
+
+                        try:
+                            # 3. Create bridge in Proxmox
+                            self.create_bridge(
+                                node=node,
+                                bridge=bridge_name,
+                                cidr=network_template.subnet
+                            )
+                        except Exception as e:
+                            print(f"Error creating bridge in Proxmox: {str(e)}")
+                            raise
+
+                        return network
+                except IntegrityError as e:
+                    if 'vlan_id' in str(e) and attempt < max_retries - 1:
+                        print(f"VLAN ID {bridge_id} already exists, retrying... (attempt {attempt + 1}/{max_retries})")
+                        # Short delay before retry to allow other transactions to complete
+                        time.sleep(0.3)
+                        continue
+                    else:
+                        print(f"Failed to allocate unique VLAN ID after {max_retries} attempts")
+                        raise
     
     def create_bridge(self, node, bridge, cidr, gateway=None, autostart=True):
         """

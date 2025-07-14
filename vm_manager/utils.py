@@ -65,8 +65,9 @@ def slugify(value, max_length=40):
         if not value or len(value) < 2:
             return "default"
         
-        return value
-        
+    return value
+
+
 def format_ip(ip_address, network):
     if "/" not in str(ip_address):
         subnet = network.subnet
