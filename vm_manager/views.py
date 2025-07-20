@@ -6,6 +6,7 @@ from django.shortcuts import get_object_or_404
 from catalog.models import Task
 from .models import LabEnvironment
 from .proxmox_manager import ProxmoxManager
+from .models import VirtualMachine
 
 
 @api_view(['POST'])
@@ -116,6 +117,46 @@ def environment_status(request, task_id):
             'vm_count': lab_env.virtual_machines.count()
         })
     
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'message': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def vnc_ticket(request, task_id):
+    """
+    Returns a VNC ticket for the user's USER_SHELL VM of the given task.
+    The frontend uses this as VNC password via noVNC credentials.
+    """
+    try:
+        from django.shortcuts import get_object_or_404
+        from catalog.models import Task
+
+        task = get_object_or_404(Task, id=task_id)
+        user = request.user
+
+        vm = VirtualMachine.objects.filter(
+            lab_environment__user=user,
+            lab_environment__task=task,
+            template__purpose='USER_SHELL'
+        ).first()
+
+        if not vm:
+            return Response({
+                'status': 'error',
+                'message': 'No USER_SHELL VM found for this task/user'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        pm = ProxmoxManager()
+        # TODO: derive correct node instead of hardcoding
+        ticket_data = pm.get_vm_console_ticket('turtlmaster', vm.vmid)
+
+        return Response({
+            'status': 'ok',
+            'ticket': ticket_data['ticket']
+        })
     except Exception as e:
         return Response({
             'status': 'error',

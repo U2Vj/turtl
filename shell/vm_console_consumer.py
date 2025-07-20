@@ -4,7 +4,7 @@ import websockets
 import ssl
 import urllib.parse
 from channels.generic.websocket import AsyncWebsocketConsumer
-from vm_manager.proxmox_manager import ProxmoxManager # Sie müssen diese Klasse anpassen
+from vm_manager.proxmox_manager import ProxmoxManager
 from vm_manager.models import LabEnvironment, VirtualMachine
 import os
 
@@ -20,28 +20,33 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         self.task_id = self.scope['url_route']['kwargs']['task_id']
         self.user = self.scope['user']
         
-        # Benutzer-VM holen
-        user_vm = await self.get_user_vm()
-        if not user_vm:
+        if not self.user.is_authenticated:
+            print(f"Unauthenticated user attempted connection")
             await self.close()
             return
         
-        # Zuerst die Client-Verbindung akzeptieren
-        await self.accept() 
+        
+        # Get user vm
+        user_vm = await self.get_user_vm()
+        if not user_vm:
+            print(f"No VM found for user {self.user}")
+            await self.close()
+            return
+        
+        print(f"Found VM {user_vm.vmid} for user {self.user}")
+
+        requested = self.scope.get('subprotocols', []) or []
+        selected = 'binary' if 'binary' in requested else ( 'base64' if 'base64' in requested else None )
+        await self.accept(subprotocol=selected)
         print("Client WebSocket accepted")
         
-        # Dann die Verbindung zu Proxmox herstellen
         try:
             await self.connect_to_proxmox(user_vm)
         except Exception as e:
             print(f"Failed to setup Proxmox connection: {e}")
             await self.close()
     
-    async def connect_to_proxmox(self, user_vm):
-        # Annahme: ProxmoxManager hat eine Methode, die den Referer-Header unterstützt
-        pm = ProxmoxManager()
-        
-        # Get console ticket from Proxmox
+    async def connect_to_proxmox(self, user_vm):        
         pm = ProxmoxManager()
         ticket_data = pm.get_vm_console_ticket('turtlmaster', user_vm.vmid)
         
@@ -59,13 +64,23 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         # Build WebSocket URL with properly encoded parameters
         proxmox_url = f"wss://{proxmox_host}:8006/api2/json/nodes/turtlmaster/qemu/{user_vm.vmid}/vncwebsocket"
         proxmox_url += f"?port={vnc_port}&vncticket={encoded_ticket}"
+
+        # Avoid logging sensitive details like tickets/URLs
+        print("Connecting to Proxmox WebSocket")
         
-        print(f"Connecting to Proxmox WebSocket: {proxmox_url}")
-        
-        # Setup SSL context
+        # Setup SSL context 
+        ca_path = os.environ.get('PROXMOX_CA_PATH')
+        verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
         ssl_context = ssl.create_default_context()
-        ssl_context.check_hostname = False
-        ssl_context.verify_mode = ssl.CERT_NONE
+        
+        if verify_env in ('false', '0'):
+            ssl_context.check_hostname = False
+            ssl_context.verify_mode = ssl.CERT_NONE
+        elif ca_path:
+            ssl_context.load_verify_locations(cafile=ca_path)
+
+        if self._is_ip(proxmox_host):
+            ssl_context.check_hostname = False
         
         # Prepare headers with proper authentication
         headers = {
@@ -75,22 +90,16 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         }
         
         try:
+
+            verify_off = verify_env in ('false', '0')
             self.proxmox_ws = await websockets.connect(
                 proxmox_url, 
                 ssl=ssl_context,
                 extra_headers=headers,
-                subprotocols=['binary']
+                subprotocols=['binary'],
+                server_hostname=None if verify_off or self._is_ip(proxmox_host) else proxmox_host,
             )
             print("Successfully connected to Proxmox WebSocket")
-            
-            # Send VNC auth info to the client as proper JSON
-            import json
-            auth_info = {
-                'type': 'vnc_auth',
-                'ticket': ticket_data['ticket'],
-                'pve_auth_cookie': ticket_data['pve_auth_cookie']
-            }
-            await self.send(text_data=json.dumps(auth_info))
         except Exception as e:
             print(f"Failed to connect to Proxmox WebSocket: {e}")
             await self.close()
@@ -98,6 +107,15 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         
         # Start forwarding
         self.forward_task = asyncio.create_task(self.forward_messages())
+
+    def _is_ip(self, host: str) -> bool:
+        parts = host.split(".")
+        if len(parts) != 4:
+            return False
+        try:
+            return all(0 <= int(p) <= 255 for p in parts)
+        except ValueError:
+            return False
     
     async def disconnect(self, close_code):
         if self.forward_task:
@@ -150,4 +168,3 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             return vm
         
         return await get_vm()
-

@@ -22,12 +22,17 @@ class ProxmoxManager:
     LOCK_ACQUIRE_TIMEOUT = 30
     def __init__(self):
         try:
+            host = os.environ.get('PROXMOX_HOST')
+            user = os.environ.get('PROXMOX_USER')
+            password = os.environ.get('PROXMOX_PASSWORD')
+            verify_param = self._get_verify_param()
+
             # Initialize Proxmox API connection
             self.proxmox = ProxmoxAPI(
-                host=os.environ.get('PROXMOX_HOST'),
-                user=os.environ.get('PROXMOX_USER'),
-                password=os.environ.get('PROXMOX_PASSWORD'),
-                verify_ssl=False
+                host=host,
+                user=user,
+                password=password,
+                verify_ssl=verify_param,
             )
             # Add attributes to store auth credentials
             self.auth_cookie = None
@@ -41,10 +46,10 @@ class ProxmoxManager:
         Ensures the manager is authenticated and has a valid cookie and CSRF token.
         If not authenticated, it will perform a login request and store the credentials.
         """
-        # If we already have a cookie, assume we are authenticated.
-        # For production, you might want to add expiration logic here.
         if self.auth_cookie and self.csrf_token:
             return
+
+        verify_param = self._get_verify_param()
 
         try:
             print("DEBUG: Authenticating with Proxmox...")
@@ -54,7 +59,7 @@ class ProxmoxManager:
                     "username": os.environ.get('PROXMOX_USER'),
                     "password": os.environ.get('PROXMOX_PASSWORD')
                 },
-                verify=False
+                verify=verify_param
             )
             login_response.raise_for_status()
             login_data = login_response.json()["data"]
@@ -75,6 +80,17 @@ class ProxmoxManager:
         return self.auth_cookie
 
     # Helper functions
+    def _get_verify_param(self):
+        ca_path = os.environ.get('PROXMOX_CA_PATH')
+        verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
+
+        if verify_env in ('false', '0'):
+            return False
+        elif ca_path:
+            return ca_path
+        else:
+            return True
+
     def get_node(self):
         """
         Get a available Proxmox node
@@ -523,51 +539,6 @@ class ProxmoxManager:
 
         except Exception as e:
             print(f"Error  syncing VM status: {str(e)}")
-            raise
-
-    def get_vm_xterm_ticket(self, node, vmid, vm_name):
-        """
-        Gets a console ticket for a text-based xterm.js session by using the /termproxy endpoint
-        with a special Referer header.
-        """
-        try:
-            self._authenticate()  # Ensure we are logged in
-            proxmox_host = os.environ.get('PROXMOX_HOST')
-            
-            # The Referer header is crucial to get an xterm.js-compatible ticket.
-            api_url = f"https://{proxmox_host}/api2/json/nodes/{node}/qemu/{vmid}/termproxy"
-            referer = f"https://{proxmox_host}/?console=kvm&xtermjs=1&vmid={vmid}&vmname={vm_name}&node={node}&cmd="
-            
-            headers = {
-                'CSRFPreventionToken': self.csrf_token,
-                'Referer': referer,
-            }
-            
-            cookies = {
-                'PVEAuthCookie': self.auth_cookie
-            }
-            
-            # Make the POST request to get the terminal ticket
-            termproxy_response = requests.post(api_url, headers=headers, cookies=cookies, verify=False)
-            termproxy_response.raise_for_status()
-            
-            ticket_data = termproxy_response.json()['data']
-            
-            # Return all necessary data for the websocket connection
-            return {
-                'ticket': ticket_data['ticket'],
-                'port': ticket_data['port'],
-                'user': ticket_data['user'],
-                'pve_auth_cookie': self.auth_cookie,
-            }
-            
-        except requests.exceptions.RequestException as e:
-            print(f"HTTP Error getting xterm console ticket for VM {vmid}: {e}")
-            if e.response:
-                print(f"Response body: {e.response.text}")
-            raise
-        except Exception as e:
-            print(f"Error getting xterm console ticket for VM {vmid}: {e}")
             raise
 
     def get_vm_console_ticket(self, node, vmid):

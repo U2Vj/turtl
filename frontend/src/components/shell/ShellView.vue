@@ -2,6 +2,7 @@
 import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import RFB from '@novnc/novnc/core/rfb.js';
 import { useVMManagerStore } from '@/stores/VMManagerStore';
+import { makeAPIRequest } from '@/communication/APIRequests';
 
 const props = defineProps<{ taskId?: number }>();
 
@@ -11,8 +12,6 @@ const vmStore = useVMManagerStore();
 const environmentStatus = ref<string>('not_created');
 const vmCount = ref<number>(0);
 const connectionStatus = ref<string>('disconnected');
-const vncSocket = ref<WebSocket | null>(null);
-const vncCredentials = ref<{ticket: string, pve_auth_cookie: string} | null>(null);
 const isInitializing = ref<boolean>(false); // Flag um doppelte Initialisierung zu verhindern
 
 async function loadEnvironmentStatus() {
@@ -71,120 +70,78 @@ function setupVNC() {
 
   // Erst cleanup, dann setup
   cleanup();
-  
+
   nextTick(() => {
     const vncContainerElement = vncContainer.value;
     if (!vncContainerElement) return;
 
     isInitializing.value = true;
-    
-    const wsUrl = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
-    vncSocket.value = new WebSocket(wsUrl);
-    
-    vncSocket.value.addEventListener('open', () => {
-      console.log('WebSocket connection opened');
-    });
-    
-    vncSocket.value.addEventListener('message', (event) => {
-      try {
-        if (typeof event.data === 'string' && event.data.includes('vnc_auth')) {
-          const authData = JSON.parse(event.data);
-          if (authData?.type === 'vnc_auth') {
-            vncCredentials.value = {
-              ticket: authData.ticket,
-              pve_auth_cookie: authData.pve_auth_cookie
-            };
-            console.log('Received VNC credentials, initializing RFB...');
-            // Kleine Verzögerung um sicherzustellen, dass cleanup abgeschlossen ist
-            setTimeout(() => {
-              initializeRFB();
-            }, 100);
-          }
-        }
-      } catch (e) {
-        console.error('Error processing WebSocket message:', e);
-        isInitializing.value = false;
-      }
-    });
-    
-    vncSocket.value.addEventListener('close', () => {
-      console.log('WebSocket connection closed');
-      connectionStatus.value = 'disconnected';
-      isInitializing.value = false;
-      if (rfb.value) rfb.value.disconnect();
-    });
-    
-    vncSocket.value.addEventListener('error', (error) => {
-      console.error('WebSocket error:', error);
-      connectionStatus.value = 'error';
-      isInitializing.value = false;
-    });
-  });
-}
 
-function initializeRFB() {
-  // Explizite Überprüfungen um doppelte Initialisierung zu verhindern
-  if (!vncSocket.value || !vncContainer.value || rfb.value || !vncCredentials.value) {
-    isInitializing.value = false;
-    return;
-  }
-  
-  try {
-    const vncContainerElement = vncContainer.value;
-    
+    // Hole den Access Token aus dem localStorage
+    const accessToken = localStorage.getItem('accessToken');
+    let wsUrl = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
+
+    // Füge Token als Query Parameter hinzu
+    if (accessToken) {
+      wsUrl += `?token=${encodeURIComponent(accessToken)}`;
+    }
+
     // Sicherstellen, dass Container leer ist
     vncContainerElement.innerHTML = '';
-    
-    const wsUrl = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
-    
-    const rfbOptions = {
+
+    const rfbOptions: any = {
       shared: true,
-      credentials: {
-        username: "proxmox",
-        password: vncCredentials.value.ticket
-      }
     };
-    
-    // @ts-ignore
-    rfb.value = new RFB(vncContainerElement, wsUrl, rfbOptions);
-    
-    rfb.value.addEventListener('connect', () => {
-      console.log('VNC connected');
-      connectionStatus.value = 'connected';
-      isInitializing.value = false;
-    });
-    
-    rfb.value.addEventListener('disconnect', () => {
-      console.log('VNC disconnected');
-      connectionStatus.value = 'disconnected';
-      isInitializing.value = false;
-    });
-    
-    rfb.value.addEventListener('credentialsrequired', () => {
-      console.log('VNC credentials required');
-      if (rfb.value && vncCredentials.value) {
-        rfb.value.sendCredentials({ 
-          username: "proxmox", 
-          password: vncCredentials.value.ticket 
+
+    // Fetch VNC ticket to be used as VNC password
+    (async () => {
+      try {
+        const resp = await makeAPIRequest(`/vm/vnc-ticket/${props.taskId}/`, 'GET', true, true);
+        const ticket = resp.data?.ticket;
+        if (ticket) {
+          rfbOptions.credentials = { username: 'proxmox', password: ticket };
+        }
+      } catch (e) {
+        console.error('Failed to fetch VNC ticket', e);
+      } finally {
+        // @ts-ignore
+        rfb.value = new RFB(vncContainerElement, wsUrl, rfbOptions);
+
+        rfb.value.addEventListener('connect', () => {
+          console.log('VNC connected');
+          connectionStatus.value = 'connected';
+          isInitializing.value = false;
         });
+
+        rfb.value.addEventListener('disconnect', () => {
+          console.log('VNC disconnected');
+          connectionStatus.value = 'disconnected';
+          isInitializing.value = false;
+        });
+
+        rfb.value.addEventListener('credentialsrequired', () => {
+          console.log('VNC credentials required');
+          // Ensure credentials are resent if requested
+          if (rfb.value && (rfbOptions.credentials?.password)) {
+            rfb.value.sendCredentials({ 
+              username: 'proxmox', 
+              password: rfbOptions.credentials.password 
+            });
+          }
+        });
+
+        rfb.value.addEventListener('securityfailure', () => {
+          console.log('VNC security failure');
+          connectionStatus.value = 'error';
+          isInitializing.value = false;
+        });
+
+        // VNC-Einstellungen für responsive Darstellung
+        rfb.value.scaleViewport = false;
+        rfb.value.resizeSession = true;
       }
-    });
-    
-    rfb.value.addEventListener('securityfailure', () => {
-      console.log('VNC security failure');
-      connectionStatus.value = 'error';
-      isInitializing.value = false;
-    });
-
-    // VNC-Einstellungen für responsive Darstellung
-    rfb.value.scaleViewport = false;
-    rfb.value.resizeSession = true;
-
-  } catch (error) {
-    console.error('Failed to setup VNC:', error);
-    connectionStatus.value = 'error';
-    isInitializing.value = false;
-  }
+    })();
+  });
 }
 
 function cleanup() {
@@ -199,19 +156,7 @@ function cleanup() {
         }
         rfb.value = undefined;
     }
-    
-    // WebSocket cleanup
-    if (vncSocket.value) {
-        try {
-            vncSocket.value.close();
-        } catch (e) {
-            console.warn('Error closing WebSocket:', e);
-        }
-        vncSocket.value = null;
-    }
-    
-    // Credentials cleanup
-    vncCredentials.value = null;
+
     connectionStatus.value = 'disconnected';
     isInitializing.value = false;
     
