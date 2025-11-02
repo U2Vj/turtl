@@ -81,16 +81,13 @@ function setupVNC() {
     const accessToken = localStorage.getItem('accessToken');
     let wsUrl = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
 
-    // Füge Token als Query Parameter hinzu
-    if (accessToken) {
-      wsUrl += `?token=${encodeURIComponent(accessToken)}`;
-    }
-
     // Sicherstellen, dass Container leer ist
     vncContainerElement.innerHTML = '';
 
     const rfbOptions: any = {
       shared: true,
+      // Übermittle den JWT im WebSocket-Subprotocol statt als Query-Parameter
+      wsProtocols: accessToken ? ['binary', `jwt.${accessToken}`] : ['binary'],
     };
 
     // Fetch VNC ticket to be used as VNC password

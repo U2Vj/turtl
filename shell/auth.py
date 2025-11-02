@@ -9,7 +9,6 @@ from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from jwt import decode as jwt_decode
 from django.conf import settings
 from authentication.models import User
-import urllib.parse
 
 
 @database_sync_to_async
@@ -36,22 +35,12 @@ class JwtAuthMiddleware:
     async def __call__(self, scope, receive, send):
         try:
             token = None
-            
-            # Try to get token from query string first
-            if 'query_string' in scope:
-                query_string = scope['query_string'].decode('utf-8')
-                query_params = urllib.parse.parse_qs(query_string)
-                if 'token' in query_params:
-                    token = query_params['token'][0]
-            
-            # If not found in query string, try headers
-            if not token:
-                for key, value in scope.get('headers', []):
-                    if key == b'authorization':
-                        auth_header = value.decode('utf-8')
-                        if auth_header.startswith('Bearer '):
-                            token = auth_header.split(' ')[1]
-                        break
+
+            # Get Token from Websocket subprotocols
+            for proto in (scope.get('subprotocols', []) or []):
+                if isinstance(proto, str) and proto.startswith('jwt.'):
+                    token = proto[4:]
+                    break
             
             # If we have a token, validate it
             if token:
