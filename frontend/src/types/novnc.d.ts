@@ -1,6 +1,6 @@
 declare module '@novnc/novnc/core/rfb.js' {
   export default class RFB {
-    constructor(target: HTMLElement, url: string);
+    constructor(target: HTMLElement, url: string, options?: any);
     scaleViewport: boolean;
     resizeSession: boolean;
     addEventListener(event: string, handler: Function): void;

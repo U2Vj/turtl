@@ -75,7 +75,7 @@ def stop_environment(request, task_id):
 
         return Response({
             'status': 'deleted',
-            'message': 'Lab envrionment deleted successfully'
+            'message': 'Lab environment deleted successfully'
         }, status=status.HTTP_200_OK)
     
 
@@ -150,12 +150,14 @@ def vnc_ticket(request, task_id):
             }, status=status.HTTP_404_NOT_FOUND)
 
         pm = ProxmoxManager()
-        # TODO: derive correct node instead of hardcoding
-        ticket_data = pm.get_vm_console_ticket('turtlmaster', vm.vmid)
+        node = pm.get_vm_node(vm.vmid)
+        ticket_data = pm.get_vm_console_ticket(node, vm.vmid)
 
         return Response({
             'status': 'ok',
-            'ticket': ticket_data['ticket']
+            'ticket': ticket_data['ticket'],
+            'port': ticket_data['port'],
+            'node': node,
         })
     except Exception as e:
         return Response({

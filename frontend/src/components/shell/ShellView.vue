@@ -12,7 +12,7 @@ const vmStore = useVMManagerStore();
 const environmentStatus = ref<string>('not_created');
 const vmCount = ref<number>(0);
 const connectionStatus = ref<string>('disconnected');
-const isInitializing = ref<boolean>(false); // Flag um doppelte Initialisierung zu verhindern
+const isInitializing = ref<boolean>(false);
 
 async function loadEnvironmentStatus() {
   if (!props.taskId) return;
@@ -79,8 +79,6 @@ function setupVNC() {
 
     // Hole den Access Token aus dem localStorage
     const accessToken = localStorage.getItem('accessToken');
-    let wsUrl = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
-
     // Sicherstellen, dass Container leer ist
     vncContainerElement.innerHTML = '';
 
@@ -92,17 +90,27 @@ function setupVNC() {
 
     // Fetch VNC ticket to be used as VNC password
     (async () => {
+      let wsUrlBuilt: string | null = null;
       try {
         const resp = await makeAPIRequest(`/vm/vnc-ticket/${props.taskId}/`, 'GET', true, true);
         const ticket = resp.data?.ticket;
+        const port = resp.data?.port;
         if (ticket) {
           rfbOptions.credentials = { username: 'proxmox', password: ticket };
         }
+        // Backend consumer will forward to Proxmox using these values.
+        const base = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
+        const qp = new URLSearchParams();
+        if (ticket) qp.set('ticket', ticket);
+        if (port) qp.set('port', String(port));
+        const qpStr = qp.toString();
+        wsUrlBuilt = qpStr ? `${base}?${qpStr}` : base;
       } catch (e) {
         console.error('Failed to fetch VNC ticket', e);
       } finally {
-        // @ts-ignore
-        rfb.value = new RFB(vncContainerElement, wsUrl, rfbOptions);
+        // If no explicit wsUrl above (ticket fetch failed), fall back to base path
+        const base = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
+        rfb.value = new RFB(vncContainerElement, wsUrlBuilt || base, rfbOptions);
 
         rfb.value.addEventListener('connect', () => {
           console.log('VNC connected');

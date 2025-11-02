@@ -565,3 +565,24 @@ class ProxmoxManager:
         except Exception as e:
             print(f"Error getting console ticket: {e}")
             raise
+
+    def get_vm_node(self, vmid: int) -> str:
+        """
+        Returns the node name on which the given VMID currently resides.
+        """
+        try:
+            resources = self.proxmox.cluster.resources.get(type='vm')
+            for r in resources:
+                try:
+                    if int(r.get('vmid')) == int(vmid):
+                        node = r.get('node')
+                        if node:
+                            return node
+                except (TypeError, ValueError):
+                    continue
+            # Fallback: try first online node (may fail later if wrong)
+            return self.get_node()
+        except Exception as e:
+            print(f"Error resolving node for VM {vmid}: {e}")
+            # Bubble up so caller can decide
+            raise

@@ -69,11 +69,18 @@ def slugify(value, max_length=40):
 
 
 def format_ip(ip_address, network):
-    if "/" not in str(ip_address):
-        subnet = network.subnet
-        if "/" in subnet:
-            cidr = subnet.split("/")[1]
-            formatted_ip = f"{ip_address}/{cidr}"
-        else:
-            formatted_ip = f"{ip_address}/24"
-    return formatted_ip
+    """
+    Ensure an IP address string includes CIDR suffix.
+    - If ip_address already contains '/', return it unchanged.
+    - Otherwise, derive CIDR from network.subnet or default to /24.
+    """
+    ip_str = str(ip_address) if ip_address is not None else ""
+    if "/" in ip_str:
+        return ip_str
+
+    subnet = getattr(network, 'subnet', None) or ""
+    if "/" in subnet:
+        cidr = subnet.split("/")[1]
+        return f"{ip_str}/{cidr}"
+    else:
+        return f"{ip_str}/24"

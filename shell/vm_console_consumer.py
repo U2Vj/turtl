@@ -13,8 +13,6 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         super().__init__(*args, **kwargs)
         self.proxmox_ws = None
         self.forward_task = None
-        self.receive_task = None
-        self.should_close = False
     
     async def connect(self):
         self.task_id = self.scope['url_route']['kwargs']['task_id']
@@ -46,23 +44,48 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             print(f"Failed to setup Proxmox connection: {e}")
             await self.close()
     
-    async def connect_to_proxmox(self, user_vm):        
+    async def connect_to_proxmox(self, user_vm):
         pm = ProxmoxManager()
-        ticket_data = pm.get_vm_console_ticket('turtlmaster', user_vm.vmid)
         
+        # Parse query params from client WS (ticket+port expected)
+        try:
+            raw_qs = (self.scope.get('query_string') or b'').decode('utf-8')
+            qs = urllib.parse.parse_qs(raw_qs)
+        except Exception:
+            qs = {}
+
+        ticket = (qs.get('ticket') or [None])[0]
+        vnc_port = (qs.get('port') or [None])[0]
+
+        # Determine the correct node for this VM
+        try:
+            node = pm.get_vm_node(user_vm.vmid)
+        except Exception as e:
+            print(f"Failed to determine VM node: {e}")
+            await self.close()
+            return
+
+        # If ticket/port were not provided by client, obtain them once here
+        if not ticket or not vnc_port:
+            try:
+                ticket_data = pm.get_vm_console_ticket(node, user_vm.vmid)
+                ticket = ticket_data['ticket']
+                vnc_port = ticket_data['port']
+            except Exception as e:
+                print(f"Failed to obtain VNC ticket/port: {e}")
+                await self.close()
+                return
+
         # Parse PROXMOX_HOST to extract hostname without port
         proxmox_host = os.environ.get('PROXMOX_HOST')
-        if ':' in proxmox_host:
+        if proxmox_host and ':' in proxmox_host:
             proxmox_host = proxmox_host.split(':')[0]
         
-        # Extract port number from ticket
-        vnc_port = ticket_data['port']
-        
         # URL encode the ticket
-        encoded_ticket = urllib.parse.quote(ticket_data['ticket'])
+        encoded_ticket = urllib.parse.quote(ticket)
         
-        # Build WebSocket URL with properly encoded parameters
-        proxmox_url = f"wss://{proxmox_host}:8006/api2/json/nodes/turtlmaster/qemu/{user_vm.vmid}/vncwebsocket"
+        # Build WebSocket URL to Proxmox
+        proxmox_url = f"wss://{proxmox_host}:8006/api2/json/nodes/{node}/qemu/{user_vm.vmid}/vncwebsocket"
         proxmox_url += f"?port={vnc_port}&vncticket={encoded_ticket}"
 
         # Avoid logging sensitive details like tickets/URLs
@@ -82,9 +105,17 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         if self._is_ip(proxmox_host):
             ssl_context.check_hostname = False
         
-        # Prepare headers with proper authentication
+        # Prepare Proxmox authentication cookie
+        try:
+            pm._authenticate()
+            pve_cookie = pm.get_auth_cookie()
+        except Exception as e:
+            print(f"Failed to authenticate with Proxmox: {e}")
+            await self.close()
+            return
+
         headers = {
-            "Cookie": f"PVEAuthCookie={ticket_data['pve_auth_cookie']}",
+            "Cookie": f"PVEAuthCookie={pve_cookie}",
             "Origin": f"https://{proxmox_host}:8006",
             "Host": f"{proxmox_host}:8006",
         }

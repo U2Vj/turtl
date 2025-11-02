@@ -4,10 +4,8 @@ WebSocket JWT Authentication Middleware
 from channels.auth import AuthMiddlewareStack
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import AnonymousUser
-from rest_framework_simplejwt.tokens import UntypedToken
+from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
-from jwt import decode as jwt_decode
-from django.conf import settings
 from authentication.models import User
 
 
@@ -45,11 +43,9 @@ class JwtAuthMiddleware:
             # If we have a token, validate it
             if token:
                 try:
-                    # Validate the token
-                    UntypedToken(token)
-                    # Decode and get user
-                    decoded_data = jwt_decode(token, settings.SECRET_KEY, algorithms=["HS256"])
-                    scope['user'] = await get_user(decoded_data)
+                    # Validate and read payload using SimpleJWT
+                    access = AccessToken(token)
+                    scope['user'] = await get_user(access.payload)
                     print(f"JWT Auth: Authenticated user {scope['user']} from token")
                 except (InvalidToken, TokenError, Exception) as e:
                     print(f"JWT Auth: Invalid token: {e}")
@@ -69,4 +65,5 @@ def JwtAuthMiddlewareStack(inner):
     """
     Create JWT authentication middleware stack
     """
-    return JwtAuthMiddleware(AuthMiddlewareStack(inner))
+    # Ensure JWT sets the user last to avoid being overwritten
+    return AuthMiddlewareStack(JwtAuthMiddleware(inner))

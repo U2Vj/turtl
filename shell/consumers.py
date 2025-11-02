@@ -11,6 +11,12 @@ class ShellConsumer(AsyncJsonWebsocketConsumer):
     docker_listener = None
 
     async def connect(self):
+        # Basic authorization: restrict to staff/admin by default
+        user = getattr(self.scope, 'user', None)
+        if not getattr(user, 'is_authenticated', False) or not getattr(user, 'is_staff', False):
+            await self.close()
+            return
+
         # Create docker api client
         client = docker.from_env()
 
