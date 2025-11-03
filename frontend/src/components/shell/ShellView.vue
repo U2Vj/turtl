@@ -13,6 +13,18 @@ const environmentStatus = ref<string>('not_created');
 const vmCount = ref<number>(0);
 const connectionStatus = ref<string>('disconnected');
 const isInitializing = ref<boolean>(false);
+const hasConfig = ref<boolean | null>(null);
+
+async function checkHasConfig() {
+  if (!props.taskId) { hasConfig.value = null; return; }
+  try {
+    const resp = await makeAPIRequest(`/vm/has-config/${props.taskId}/`, 'GET', true, true);
+    hasConfig.value = !!resp.data?.has_config;
+  } catch (e) {
+    console.error('Failed to check task config', e);
+    hasConfig.value = false;
+  }
+}
 
 async function loadEnvironmentStatus() {
   if (!props.taskId) return;
@@ -172,9 +184,12 @@ function cleanup() {
 }
 
 onMounted(async () => {
-  await loadEnvironmentStatus();
-  if (environmentStatus.value === 'active') {
-      setupVNC();
+  await checkHasConfig();
+  if (hasConfig.value === true) {
+    await loadEnvironmentStatus();
+    if (environmentStatus.value === 'active') {
+        setupVNC();
+    }
   }
 });
 
@@ -212,7 +227,7 @@ watch(() => props.taskId, async (newTaskId, oldTaskId) => {
 </script>
 
 <template>
-  <div class="shell-container">
+  <div v-if="hasConfig" class="shell-container">
     <div v-if="taskId" class="vm-controls">
         <div class="d-flex align-center justify-space-between">
           <div class="d-flex align-center">

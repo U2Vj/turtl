@@ -4,10 +4,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from catalog.models import Task
-from .models import LabEnvironment
 from .proxmox_manager import ProxmoxManager
-from .models import VirtualMachine
-
+from .models import VirtualMachine, LabEnvironment, TaskVMConfiguration
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -164,4 +162,10 @@ def vnc_ticket(request, task_id):
             'status': 'error',
             'message': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def has_task_vm_config(request, task_id: int):
+    exists = TaskVMConfiguration.objects.filter(task_id=task_id).exists()
+    return Response({"has_config": exists})
             
