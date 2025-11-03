@@ -9,7 +9,7 @@ class NetworkAdmin(admin.ModelAdmin):
 
 @admin.register(VMTemplate)
 class VMTemplateAdmin(admin.ModelAdmin):
-    list_display = ['name', 'template_id', 'purpose', 'cpu_cores', 'memory_mb', 'disk_gb']
+    list_display = ['name', 'template_id', 'purpose', 'cpu_cores', 'memory_mb']
     list_filter = ['purpose']
 
 @admin.register(NetworkTemplate)

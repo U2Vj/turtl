@@ -37,7 +37,6 @@ class VMTemplate(models.Model):
     #Resources
     cpu_cores = models.IntegerField(default=1)
     memory_mb = models.IntegerField(default=512)
-    disk_gb = models.IntegerField(default=10)
     #Purpose
     PURPOSE_CHOICES = [
         ('USER_SHELL', 'User Shell'),
