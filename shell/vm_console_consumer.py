@@ -59,7 +59,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
 
         # Determine the correct node for this VM
         try:
-            node = pm.get_vm_node(user_vm.vmid)
+            node = await pm.a_get_vm_node(user_vm.vmid)
         except Exception as e:
             print(f"Failed to determine VM node: {e}")
             await self.close()
@@ -68,7 +68,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         # If ticket/port were not provided by client, obtain them once here
         if not ticket or not vnc_port:
             try:
-                ticket_data = pm.get_vm_console_ticket(node, user_vm.vmid)
+                ticket_data = await pm.a_get_vm_console_ticket(node, user_vm.vmid)
                 ticket = ticket_data['ticket']
                 vnc_port = ticket_data['port']
             except Exception as e:
@@ -107,8 +107,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         
         # Prepare Proxmox authentication cookie
         try:
-            pm._authenticate()
-            pve_cookie = pm.get_auth_cookie()
+            pve_cookie = await pm.a_get_auth_cookie()
         except Exception as e:
             print(f"Failed to authenticate with Proxmox: {e}")
             await self.close()

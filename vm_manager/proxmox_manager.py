@@ -1,6 +1,6 @@
 import os
 import time
-import threading
+import asyncio
 import requests
 from concurrent.futures import ThreadPoolExecutor
 from proxmoxer import ProxmoxAPI
@@ -586,3 +586,16 @@ class ProxmoxManager:
             print(f"Error resolving node for VM {vmid}: {e}")
             # Bubble up so caller can decide
             raise
+
+    async def a_authenticate(self):
+        return await asyncio.to_thread(self._authenticate)
+    
+    async def a_get_auth_cookie(self):
+        return await asyncio.to_thread(self.get_auth_cookie)
+    
+    async def a_get_vm_node(self, vmid: int) -> str:
+        return await asyncio.to_thread(self.get_vm_node, vmid)
+    
+    async def a_get_vm_console_ticket(self, node: str, vmid: int) -> dict:
+        return await asyncio.to_thread(self.get_vm_console_ticket, node, vmid)
+    
