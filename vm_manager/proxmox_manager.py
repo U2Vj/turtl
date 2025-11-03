@@ -296,7 +296,9 @@ class ProxmoxManager:
                     ci_user=ci_user,
                     ci_password=ci_password,
                     bridge=bridge_name,
-                    ip_address=ip_address
+                    ip_address=ip_address,
+                    cpu_cores=template.cpu_cores,
+                    memory_mb=template.memory_mb,
                 )
 
                 #Add VM to database
@@ -375,7 +377,7 @@ class ProxmoxManager:
         else:
             _wait()
 
-    def configure_vm(self, node, vm_id, storage, ci_user, ci_password, bridge, ip_address):
+    def configure_vm(self, node, vm_id, storage, ci_user, ci_password, bridge, ip_address, cpu_cores, memory_mb):
         """
         Configures the Cloud-init, network and other VM options
         """
@@ -388,7 +390,10 @@ class ProxmoxManager:
                 'cipassword': ci_password,
                 'agent': 'enabled=1',
                 'boot': 'order=scsi0',
-                'cicustom': 'user=local:snippets/user-data.yaml'
+                'cicustom': 'user=local:snippets/user-data.yaml',
+                'sockets': 1,
+                'cores': int(cpu_cores),
+                'memory': int(memory_mb),
             }
 
             self.proxmox.nodes(node).qemu(vm_id).config.post(**config_params)
