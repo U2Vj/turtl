@@ -187,7 +187,7 @@ class TaskSerializer(WritableNestedModelSerializer):
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'virtualizations', 'acceptance_criteria']
+        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'acceptance_criteria']
         read_only_fields = ['id']
 
 
