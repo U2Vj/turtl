@@ -69,7 +69,7 @@ def stop_environment(request, task_id):
         lab_env.save()
 
         proxmox_manager = ProxmoxManager()
-        proxmox_manager.cleanup_environment(user, task, threaded=False)
+        proxmox_manager.cleanup_environment(user, task)
 
         return Response({
             'status': 'deleted',

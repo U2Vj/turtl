@@ -2,7 +2,6 @@ import os
 import time
 import asyncio
 import requests
-from concurrent.futures import ThreadPoolExecutor
 from proxmoxer import ProxmoxAPI
 from django.db import transaction, IntegrityError
 from dotenv import load_dotenv
@@ -11,9 +10,6 @@ from .models import LabEnvironment, TaskVMConfiguration, Network, VirtualMachine
 
 # take environment variables
 load_dotenv()
-
-# Global ThreadPool
-_thread_pool = ThreadPoolExecutor(max_workers=10, thread_name_prefix="proxmox_ops")
 
 class ProxmoxManager:
     # Constants
@@ -278,7 +274,6 @@ class ProxmoxManager:
                     template_id=template.template_id,
                     new_id=vmid,
                     new_name=vm_name,
-                    threaded_wait=False
                 )
 
                 bridge_name = f"vmbr{network.vlan_id}"
@@ -326,7 +321,7 @@ class ProxmoxManager:
                 print(f"Error provisioning VM: {e}")
                 raise
 
-    def clone_vm(self, node, template_id, new_id, new_name, linked_clone=True, threaded_wait=True):
+    def clone_vm(self, node, template_id, new_id, new_name, linked_clone=True):
         """
         Clones a VM from a template_id as a linked clone
         """
@@ -345,14 +340,10 @@ class ProxmoxManager:
             raise
 
         print(f"DEBUG: Waiting for lock to be removed on VM {new_id}...")
-        if threaded_wait:
-            future = self.wait_for_unlock(node, new_id, threaded=True)
-            return future
-        else:
-            self.wait_for_unlock(node, new_id)
-            print(f"DEBUG: Lock removed from VM {new_id}")
+        self.wait_for_unlock(node, new_id)
+        print(f"DEBUG: Lock removed from VM {new_id}")
 
-    def wait_for_unlock(self, node, vm_id, timeout=None, interval=None, threaded=False):
+    def wait_for_unlock(self, node, vm_id, timeout=None, interval=None):
         """
         Waits until the VM Lock is removed by Proxmox
         """
@@ -361,21 +352,14 @@ class ProxmoxManager:
         if interval is None:
             interval = self.POLL_INTERVAL
 
-        def _wait():
-            start = time.time()
-            while True:
-                locks = self.proxmox.nodes(node).qemu(vm_id).status.current.get().get('lock')
-                if not locks:
-                    return
-                if time.time() - start > timeout:
-                    raise TimeoutError(f"Timeout waiting for unlock of VM {vm_id}")
-                time.sleep(interval)
-
-        if threaded:
-            future = _thread_pool.submit(_wait)
-            return future
-        else:
-            _wait()
+        start = time.time()
+        while True:
+            locks = self.proxmox.nodes(node).qemu(vm_id).status.current.get().get('lock')
+            if not locks:
+                return
+            if time.time() - start > timeout:
+                raise TimeoutError(f"Timeout waiting for unlock of VM {vm_id}")
+            time.sleep(interval)
 
     def configure_vm(self, node, vm_id, storage, ci_user, ci_password, bridge, ip_address, cpu_cores, memory_mb):
         """
@@ -454,7 +438,7 @@ class ProxmoxManager:
                 print(f"Error starting lab environment: {str(e)}")
                 raise
 
-    def cleanup_environment(self, user, task, threaded=False):
+    def cleanup_environment(self, user, task):
         """
         Deletes all VMs and the network of a lab environment for a given user and task. Then deletes the lab environment.
         """
@@ -517,11 +501,7 @@ class ProxmoxManager:
                 except Exception as e:
                     print(f"Error during cleanup: {str(e)}")
 
-        if threaded:
-            future = _thread_pool.submit(_cleanup)
-            return future
-        else:
-            _cleanup()
+        _cleanup()
 
     def sync_vm_status(self, lab_env):
         """
