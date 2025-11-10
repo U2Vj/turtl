@@ -5,7 +5,7 @@ import ssl
 import urllib.parse
 from channels.generic.websocket import AsyncWebsocketConsumer
 from vm_manager.proxmox_manager import ProxmoxManager
-from vm_manager.models import LabEnvironment, VirtualMachine
+from vm_manager.models import VirtualMachine
 import os
 
 class VMConsoleConsumer(AsyncWebsocketConsumer):
@@ -182,7 +182,6 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             await self.close()
 
     async def get_user_vm(self):
-        """Get USER_SHELL VM for this task/user"""
         from asgiref.sync import sync_to_async
         
         @sync_to_async

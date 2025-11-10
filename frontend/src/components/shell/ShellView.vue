@@ -80,7 +80,6 @@ const getStatusText = (status: string) =>{
 function setupVNC() {
   if (!props.taskId || isInitializing.value) return;
 
-  // Erst cleanup, dann setup
   cleanup();
 
   nextTick(() => {
@@ -89,14 +88,11 @@ function setupVNC() {
 
     isInitializing.value = true;
 
-    // Hole den Access Token aus dem localStorage
     const accessToken = localStorage.getItem('accessToken');
-    // Sicherstellen, dass Container leer ist
     vncContainerElement.innerHTML = '';
 
     const rfbOptions: any = {
       shared: true,
-      // Übermittle den JWT im WebSocket-Subprotocol statt als Query-Parameter
       wsProtocols: accessToken ? ['binary', `jwt.${accessToken}`] : ['binary'],
     };
 
@@ -153,7 +149,7 @@ function setupVNC() {
           isInitializing.value = false;
         });
 
-        // VNC-Einstellungen für responsive Darstellung
+        // VNC settings
         rfb.value.scaleViewport = false;
         rfb.value.resizeSession = true;
       }
@@ -201,7 +197,7 @@ watch(environmentStatus, (newStatus, oldStatus) => {
     console.log(`Environment status changed: ${oldStatus} -> ${newStatus}`);
     
     if (newStatus === 'active' && oldStatus !== 'active') {
-        // Kleine Verzögerung um sicherzustellen, dass cleanup abgeschlossen ist
+        // Wait for cleanup
         setTimeout(() => {
             setupVNC();
         }, 200);
@@ -217,7 +213,7 @@ watch(() => props.taskId, async (newTaskId, oldTaskId) => {
     if (newTaskId) {
         await loadEnvironmentStatus();
         if (environmentStatus.value === 'active') {
-            // Kleine Verzögerung nach cleanup
+            // Wait for cleanup
             setTimeout(() => {
                 setupVNC();
             }, 200);
