@@ -30,19 +30,18 @@ class ProxmoxManager:
                 password=password,
                 verify_ssl=verify_param,
             )
-            # Add attributes to store auth credentials
+            # Add attribute to store auth cookie for VNC WebSocket auth
             self.auth_cookie = None
-            self.csrf_token = None
         except Exception as e:
             print(f"Failed to connect to Proxmox: {e}")
             raise e
 
     def _authenticate(self):
         """
-        Ensures the manager is authenticated and has a valid cookie and CSRF token.
-        If not authenticated, it will perform a login request and store the credentials.
+        Ensure we are authenticated and have a valid auth cookie.
+        If not authenticated, perform a login request and store the cookie.
         """
-        if self.auth_cookie and self.csrf_token:
+        if self.auth_cookie:
             return
 
         verify_param = self._get_verify_param()
@@ -59,9 +58,8 @@ class ProxmoxManager:
             )
             login_response.raise_for_status()
             login_data = login_response.json()["data"]
-            
+
             self.auth_cookie = login_data["ticket"]
-            self.csrf_token = login_data.get("CSRFPreventionToken", "")
             print("DEBUG: Successfully authenticated and stored credentials.")
         except requests.exceptions.RequestException as e:
             print(f"FATAL: Proxmox authentication failed: {e}")
@@ -85,7 +83,7 @@ class ProxmoxManager:
         elif ca_path:
             return ca_path
         else:
-            return True
+            return False
 
     def get_node(self):
         """
@@ -531,17 +529,13 @@ class ProxmoxManager:
         Get console access ticket for a VM (for binary VNC).
         """
         try:
-            self._authenticate() # Ensure we are logged in
+            self._authenticate()
             
-            # Use the proxmoxer API which is already authenticated
             ticket_data = self.proxmox.nodes(node).qemu(vmid).vncproxy.post(
-                websocket=1  # Enable websocket support
+                websocket=1
             )
             
-            # Return all necessary authentication data
             return {
-                'pve_auth_cookie': self.auth_cookie,
-                'csrf_token': self.csrf_token,
                 'ticket': ticket_data['ticket'],
                 'port': ticket_data['port'],
                 'cert': ticket_data.get('cert', ''),
@@ -569,7 +563,6 @@ class ProxmoxManager:
             return self.get_node()
         except Exception as e:
             print(f"Error resolving node for VM {vmid}: {e}")
-            # Bubble up so caller can decide
             raise
 
     async def a_get_auth_cookie(self):
