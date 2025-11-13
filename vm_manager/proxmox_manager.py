@@ -420,7 +420,7 @@ class ProxmoxManager:
 
         with AdvisoryLock(env_operation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
             if not acquired:
-                raise TimeoutError(f"Could not acquire lock for starting environment {lab_env.id}")
+                raise TimeoutError(f"Could not acquire lock for stopping environment {lab_env.id}")
             
             try:
                 node = self.get_node()
@@ -435,7 +435,7 @@ class ProxmoxManager:
                             vm.save()
                 return True
             except Exception as e:
-                print(f"Error starting lab environment: {str(e)}")
+                print(f"Error stopping lab environment: {str(e)}")
                 raise
 
     def cleanup_environment(self, user, task):
@@ -572,9 +572,6 @@ class ProxmoxManager:
             # Bubble up so caller can decide
             raise
 
-    async def a_authenticate(self):
-        return await asyncio.to_thread(self._authenticate)
-    
     async def a_get_auth_cookie(self):
         return await asyncio.to_thread(self.get_auth_cookie)
     
