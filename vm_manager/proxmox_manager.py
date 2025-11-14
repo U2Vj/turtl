@@ -496,6 +496,7 @@ class ProxmoxManager:
                                 
                 except Exception as e:
                     print(f"Error during cleanup: {str(e)}")
+                    self.cleanup_orphans()
 
         _cleanup()
     
