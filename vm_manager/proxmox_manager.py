@@ -150,7 +150,7 @@ class ProxmoxManager:
             except Exception as e:
                 print(f"Error creating lab environment for task : {task.title}")
                 print(f"Exception: {str(e)}")
-                #TODO Cleanup here
+                self.cleanup_environment(self, user, task)
                 raise e
     
     def provision_network(self, user, task, task_config):
