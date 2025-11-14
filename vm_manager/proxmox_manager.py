@@ -43,7 +43,6 @@ class ProxmoxManager:
         """
         if self.auth_cookie:
             return
-
         verify_param = self._get_verify_param()
 
         try:
@@ -150,7 +149,7 @@ class ProxmoxManager:
             except Exception as e:
                 print(f"Error creating lab environment for task : {task.title}")
                 print(f"Exception: {str(e)}")
-                self.cleanup_environment(self, user, task)
+                self.cleanup_orphans()
                 raise e
     
     def provision_network(self, user, task, task_config):
@@ -262,7 +261,7 @@ class ProxmoxManager:
                 template = vm_template_config.template
                 node = self.get_node()
                 vmid = self.proxmox.cluster.nextid.get()
-                vm_name = f"{slugify(lab_env.task.title)}-{slugify(lab_env.user.username)}-{slugify(template.name)}"
+                vm_name = f"vm-{slugify(lab_env.task.title)}-{slugify(lab_env.user.username)}-{slugify(template.name)}"
                 ip_address = format_ip(vm_template_config.planned_ip_address, network)
 
                 # Clone VM from template
@@ -277,7 +276,6 @@ class ProxmoxManager:
                 bridge_name = f"vmbr{network.vlan_id}"
 
                 print(f"DEBUG: Configuring VM {vmid} with networking")
-                #TODO Set better and custom passwords for production use
                 storage = 'local-lvm'
                 ci_user = 'student'
                 ci_password = 'student'
@@ -500,6 +498,61 @@ class ProxmoxManager:
                     print(f"Error during cleanup: {str(e)}")
 
         _cleanup()
+    
+    def cleanup_orphans(self):
+        """
+        Searches for orphan Resources in Proxmox regarding Networks and VMs and deletes them. Maybe run this in a CRON Job later
+        """
+        with AdvisoryLock("proxmox-cleanup", timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
+            if not acquired:
+                return
+            
+            # check if vm or network creation is ongoing, if yes do not cleanup
+            with AdvisoryLock("proxmox_vm_creation", timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as vm_lock_acquired, \
+             AdvisoryLock("proxmox_bridge_creation", timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as net_lock_acquired:
+
+                if not (vm_lock_acquired and net_lock_acquired):
+                    return
+                cluster_node = self.get_node()
+                resources = self.proxmox.cluster.resources.get(type='vm')
+                for r in resources:
+                    name = r.get('name', '')
+                    vmid = int(r.get('vmid'))
+                    
+                    if not name.startswith("vm-"):
+                        continue
+                    
+                    if not VirtualMachine.objects.filter(vmid=vmid).exists():
+                        print(f"Found orphan VM {vmid} ({name}), deleting...")
+                        try:
+                            node = r.get('node') or self.get_vm_node(vmid)
+                            self.proxmox.nodes(node).qemu(vmid).status.stop.post()
+                            time.sleep(5)
+                            self.proxmox.nodes(node).qemu(vmid).delete()
+                        except Exception as e:
+                            print(f"Warning: Could not delete orphan VM {vmid}: {e}")
+
+                nets = self.proxmox.nodes(cluster_node).network.get()
+                for net in nets:
+                    iface = net.get('iface')
+                    if not iface:
+                        continue
+                    if not iface.startswith("vmbr"):
+                        continue
+                    try:
+                        vlan_id = int(iface.replace("vmbr", ""))
+                    except ValueError:
+                        continue
+                    if vlan_id < 100:
+                        continue
+
+                    if not Network.objects.filter(vlan_id=vlan_id).exists():
+                        print(f"Found orphan bridge {iface}, deleting...")
+                        try:
+                            self.proxmox.nodes(cluster_node).network(iface).delete()
+                            self.proxmox.nodes(cluster_node).network.put()
+                        except Exception as e:
+                            print(f"Warning: Could not delete orphan bridge {iface}: {e}")
 
     def sync_vm_status(self, lab_env):
         """
