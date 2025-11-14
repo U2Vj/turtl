@@ -1,6 +1,7 @@
 import hashlib
 import re
 import unicodedata
+import time
 from django.db import connection, utils
 
 def _get_lock_id(name: str) -> int:
@@ -13,36 +14,41 @@ class AdvisoryLock:
     """
     Context manager for advisory locks with timeouts in PostgreSQL
     """
-    def __init__(self, name: str, timeout_seconds: float | None = None):
+    def __init__(self, name: str, timeout_seconds: float | None = None, poll_interval: float = 0.2):
         self.lock_id = _get_lock_id(name)
         self.timeout_seconds = timeout_seconds
+        self.poll_interval = max(0.05, float(poll_interval))
+        self.acquired = False
 
     def __enter__(self):
         with connection.cursor() as cursor:
-            # Attempt to aquire the lock (not blocking)
             if self.timeout_seconds == 0:
                 cursor.execute("SELECT pg_try_advisory_lock(%s)", [self.lock_id])
-                return cursor.fetchone()[0]
+                self.acquired = bool(cursor.fetchone()[0])
+                return self.acquired
 
-            # Wait for unlock until timeout
             if self.timeout_seconds is not None and self.timeout_seconds > 0:
-                try:
-                    cursor.execute("SET LOCAL lock_timeout = %s;", [f"{self.timeout_seconds}s"])
-                    cursor.execute("SELECT pg_advisory_lock(%s);", [self.lock_id])
-                    return True
-                except utils.OperationalError as e:
-                    # Timeout reached
-                    return False
-            else:
-                # Wait indefinitely
-                cursor.execute("SELECT pg_advisory_lock(%s);", [self.lock_id])
-                return True
-                    
+                deadline = time.monotonic() + float(self.timeout_seconds)
+                while time.monotonic() < deadline:
+                    cursor.execute("SELECT pg_try_advisory_lock(%s)", [self.lock_id])
+                    if cursor.fetchone()[0]:
+                        self.acquired = True
+                        return True
+                    time.sleep(self.poll_interval)
+                self.acquired = False
+                raise TimeoutError(f"Timed out acquiring advisory lock")
+
+            cursor.execute("SELECT pg_advisory_lock(%s)", [self.lock_id])
+            self.acquired = True
+            return True
 
     def __exit__(self, exc_type, exc_value, traceback):
+        if not self.acquired:
+            return False
         with connection.cursor() as cursor:
-            # Release the lock
             cursor.execute("SELECT pg_advisory_unlock(%s);", [self.lock_id])
+        self.acquired = False
+        return False
             
 def slugify(value, max_length=40):
     """
