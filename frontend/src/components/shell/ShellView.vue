@@ -40,20 +40,23 @@ async function loadEnvironmentStatus() {
 async function startEnvironment() {
   if(!props.taskId) return;
   try{
+    environmentStatus.value = 'provisioning';
     await vmStore.startEnvironment(props.taskId);
     await loadEnvironmentStatus();
   } catch (error){
     console.error('Failed to start environment', error);
+    await loadEnvironmentStatus();
   }
 }
 
 async function stopEnvironment() {
   if(!props.taskId) return;
   try{
+    environmentStatus.value = 'cleanup';
     await vmStore.stopEnvironment(props.taskId);
-    environmentStatus.value = 'not_created';
+    await loadEnvironmentStatus();
   } catch (error){
-    console.error('Failed to start environment', error);
+    console.error('Failed to stop environment', error);
     await loadEnvironmentStatus();
   }
 }
@@ -61,7 +64,8 @@ async function stopEnvironment() {
 const getStatusColor = (status: string) =>{
   switch(status){
     case 'active': return 'success';
-    case 'stopped': return 'info';
+    case 'provisioning': return 'warning';
+    case 'suspended': return 'info';
     case 'cleanup': return 'orange';
     case 'error': return 'error';
     default: return 'primary';
@@ -71,6 +75,8 @@ const getStatusColor = (status: string) =>{
 const getStatusText = (status: string) =>{
   switch(status) {
     case 'active': return 'Active';
+    case 'provisioning': return 'Provisioning';
+    case 'suspended': return 'Suspended';
     case 'cleanup': return 'Cleanup';
     case 'not_created': return 'Not Created';
     default: return status;
@@ -253,7 +259,7 @@ watch(() => props.taskId, async (newTaskId, oldTaskId) => {
           </div>
           <div class="d-flex gap-2">
             <v-btn
-              v-if="environmentStatus === 'not_created' || environmentStatus === 'stopped'"
+              v-if="environmentStatus === 'not_created' || environmentStatus === 'suspended' || environmentStatus === 'provisioning'"
               @click="startEnvironment"
               :loading="vmStore.loading"
               color="success"
@@ -265,7 +271,7 @@ watch(() => props.taskId, async (newTaskId, oldTaskId) => {
             </v-btn>
             
             <v-btn
-              v-if="environmentStatus === 'active'"
+              v-if="environmentStatus === 'active' || environmentStatus === 'suspended' || environmentStatus === 'cleanup'"
               @click="stopEnvironment"
               :loading="vmStore.loading"
               color="error"

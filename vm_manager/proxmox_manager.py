@@ -387,7 +387,6 @@ class ProxmoxManager:
         Starts all VMs inside a lab environment
         """
         env_operation_lock = f"lab_env_operation_{lab_env.id}"
-
         with AdvisoryLock(env_operation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
             if not acquired:
                 raise TimeoutError(f"Could not acquire lock for starting environment {lab_env.id}")
@@ -403,6 +402,10 @@ class ProxmoxManager:
                             # Update VM status
                             vm.status = 'running'
                             vm.save()
+                    # Update lab environment status
+                    if lab_env.status != 'active':
+                        lab_env.status = 'active'
+                        lab_env.save()
                 return True
             except Exception as e:
                 print(f"Error starting lab environment: {str(e)}")
@@ -413,7 +416,6 @@ class ProxmoxManager:
         Stops all VMs inside a lab environment
         """
         env_operation_lock = f"lab_env_operation_{lab_env.id}"
-
         with AdvisoryLock(env_operation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
             if not acquired:
                 raise TimeoutError(f"Could not acquire lock for stopping environment {lab_env.id}")
@@ -429,6 +431,10 @@ class ProxmoxManager:
                             # Update VM status
                             vm.status = 'stopped'
                             vm.save()
+
+                    if lab_env.status != 'suspended':
+                        lab_env.status = 'suspended'
+                        lab_env.save()
                 return True
             except Exception as e:
                 print(f"Error stopping lab environment: {str(e)}")
@@ -453,6 +459,10 @@ class ProxmoxManager:
                     if not lab_env:
                         print(f"No lab environment found for user {user.id} and task {task.id}")
                         return
+                    # Mark environment as being cleaned up
+                    if lab_env.status != 'cleanup':
+                        lab_env.status = 'cleanup'
+                        lab_env.save()
                     # Delete all VMs
                     for vm in lab_env.virtual_machines.all():
                         try:
@@ -563,16 +573,36 @@ class ProxmoxManager:
         try:
             node = self.get_node()
 
+            any_vm = False
+            any_running = False
+            all_stopped = True
+
             for vm in lab_env.virtual_machines.all():
+                any_vm = True
                 try:
-                    # Get VM status from Proxmox
                     vm_status = self.proxmox.nodes(node).qemu(vm.vmid).status.current.get().get('status')
 
                     if vm.status != vm_status:
                         vm.status = vm_status
                         vm.save()
+
+                    if vm_status == 'running':
+                        any_running = True
+                    if vm_status != 'stopped':
+                        all_stopped = False
                 except Exception as e:
                     print(f"Warning: Could not sync status for VM {vm.vmid}: {str(e)}")
+
+            if any_vm and lab_env.status not in ('provisioning', 'cleanup'):
+                new_status = None
+                if any_running:
+                    new_status = 'active'
+                elif all_stopped:
+                    new_status = 'suspended'
+
+                if new_status and lab_env.status != new_status:
+                    lab_env.status = new_status
+                    lab_env.save()
 
         except Exception as e:
             print(f"Error  syncing VM status: {str(e)}")
@@ -613,7 +643,6 @@ class ProxmoxManager:
                             return node
                 except (TypeError, ValueError):
                     continue
-            # Fallback: try first online node (may fail later if wrong)
             return self.get_node()
         except Exception as e:
             print(f"Error resolving node for VM {vmid}: {e}")
