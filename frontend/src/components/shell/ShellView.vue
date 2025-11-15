@@ -127,6 +127,7 @@ function setupVNC() {
         // If no explicit wsUrl above (ticket fetch failed), fall back to base path
         const base = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
         rfb.value = new RFB(vncContainerElement, wsUrlBuilt || base, rfbOptions);
+        rfb.value.showDotCursor = true;
 
         rfb.value.addEventListener('connect', () => {
           console.log('VNC connected');
