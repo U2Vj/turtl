@@ -38,31 +38,31 @@ async function loadEnvironmentStatus() {
 }
 
 async function startEnvironment() {
-  if(!props.taskId) return;
-  try{
+  if (!props.taskId) return;
+  try {
     environmentStatus.value = 'provisioning';
     await vmStore.startEnvironment(props.taskId);
     await loadEnvironmentStatus();
-  } catch (error){
+  } catch (error) {
     console.error('Failed to start environment', error);
     await loadEnvironmentStatus();
   }
 }
 
 async function stopEnvironment() {
-  if(!props.taskId) return;
-  try{
+  if (!props.taskId) return;
+  try {
     environmentStatus.value = 'cleanup';
     await vmStore.stopEnvironment(props.taskId);
     await loadEnvironmentStatus();
-  } catch (error){
+  } catch (error) {
     console.error('Failed to stop environment', error);
     await loadEnvironmentStatus();
   }
 }
 
-const getStatusColor = (status: string) =>{
-  switch(status){
+const getStatusColor = (status: string) => {
+  switch (status) {
     case 'active': return 'success';
     case 'provisioning': return 'warning';
     case 'suspended': return 'info';
@@ -72,8 +72,8 @@ const getStatusColor = (status: string) =>{
   }
 };
 
-const getStatusText = (status: string) =>{
-  switch(status) {
+const getStatusText = (status: string) => {
+  switch (status) {
     case 'active': return 'Active';
     case 'provisioning': return 'Provisioning';
     case 'suspended': return 'Suspended';
@@ -142,9 +142,9 @@ function setupVNC() {
           console.log('VNC credentials required');
           // Ensure credentials are resent if requested
           if (rfb.value && (rfbOptions.credentials?.password)) {
-            rfb.value.sendCredentials({ 
-              username: 'proxmox', 
-              password: rfbOptions.credentials.password 
+            rfb.value.sendCredentials({
+              username: 'proxmox',
+              password: rfbOptions.credentials.password
             });
           }
         });
@@ -164,25 +164,25 @@ function setupVNC() {
 }
 
 function cleanup() {
-    console.log('Cleaning up VNC connection...');
-    
-    // RFB disconnect und cleanup
-    if (rfb.value) {
-        try {
-            rfb.value.disconnect();
-        } catch (e) {
-            console.warn('Error disconnecting RFB:', e);
-        }
-        rfb.value = undefined;
-    }
+  console.log('Cleaning up VNC connection...');
 
-    connectionStatus.value = 'disconnected';
-    isInitializing.value = false;
-    
-    // Container cleanup
-    if (vncContainer.value) {
-        vncContainer.value.innerHTML = '';
+  // RFB disconnect und cleanup
+  if (rfb.value) {
+    try {
+      rfb.value.disconnect();
+    } catch (e) {
+      console.warn('Error disconnecting RFB:', e);
     }
+    rfb.value = undefined;
+  }
+
+  connectionStatus.value = 'disconnected';
+  isInitializing.value = false;
+
+  // Container cleanup
+  if (vncContainer.value) {
+    vncContainer.value.innerHTML = '';
+  }
 }
 
 onMounted(async () => {
@@ -190,43 +190,43 @@ onMounted(async () => {
   if (hasConfig.value === true) {
     await loadEnvironmentStatus();
     if (environmentStatus.value === 'active') {
-        setupVNC();
+      setupVNC();
     }
   }
 });
 
 onBeforeUnmount(() => {
-    cleanup();
+  cleanup();
 });
 
 watch(environmentStatus, (newStatus, oldStatus) => {
-    console.log(`Environment status changed: ${oldStatus} -> ${newStatus}`);
-    
-    if (newStatus === 'active' && oldStatus !== 'active') {
-        // Wait for cleanup
-        setTimeout(() => {
-            setupVNC();
-        }, 200);
-    } else if (newStatus !== 'active') {
-        cleanup();
-    }
+  console.log(`Environment status changed: ${oldStatus} -> ${newStatus}`);
+
+  if (newStatus === 'active' && oldStatus !== 'active') {
+    // Wait for cleanup
+    setTimeout(() => {
+      setupVNC();
+    }, 200);
+  } else if (newStatus !== 'active') {
+    cleanup();
+  }
 });
 
 watch(() => props.taskId, async (newTaskId, oldTaskId) => {
-    console.log(`Task ID changed: ${oldTaskId} -> ${newTaskId}`);
-    
-    cleanup();
-    if (newTaskId) {
-        await loadEnvironmentStatus();
-        if (environmentStatus.value === 'active') {
-            // Wait for cleanup
-            setTimeout(() => {
-                setupVNC();
-            }, 200);
-        }
+  console.log(`Task ID changed: ${oldTaskId} -> ${newTaskId}`);
+
+  cleanup();
+  if (newTaskId) {
+    await loadEnvironmentStatus();
+    if (environmentStatus.value === 'active') {
+      // Wait for cleanup
+      setTimeout(() => {
+        setupVNC();
+      }, 200);
     }
+  }
 });
-function reloadVNC(){
+function reloadVNC() {
   cleanup();
   setupVNC();
 }
@@ -235,124 +235,91 @@ function reloadVNC(){
 <template>
   <div v-if="hasConfig" class="shell-container">
     <div v-if="taskId" class="vm-controls">
-        <div class="d-flex align-center justify-space-between">
-          <div class="d-flex align-center">
-            <v-chip 
-              :color="getStatusColor(environmentStatus)" 
-              size="small" 
-              class="me-3"
-            >
-              {{ getStatusText(environmentStatus) }}
-            </v-chip>
-            <v-chip
-              v-if="environmentStatus === 'active' && connectionStatus === 'connected'"
-              color="success"
-              size="small"
-              class="me-3"
-            >
+      <div class="d-flex align-center justify-space-between">
+        <div class="d-flex align-center">
+          <v-chip :color="getStatusColor(environmentStatus)" size="small" class="me-3">
+            {{ getStatusText(environmentStatus) }}
+          </v-chip>
+          <v-chip v-if="environmentStatus === 'active' && connectionStatus === 'connected'" color="success" size="small"
+            class="me-3">
             Shell: {{ connectionStatus }}
-            </v-chip>
-            <v-btn
-              v-else-if="environmentStatus === 'active' && connectionStatus === 'disconnected'"
-              @click="reloadVNC"
-              :loading="isInitializing"
-              color="primary"
-              size="small"
-              variant="outlined"
-            >
-              <v-icon size="small" class="me-1">mdi-refresh</v-icon>
-              Reconnect Shell
-            </v-btn>
-          </div>
-          <div class="d-flex gap-2">
-            <v-btn
-              v-if="environmentStatus === 'not_created' || environmentStatus === 'suspended' || environmentStatus === 'provisioning'"
-              @click="startEnvironment"
-              :loading="vmStore.loading"
-              color="success"
-              size="small"
-              variant="outlined"
-            >
-              <v-icon size="small" class="me-1">mdi-play</v-icon>
-              Start Environment
-            </v-btn>
-            
-            <v-btn
-              v-if="environmentStatus === 'active' || environmentStatus === 'suspended' || environmentStatus === 'cleanup'"
-              @click="stopEnvironment"
-              :loading="vmStore.loading"
-              color="error"
-              size="small"
-              variant="outlined"
-            >
-              <v-icon size="small" class="me-1">mdi-delete</v-icon>
-              Delete Environment
-            </v-btn>
-          </div>
+          </v-chip>
+          <v-btn v-else-if="environmentStatus === 'active' && connectionStatus === 'disconnected'" @click="reloadVNC"
+            :loading="isInitializing" color="primary" size="small" variant="outlined">
+            <v-icon size="small" class="me-1">mdi-refresh</v-icon>
+            Reconnect Shell
+          </v-btn>
         </div>
-        <v-alert
-            v-if="vmStore.error"
-            type="error"
-            variant="tonal"
-            class="mt-2"
-            closable
-            @click:close="vmStore.error = null"
-        >
-            {{ vmStore.error }}
-        </v-alert>
+        <div class="d-flex gap-2">
+          <v-btn
+            v-if="environmentStatus === 'not_created' || environmentStatus === 'suspended' || environmentStatus === 'provisioning'"
+            @click="startEnvironment" :loading="vmStore.loading" color="success" size="small" variant="outlined">
+            <v-icon size="small" class="me-1">mdi-play</v-icon>
+            Start Environment
+          </v-btn>
+
+          <v-btn
+            v-if="environmentStatus === 'active' || environmentStatus === 'suspended' || environmentStatus === 'cleanup'"
+            @click="stopEnvironment" :loading="vmStore.loading" color="error" size="small" variant="outlined">
+            <v-icon size="small" class="me-1">mdi-delete</v-icon>
+            Delete Environment
+          </v-btn>
+        </div>
+      </div>
+      <v-alert v-if="vmStore.error" type="error" variant="tonal" class="mt-2" closable
+        @click:close="vmStore.error = null">
+        {{ vmStore.error }}
+      </v-alert>
     </div>
-    
+
     <div v-show="environmentStatus === 'active'" class="vnc-container-wrapper">
-      <div 
-        ref="vncContainer"
-        class="vnc-wrapper"
-      ></div>
+      <div ref="vncContainer" class="vnc-wrapper"></div>
     </div>
-    
+
     <div v-if="environmentStatus !== 'active' && taskId" class="placeholder-message">
-        Start the environment to use the VNC console.
+      Start the environment to use the VNC console.
     </div>
   </div>
 </template>
 
 <style scoped>
-  .shell-container {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    background-color: #000;
-  }
+.shell-container {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  background-color: #000;
+}
 
-  .vm-controls {
-    flex-shrink: 0;
-    padding: 12px;
-    border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
-    background-color: rgba(var(--v-theme-surface));
-  }
+.vm-controls {
+  flex-shrink: 0;
+  padding: 12px;
+  border-bottom: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+  background-color: rgba(var(--v-theme-surface));
+}
 
-  .vnc-container-wrapper {
-    flex: 1;
-    display: flex;
-    min-height: 0;
-    overflow: hidden;
-  }
+.vnc-container-wrapper {
+  flex: 1;
+  display: flex;
+  min-height: 0;
+  overflow: hidden;
+}
 
-  .vnc-wrapper {
-    flex: 1;
-    display: grid;
-    place-items: center;
-  }
+.vnc-wrapper {
+  flex: 1;
+  display: grid;
+  place-items: center;
+}
 
-  .placeholder-message {
-    flex: 1;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(var(--v-theme-on-surface), 0.6);
-    font-size: 1.1rem;
-  }
-  
-  .gap-2 {
-    gap: 8px;
-  }
+.placeholder-message {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(var(--v-theme-on-surface), 0.6);
+  font-size: 1.1rem;
+}
+
+.gap-2 {
+  gap: 8px;
+}
 </style>
