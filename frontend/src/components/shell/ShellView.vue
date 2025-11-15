@@ -226,6 +226,10 @@ watch(() => props.taskId, async (newTaskId, oldTaskId) => {
         }
     }
 });
+function reloadVNC(){
+  cleanup();
+  setupVNC();
+}
 </script>
 
 <template>
@@ -240,22 +244,25 @@ watch(() => props.taskId, async (newTaskId, oldTaskId) => {
             >
               {{ getStatusText(environmentStatus) }}
             </v-chip>
-            <v-chip 
-              v-if="environmentStatus === 'active'"
-              :color="connectionStatus === 'connected' ? 'success' : 'warning'" 
-              size="small" 
+            <v-chip
+              v-if="environmentStatus === 'active' && connectionStatus === 'connected'"
+              color="success"
+              size="small"
               class="me-3"
             >
-              VNC: {{ connectionStatus }}
+            Shell: {{ connectionStatus }}
             </v-chip>
-            <v-chip 
-              v-if="isInitializing"
-              color="info" 
-              size="small" 
-              class="me-3"
+            <v-btn
+              v-else-if="environmentStatus === 'active' && connectionStatus === 'disconnected'"
+              @click="reloadVNC"
+              :loading="isInitializing"
+              color="primary"
+              size="small"
+              variant="outlined"
             >
-              Initializing...
-            </v-chip>
+              <v-icon size="small" class="me-1">mdi-refresh</v-icon>
+              Reconnect Shell
+            </v-btn>
           </div>
           <div class="d-flex gap-2">
             <v-btn
