@@ -3,12 +3,14 @@ import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import RFB from '@novnc/novnc/core/rfb.js';
 import { useVMManagerStore } from '@/stores/VMManagerStore';
 import { makeAPIRequest } from '@/communication/APIRequests';
+import { useRouter } from 'vue-router';
 
-const props = defineProps<{ taskId?: number }>();
+const props = defineProps<{ taskId?: number; hidePopoutButton?: boolean }>();
 
 const rfb = ref<RFB>();
 const vncContainer = ref<HTMLElement>();
 const vmStore = useVMManagerStore();
+const router = useRouter();
 const environmentStatus = ref<string>('not_created');
 const vmCount = ref<number>(0);
 const connectionStatus = ref<string>('disconnected');
@@ -230,6 +232,22 @@ function reloadVNC() {
   cleanup();
   setupVNC();
 }
+
+function openPopout() {
+  if (!props.taskId || typeof window === 'undefined') return;
+
+  const resolvedRoute = router.resolve({
+    name: 'ShellPopout',
+    params: { taskId: props.taskId }
+  });
+  const popoutUrl = new URL(resolvedRoute.href, window.location.origin).toString();
+  const popout = window.open(popoutUrl, '_blank', 'noopener,noreferrer');
+  if (popout) {
+    popout.focus();
+  } else {
+    console.warn('Unable to open pop-out window. Please allow pop-ups for this site.');
+  }
+}
 </script>
 
 <template>
@@ -240,14 +258,27 @@ function reloadVNC() {
           <v-chip :color="getStatusColor(environmentStatus)" size="small" class="me-3">
             {{ getStatusText(environmentStatus) }}
           </v-chip>
-          <v-chip v-if="environmentStatus === 'active' && connectionStatus === 'connected'" color="success" size="small"
-            class="me-3">
-            Shell: {{ connectionStatus }}
-          </v-chip>
-          <v-btn v-else-if="environmentStatus === 'active' && connectionStatus === 'disconnected'" @click="reloadVNC"
-            :loading="isInitializing" color="primary" size="small" variant="outlined">
+            <v-btn
+            v-if="environmentStatus === 'active' && connectionStatus === 'disconnected'"
+            @click="reloadVNC"
+            :loading="isInitializing"
+            color="primary"
+            size="small"
+            variant="outlined"
+            >
             <v-icon size="small" class="me-1">mdi-refresh</v-icon>
             Reconnect Shell
+            </v-btn>
+          <v-btn
+            v-if="environmentStatus === 'active' && taskId && !hidePopoutButton"
+            class="ms-2"
+            size="small"
+            color="primary"
+            variant="tonal"
+            @click="openPopout"
+          >
+            <v-icon size="small" class="me-1">mdi-open-in-new</v-icon>
+            Shell
           </v-btn>
         </div>
         <div class="d-flex gap-2">
