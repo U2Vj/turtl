@@ -192,7 +192,7 @@ function setupVNC() {
 
         // VNC settings
         rfb.value.scaleViewport = props.scaleViewport;
-        rfb.value.resizeSession = true;
+        rfb.value.resizeSession = false;
       }
     })();
   });
