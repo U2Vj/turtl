@@ -68,7 +68,7 @@ def stop_environment(request, task_id):
         lab_env.save()
 
         proxmox_manager = ProxmoxManager()
-        proxmox_manager.stop_environment(user, task)
+        proxmox_manager.stop_environment(lab_env)
 
         return Response({
             'status': 'stopped',

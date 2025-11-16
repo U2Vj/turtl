@@ -59,6 +59,29 @@ export const useVMManagerStore = defineStore('vmManager', () =>{
         }
     }
 
+    async function cleanupEnvironment(taskId: number): Promise<void> {
+        loading.value = true
+        error.value = null
+        
+        try {
+            const response = await makeAPIRequest(
+                `/vm/cleanup/${taskId}/`,
+                'POST',
+                true,
+                true
+            )
+            
+            if (response.statusCode >= 400) {
+                throw new Error(response.data.message || 'Failed to cleanup environment')
+            }
+        } catch (err: any) {
+            error.value = err.message || 'Failed to cleanup environment'
+            throw err
+        } finally {
+            loading.value = false
+        }
+    }
+
     async function getEnvironmentStatus(taskId: number): Promise<EnvironmentStatus> {
         loading.value = true
         error.value = null
@@ -89,6 +112,7 @@ export const useVMManagerStore = defineStore('vmManager', () =>{
         error,
         startEnvironment,
         stopEnvironment,
+        cleanupEnvironment,
         getEnvironmentStatus
     }
 })

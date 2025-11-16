@@ -432,8 +432,8 @@ class ProxmoxManager:
                             vm.status = 'stopped'
                             vm.save()
 
-                    if lab_env.status != 'suspended':
-                        lab_env.status = 'suspended'
+                    if lab_env.status != 'stopped':
+                        lab_env.status = 'stopped'
                         lab_env.save()
                 return True
             except Exception as e:
@@ -598,7 +598,7 @@ class ProxmoxManager:
                 if any_running:
                     new_status = 'active'
                 elif all_stopped:
-                    new_status = 'suspended'
+                    new_status = 'stopped'
 
                 if new_status and lab_env.status != new_status:
                     lab_env.status = new_status

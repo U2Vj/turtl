@@ -121,7 +121,7 @@ class LabEnvironment(models.Model):
     STATUS_CHOICES = [
         ('provisioning', 'Provisioning'),
         ('active', 'Active'),
-        ('suspended', 'Suspended'),
+        ('stopped', 'Stopped'),
         ('cleanup', 'Cleanup'),
     ]
 
