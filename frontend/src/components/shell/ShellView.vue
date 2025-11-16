@@ -21,6 +21,7 @@ const vmCount = ref<number>(0);
 const connectionStatus = ref<string>('disconnected');
 const isInitializing = ref<boolean>(false);
 const hasConfig = ref<boolean | null>(null);
+let statusPollingInterval: ReturnType<typeof setInterval> | null = null;
 
 async function checkHasConfig() {
   if (!props.taskId) { hasConfig.value = null; return; }
@@ -36,12 +37,27 @@ async function checkHasConfig() {
 async function loadEnvironmentStatus() {
   if (!props.taskId) return;
   try {
-    const status = await vmStore.getEnvironmentStatus(props.taskId);
+    const resp = await makeAPIRequest(`/vm/status/${props.taskId}/`, 'GET', true, true);
+    const status = resp.data;
+    if (!status) return;
     environmentStatus.value = status.status;
     vmCount.value = status.vm_count || 0;
   } catch (error) {
     console.error('Failed to load environment status:', error);
   }
+}
+
+function startStatusPolling() {
+  if (statusPollingInterval || !props.taskId) return;
+  statusPollingInterval = setInterval(() => {
+    loadEnvironmentStatus();
+  }, 5000);
+}
+
+function stopStatusPolling() {
+  if (!statusPollingInterval) return;
+  clearInterval(statusPollingInterval);
+  statusPollingInterval = null;
 }
 
 async function startEnvironment() {
@@ -208,6 +224,7 @@ onMounted(async () => {
   await checkHasConfig();
   if (hasConfig.value === true) {
     await loadEnvironmentStatus();
+    startStatusPolling();
     if (environmentStatus.value === 'active') {
       setupVNC();
     }
@@ -216,6 +233,7 @@ onMounted(async () => {
 
 onBeforeUnmount(() => {
   cleanup();
+  stopStatusPolling();
 });
 
 watch(environmentStatus, (newStatus, oldStatus) => {
@@ -236,6 +254,7 @@ watch(() => props.taskId, async (newTaskId, oldTaskId) => {
 
   cleanup();
   if (newTaskId) {
+    startStatusPolling();
     await loadEnvironmentStatus();
     if (environmentStatus.value === 'active') {
       // Wait for cleanup
@@ -243,6 +262,8 @@ watch(() => props.taskId, async (newTaskId, oldTaskId) => {
         setupVNC();
       }, 200);
     }
+  } else {
+    stopStatusPolling();
   }
 });
 function reloadVNC() {
