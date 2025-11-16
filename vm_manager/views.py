@@ -19,10 +19,10 @@ def start_environment(request, task_id):
 
         # Check if user has a lab environment
         lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
-
+        
+        proxmox_manager = ProxmoxManager()
         if not lab_env:
             # Create new environment
-            proxmox_manager = ProxmoxManager()
             lab_env = proxmox_manager.create_lab_environment(user, task)
             return Response({
                 'status': 'created',
@@ -31,7 +31,6 @@ def start_environment(request, task_id):
             })
         else:
             # Start existing environment
-            proxmox_manager = ProxmoxManager()
             proxmox_manager.start_environment(lab_env)
             lab_env.status = 'active'
             lab_env.save()
