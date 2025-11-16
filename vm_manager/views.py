@@ -19,7 +19,7 @@ def start_environment(request, task_id):
 
         # Check if user has a lab environment
         lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
-        
+
         proxmox_manager = ProxmoxManager()
         if not lab_env:
             # Create new environment
@@ -50,7 +50,43 @@ def start_environment(request, task_id):
 @permission_classes([IsAuthenticated])
 def stop_environment(request, task_id):
     """
-    Stops a lab environment for the current user and given task
+    Stopps a lab environment for the current user and given task
+    """
+    try:
+        task = get_object_or_404(Task,  id=task_id)
+        user = request.user
+
+        lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+
+        if not lab_env:
+            return Response({
+                'status': 'error',
+                'message': 'No lab environment found for this task'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        lab_env.status = 'stopped'
+        lab_env.save()
+
+        proxmox_manager = ProxmoxManager()
+        proxmox_manager.stop_environment(user, task)
+
+        return Response({
+            'status': 'stopped',
+            'message': 'Lab environment stopped successfully'
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'message': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cleanup_environment(request, task_id):
+    """
+    Stopps and removes a lab environment for the current user and given task
     """
     try:
         task = get_object_or_404(Task,  id=task_id)
