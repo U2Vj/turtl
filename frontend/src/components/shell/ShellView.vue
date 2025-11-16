@@ -5,7 +5,12 @@ import { useVMManagerStore } from '@/stores/VMManagerStore';
 import { makeAPIRequest } from '@/communication/APIRequests';
 import { useRouter } from 'vue-router';
 
-const props = defineProps<{ taskId?: number; hidePopoutButton?: boolean }>();
+const props = withDefaults(
+  defineProps<{ taskId?: number; hidePopoutButton?: boolean; scaleViewport?: boolean }>(),
+  {
+    scaleViewport: false
+  }
+);
 
 const rfb = ref<RFB>();
 const vncContainer = ref<HTMLElement>();
@@ -159,7 +164,7 @@ function setupVNC() {
         });
 
         // VNC settings
-        rfb.value.scaleViewport = false;
+        rfb.value.scaleViewport = props.scaleViewport;
         rfb.value.resizeSession = true;
       }
     })();

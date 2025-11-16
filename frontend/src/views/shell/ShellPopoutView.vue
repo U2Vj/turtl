@@ -27,7 +27,12 @@ const taskId = computed<number | undefined>(() => {
 
 <template>
   <div class="popout-shell">
-    <Shell v-if="taskId" :task-id="taskId" hide-popout-button />
+    <Shell
+      v-if="taskId"
+      :task-id="taskId"
+      hide-popout-button
+      :scale-viewport="true"
+    />
     <div v-else class="popout-shell__error">
       Missing or invalid task id.
     </div>
@@ -37,10 +42,11 @@ const taskId = computed<number | undefined>(() => {
 <style scoped>
 .popout-shell {
   height: 95vh;
-  width: 95vw;
+  width: 100vw;
   background-color: #000;
   display: flex;
   flex-direction: column;
+  overflow: hidden;
 }
 
 .popout-shell__error {
