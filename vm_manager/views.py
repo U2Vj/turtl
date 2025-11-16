@@ -32,8 +32,6 @@ def start_environment(request, task_id):
         else:
             # Start existing environment
             proxmox_manager.start_environment(lab_env)
-            lab_env.status = 'active'
-            lab_env.save()
             return Response({
                 'status': 'started',
                 'message': 'Lab environment started successfully',
