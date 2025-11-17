@@ -138,62 +138,61 @@ function setupVNC() {
 
     // Fetch VNC ticket to be used as VNC password
     (async () => {
-      let wsUrlBuilt: string | null = null;
+      const base = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
+      let wsUrl = base;
+
       try {
-        const resp = await makeAPIRequest(`/vm/vnc-ticket/${props.taskId}/`, 'GET', true, true);
-        const ticket = resp.data?.ticket;
-        const port = resp.data?.port;
+        const { data } = await makeAPIRequest(`/vm/vnc-ticket/${props.taskId}/`, 'GET', true, true);
+        const ticket = data?.ticket;
+        const port = data?.port;
+
         if (ticket) {
           rfbOptions.credentials = { username: 'proxmox', password: ticket };
         }
-        // Backend consumer will forward to Proxmox using these values.
-        const base = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
-        const qp = new URLSearchParams();
-        if (ticket) qp.set('ticket', ticket);
-        if (port) qp.set('port', String(port));
-        const qpStr = qp.toString();
-        wsUrlBuilt = qpStr ? `${base}?${qpStr}` : base;
+
+        const params = new URLSearchParams();
+        if (ticket) params.set('ticket', ticket);
+        if (port) params.set('port', String(port));
+
+        const qs = params.toString();
+        if (qs) wsUrl = `${base}?${qs}`;
       } catch (e) {
         console.error('Failed to fetch VNC ticket', e);
-      } finally {
-        // If no explicit wsUrl above (ticket fetch failed), fall back to base path
-        const base = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
-        rfb.value = new RFB(vncContainerElement, wsUrlBuilt || base, rfbOptions);
-        rfb.value.showDotCursor = true;
-
-        rfb.value.addEventListener('connect', () => {
-          console.log('VNC connected');
-          connectionStatus.value = 'connected';
-          isInitializing.value = false;
-        });
-
-        rfb.value.addEventListener('disconnect', () => {
-          console.log('VNC disconnected');
-          connectionStatus.value = 'disconnected';
-          isInitializing.value = false;
-        });
-
-        rfb.value.addEventListener('credentialsrequired', () => {
-          console.log('VNC credentials required');
-          // Ensure credentials are resent if requested
-          if (rfb.value && (rfbOptions.credentials?.password)) {
-            rfb.value.sendCredentials({
-              username: 'proxmox',
-              password: rfbOptions.credentials.password
-            });
-          }
-        });
-
-        rfb.value.addEventListener('securityfailure', () => {
-          console.log('VNC security failure');
-          connectionStatus.value = 'error';
-          isInitializing.value = false;
-        });
-
-        // VNC settings
-        rfb.value.scaleViewport = props.scaleViewport;
-        rfb.value.resizeSession = false;
       }
+
+      rfb.value = new RFB(vncContainerElement, wsUrl, rfbOptions);
+      rfb.value.showDotCursor = true;
+
+      rfb.value.addEventListener('connect', () => {
+        console.log('VNC connected');
+        connectionStatus.value = 'connected';
+        isInitializing.value = false;
+      });
+
+      rfb.value.addEventListener('disconnect', () => {
+        console.log('VNC disconnected');
+        connectionStatus.value = 'disconnected';
+        isInitializing.value = false;
+      });
+
+      rfb.value.addEventListener('credentialsrequired', () => {
+        console.log('VNC credentials required');
+        if (rfb.value && rfbOptions.credentials?.password) {
+          rfb.value.sendCredentials({
+            username: 'proxmox',
+            password: rfbOptions.credentials.password
+          });
+        }
+      });
+
+      rfb.value.addEventListener('securityfailure', () => {
+        console.log('VNC security failure');
+        connectionStatus.value = 'error';
+        isInitializing.value = false;
+      });
+
+      rfb.value.scaleViewport = props.scaleViewport;
+      rfb.value.resizeSession = false;
     })();
   });
 }
@@ -296,25 +295,13 @@ function openPopout() {
           <v-chip :color="getStatusColor(environmentStatus)" size="small" class="me-3">
             {{ getStatusText(environmentStatus) }}
           </v-chip>
-            <v-btn
-            v-if="environmentStatus === 'active' && connectionStatus === 'disconnected'"
-            @click="reloadVNC"
-            :loading="isInitializing"
-            color="primary"
-            size="small"
-            variant="outlined"
-            >
+          <v-btn v-if="environmentStatus === 'active' && connectionStatus === 'disconnected'" @click="reloadVNC"
+            :loading="isInitializing" color="primary" size="small" variant="outlined">
             <v-icon size="small" class="me-1">mdi-refresh</v-icon>
             Reconnect Shell
-            </v-btn>
-          <v-btn
-            v-if="environmentStatus === 'active' && taskId && !hidePopoutButton"
-            class="ms-2"
-            size="small"
-            color="primary"
-            variant="tonal"
-            @click="openPopout"
-          >
+          </v-btn>
+          <v-btn v-if="environmentStatus === 'active' && taskId && !hidePopoutButton" class="ms-2" size="small"
+            color="primary" variant="tonal" @click="openPopout">
             <v-icon size="small" class="me-1">mdi-open-in-new</v-icon>
             Shell
           </v-btn>
@@ -327,9 +314,8 @@ function openPopout() {
             Start Environment
           </v-btn>
 
-          <v-btn
-            v-if="environmentStatus === 'active'"
-            @click="stopEnvironment" :loading="vmStore.loading" color="warning" size="small" variant="outlined">
+          <v-btn v-if="environmentStatus === 'active'" @click="stopEnvironment" :loading="vmStore.loading"
+            color="warning" size="small" variant="outlined">
             <v-icon size="small" class="me-1">mdi-stop</v-icon>
             Stop Environment
           </v-btn>
