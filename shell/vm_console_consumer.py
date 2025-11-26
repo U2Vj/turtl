@@ -1,4 +1,3 @@
-# vm_console_consumer.py
 import asyncio
 import websockets
 import ssl

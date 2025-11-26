@@ -3,8 +3,6 @@ from django.conf import settings
 from catalog.models import Task
 from django.core.validators import validate_ipv4_address
 
-# Create your models here.
-
 # Network Instance
 class Network(models.Model):
     name = models.CharField(max_length=255)
@@ -23,9 +21,6 @@ class Network(models.Model):
     def __str__(self):
         return f"{self.name} ({self.subnet}) for {self.user} in {self.task}"
 
-# -----------------------
-# TEMPLATES
-# -----------------------
 
 class VMTemplate(models.Model):
     """
@@ -58,10 +53,7 @@ class NetworkTemplate(models.Model):
 
     def __str__(self):
         return f"{self.name} ({self.subnet})"
-    
-# -----------------------
-# BLUEPRINTS
-# -----------------------
+
 
 class TaskVMConfiguration(models.Model):
     """

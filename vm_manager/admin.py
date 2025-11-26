@@ -1,6 +1,5 @@
 from django.contrib import admin
 from .models import Network, VMTemplate, NetworkTemplate, TaskVMConfiguration, TaskVMTemplate, LabEnvironment, VirtualMachine
-# Register your models here.
 
 @admin.register(Network)
 class NetworkAdmin(admin.ModelAdmin):

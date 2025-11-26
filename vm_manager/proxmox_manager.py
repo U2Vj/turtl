@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 from .utils import AdvisoryLock, slugify, format_ip
 from .models import LabEnvironment, TaskVMConfiguration, Network, VirtualMachine
 
-# take environment variables
+# take environment variables from .env of project
 load_dotenv()
 
 class ProxmoxManager:
@@ -359,7 +359,7 @@ class ProxmoxManager:
 
     def configure_vm(self, node, vm_id, storage, ci_user, ci_password, bridge, ip_address, cpu_cores, memory_mb):
         """
-        Configures the Cloud-init, network and other VM options
+        Configures the VM via Cloud-init
         """
         try:
             config_params = {
@@ -393,13 +393,11 @@ class ProxmoxManager:
             
             try:
                 node = self.get_node()
-
                 with transaction.atomic():
                     for vm in lab_env.virtual_machines.select_for_update().all():
                         if vm.status != 'running':
                             # Start the VM
                             self.proxmox.nodes(node).qemu(vm.vmid).status.start.post()
-                            # Update VM status
                             vm.status = 'running'
                             vm.save()
                     # Update lab environment status
@@ -409,7 +407,7 @@ class ProxmoxManager:
                 return True
             except Exception as e:
                 print(f"Error starting lab environment: {str(e)}")
-                raise
+                return False
 
     def stop_environment(self, lab_env):
         """

@@ -31,17 +31,24 @@ def start_environment(request, task_id):
             })
         else:
             # Start existing environment
-            proxmox_manager.start_environment(lab_env)
-            return Response({
-                'status': 'started',
-                'message': 'Lab environment started successfully',
-                'environment_id': lab_env.id
-            })
+            started = proxmox_manager.start_environment(lab_env)
+            if(started):
+                return Response({
+                    'status': 'started',
+                    'message': 'Lab environment started successfully',
+                    'environment_id': lab_env.id
+                })
+            else:
+                return Response({
+                    'status': 'error',
+                    'detail': 'VMs for LabEnvironment could not be started. Check Proxmox logs',
+                    'environment_id': lab_env.id
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     except Exception as e:
         return Response({
             'status': 'error',
-            'message': str(e)
+            'detail': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['POST'])
@@ -76,7 +83,7 @@ def stop_environment(request, task_id):
     except Exception as e:
         return Response({
             'status': 'error',
-            'message': str(e)
+            'detail': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     
@@ -113,7 +120,7 @@ def cleanup_environment(request, task_id):
     except Exception as e:
         return Response({
             'status': 'error',
-            'message': str(e)
+            'detail': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 @api_view(['GET'])
@@ -151,7 +158,7 @@ def environment_status(request, task_id):
     except Exception as e:
         return Response({
             'status': 'error',
-            'message': str(e)
+            'detail': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
 @api_view(['GET'])
@@ -193,7 +200,7 @@ def vnc_ticket(request, task_id):
     except Exception as e:
         return Response({
             'status': 'error',
-            'message': str(e)
+            'detail': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 @api_view(['GET'])
