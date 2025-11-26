@@ -13,7 +13,7 @@ export const useVMManagerStore = defineStore('vmManager', () =>{
     const loading = ref(false)
     const error = ref<string | null>(null)
 
-    async function startEnvironment(taskId: number): Promise<void> {
+    async function startEnvironment(taskId: number): Promise<EnvironmentStatus> {
         loading.value = true
         error.value = null
 
@@ -28,6 +28,7 @@ export const useVMManagerStore = defineStore('vmManager', () =>{
             if (response.statusCode >=400){
                 throw new Error(response.data.message || 'Failed to start environment')
             }
+            return response.data as EnvironmentStatus
         } catch (err: any){
             error.value = err.message || 'Failed to start environment'
             throw err
@@ -36,7 +37,7 @@ export const useVMManagerStore = defineStore('vmManager', () =>{
         }
     }
 
-    async function stopEnvironment(taskId: number): Promise<void> {
+    async function stopEnvironment(taskId: number): Promise<EnvironmentStatus> {
         loading.value = true
         error.value = null
 
@@ -51,6 +52,7 @@ export const useVMManagerStore = defineStore('vmManager', () =>{
             if (response.statusCode >= 400){
                 throw new Error(response.data.message || 'Failed to stop environment')
             }
+            return response.data as EnvironmentStatus
         }catch (err: any){
             error.value = err.message || 'Failed to stop environment'
             throw err
@@ -59,7 +61,7 @@ export const useVMManagerStore = defineStore('vmManager', () =>{
         }
     }
 
-    async function cleanupEnvironment(taskId: number): Promise<void> {
+    async function cleanupEnvironment(taskId: number): Promise<EnvironmentStatus> {
         loading.value = true
         error.value = null
         
@@ -74,6 +76,7 @@ export const useVMManagerStore = defineStore('vmManager', () =>{
             if (response.statusCode >= 400) {
                 throw new Error(response.data.message || 'Failed to cleanup environment')
             }
+            return response.data as EnvironmentStatus
         } catch (err: any) {
             error.value = err.message || 'Failed to cleanup environment'
             throw err

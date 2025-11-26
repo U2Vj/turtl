@@ -66,7 +66,7 @@ def stop_environment(request, task_id):
         if not lab_env:
             return Response({
                 'status': 'error',
-                'message': 'No lab environment found for this task'
+                'detail': 'No lab environment found for this task'
             }, status=status.HTTP_404_NOT_FOUND)
         
         lab_env.status = 'stopped'
@@ -102,7 +102,7 @@ def cleanup_environment(request, task_id):
         if not lab_env:
             return Response({
                 'status': 'error',
-                'message': 'No lab environment found for this task'
+                'detail': 'No lab environment found for this task'
             }, status=status.HTTP_404_NOT_FOUND)
         
         lab_env.status = 'cleanup'
@@ -184,7 +184,7 @@ def vnc_ticket(request, task_id):
         if not vm:
             return Response({
                 'status': 'error',
-                'message': 'No USER_SHELL VM found for this task/user'
+                'detail': 'No USER_SHELL VM found for this task/user'
             }, status=status.HTTP_404_NOT_FOUND)
 
         pm = ProxmoxManager()

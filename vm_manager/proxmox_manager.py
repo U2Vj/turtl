@@ -392,6 +392,8 @@ class ProxmoxManager:
                 raise TimeoutError(f"Could not acquire lock for starting environment {lab_env.id}")
             
             try:
+                lab_env.status = 'starting'
+                lab_env.save()
                 node = self.get_node()
                 with transaction.atomic():
                     for vm in lab_env.virtual_machines.select_for_update().all():
@@ -419,6 +421,8 @@ class ProxmoxManager:
                 raise TimeoutError(f"Could not acquire lock for stopping environment {lab_env.id}")
             
             try:
+                lab_env.status = 'stopping'
+                lab_env.save()
                 node = self.get_node()
 
                 with transaction.atomic():

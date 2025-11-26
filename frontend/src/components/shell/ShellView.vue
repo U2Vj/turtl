@@ -23,6 +23,11 @@ const isInitializing = ref<boolean>(false);
 const hasConfig = ref<boolean | null>(null);
 let statusPollingInterval: ReturnType<typeof setInterval> | null = null;
 
+// loading flags for start/stop/cleanup buttons
+const isStarting = ref(false);
+const isStopping = ref(false);
+const isCleaning = ref(false);
+
 async function checkHasConfig() {
   if (!props.taskId) { hasConfig.value = null; return; }
   try {
@@ -37,8 +42,7 @@ async function checkHasConfig() {
 async function loadEnvironmentStatus() {
   if (!props.taskId) return;
   try {
-    const resp = await makeAPIRequest(`/vm/status/${props.taskId}/`, 'GET', true, true);
-    const status = resp.data;
+    const status = await vmStore.getEnvironmentStatus(props.taskId);
     if (!status) return;
     environmentStatus.value = status.status;
     vmCount.value = status.vm_count || 0;
@@ -50,7 +54,9 @@ async function loadEnvironmentStatus() {
 function startStatusPolling() {
   if (statusPollingInterval || !props.taskId) return;
   statusPollingInterval = setInterval(() => {
-    loadEnvironmentStatus();
+    if (!isStarting.value && !isStopping.value && !isCleaning.value){
+      loadEnvironmentStatus();
+    }
   }, 5000);
 }
 
@@ -63,44 +69,63 @@ function stopStatusPolling() {
 async function startEnvironment() {
   if (!props.taskId) return;
   try {
-    environmentStatus.value = 'provisioning';
-    await vmStore.startEnvironment(props.taskId);
-    environmentStatus.value = 'active';
+    isStarting.value = true;
+    if(environmentStatus.value === 'not_created') {
+      environmentStatus.value = 'provisioning';
+    }else{
+      environmentStatus.value = 'starting';
+    }
+    const res = await vmStore.startEnvironment(props.taskId);
+    if (res.status === 'created' || res.status === 'started'){
+      environmentStatus.value = 'active';
+    }
   } catch (error) {
     console.error('Failed to start environment', error);
-    await loadEnvironmentStatus();
+  } finally {
+    isStarting.value = false;
   }
 }
 
 async function cleanupEnvironment() {
   if (!props.taskId) return;
   try {
+    isCleaning.value = true;
     environmentStatus.value = 'cleanup';
-    await vmStore.cleanupEnvironment(props.taskId);
-    environmentStatus.value = 'not_created';
+    const res = await vmStore.cleanupEnvironment(props.taskId);
+    if (res.status === 'deleted'){
+      environmentStatus.value = 'not_created';
+    }
   } catch (error) {
     console.error('Failed to cleanup environment', error);
-    await loadEnvironmentStatus();
+  } finally {
+    isCleaning.value = false;
   }
 }
 
 async function stopEnvironment() {
   if (!props.taskId) return;
   try {
-    await vmStore.stopEnvironment(props.taskId);
-    environmentStatus.value = 'stopped';
+    isStopping.value = true;
+    environmentStatus.value = 'stopping';
+    const res = await vmStore.stopEnvironment(props.taskId);
+    if (res.status === 'stopped'){
+      environmentStatus.value = 'stopped';
+    }
   } catch (error) {
     console.error('Failed to stop environment', error);
-    await loadEnvironmentStatus();
+  } finally {
+    isStopping.value = false;
   }
 }
 
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'active': return 'success';
+    case 'starting': return 'warning';
+    case 'stopping': return 'warning';
     case 'provisioning': return 'warning';
     case 'stopped': return 'red';
-    case 'cleanup': return 'orange';
+    case 'cleanup': return 'warning';
     case 'error': return 'error';
     default: return 'primary';
   }
@@ -109,6 +134,8 @@ const getStatusColor = (status: string) => {
 const getStatusText = (status: string) => {
   switch (status) {
     case 'active': return 'Active';
+    case 'starting': return 'Starting';
+    case 'stopping': return 'Stopping';
     case 'provisioning': return 'Provisioning';
     case 'stopped': return 'Stopped';
     case 'cleanup': return 'Cleanup';
@@ -308,13 +335,13 @@ function openPopout() {
         </div>
         <div class="d-flex gap-2">
           <v-btn
-            v-if="environmentStatus === 'not_created' || environmentStatus === 'stopped' || environmentStatus === 'provisioning'"
-            @click="startEnvironment" :loading="vmStore.loading" color="success" size="small" variant="outlined">
+            v-if="environmentStatus === 'not_created' || environmentStatus === 'stopped' || environmentStatus === 'provisioning' || environmentStatus === 'starting'"
+            @click="startEnvironment" :loading="isStarting" color="success" size="small" variant="outlined">
             <v-icon size="small" class="me-1">mdi-play</v-icon>
             Start Environment
           </v-btn>
 
-          <v-btn v-if="environmentStatus === 'active'" @click="stopEnvironment" :loading="vmStore.loading"
+          <v-btn v-if="environmentStatus === 'active' || environmentStatus === 'stopping'" @click="stopEnvironment" :loading="isStopping"
             color="warning" size="small" variant="outlined">
             <v-icon size="small" class="me-1">mdi-stop</v-icon>
             Stop Environment
@@ -322,7 +349,7 @@ function openPopout() {
 
           <v-btn
             v-if="environmentStatus === 'active' || environmentStatus === 'stopped' || environmentStatus === 'cleanup'"
-            @click="cleanupEnvironment" :loading="vmStore.loading" color="error" size="small" variant="outlined">
+            @click="cleanupEnvironment" :loading="isCleaning" color="error" size="small" variant="outlined">
             <v-icon size="small" class="me-1">mdi-delete</v-icon>
             Delete Environment
           </v-btn>
