@@ -2,7 +2,6 @@
 import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import RFB from '@novnc/novnc/core/rfb.js';
 import { useVMManagerStore } from '@/stores/VMManagerStore';
-import { makeAPIRequest } from '@/communication/APIRequests';
 import { useRouter } from 'vue-router';
 
 const props = withDefaults(
@@ -31,8 +30,7 @@ const isCleaning = ref(false);
 async function checkHasConfig() {
   if (!props.taskId) { hasConfig.value = null; return; }
   try {
-    const resp = await makeAPIRequest(`/vm/has-config/${props.taskId}/`, 'GET', true, true);
-    hasConfig.value = !!resp.data?.has_config;
+    hasConfig.value = await vmStore.hasConfig(props.taskId);
   } catch (e) {
     console.error('Failed to check task config', e);
     hasConfig.value = false;
@@ -169,10 +167,8 @@ function setupVNC() {
       let wsUrl = base;
 
       try {
-        const { data } = await makeAPIRequest(`/vm/vnc-ticket/${props.taskId}/`, 'GET', true, true);
-        const ticket = data?.ticket;
-        const port = data?.port;
-
+        const { ticket, port } = await vmStore.getVNCTicket(props.taskId!);
+        
         if (ticket) {
           rfbOptions.credentials = { username: 'proxmox', password: ticket };
         }
