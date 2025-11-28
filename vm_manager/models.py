@@ -5,6 +5,9 @@ from django.core.validators import validate_ipv4_address
 
 # Network Instance
 class Network(models.Model):
+    """
+    Represents a network instance for a specific user and task
+    """
     name = models.CharField(max_length=255)
     subnet = models.CharField(max_length=20)
     vlan_id = models.IntegerField(unique=True, null=True, blank=True)
