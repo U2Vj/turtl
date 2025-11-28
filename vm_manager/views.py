@@ -206,6 +206,9 @@ def vnc_ticket(request, task_id):
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def has_task_vm_config(request, task_id: int):
+    """
+    Checks if there is a TaskVMConfiguration for the specific Task
+    """
     exists = TaskVMConfiguration.objects.filter(task_id=task_id).exists()
     return Response({"has_config": exists})
             

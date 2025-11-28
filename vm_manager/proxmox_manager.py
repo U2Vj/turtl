@@ -8,7 +8,12 @@ from dotenv import load_dotenv
 from .utils import AdvisoryLock, slugify, format_ip
 from .models import LabEnvironment, TaskVMConfiguration, Network, VirtualMachine
 
-# take environment variables from .env of project
+"""
+To set up Proxmox VE place a .env File in the root of the project and fill in the following variables:
+- PROXMOX_HOST
+- PROXMOX_USER
+- PROXMOX_PASSWORD
+"""
 load_dotenv()
 
 class ProxmoxManager:
