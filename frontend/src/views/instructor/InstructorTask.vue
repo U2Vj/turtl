@@ -7,15 +7,13 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
 import AddFlagModal from '@/components/modals/AddFlagModal.vue'
 import AddQuestionModal from '@/components/modals/AddQuestionModal.vue'
 import AddRegexModal from '@/components/modals/AddRegexModal.vue'
-import AddVirtualizationModal from '@/components/modals/AddVirtualizationModal.vue'
 import DeleteTaskModal from '@/components/modals/DeleteTaskModal.vue'
-import type { Flag, Question, RegEx, Task, Virtualization } from '@/stores/CatalogStore'
+import type { Flag, Question, RegEx, Task} from '@/stores/CatalogStore'
 import {
   AcceptanceCriteriaType,
   QuestionType,
   TaskDifficulty,
   TaskType,
-  VirtualizationRole,
   useCatalogStore
 } from '@/stores/CatalogStore'
 import { useField, useForm } from 'vee-validate'
@@ -104,20 +102,6 @@ const deleteQuestion = (index: number) => {
   task.value?.acceptance_criteria.questions?.splice(index, 1)
 }
 
-const addVirtualization = (virtualization: Virtualization) => {
-  task.value?.virtualizations.push(virtualization)
-}
-
-const updateVirtualization = (virtualization: Virtualization, index: number) => {
-  deleteVirtualization(index)
-  setTimeout(() => {
-    task.value?.virtualizations.splice(index, 0, virtualization)
-  }, 2)
-}
-
-const deleteVirtualization = (index: number) => {
-  task.value?.virtualizations.splice(index, 1)
-}
 
 // Form validation for the Task title, description, type and difficulty
 const schema = yup.object({
@@ -502,64 +486,6 @@ try {
                 <template v-slot:title>Add Question</template>
                 <template v-slot:submitButtonText>Add</template>
               </AddQuestionModal>
-            </SecondaryButton>
-          </v-col>
-        </v-row>
-        <v-row
-          ><v-col><v-divider></v-divider></v-col
-        ></v-row>
-        <v-row>
-          <v-col>
-            <h2>Virtualization</h2>
-          </v-col>
-        </v-row>
-        <v-row>
-          <v-col>
-            <v-table v-if="task.virtualizations.length > 0">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Role</th>
-                  <th>Edit</th>
-                  <th>Delete</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr v-for="(virtualization, index) in task.virtualizations" :key="index">
-                  <td>{{ virtualization.name }}</td>
-                  <td v-if="virtualization.virtualization_role === VirtualizationRole.UserShell">
-                    User Shell
-                  </td>
-                  <td v-else>User-accessible via IP</td>
-                  <td>
-                    <TextButton button-type="button">
-                      <v-icon icon="mdi-pencil"></v-icon>&nbsp;Edit
-                      <AddVirtualizationModal
-                        :current-virtualization="virtualization"
-                        @virtualization-editing-completed="updateVirtualization($event, index)"
-                      >
-                        <template v-slot:title>Edit Virtualization</template>
-                        <template v-slot:submitButtonText>Edit</template>
-                      </AddVirtualizationModal>
-                    </TextButton>
-                  </td>
-                  <td>
-                    <v-btn
-                      icon="mdi-trash-can-outline"
-                      variant="text"
-                      @click="deleteVirtualization(index)"
-                    ></v-btn>
-                  </td>
-                </tr>
-              </tbody>
-            </v-table>
-            <p v-else>This task does not contain any virtualizations yet.</p>
-            <br />
-            <SecondaryButton button-name="Add Virtualization" button-type="button">
-              <AddVirtualizationModal @virtualization-editing-completed="addVirtualization">
-                <template v-slot:title>Add Virtualization</template>
-                <template v-slot:submitButtonText>Add</template>
-              </AddVirtualizationModal>
             </SecondaryButton>
           </v-col>
         </v-row>
