@@ -169,9 +169,6 @@ def vnc_ticket(request, task_id):
     The frontend uses this as VNC password via noVNC credentials.
     """
     try:
-        from django.shortcuts import get_object_or_404
-        from catalog.models import Task
-
         task = get_object_or_404(Task, id=task_id)
         user = request.user
 
