@@ -7,7 +7,7 @@ First install and configure Proxmox VE.
 Then add a .env File to the root of the Project with the following variables:
 
 ```
-PROXMOX_HOST=proxmox-host
+PROXMOX_HOST=proxmox-host:port
 PROXMOX_USER=root@pam
 PROXMOX_PASSWORD=proxmox-password
 
