@@ -11,6 +11,10 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+from dotenv import load_dotenv
+
+# take environment variables
+load_dotenv()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -25,7 +29,7 @@ SECRET_KEY = 'dkzvccm3u=hxujl)q1a9jz1ush82b-*w@w5gx))%v_86+p4_$x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['192.168.178.87']
 
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
@@ -56,6 +60,7 @@ INSTALLED_APPS = [
     'enrollments',
     'seeder',
     'shell',
+    'vm_manager',
 ]
 
 MIDDLEWARE = [
@@ -78,6 +83,7 @@ CORS_ORIGIN_WHITELIST = (
     'http://127.0.0.1',
     'http://127.0.0.1:8000',
     'http://127.0.0.1:8080',
+    'http://192.168.178.87:8000'
 )
 
 REST_FRAMEWORK = {
@@ -119,18 +125,22 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('172.19.0.2', 6379)],
+            'hosts': [('172.18.0.5', 6379)],
         },
     },
 }
 
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-# Can be modified to use a MariaDB etc.
+# PostgreSQL configuration
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
@@ -180,7 +190,7 @@ STATIC_URL = '/static/'
 # File upload
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_SECURE = False
 
 # URL for uploads
 APPLICATION_URL = 'http://localhost:8000'
@@ -194,7 +204,7 @@ FRONTEND_URL = 'http://localhost:5173'
 INVITATION_EXPIRY_DAYS = 14
 
 # ID of the Kali container used to demonstrate the web shell
-KALI_CONTAINER_ID = "ac4bb0ffc14a"
+KALI_CONTAINER_ID = "95731b391915"
 
 EMAIL_HOST = ""
 DEFAULT_FROM_EMAIL = ""

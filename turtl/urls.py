@@ -23,6 +23,7 @@ urlpatterns = [
     path('users/', include('authentication.urls')),
     path('catalog/', include('catalog.urls')),
     path('enrollments/', include('enrollments.urls')),
+    path('vm/', include('vm_manager.urls'))
 ]
 
 

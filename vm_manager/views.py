@@ -1,0 +1,211 @@
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework import status
+from django.shortcuts import get_object_or_404
+from catalog.models import Task
+from .proxmox_manager import ProxmoxManager
+from .models import VirtualMachine, LabEnvironment, TaskVMConfiguration
+
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def start_environment(request, task_id):
+    """
+    Starts a lab environment for the current user and given task
+    """
+    try:
+        task = get_object_or_404(Task, id=task_id)
+        user = request.user
+
+        # Check if user has a lab environment
+        lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+
+        proxmox_manager = ProxmoxManager()
+        if not lab_env:
+            # Create new environment
+            lab_env = proxmox_manager.create_lab_environment(user, task)
+            return Response({
+                'status': 'created',
+                'message': 'Lab environment created and started successfully',
+                'environment_id': lab_env.id
+            })
+        else:
+            # Start existing environment
+            started = proxmox_manager.start_environment(lab_env)
+            if(started):
+                return Response({
+                    'status': 'started',
+                    'message': 'Lab environment started successfully',
+                    'environment_id': lab_env.id
+                })
+            else:
+                return Response({
+                    'status': 'error',
+                    'detail': 'VMs for LabEnvironment could not be started. Check Proxmox logs',
+                    'environment_id': lab_env.id
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def stop_environment(request, task_id):
+    """
+    Stopps a lab environment for the current user and given task
+    """
+    try:
+        task = get_object_or_404(Task,  id=task_id)
+        user = request.user
+
+        lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+
+        if not lab_env:
+            return Response({
+                'status': 'error',
+                'detail': 'No lab environment found for this task'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        lab_env.status = 'stopped'
+        lab_env.save()
+
+        proxmox_manager = ProxmoxManager()
+        proxmox_manager.stop_environment(lab_env)
+
+        return Response({
+            'status': 'stopped',
+            'message': 'Lab environment stopped successfully'
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+    
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def cleanup_environment(request, task_id):
+    """
+    Stopps and removes a lab environment for the current user and given task
+    """
+    try:
+        task = get_object_or_404(Task,  id=task_id)
+        user = request.user
+
+        lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+
+        if not lab_env:
+            return Response({
+                'status': 'error',
+                'detail': 'No lab environment found for this task'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        lab_env.status = 'cleanup'
+        lab_env.save()
+
+        proxmox_manager = ProxmoxManager()
+        proxmox_manager.cleanup_environment(user, task)
+
+        return Response({
+            'status': 'deleted',
+            'message': 'Lab environment deleted successfully'
+        }, status=status.HTTP_200_OK)
+    
+
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def environment_status(request, task_id):
+    """
+    Get the status of a lab environment for the current user and task
+    """
+    try:
+        task = get_object_or_404(Task, id=task_id)
+        user = request.user
+
+        lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+
+        if not lab_env:
+            return Response({
+                'status': 'not_created',
+                'message': 'No lab environment exists for this task'
+            })
+        
+        # Synchronize VM status
+        try:
+            proxmox_manager = ProxmoxManager()
+            proxmox_manager.sync_vm_status(lab_env)
+        except Exception as e:
+            print(f"Warning: Could not sync VM status: {str(e)}")
+        
+        return Response({
+            'status': lab_env.status,
+            'environment_id': lab_env.id,
+            'created_at': lab_env.created_at,
+            'vm_count': lab_env.virtual_machines.count()
+        })
+    
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def vnc_ticket(request, task_id):
+    """
+    Returns a VNC ticket for the user's USER_SHELL VM of the given task.
+    The frontend uses this as VNC password via noVNC credentials.
+    """
+    try:
+        task = get_object_or_404(Task, id=task_id)
+        user = request.user
+
+        vm = VirtualMachine.objects.filter(
+            lab_environment__user=user,
+            lab_environment__task=task,
+            template__purpose='USER_SHELL'
+        ).first()
+
+        if not vm:
+            return Response({
+                'status': 'error',
+                'detail': 'No USER_SHELL VM found for this task/user'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        pm = ProxmoxManager()
+        node = pm.get_vm_node(vm.vmid)
+        ticket_data = pm.get_vm_console_ticket(node, vm.vmid)
+
+        return Response({
+            'status': 'ok',
+            'ticket': ticket_data['ticket'],
+            'port': ticket_data['port'],
+            'node': node,
+        })
+    except Exception as e:
+        return Response({
+            'status': 'error',
+            'detail': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def has_task_vm_config(request, task_id: int):
+    """
+    Checks if there is a TaskVMConfiguration for the specific Task
+    """
+    exists = TaskVMConfiguration.objects.filter(task_id=task_id).exists()
+    return Response({"has_config": exists})
+            

@@ -1673,38 +1673,8 @@ components:
       allOf:
         - $ref: '#/components/schemas/TaskBase'
         - properties:
-            virtualizations:
-              type: array
-              items:
-                $ref: '#/components/schemas/Virtualization'
             acceptance_criteria:
               $ref: '#/components/schemas/AcceptanceCriteria'
-    Virtualization:
-      type: object
-      properties:
-        id:
-          type: integer
-          readOnly: true
-          description: The ID of the virtualization
-          example: 1
-        name:
-          type: string
-          description: The name of the virtualization.
-          example: "Kali Linux shell"
-        role:
-          type: string
-          enum:
-            - USER_SHELL
-            - USER_ACCESSIBLE
-          description: The role this virtualization has. A role of "USER_SHELL" indicates that this virtualization is 
-                       intended to be displayed to students as a shell when solving a particular task. A role of 
-                       "USER_ACCESSIBLE" specifies that this virtualization should be in the same network as the 
-                       "USER_SHELL" (i.e. accessible via its IP address), but not displayed to students as a shell.
-          example: "USER_SHELL"
-        dockerfile:
-          type: string
-          description: The Dockerfile used to generate an instance of this virtualization.
-          example: "FROM kalilinux/kali-rolling\nWORKDIR /root\nRUN apt -y update && DEBIAN_FRONTEND=noninteractive apt -y dist-upgrade && apt -y autoremove && apt clean"
     EnrollmentBase:
       type: object
       properties:

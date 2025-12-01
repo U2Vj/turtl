@@ -9,7 +9,7 @@ from rest_framework import serializers
 from authentication.models import User
 from authentication.serializers import UserSerializer
 from catalog.models import (Classroom, Project, ClassroomInstructor, HelpfulResource,
-                            Task, Virtualization, AcceptanceCriteria, Question, QuestionChoice,
+                            Task, AcceptanceCriteria, Question, QuestionChoice,
                             Regex, Flag)
 from catalog.predicates import manages_classroom, manages_project
 
@@ -159,28 +159,6 @@ class AcceptanceCriteriaSerializer(WritableNestedModelSerializer):
         return super().validate(data)
 
 
-class VirtualizationSerializer(serializers.ModelSerializer):
-    virtualization_role = serializers.ChoiceField(choices=Virtualization.Role.choices)
-    dockerfile = serializers.CharField()
-
-    class Meta:
-        model = Virtualization
-        fields = ['id', 'name', 'virtualization_role', 'dockerfile']
-        read_only_fields = ['id']
-
-    @staticmethod
-    def validate_dockerfile(value):
-        dfp = DockerfileParser(fileobj=io.StringIO(value))
-
-        if not dfp.baseimage:
-            raise serializers.ValidationError("The Dockerfile must start with a FROM instruction.")
-
-        instructions = dfp.structure
-        if not any(instr['instruction'] == 'RUN' for instr in instructions):
-            raise serializers.ValidationError("The Dockerfile should contain at least one RUN instruction.")
-
-        return value
-
 
 class TaskNewSerializer(WritableNestedModelSerializer):
     task_type = serializers.ChoiceField(choices=Task.TaskType.choices)
@@ -205,12 +183,11 @@ class TaskNewSerializer(WritableNestedModelSerializer):
 class TaskSerializer(WritableNestedModelSerializer):
     task_type = serializers.ChoiceField(choices=Task.TaskType.choices)
     difficulty = serializers.ChoiceField(choices=Task.Difficulty.choices)
-    virtualizations = VirtualizationSerializer(many=True)
     acceptance_criteria = AcceptanceCriteriaSerializer()
 
     class Meta:
         model = Task
-        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'virtualizations', 'acceptance_criteria']
+        fields = ['id', 'title', 'description', 'task_type', 'difficulty', 'acceptance_criteria']
         read_only_fields = ['id']
 
 
