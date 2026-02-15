@@ -118,7 +118,6 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         proxmox_url = f"wss://{proxmox_host}:8006/api2/json/nodes/{node}/qemu/{user_vm.vmid}/vncwebsocket"
         proxmox_url += f"?port={vnc_port}&vncticket={encoded_ticket}"
 
-        # Avoid logging sensitive details like tickets/URLs
         logger.debug("Connecting to Proxmox WebSocket vmid=%s node=%s", user_vm.vmid, node)
         
         # Setup SSL context 

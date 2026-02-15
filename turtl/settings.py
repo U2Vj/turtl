@@ -191,7 +191,7 @@ STATIC_URL = '/static/'
 # File upload
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-CSRF_COOKIE_SECURE = False
+CSRF_COOKIE_SECURE = True
 
 # URL for uploads
 APPLICATION_URL = 'http://localhost:8000'

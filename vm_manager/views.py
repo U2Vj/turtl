@@ -62,7 +62,7 @@ def start_environment(request, task_id):
         else:
             # Start existing environment
             started = proxmox_manager.start_environment(lab_env)
-            if(started):
+            if (started):
                 return Response({
                     'status': 'started',
                     'message': 'Lab environment started successfully',
@@ -90,10 +90,10 @@ def start_environment(request, task_id):
 @permission_classes([IsAuthenticated])
 def stop_environment(request, task_id):
     """
-    Stopps a lab environment for the current user and given task
+    Stops a lab environment for the current user and given task
     """
     try:
-        task = get_object_or_404(Task,  id=task_id)
+        task = get_object_or_404(Task, id=task_id)
         user = request.user
 
         if not user_can_access_task_vm(user, task):
@@ -134,7 +134,7 @@ def stop_environment(request, task_id):
 @permission_classes([IsAuthenticated])
 def cleanup_environment(request, task_id):
     """
-    Stopps and removes a lab environment for the current user and given task
+    Stops and removes a lab environment for the current user and given task
     """
     try:
         task = get_object_or_404(Task,  id=task_id)
