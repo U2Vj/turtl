@@ -249,6 +249,7 @@ class ProxmoxManager:
             print("Network configuration reloaded.")
         except Exception as e:
             print(f"Error creating network: {e}")
+            raise
 
     def provision_vm(self, lab_env, vm_template_config, network, user, task):
         """
