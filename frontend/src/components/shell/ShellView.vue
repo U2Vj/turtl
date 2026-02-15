@@ -171,14 +171,13 @@ function setupVNC() {
         
         if (ticket) {
           rfbOptions.credentials = { username: 'proxmox', password: ticket };
+          const encodedTicket = btoa(ticket).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/g, '');
+          rfbOptions.wsProtocols.push(`vnc.${encodedTicket}`);
         }
 
-        const params = new URLSearchParams();
-        if (ticket) params.set('ticket', ticket);
-        if (port) params.set('port', String(port));
-
-        const qs = params.toString();
-        if (qs) wsUrl = `${base}?${qs}`;
+        if (port) {
+          rfbOptions.wsProtocols.push(`vncport.${String(port)}`);
+        }
       } catch (e) {
         console.error('Failed to fetch VNC ticket', e);
       }

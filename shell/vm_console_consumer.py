@@ -1,4 +1,5 @@
 import asyncio
+import base64
 import logging
 import os
 import ssl
@@ -79,15 +80,23 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
     async def connect_to_proxmox(self, user_vm):
         pm = ProxmoxManager()
         
-        # Parse query params from client WS (ticket+port expected)
-        try:
-            raw_qs = (self.scope.get('query_string') or b'').decode('utf-8')
-            qs = urllib.parse.parse_qs(raw_qs)
-        except Exception:
-            qs = {}
+        ticket = None
+        vnc_port = None
+        for proto in (self.scope.get('subprotocols', []) or []):
+            if isinstance(proto, str) and proto.startswith('vnc.'):
+                encoded = proto[4:]
+                try:
+                    padding = '=' * (-len(encoded) % 4)
+                    ticket = base64.urlsafe_b64decode((encoded + padding).encode('ascii')).decode('utf-8')
+                except Exception:
+                    logger.warning("Invalid VNC ticket subprotocol payload")
+            elif isinstance(proto, str) and proto.startswith('vncport.'):
+                vnc_port = proto[8:]
 
-        ticket = (qs.get('ticket') or [None])[0]
-        vnc_port = (qs.get('port') or [None])[0]
+        if not ticket or not vnc_port:
+            logger.warning("Missing VNC ticket/port in websocket subprotocols")
+            await self.close()
+            return
 
         # Determine the correct node for this VM
         try:
