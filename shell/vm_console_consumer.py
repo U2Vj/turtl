@@ -127,6 +127,13 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         ssl_context = ssl.create_default_context()
         
         if verify_env in ('false', '0'):
+            logger.warning(
+                "SSL certificate verification is DISABLED for Proxmox WebSocket connections "
+                "because PROXMOX_VERIFY_SSL is set to '%s'. This configuration is insecure and "
+                "should only be used for development or testing environments. host=%s",
+                verify_env,
+                proxmox_host,
+            )
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
         elif ca_path:
