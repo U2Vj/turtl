@@ -6,7 +6,6 @@ import {createApp} from 'vue'
 import {createVuetify, type ThemeDefinition} from 'vuetify'
 import * as components from 'vuetify/components'
 import * as directives from 'vuetify/directives'
-import {VDataTable} from 'vuetify/labs/VDataTable'
 import 'vuetify/styles'
 import Toast, {type PluginOptions} from 'vue-toastification'
 import 'vue-toastification/dist/index.css';
@@ -22,10 +21,7 @@ const turtlTheme: ThemeDefinition = {
 }
 
 const vuetify = createVuetify({
-  components: {
-    VDataTable,
-    ...components
-  },
+  components,
   directives,
   theme: {
     defaultTheme: 'turtlTheme',
