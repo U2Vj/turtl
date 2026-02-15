@@ -106,17 +106,6 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        # If ticket/port were not provided by client, obtain them once here
-        if not ticket or not vnc_port:
-            try:
-                ticket_data = await pm.a_get_vm_console_ticket(node, user_vm.vmid)
-                ticket = ticket_data['ticket']
-                vnc_port = ticket_data['port']
-            except Exception:
-                logger.exception("Failed to obtain VNC ticket/port vmid=%s node=%s", user_vm.vmid, node)
-                await self.close()
-                return
-
         # Parse PROXMOX_HOST to extract hostname without port
         proxmox_host = os.environ.get('PROXMOX_HOST')
         if proxmox_host and ':' in proxmox_host:
