@@ -29,7 +29,8 @@ SECRET_KEY = 'dkzvccm3u=hxujl)q1a9jz1ush82b-*w@w5gx))%v_86+p4_$x'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ['192.168.178.87']
+allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS')
+ALLOWED_HOSTS = allowed_hosts_env.split(',') if allowed_hosts_env else []
 
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
