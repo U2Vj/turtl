@@ -212,3 +212,29 @@ EMAIL_PORT = 465
 EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_SSL = True
+
+
+VM_MANAGER_LOG_LEVEL = "DEBUG"
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "%(levelname)s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "loggers": {
+        "vm_manager": {
+            "handlers": ["console"],
+            "level": VM_MANAGER_LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}

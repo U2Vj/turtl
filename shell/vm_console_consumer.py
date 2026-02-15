@@ -1,13 +1,17 @@
 import asyncio
-import websockets
+import logging
+import os
 import ssl
 import urllib.parse
+
+import websockets
 from channels.generic.websocket import AsyncWebsocketConsumer
 from catalog.models import Task
 from vm_manager.proxmox_manager import ProxmoxManager
 from vm_manager.access import user_can_access_task_vm
 from vm_manager.models import VirtualMachine
-import os
+
+logger = logging.getLogger("vm_manager.console")
 
 class VMConsoleConsumer(AsyncWebsocketConsumer):
     def __init__(self, *args, **kwargs):
@@ -20,33 +24,56 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         self.user = self.scope['user']
         
         if not self.user.is_authenticated:
-            print(f"Unauthenticated user attempted connection")
+            logger.warning("Unauthenticated user attempted VM console connection")
             await self.close()
             return
         
         if not await self.can_access_task_vm():
-            print(f"Forbidden VM console access for user {self.user} and task {self.task_id}")
+            logger.warning(
+                "Forbidden VM console access user_id=%s task_id=%s",
+                getattr(self.user, "id", None),
+                self.task_id,
+            )
             await self.close()
             return
         
         # Get user vm
         user_vm = await self.get_user_vm()
         if not user_vm:
-            print(f"No VM found for user {self.user}")
+            logger.warning(
+                "No VM found for console connection user_id=%s task_id=%s",
+                getattr(self.user, "id", None),
+                self.task_id,
+            )
             await self.close()
             return
         
-        print(f"Found VM {user_vm.vmid} for user {self.user}")
+        logger.info(
+            "Found VM for console connection user_id=%s task_id=%s vmid=%s",
+            getattr(self.user, "id", None),
+            self.task_id,
+            user_vm.vmid,
+        )
 
         requested = self.scope.get('subprotocols', []) or []
         selected = 'binary' if 'binary' in requested else ( 'base64' if 'base64' in requested else None )
         await self.accept(subprotocol=selected)
-        print("Client WebSocket accepted")
+        logger.debug(
+            "Client WebSocket accepted user_id=%s task_id=%s subprotocol=%s",
+            getattr(self.user, "id", None),
+            self.task_id,
+            selected,
+        )
         
         try:
             await self.connect_to_proxmox(user_vm)
-        except Exception as e:
-            print(f"Failed to setup Proxmox connection: {e}")
+        except Exception:
+            logger.exception(
+                "Failed to set up Proxmox console connection user_id=%s task_id=%s vmid=%s",
+                getattr(self.user, "id", None),
+                self.task_id,
+                user_vm.vmid,
+            )
             await self.close()
     
     async def connect_to_proxmox(self, user_vm):
@@ -65,8 +92,8 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         # Determine the correct node for this VM
         try:
             node = await pm.a_get_vm_node(user_vm.vmid)
-        except Exception as e:
-            print(f"Failed to determine VM node: {e}")
+        except Exception:
+            logger.exception("Failed to determine VM node vmid=%s", user_vm.vmid)
             await self.close()
             return
 
@@ -76,8 +103,8 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
                 ticket_data = await pm.a_get_vm_console_ticket(node, user_vm.vmid)
                 ticket = ticket_data['ticket']
                 vnc_port = ticket_data['port']
-            except Exception as e:
-                print(f"Failed to obtain VNC ticket/port: {e}")
+            except Exception:
+                logger.exception("Failed to obtain VNC ticket/port vmid=%s node=%s", user_vm.vmid, node)
                 await self.close()
                 return
 
@@ -94,7 +121,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         proxmox_url += f"?port={vnc_port}&vncticket={encoded_ticket}"
 
         # Avoid logging sensitive details like tickets/URLs
-        print("Connecting to Proxmox WebSocket")
+        logger.debug("Connecting to Proxmox WebSocket vmid=%s node=%s", user_vm.vmid, node)
         
         # Setup SSL context 
         ca_path = os.environ.get('PROXMOX_CA_PATH')
@@ -113,8 +140,8 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         # Prepare Proxmox authentication cookie
         try:
             pve_cookie = await pm.a_get_auth_cookie()
-        except Exception as e:
-            print(f"Failed to authenticate with Proxmox: {e}")
+        except Exception:
+            logger.exception("Failed to authenticate with Proxmox vmid=%s node=%s", user_vm.vmid, node)
             await self.close()
             return
 
@@ -134,9 +161,9 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
                 subprotocols=['binary'],
                 server_hostname=None if verify_off or self._is_ip(proxmox_host) else proxmox_host,
             )
-            print("Successfully connected to Proxmox WebSocket")
-        except Exception as e:
-            print(f"Failed to connect to Proxmox WebSocket: {e}")
+            logger.info("Successfully connected to Proxmox WebSocket vmid=%s node=%s", user_vm.vmid, node)
+        except Exception:
+            logger.exception("Failed to connect to Proxmox WebSocket vmid=%s node=%s", user_vm.vmid, node)
             await self.close()
             return
         
@@ -157,6 +184,12 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             self.forward_task.cancel()
         if self.proxmox_ws:
             await self.proxmox_ws.close()
+        logger.debug(
+            "VM console disconnected user_id=%s task_id=%s close_code=%s",
+            getattr(self.user, "id", None),
+            getattr(self, "task_id", None),
+            close_code,
+        )
     
     async def receive(self, text_data=None, bytes_data=None):
         # Forward to Proxmox
@@ -166,8 +199,12 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
                     await self.proxmox_ws.send(bytes_data)
                 elif text_data:
                     await self.proxmox_ws.send(text_data)
-            except Exception as e:
-                print(f"Error forwarding to Proxmox: {e}")
+            except Exception:
+                logger.exception(
+                    "Error forwarding message to Proxmox user_id=%s task_id=%s",
+                    getattr(self.user, "id", None),
+                    getattr(self, "task_id", None),
+                )
     
     async def forward_messages(self):
         """Forward messages from Proxmox to client"""
@@ -178,12 +215,24 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
                 else:
                     await self.send(text_data=message)
         except asyncio.CancelledError:
-            pass
+            logger.debug(
+                "Forwarding task cancelled user_id=%s task_id=%s",
+                getattr(self.user, "id", None),
+                getattr(self, "task_id", None),
+            )
         except websockets.exceptions.ConnectionClosed:
-            print("Proxmox WebSocket connection closed")
+            logger.info(
+                "Proxmox WebSocket connection closed user_id=%s task_id=%s",
+                getattr(self.user, "id", None),
+                getattr(self, "task_id", None),
+            )
             await self.close()
-        except Exception as e:
-            print(f"Error in forward_messages: {e}")
+        except Exception:
+            logger.exception(
+                "Error in VM console forward_messages user_id=%s task_id=%s",
+                getattr(self.user, "id", None),
+                getattr(self, "task_id", None),
+            )
             await self.close()
 
     async def get_user_vm(self):
@@ -198,7 +247,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             ).select_related('lab_environment').first()
             
             if vm:
-                print(f"Found VM: {vm.name} (ID: {vm.vmid})")
+                logger.debug("Found USER_SHELL VM vm_name=%s vmid=%s", vm.name, vm.vmid)
             return vm
         
         return await get_vm()

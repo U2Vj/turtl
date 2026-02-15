@@ -1,3 +1,5 @@
+import logging
+
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
@@ -8,6 +10,9 @@ from .proxmox_manager import ProxmoxManager
 from .access import user_can_access_task_vm
 from .models import VirtualMachine, LabEnvironment, TaskVMConfiguration
 
+logger = logging.getLogger(__name__)
+
+
 def _forbidden_task_vm_access():
     return Response(
         {
@@ -15,6 +20,17 @@ def _forbidden_task_vm_access():
             'detail': 'You do not have access to VM resources for this task'
         },
         status=status.HTTP_403_FORBIDDEN
+    )
+
+
+def _internal_vm_error(detail: str, error_code: str):
+    return Response(
+        {
+            'status': 'error',
+            'detail': detail,
+            'error_code': error_code,
+        },
+        status=status.HTTP_500_INTERNAL_SERVER_ERROR
     )
 
 
@@ -59,11 +75,16 @@ def start_environment(request, task_id):
                     'environment_id': lab_env.id
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
-    except Exception as e:
-        return Response({
-            'status': 'error',
-            'detail': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception:
+        logger.exception(
+            "Failed to start lab environment for task_id=%s user_id=%s",
+            task_id,
+            getattr(request.user, "id", None),
+        )
+        return _internal_vm_error(
+            detail='An unexpected error occurred while starting the lab environment.',
+            error_code='ENVIRONMENT_START_FAILED',
+        )
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -97,11 +118,16 @@ def stop_environment(request, task_id):
             'message': 'Lab environment stopped successfully'
         }, status=status.HTTP_200_OK)
     
-    except Exception as e:
-        return Response({
-            'status': 'error',
-            'detail': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception:
+        logger.exception(
+            "Failed to stop lab environment for task_id=%s user_id=%s",
+            task_id,
+            getattr(request.user, "id", None),
+        )
+        return _internal_vm_error(
+            detail='An unexpected error occurred while stopping the lab environment.',
+            error_code='ENVIRONMENT_STOP_FAILED',
+        )
 
     
 @api_view(['POST'])
@@ -137,11 +163,16 @@ def cleanup_environment(request, task_id):
         }, status=status.HTTP_200_OK)
     
 
-    except Exception as e:
-        return Response({
-            'status': 'error',
-            'detail': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception:
+        logger.exception(
+            "Failed to clean up lab environment for task_id=%s user_id=%s",
+            task_id,
+            getattr(request.user, "id", None),
+        )
+        return _internal_vm_error(
+            detail='An unexpected error occurred while cleaning up the lab environment.',
+            error_code='ENVIRONMENT_CLEANUP_FAILED',
+        )
 
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -168,8 +199,14 @@ def environment_status(request, task_id):
         try:
             proxmox_manager = ProxmoxManager()
             proxmox_manager.sync_vm_status(lab_env)
-        except Exception as e:
-            print(f"Warning: Could not sync VM status: {str(e)}")
+        except Exception:
+            logger.warning(
+                "Could not sync VM status for environment_id=%s task_id=%s user_id=%s",
+                lab_env.id,
+                task_id,
+                getattr(request.user, "id", None),
+                exc_info=True,
+            )
         
         return Response({
             'status': lab_env.status,
@@ -178,11 +215,16 @@ def environment_status(request, task_id):
             'vm_count': lab_env.virtual_machines.count()
         })
     
-    except Exception as e:
-        return Response({
-            'status': 'error',
-            'detail': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception:
+        logger.exception(
+            "Failed to retrieve environment status for task_id=%s user_id=%s",
+            task_id,
+            getattr(request.user, "id", None),
+        )
+        return _internal_vm_error(
+            detail='An unexpected error occurred while fetching environment status.',
+            error_code='ENVIRONMENT_STATUS_FAILED',
+        )
             
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
@@ -220,11 +262,16 @@ def vnc_ticket(request, task_id):
             'port': ticket_data['port'],
             'node': node,
         })
-    except Exception as e:
-        return Response({
-            'status': 'error',
-            'detail': str(e)
-        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception:
+        logger.exception(
+            "Failed to get VNC ticket for task_id=%s user_id=%s",
+            task_id,
+            getattr(request.user, "id", None),
+        )
+        return _internal_vm_error(
+            detail='An unexpected error occurred while fetching the VNC ticket.',
+            error_code='VNC_TICKET_FAILED',
+        )
     
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])

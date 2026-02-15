@@ -1,12 +1,16 @@
 """
 WebSocket JWT Authentication Middleware
 """
+import logging
+
 from channels.auth import AuthMiddlewareStack
 from channels.db import database_sync_to_async
 from django.contrib.auth.models import AnonymousUser
 from rest_framework_simplejwt.tokens import AccessToken
 from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from authentication.models import User
+
+logger = logging.getLogger("vm_manager.auth")
 
 
 @database_sync_to_async
@@ -46,16 +50,19 @@ class JwtAuthMiddleware:
                     # Validate and read payload using SimpleJWT
                     access = AccessToken(token)
                     scope['user'] = await get_user(access.payload)
-                    print(f"JWT Auth: Authenticated user {scope['user']} from token")
-                except (InvalidToken, TokenError, Exception) as e:
-                    print(f"JWT Auth: Invalid token: {e}")
+                    logger.info("JWT Auth: Authenticated user_id=%s", getattr(scope["user"], "id", None))
+                except (InvalidToken, TokenError):
+                    logger.warning("JWT Auth: Invalid token provided")
+                    scope['user'] = AnonymousUser()
+                except Exception:
+                    logger.exception("JWT Auth: Unexpected error while validating token")
                     scope['user'] = AnonymousUser()
             else:
-                print("JWT Auth: No token found, using AnonymousUser")
+                logger.debug("JWT Auth: No token found, using AnonymousUser")
                 scope['user'] = AnonymousUser()
                 
-        except Exception as e:
-            print(f"JWT Auth: Exception during authentication: {e}")
+        except Exception:
+            logger.exception("JWT Auth: Exception during authentication middleware execution")
             scope['user'] = AnonymousUser()
         
         return await self.inner(scope, receive, send)

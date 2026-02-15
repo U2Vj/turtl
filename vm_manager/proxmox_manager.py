@@ -1,6 +1,7 @@
 import os
 import time
 import asyncio
+import logging
 import requests
 from proxmoxer import ProxmoxAPI
 from django.db import transaction, IntegrityError
@@ -15,6 +16,8 @@ To set up Proxmox VE place a .env File in the root of the project and fill in th
 - PROXMOX_PASSWORD
 """
 load_dotenv()
+logger = logging.getLogger(__name__)
+
 
 class ProxmoxManager:
     # Constants
@@ -37,9 +40,9 @@ class ProxmoxManager:
             )
             # Add attribute to store auth cookie for VNC WebSocket auth
             self.auth_cookie = None
-        except Exception as e:
-            print(f"Failed to connect to Proxmox: {e}")
-            raise e
+        except Exception:
+            logger.exception("Failed to connect to Proxmox API")
+            raise
 
     def _authenticate(self):
         """
@@ -51,7 +54,7 @@ class ProxmoxManager:
         verify_param = self._get_verify_param()
 
         try:
-            print("DEBUG: Authenticating with Proxmox...")
+            logger.debug("Authenticating with Proxmox")
             login_response = requests.post(
                 f"https://{os.environ.get('PROXMOX_HOST')}/api2/json/access/ticket",
                 data={
@@ -64,9 +67,9 @@ class ProxmoxManager:
             login_data = login_response.json()["data"]
 
             self.auth_cookie = login_data["ticket"]
-            print("DEBUG: Successfully authenticated and stored credentials.")
-        except requests.exceptions.RequestException as e:
-            print(f"FATAL: Proxmox authentication failed: {e}")
+            logger.debug("Successfully authenticated with Proxmox")
+        except requests.exceptions.RequestException:
+            logger.exception("Proxmox authentication failed")
             raise
 
     def get_auth_cookie(self):
@@ -98,11 +101,11 @@ class ProxmoxManager:
             nodes = self.proxmox.nodes.get()
             for node in nodes:
                 if node['status'] == 'online':
-                    print(f"Found node: {node['node']}")
+                    logger.debug("Found online Proxmox node=%s", node['node'])
                     return node['node']
             raise Exception("No available nodes in cluster")
-        except Exception as e:
-            print(f"Error finding suitable node: {str(e)}")
+        except Exception:
+            logger.exception("Error finding suitable Proxmox node")
             raise
         
     def create_lab_environment(self, user, task):
@@ -123,7 +126,11 @@ class ProxmoxManager:
                 #Check if environment already exists
                 existing_env = LabEnvironment.objects.filter(user=user, task=task).first()
                 if existing_env:
-                    print(f"Lab environment already exists for user {user.id} and task {task.id}")
+                    logger.info(
+                        "Lab environment already exists for user_id=%s task_id=%s",
+                        user.id,
+                        task.id,
+                    )
                     return existing_env
                 
                 task_config = TaskVMConfiguration.objects.filter(task=task).first()
@@ -151,11 +158,14 @@ class ProxmoxManager:
 
                     return lab_env
 
-            except Exception as e:
-                print(f"Error creating lab environment for task : {task.title}")
-                print(f"Exception: {str(e)}")
+            except Exception:
+                logger.exception(
+                    "Error creating lab environment for task_id=%s user_id=%s",
+                    task.id,
+                    user.id,
+                )
                 self.cleanup_orphans()
-                raise e
+                raise
     
     def provision_network(self, user, task, task_config):
         """
@@ -201,19 +211,32 @@ class ProxmoxManager:
                                 bridge=bridge_name,
                                 cidr=network_template.subnet
                             )
-                        except Exception as e:
-                            print(f"Error creating bridge in Proxmox: {str(e)}")
+                        except Exception:
+                            logger.exception(
+                                "Error creating bridge in Proxmox bridge=%s task_id=%s user_id=%s",
+                                bridge_name,
+                                task.id,
+                                user.id,
+                            )
                             raise
 
                         return network
                 except IntegrityError as e:
                     if 'vlan_id' in str(e) and attempt < max_retries - 1:
-                        print(f"VLAN ID {bridge_id} already exists, retrying... (attempt {attempt + 1}/{max_retries})")
+                        logger.warning(
+                            "VLAN ID collision vlan_id=%s, retrying attempt=%s/%s",
+                            bridge_id,
+                            attempt + 1,
+                            max_retries,
+                        )
                         # Short delay before retry to allow other transactions to complete
                         time.sleep(0.3)
                         continue
                     else:
-                        print(f"Failed to allocate unique VLAN ID after {max_retries} attempts")
+                        logger.exception(
+                            "Failed to allocate unique VLAN ID after retries=%s",
+                            max_retries,
+                        )
                         raise
     
     def create_bridge(self, node, bridge, cidr, gateway=None, autostart=True):
@@ -223,14 +246,19 @@ class ProxmoxManager:
         try:
             existing = self.proxmox.nodes(node).network.get()
             if any(net.get('iface') == bridge for net in existing):
-                print(f"Bridge '{bridge}' already exists. Skipping creation.")
+                logger.info("Bridge already exists, skipping create bridge=%s node=%s", bridge, node)
                 try:
                     self.proxmox.nodes(node).network(bridge).up.post()
                 except Exception:
-                    pass
+                    logger.warning(
+                        "Failed to bring up existing bridge bridge=%s node=%s",
+                        bridge,
+                        node,
+                        exc_info=True,
+                    )
                 return
-        except Exception as e:
-            print(f"Error checking existing networks: {e}")
+        except Exception:
+            logger.exception("Error checking existing Proxmox networks node=%s bridge=%s", node, bridge)
             raise
 
         params = {
@@ -244,11 +272,11 @@ class ProxmoxManager:
 
         try:
             result = self.proxmox.nodes(node).network.post(**params)
-            print(f"Network '{bridge}' created: {result}")
+            logger.info("Network bridge created bridge=%s node=%s result=%s", bridge, node, result)
             self.proxmox.nodes(node).network.put()
-            print("Network configuration reloaded.")
-        except Exception as e:
-            print(f"Error creating network: {e}")
+            logger.debug("Network configuration reloaded node=%s", node)
+        except Exception:
+            logger.exception("Error creating network bridge=%s node=%s", bridge, node)
             raise
 
     def provision_vm(self, lab_env, vm_template_config, network, user, task):
@@ -271,7 +299,12 @@ class ProxmoxManager:
                 ip_address = format_ip(vm_template_config.planned_ip_address, network)
 
                 # Clone VM from template
-                print(f"DEBUG: Cloning vom from template {template.template_id} to {vm_name} (ID: {vmid})")
+                logger.debug(
+                    "Cloning VM from template template_id=%s vm_name=%s vmid=%s",
+                    template.template_id,
+                    vm_name,
+                    vmid,
+                )
                 self.clone_vm(
                     node=node,
                     template_id=template.template_id,
@@ -281,7 +314,7 @@ class ProxmoxManager:
 
                 bridge_name = f"vmbr{network.vlan_id}"
 
-                print(f"DEBUG: Configuring VM {vmid} with networking")
+                logger.debug("Configuring VM networking vmid=%s bridge=%s", vmid, bridge_name)
                 storage = 'local-lvm'
                 ci_user = 'student'
                 ci_password = 'student'
@@ -311,7 +344,7 @@ class ProxmoxManager:
                     )
 
                     #Start the VM
-                    print(f"DEBUG: Starting VM {vmid}")
+                    logger.debug("Starting VM vmid=%s", vmid)
                     self.proxmox.nodes(node).qemu(vmid).status.start.post()
 
                     # Update status
@@ -319,8 +352,13 @@ class ProxmoxManager:
                     vm.save()
                 
                 return vm
-            except Exception as e:
-                print(f"Error provisioning VM: {e}")
+            except Exception:
+                logger.exception(
+                    "Error provisioning VM for task_id=%s user_id=%s env_id=%s",
+                    task.id,
+                    user.id,
+                    lab_env.id,
+                )
                 raise
 
     def clone_vm(self, node, template_id, new_id, new_name, linked_clone=True):
@@ -336,14 +374,19 @@ class ProxmoxManager:
 
         try:
             self.proxmox.nodes(node).qemu(template_id).clone.post(**params)
-            print(f"DEBUG: Clone command sent for VM {new_id}")
-        except Exception as e:
-            print(f"Debug: Error cloning template: {e}")
+            logger.debug("Clone command sent for vmid=%s from template_id=%s", new_id, template_id)
+        except Exception:
+            logger.exception(
+                "Error cloning template template_id=%s new_id=%s node=%s",
+                template_id,
+                new_id,
+                node,
+            )
             raise
 
-        print(f"DEBUG: Waiting for lock to be removed on VM {new_id}...")
+        logger.debug("Waiting for lock removal on vmid=%s", new_id)
         self.wait_for_unlock(node, new_id)
-        print(f"DEBUG: Lock removed from VM {new_id}")
+        logger.debug("Lock removed from vmid=%s", new_id)
 
     def wait_for_unlock(self, node, vm_id, timeout=None, interval=None):
         """
@@ -383,9 +426,9 @@ class ProxmoxManager:
             }
 
             self.proxmox.nodes(node).qemu(vm_id).config.post(**config_params)
-            print(f"DEBUG: VM options set successfully for VM {vm_id}")
-        except Exception as e:
-            print(f"DEBUG: Error configuring VM {vm_id}: {str(e)}")
+            logger.debug("VM options set successfully vmid=%s", vm_id)
+        except Exception:
+            logger.exception("Error configuring VM vmid=%s node=%s", vm_id, node)
             raise
 
     def start_environment(self, lab_env):
@@ -413,8 +456,8 @@ class ProxmoxManager:
                         lab_env.status = 'active'
                         lab_env.save()
                 return True
-            except Exception as e:
-                print(f"Error starting lab environment: {str(e)}")
+            except Exception:
+                logger.exception("Error starting lab environment env_id=%s", lab_env.id)
                 return False
 
     def stop_environment(self, lab_env):
@@ -444,8 +487,8 @@ class ProxmoxManager:
                         lab_env.status = 'stopped'
                         lab_env.save()
                 return True
-            except Exception as e:
-                print(f"Error stopping lab environment: {str(e)}")
+            except Exception:
+                logger.exception("Error stopping lab environment env_id=%s", lab_env.id)
                 raise
 
     def cleanup_environment(self, user, task):
@@ -458,14 +501,22 @@ class ProxmoxManager:
 
             with AdvisoryLock(env_cleanup_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
                 if not acquired:
-                    print(f"Could not acquire lock for cleanup, skipping...")
+                    logger.warning(
+                        "Could not acquire lock for cleanup user_id=%s task_id=%s",
+                        user.id,
+                        task.id,
+                    )
                     return
                 
                 try:
                     # Get the lab environment
                     lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
                     if not lab_env:
-                        print(f"No lab environment found for user {user.id} and task {task.id}")
+                        logger.info(
+                            "No lab environment found for cleanup user_id=%s task_id=%s",
+                            user.id,
+                            task.id,
+                        )
                         return
                     # Mark environment as being cleaned up
                     if lab_env.status != 'cleanup':
@@ -480,13 +531,23 @@ class ProxmoxManager:
                                 self.proxmox.nodes(node).qemu(vm.vmid).status.stop.post()
                                 # Wait for VM to stop
                                 time.sleep(5)
-                            except Exception as e:
-                                print(f"Warning: Could not stop VM {vm.vmid}: {str(e)}")
+                            except Exception:
+                                logger.warning(
+                                    "Could not stop VM during cleanup vmid=%s env_id=%s",
+                                    vm.vmid,
+                                    lab_env.id,
+                                    exc_info=True,
+                                )
                             self.proxmox.nodes(node).qemu(vm.vmid).delete()
                             # Delete VM from database
                             vm.delete()
-                        except Exception as e:
-                            print(f"Warning: Could not delete VM {vm.vmid}: {str(e)}")
+                        except Exception:
+                            logger.warning(
+                                "Could not delete VM during cleanup vmid=%s env_id=%s",
+                                vm.vmid,
+                                lab_env.id,
+                                exc_info=True,
+                            )
                     
                     # Delete the network
                     if lab_env.network:
@@ -501,19 +562,32 @@ class ProxmoxManager:
                                     self.proxmox.nodes(node).network(bridge_name).delete()
                                     # Apply network changes
                                     self.proxmox.nodes(node).network.put()
-                                except Exception as e:
-                                    print(f"Warning: Could not delete bridge {bridge_name}: {str(e)}")
+                                except Exception:
+                                    logger.warning(
+                                        "Could not delete bridge during cleanup bridge=%s env_id=%s",
+                                        bridge_name,
+                                        lab_env.id,
+                                        exc_info=True,
+                                    )
     
                             # Delete network from database
                             lab_env.network.delete()
-                        except Exception as e:
-                            print(f"Warning: Error deleting network: {str(e)}")
+                        except Exception:
+                            logger.warning(
+                                "Error deleting network during cleanup env_id=%s",
+                                lab_env.id,
+                                exc_info=True,
+                            )
 
                     # Delete lab environment
                     lab_env.delete()
                                 
-                except Exception as e:
-                    print(f"Error during cleanup: {str(e)}")
+                except Exception:
+                    logger.exception(
+                        "Error during cleanup for user_id=%s task_id=%s",
+                        user.id,
+                        task.id,
+                    )
                     self.cleanup_orphans()
 
         _cleanup()
@@ -542,14 +616,14 @@ class ProxmoxManager:
                         continue
                     
                     if not VirtualMachine.objects.filter(vmid=vmid).exists():
-                        print(f"Found orphan VM {vmid} ({name}), deleting...")
+                        logger.info("Found orphan VM vmid=%s name=%s, deleting", vmid, name)
                         try:
                             node = r.get('node') or self.get_vm_node(vmid)
                             self.proxmox.nodes(node).qemu(vmid).status.stop.post()
                             time.sleep(5)
                             self.proxmox.nodes(node).qemu(vmid).delete()
-                        except Exception as e:
-                            print(f"Warning: Could not delete orphan VM {vmid}: {e}")
+                        except Exception:
+                            logger.warning("Could not delete orphan VM vmid=%s", vmid, exc_info=True)
 
                 nets = self.proxmox.nodes(cluster_node).network.get()
                 for net in nets:
@@ -566,12 +640,16 @@ class ProxmoxManager:
                         continue
 
                     if not Network.objects.filter(vlan_id=vlan_id).exists():
-                        print(f"Found orphan bridge {iface}, deleting...")
+                        logger.info("Found orphan bridge iface=%s, deleting", iface)
                         try:
                             self.proxmox.nodes(cluster_node).network(iface).delete()
                             self.proxmox.nodes(cluster_node).network.put()
-                        except Exception as e:
-                            print(f"Warning: Could not delete orphan bridge {iface}: {e}")
+                        except Exception:
+                            logger.warning(
+                                "Could not delete orphan bridge iface=%s",
+                                iface,
+                                exc_info=True,
+                            )
 
     def sync_vm_status(self, lab_env):
         """
@@ -598,8 +676,13 @@ class ProxmoxManager:
                         any_running = True
                     if vm_status != 'stopped':
                         all_stopped = False
-                except Exception as e:
-                    print(f"Warning: Could not sync status for VM {vm.vmid}: {str(e)}")
+                except Exception:
+                    logger.warning(
+                        "Could not sync status for VM vmid=%s env_id=%s",
+                        vm.vmid,
+                        lab_env.id,
+                        exc_info=True,
+                    )
 
             if any_vm and lab_env.status not in ('provisioning', 'cleanup'):
                 new_status = None
@@ -612,8 +695,8 @@ class ProxmoxManager:
                     lab_env.status = new_status
                     lab_env.save()
 
-        except Exception as e:
-            print(f"Error  syncing VM status: {str(e)}")
+        except Exception:
+            logger.exception("Error syncing VM status env_id=%s", lab_env.id)
             raise
 
     def get_vm_console_ticket(self, node, vmid):
@@ -633,8 +716,8 @@ class ProxmoxManager:
                 'cert': ticket_data.get('cert', ''),
                 'user': ticket_data.get('user', os.environ.get('PROXMOX_USER'))
             }
-        except Exception as e:
-            print(f"Error getting console ticket: {e}")
+        except Exception:
+            logger.exception("Error getting console ticket node=%s vmid=%s", node, vmid)
             raise
 
     def get_vm_node(self, vmid: int) -> str:
@@ -652,8 +735,8 @@ class ProxmoxManager:
                 except (TypeError, ValueError):
                     continue
             return self.get_node()
-        except Exception as e:
-            print(f"Error resolving node for VM {vmid}: {e}")
+        except Exception:
+            logger.exception("Error resolving node for VM vmid=%s", vmid)
             raise
 
     async def a_get_auth_cookie(self):
