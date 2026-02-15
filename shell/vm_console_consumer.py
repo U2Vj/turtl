@@ -3,7 +3,9 @@ import websockets
 import ssl
 import urllib.parse
 from channels.generic.websocket import AsyncWebsocketConsumer
+from catalog.models import Task
 from vm_manager.proxmox_manager import ProxmoxManager
+from vm_manager.access import user_can_access_task_vm
 from vm_manager.models import VirtualMachine
 import os
 
@@ -22,6 +24,10 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
         
+        if not await self.can_access_task_vm():
+            print(f"Forbidden VM console access for user {self.user} and task {self.task_id}")
+            await self.close()
+            return
         
         # Get user vm
         user_vm = await self.get_user_vm()
@@ -196,3 +202,15 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             return vm
         
         return await get_vm()
+
+    async def can_access_task_vm(self):
+        from asgiref.sync import sync_to_async
+
+        @sync_to_async
+        def can_access():
+            task = Task.objects.select_related('project__classroom').filter(id=self.task_id).first()
+            if not task:
+                return False
+            return user_can_access_task_vm(self.user, task)
+
+        return await can_access()

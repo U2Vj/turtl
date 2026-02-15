@@ -3,7 +3,8 @@ from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 
 from authentication.models import User
-from catalog.models import Classroom, Project, Task, AcceptanceCriteria
+from catalog.models import Classroom, ClassroomInstructor, Project, Task, AcceptanceCriteria
+from enrollments.models import Enrollment
 from .models import (
     Network,
     VMTemplate,
@@ -13,6 +14,7 @@ from .models import (
     LabEnvironment,
     VirtualMachine,
 )
+from .access import user_can_access_task_vm
 
 
 class VMManagerModelsTest(TestCase):
@@ -133,3 +135,10 @@ class VMManagerModelsTest(TestCase):
         # Check if invalid ip address fails validation
         with self.assertRaises(ValidationError):
             invalid_vm_template.full_clean()
+
+    def test_user_can_access_task_vm_student_only_if_enrolled(self):
+        # Student is not enrolled by default
+        self.assertFalse(user_can_access_task_vm(self.user, self.task))
+
+        Enrollment.objects.create(classroom=self.task.project.classroom, student=self.user)
+        self.assertTrue(user_can_access_task_vm(self.user, self.task))

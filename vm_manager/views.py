@@ -5,7 +5,18 @@ from rest_framework import status
 from django.shortcuts import get_object_or_404
 from catalog.models import Task
 from .proxmox_manager import ProxmoxManager
+from .access import user_can_access_task_vm
 from .models import VirtualMachine, LabEnvironment, TaskVMConfiguration
+
+def _forbidden_task_vm_access():
+    return Response(
+        {
+            'status': 'error',
+            'detail': 'You do not have access to VM resources for this task'
+        },
+        status=status.HTTP_403_FORBIDDEN
+    )
+
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
@@ -16,6 +27,9 @@ def start_environment(request, task_id):
     try:
         task = get_object_or_404(Task, id=task_id)
         user = request.user
+
+        if not user_can_access_task_vm(user, task):
+            return _forbidden_task_vm_access()
 
         # Check if user has a lab environment
         lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
@@ -61,6 +75,9 @@ def stop_environment(request, task_id):
         task = get_object_or_404(Task,  id=task_id)
         user = request.user
 
+        if not user_can_access_task_vm(user, task):
+            return _forbidden_task_vm_access()
+
         lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
 
         if not lab_env:
@@ -97,6 +114,9 @@ def cleanup_environment(request, task_id):
         task = get_object_or_404(Task,  id=task_id)
         user = request.user
 
+        if not user_can_access_task_vm(user, task):
+            return _forbidden_task_vm_access()
+
         lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
 
         if not lab_env:
@@ -132,6 +152,9 @@ def environment_status(request, task_id):
     try:
         task = get_object_or_404(Task, id=task_id)
         user = request.user
+
+        if not user_can_access_task_vm(user, task):
+            return _forbidden_task_vm_access()
 
         lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
 
@@ -172,6 +195,9 @@ def vnc_ticket(request, task_id):
         task = get_object_or_404(Task, id=task_id)
         user = request.user
 
+        if not user_can_access_task_vm(user, task):
+            return _forbidden_task_vm_access()
+
         vm = VirtualMachine.objects.filter(
             lab_environment__user=user,
             lab_environment__task=task,
@@ -206,6 +232,10 @@ def has_task_vm_config(request, task_id: int):
     """
     Checks if there is a TaskVMConfiguration for the specific Task
     """
+    task = get_object_or_404(Task, id=task_id)
+    if not user_can_access_task_vm(request.user, task):
+        return _forbidden_task_vm_access()
+
     exists = TaskVMConfiguration.objects.filter(task_id=task_id).exists()
     return Response({"has_config": exists})
             
