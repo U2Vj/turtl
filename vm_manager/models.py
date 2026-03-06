@@ -77,10 +77,6 @@ class TaskVMConfiguration(models.Model):
         related_name="task_configurations"
     )
 
-    allow_internet_access = models.BooleanField(default=False)
-    max_runtime_hours = models.IntegerField(default=12)
-    auto_cleanup_after_hours = models.IntegerField(default=48)
-
     def __str__(self):
         return f"VM Configuration for {self.task.title}"
 
