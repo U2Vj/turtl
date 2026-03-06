@@ -54,10 +54,7 @@ class VMManagerModelsTest(TestCase):
 
         cls.task_config = TaskVMConfiguration.objects.create(
             task=cls.task,
-            network_template=cls.network_template,
-            allow_internet_access=True,
-            max_runtime_hours=24,
-            auto_cleanup_after_hours=72,
+            network_template=cls.network_template
         )
 
         cls.task_vm_template = TaskVMTemplate.objects.create(
