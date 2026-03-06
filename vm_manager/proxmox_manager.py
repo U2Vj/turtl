@@ -5,10 +5,10 @@ import logging
 import requests
 from proxmoxer import ProxmoxAPI
 from django.db import transaction, IntegrityError
+from django.utils import timezone
 from dotenv import load_dotenv
 from .utils import AdvisoryLock, slugify, format_ip
 from .models import LabEnvironment, TaskVMConfiguration, Network, VirtualMachine
-from django.utils import timezone
 
 """
 To set up Proxmox VE place a .env File in the root of the project and fill in the following variables:
@@ -488,8 +488,9 @@ class ProxmoxManager:
 
                     if lab_env.status != 'stopped':
                         lab_env.status = 'stopped'
-                        lab_env.stopped_at = timezone.now()
-                        lab_env.last_seen_at = timezone.now()
+                        current_time = timezone.now()  
+                        lab_env.stopped_at = current_time
+                        lab_env.last_seen_at = current_time
                         lab_env.save()
                 return True
             except Exception:
@@ -665,8 +666,8 @@ class ProxmoxManager:
             node = self.get_node()
 
             any_vm = False
-            any_running = False
-            all_stopped = True
+            any_stopped = False
+            all_running = True
 
             for vm in lab_env.virtual_machines.all():
                 any_vm = True
@@ -677,10 +678,11 @@ class ProxmoxManager:
                         vm.status = vm_status
                         vm.save()
 
-                    if vm_status == 'running':
-                        any_running = True
-                    if vm_status != 'stopped':
-                        all_stopped = False
+                    if vm_status == 'stopped':
+                        any_stopped = True
+
+                    if vm_status != 'running':
+                        all_running = False
                 except Exception:
                     logger.warning(
                         "Could not sync status for VM vmid=%s env_id=%s",
@@ -688,13 +690,14 @@ class ProxmoxManager:
                         lab_env.id,
                         exc_info=True,
                     )
+                    all_running = False
 
             if any_vm and lab_env.status not in ('provisioning', 'cleanup'):
                 new_status = None
-                if any_running:
-                    new_status = 'active'
-                elif all_stopped:
+                if any_stopped:
                     new_status = 'stopped'
+                elif all_running:
+                    new_status = 'active'
 
                 if new_status and lab_env.status != new_status:
                     lab_env.status = new_status
