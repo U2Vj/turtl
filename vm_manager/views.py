@@ -209,8 +209,9 @@ def environment_status(request, task_id):
                 exc_info=True,
             )
         
-        lab_env.last_seen_at = timezone.now()
-        lab_env.save(update_fields=['last_seen_at'])
+        if lab_env.status == 'active':
+            lab_env.last_seen_at = timezone.now()
+            lab_env.save(update_fields=['last_seen_at'])
         
         return Response({
             'status': lab_env.status,
