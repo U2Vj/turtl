@@ -8,6 +8,7 @@ from django.db import transaction, IntegrityError
 from dotenv import load_dotenv
 from .utils import AdvisoryLock, slugify, format_ip
 from .models import LabEnvironment, TaskVMConfiguration, Network, VirtualMachine
+from django.utils import timezone
 
 """
 To set up Proxmox VE place a .env File in the root of the project and fill in the following variables:
@@ -454,6 +455,8 @@ class ProxmoxManager:
                     # Update lab environment status
                     if lab_env.status != 'active':
                         lab_env.status = 'active'
+                        lab_env.stopped_at = None
+                        lab_env.last_seen_at = timezone.now()
                         lab_env.save()
                 return True
             except Exception:
@@ -485,6 +488,8 @@ class ProxmoxManager:
 
                     if lab_env.status != 'stopped':
                         lab_env.status = 'stopped'
+                        lab_env.stopped_at = timezone.now()
+                        lab_env.last_seen_at = timezone.now()
                         lab_env.save()
                 return True
             except Exception:
