@@ -9,6 +9,7 @@ from catalog.models import Task
 from .proxmox_manager import ProxmoxManager
 from .access import user_can_access_task_vm
 from .models import VirtualMachine, LabEnvironment, TaskVMConfiguration
+from django.utils import timezone
 
 logger = logging.getLogger(__name__)
 
@@ -54,6 +55,9 @@ def start_environment(request, task_id):
         if not lab_env:
             # Create new environment
             lab_env = proxmox_manager.create_lab_environment(user, task)
+            lab_env.stopped_at = None
+            lab_env.last_seen_at = timezone.now()
+            lab_env.save(update_fields=['stopped_at', 'last_seen_at'])
             return Response({
                 'status': 'created',
                 'message': 'Lab environment created and started successfully',
@@ -63,6 +67,9 @@ def start_environment(request, task_id):
             # Start existing environment
             started = proxmox_manager.start_environment(lab_env)
             if (started):
+                lab_env.stopped_at = None
+                lab_env.last_seen_at = timezone.now()
+                lab_env.save(update_fields=['stopped_at', 'last_seen_at'])
                 return Response({
                     'status': 'started',
                     'message': 'Lab environment started successfully',
@@ -112,6 +119,8 @@ def stop_environment(request, task_id):
 
         proxmox_manager = ProxmoxManager()
         proxmox_manager.stop_environment(lab_env)
+        lab_env.stopped_at = timezone.now()
+        lab_env.save(update_fields=['stopped_at'])
 
         return Response({
             'status': 'stopped',
@@ -207,6 +216,9 @@ def environment_status(request, task_id):
                 getattr(request.user, "id", None),
                 exc_info=True,
             )
+        
+        lab_env.last_seen_at = timezone.now()
+        lab_env.save(update_fields=['last_seen_at'])
         
         return Response({
             'status': lab_env.status,

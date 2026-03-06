@@ -1,3 +1,4 @@
+from django.utils import timezone
 from django.db import models
 from django.conf import settings
 from catalog.models import Task
@@ -112,6 +113,8 @@ class LabEnvironment(models.Model):
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="lab_environments")
     network = models.OneToOneField(Network, on_delete=models.CASCADE, related_name="lab_environments")
     created_at = models.DateTimeField(auto_now_add=True)
+    last_seen_at = models.DateTimeField(default=timezone.now, db_index=True)
+    stopped_at = models.DateTimeField(null=True, blank=True, db_index=True)
 
     STATUS_CHOICES = [
         ('provisioning', 'Provisioning'),
