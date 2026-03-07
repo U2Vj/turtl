@@ -26,15 +26,36 @@ class Command(BaseCommand):
         for env in active_envs:
             try:
                 pm.stop_environment(env)
-                self.stdout.write(f"Stopped env {env.id} (user={env.user_id}, task={env.task_id})")
+                logger.info(f"Stopped env {env.id} (user={env.user_id}, task={env.task_id})")
             except Exception:
                 logger.exception("Failed stopping env_id=%s", env.id)
         
         stopped_envs = LabEnvironment.objects.filter(status='stopped', stopped_at__isnull=False, stopped_at__lt=cleanup_threshold).select_related('task', 'user')
         for env in stopped_envs:
             try:
-                pm.cleanup_environment(env.user, env.task)
-                self.stdout.write(f"Cleaned up env {env.id} (user={env.user_id}, task={env.task_id})")
+                result = pm.cleanup_environment(env.user, env.task)
+                if result == 'deleted':
+                    logger.info(f"Cleaned up env {env.id} (user={env.user_id}, task={env.task_id})")
+                elif result == 'locked':
+                    logger.info(
+                        "Cleanup locked env_id=%s user_id=%s task_id=%s (will retry next run)",
+                        env.id,
+                        env.user_id,
+                        env.task_id,
+                    )
+                elif result == 'not_found':
+                    logger.info(
+                        "Cleanup skipped: env already gone env_id=%s user_id=%s task_id=%s",
+                        env.id,
+                        env.user_id,
+                        env.task_id,
+                    )
+                else:
+                    logger.warning(
+                        "Cleanup failed env_id=%s user_id=%s task_id=%s (will retry next run)",
+                        env.id,
+                        env.user_id,
+                        env.task_id,
+                    )
             except Exception:
                 logger.exception("Failed cleaning up env_id=%s", env.id)
-

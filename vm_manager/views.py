@@ -140,25 +140,33 @@ def cleanup_environment(request, task_id):
 
         if not user_can_access_task_vm(user, task):
             return _forbidden_task_vm_access()
+        
+        proxmox_manager = ProxmoxManager()
+        cleanup_result = proxmox_manager.cleanup_environment(user, task)
 
-        lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+        if cleanup_result == 'deleted':
+            return Response({
+                'status': 'deleted',
+                'message': 'Lab environment deleted successfully'
+            }, status=status.HTTP_200_OK)
 
-        if not lab_env:
+        if cleanup_result == 'not_found':
             return Response({
                 'status': 'error',
                 'detail': 'No lab environment found for this task'
             }, status=status.HTTP_404_NOT_FOUND)
-        
-        lab_env.status = 'cleanup'
-        lab_env.save()
 
-        proxmox_manager = ProxmoxManager()
-        proxmox_manager.cleanup_environment(user, task)
+        if cleanup_result == 'locked':
+            return Response({
+                'status': 'error',
+                'detail': 'Cleanup is already in progress. Please retry shortly.'
+            }, status=status.HTTP_409_CONFLICT)
 
         return Response({
-            'status': 'deleted',
-            'message': 'Lab environment deleted successfully'
-        }, status=status.HTTP_200_OK)
+            'status': 'error',
+            'detail': 'Cleanup could not be completed right now. Please retry.',
+            'error_code': 'ENVIRONMENT_CLEANUP_RETRY',
+        }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
     
 
     except Exception:

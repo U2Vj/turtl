@@ -522,7 +522,7 @@ class ProxmoxManager:
                         user.id,
                         task.id,
                     )
-                    return
+                    return "locked"
                 
                 try:
                     # Get the lab environment
@@ -533,7 +533,7 @@ class ProxmoxManager:
                             user.id,
                             task.id,
                         )
-                        return
+                        return "not_found"
                     # Mark environment as being cleaned up
                     if lab_env.status != 'cleanup':
                         lab_env.status = 'cleanup'
@@ -597,6 +597,7 @@ class ProxmoxManager:
 
                     # Delete lab environment
                     lab_env.delete()
+                    return "deleted"
                                 
                 except Exception:
                     logger.exception(
@@ -605,8 +606,9 @@ class ProxmoxManager:
                         task.id,
                     )
                     self.cleanup_orphans()
+                    return "failed"
 
-        _cleanup()
+        return _cleanup()
     
     def cleanup_orphans(self):
         """
