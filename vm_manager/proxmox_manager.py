@@ -608,7 +608,15 @@ class ProxmoxManager:
                         user.id,
                         task.id,
                     )
-                    self.cleanup_orphans()
+                    try:
+                        lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+                        if lab_env and lab_env.status == 'cleanup':
+                            lab_env.status = 'stopped'
+                            if lab_env.stopped_at is None:
+                                lab_env.stopped_at = timezone.now()
+                            lab_env.save(update_fields=['status', 'stopped_at'])
+                    finally:
+                        self.cleanup_orphans()
                     return "failed"
 
         return _cleanup()
