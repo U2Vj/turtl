@@ -26,8 +26,6 @@ class Command(BaseCommand):
         for env in active_envs:
             try:
                 pm.stop_environment(env)
-                env.stopped_at = now
-                env.save(update_fields=['stopped_at'])
                 self.stdout.write(f"Stopped env {env.id} (user={env.user_id}, task={env.task_id})")
             except Exception:
                 logger.exception("Failed stopping env_id=%s", env.id)

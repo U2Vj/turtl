@@ -155,6 +155,8 @@ class ProxmoxManager:
 
                     # 4. Update lab_env status
                     lab_env.status = 'active'
+                    lab_env.last_seen_at = timezone.now()
+                    lab_env.stopped_at = None
                     lab_env.save()
 
                     return lab_env
@@ -486,12 +488,20 @@ class ProxmoxManager:
                             vm.status = 'stopped'
                             vm.save()
 
+                    current_time = timezone.now()
+                    update_fields = []
+
                     if lab_env.status != 'stopped':
                         lab_env.status = 'stopped'
-                        current_time = timezone.now()  
+                        update_fields.append('status')
+
+                    if lab_env.stopped_at is None:
                         lab_env.stopped_at = current_time
                         lab_env.last_seen_at = current_time
-                        lab_env.save()
+                        update_fields.extend(['stopped_at', 'last_seen_at'])
+
+                    if update_fields:
+                        lab_env.save(update_fields=update_fields)
                 return True
             except Exception:
                 logger.exception("Error stopping lab environment env_id=%s", lab_env.id)
@@ -666,8 +676,8 @@ class ProxmoxManager:
             node = self.get_node()
 
             any_vm = False
-            any_stopped = False
             all_running = True
+            all_stopped = True
 
             for vm in lab_env.virtual_machines.all():
                 any_vm = True
@@ -678,11 +688,10 @@ class ProxmoxManager:
                         vm.status = vm_status
                         vm.save()
 
-                    if vm_status == 'stopped':
-                        any_stopped = True
-
                     if vm_status != 'running':
                         all_running = False
+                    if vm_status != 'stopped':
+                        all_stopped = False
                 except Exception:
                     logger.warning(
                         "Could not sync status for VM vmid=%s env_id=%s",
@@ -691,17 +700,31 @@ class ProxmoxManager:
                         exc_info=True,
                     )
                     all_running = False
+                    all_stopped = False
 
             if any_vm and lab_env.status not in ('provisioning', 'cleanup'):
-                new_status = None
-                if any_stopped:
-                    new_status = 'stopped'
-                elif all_running:
-                    new_status = 'active'
+                if all_running:
+                    if lab_env.status != 'active' or lab_env.stopped_at is not None:
+                        lab_env.status = 'active'
+                        lab_env.stopped_at = None
+                        lab_env.last_seen_at = timezone.now()
+                        lab_env.save(update_fields=['status', 'stopped_at', 'last_seen_at'])
+                    return
 
-                if new_status and lab_env.status != new_status:
-                    lab_env.status = new_status
-                    lab_env.save()
+                # Stop all VMs if in a degraded state
+                if not all_stopped and lab_env.status != 'stopping':
+                    self.stop_environment(lab_env)
+                    return
+
+                update_fields = []
+                if lab_env.status != 'stopped':
+                    lab_env.status = 'stopped'
+                    update_fields.append('status')
+                if lab_env.stopped_at is None:
+                    lab_env.stopped_at = timezone.now()
+                    update_fields.append('stopped_at')
+                if update_fields:
+                    lab_env.save(update_fields=update_fields)
 
         except Exception:
             logger.exception("Error syncing VM status env_id=%s", lab_env.id)

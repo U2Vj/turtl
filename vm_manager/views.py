@@ -108,9 +108,6 @@ def stop_environment(request, task_id):
                 'detail': 'No lab environment found for this task'
             }, status=status.HTTP_404_NOT_FOUND)
         
-        lab_env.status = 'stopped'
-        lab_env.save()
-
         proxmox_manager = ProxmoxManager()
         proxmox_manager.stop_environment(lab_env)
 
