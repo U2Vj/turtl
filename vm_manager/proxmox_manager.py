@@ -715,7 +715,7 @@ class ProxmoxManager:
                     all_running = False
                     all_stopped = False
 
-            if any_vm and lab_env.status not in ('provisioning', 'cleanup'):
+            if any_vm:
                 if all_running:
                     if lab_env.status != 'active' or lab_env.stopped_at is not None:
                         lab_env.status = 'active'
@@ -724,9 +724,22 @@ class ProxmoxManager:
                         lab_env.save(update_fields=['status', 'stopped_at', 'last_seen_at'])
                     return
 
-                # Stop all VMs if in a degraded state
-                if not all_stopped and lab_env.status != 'stopping':
-                    self.stop_environment(lab_env)
+                if not all_stopped:
+                    update_fields = []
+                    if lab_env.status != 'degraded':
+                        lab_env.status = 'degraded'
+                        update_fields.append('status')
+                    if lab_env.stopped_at is not None:
+                        lab_env.stopped_at = None
+                        update_fields.append('stopped_at')
+                    if update_fields:
+                        lab_env.save(update_fields=update_fields)
+                    logger.info(
+                        "Degraded or unclear VM state detected during sync env_id=%s all_running=%s all_stopped=%s",
+                        lab_env.id,
+                        all_running,
+                        all_stopped,
+                    )
                     return
 
                 update_fields = []

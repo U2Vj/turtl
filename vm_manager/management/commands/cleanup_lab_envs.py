@@ -4,6 +4,8 @@ import logging
 from django.core.management.base import BaseCommand
 from django.utils import timezone
 
+from django.db.models import Q
+
 from vm_manager.models import LabEnvironment
 from vm_manager.proxmox_manager import ProxmoxManager
 
@@ -22,7 +24,10 @@ class Command(BaseCommand):
         stop_threshold = now - timedelta(hours=STOP_AFTER_HOURS)  
         cleanup_threshold = now - timedelta(hours=CLEANUP_AFTER_HOURS)
 
-        active_envs = LabEnvironment.objects.filter(status='active', last_seen_at__lt=stop_threshold).select_related('task', 'user')
+        active_envs = LabEnvironment.objects.filter(
+            Q(status='active') | Q(status='degraded'),
+            last_seen_at__lt=stop_threshold,
+        ).select_related('task', 'user')
         for env in active_envs:
             try:
                 pm.stop_environment(env)

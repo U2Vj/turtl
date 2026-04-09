@@ -116,6 +116,7 @@ class LabEnvironment(models.Model):
         ('provisioning', 'Provisioning'),
         ('starting', 'Starting'),
         ('active', 'Active'),
+        ('degraded', 'Degraded'),
         ('stopping', 'Stopping'),
         ('stopped', 'Stopped'),
         ('cleanup', 'Cleanup'),

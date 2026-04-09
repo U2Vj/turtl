@@ -213,8 +213,10 @@ def environment_status(request, task_id):
                 getattr(request.user, "id", None),
                 exc_info=True,
             )
+
+        lab_env.refresh_from_db()
         
-        if lab_env.status == 'active':
+        if lab_env.status in ('active', 'degraded'):
             lab_env.last_seen_at = timezone.now()
             lab_env.save(update_fields=['last_seen_at'])
         
