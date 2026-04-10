@@ -64,3 +64,10 @@ class Command(BaseCommand):
                     )
             except Exception:
                 logger.exception("Failed cleaning up env_id=%s", env.id)
+
+        # cleanup orphans
+        try:
+            pm.cleanup_orphans()
+            logger.info("Finished orphan cleanup sweep")
+        except Exception:
+            logger.exception("Failed orphan cleanup sweep")
