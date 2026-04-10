@@ -31,7 +31,7 @@ class Command(BaseCommand):
         for env in active_envs:
             try:
                 pm.stop_environment(env)
-                logger.info(f"Stopped env {env.id} (user={env.user_id}, task={env.task_id})")
+                logger.info("Stopped env_id=%s (user=%s, task=%s)", env.id, env.user_id, env.task_id)
             except Exception:
                 logger.exception("Failed stopping env_id=%s", env.id)
         

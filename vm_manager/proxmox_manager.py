@@ -510,7 +510,7 @@ class ProxmoxManager:
             except Exception:
                 logger.exception("Error stopping lab environment env_id=%s", lab_env.id)
                 if lab_env.status == 'stopping':
-                    lab_env.status = 'active'
+                    lab_env.status = 'degraded'
                     lab_env.save(update_fields=['status'])
                 raise
 
