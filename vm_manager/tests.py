@@ -1,3 +1,6 @@
+from types import SimpleNamespace
+from unittest.mock import MagicMock, Mock, patch
+
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
@@ -15,6 +18,8 @@ from .models import (
     VirtualMachine,
 )
 from .access import user_can_access_task_vm
+from .proxmox_manager import ProxmoxManager
+from .utils import AdvisoryLock
 
 
 class VMManagerModelsTest(TestCase):
@@ -54,10 +59,7 @@ class VMManagerModelsTest(TestCase):
 
         cls.task_config = TaskVMConfiguration.objects.create(
             task=cls.task,
-            network_template=cls.network_template,
-            allow_internet_access=True,
-            max_runtime_hours=24,
-            auto_cleanup_after_hours=72,
+            network_template=cls.network_template
         )
 
         cls.task_vm_template = TaskVMTemplate.objects.create(
@@ -142,3 +144,34 @@ class VMManagerModelsTest(TestCase):
 
         Enrollment.objects.create(classroom=self.task.project.classroom, student=self.user)
         self.assertTrue(user_can_access_task_vm(self.user, self.task))
+
+
+class AdvisoryLockBehaviorTest(TestCase):
+    def test_advisory_lock_returns_false_after_timeout(self):
+        cursor = MagicMock()
+        cursor.fetchone.return_value = [False]
+        cursor_context = MagicMock()
+        cursor_context.__enter__.return_value = cursor
+        cursor_context.__exit__.return_value = False
+
+        with patch("vm_manager.utils.connection.cursor", return_value=cursor_context), \
+             patch("vm_manager.utils.time.monotonic", side_effect=[0.0, 0.0, 1.0]), \
+             patch("vm_manager.utils.time.sleep"):
+            with AdvisoryLock("busy-lock", timeout_seconds=0.1) as acquired:
+                self.assertFalse(acquired)
+
+
+class ProxmoxManagerLockingTest(TestCase):
+    def test_sync_vm_status_skips_when_environment_lock_is_busy(self):
+        manager = ProxmoxManager.__new__(ProxmoxManager)
+        manager.get_node = Mock(side_effect=AssertionError("get_node must not be called"))
+
+        lock_context = MagicMock()
+        lock_context.__enter__.return_value = False
+        lock_context.__exit__.return_value = False
+
+        with patch("vm_manager.proxmox_manager.AdvisoryLock", return_value=lock_context) as lock_cls:
+            manager.sync_vm_status(SimpleNamespace(id=42))
+
+        lock_cls.assert_called_once_with("lab_env_operation_42", timeout_seconds=0)
+        manager.get_node.assert_not_called()

@@ -119,6 +119,7 @@ async function stopEnvironment() {
 const getStatusColor = (status: string) => {
   switch (status) {
     case 'active': return 'success';
+    case 'degraded': return 'warning';
     case 'starting': return 'warning';
     case 'stopping': return 'warning';
     case 'provisioning': return 'warning';
@@ -132,6 +133,7 @@ const getStatusColor = (status: string) => {
 const getStatusText = (status: string) => {
   switch (status) {
     case 'active': return 'Active';
+    case 'degraded': return 'Degraded';
     case 'starting': return 'Starting';
     case 'stopping': return 'Stopping';
     case 'provisioning': return 'Provisioning';
@@ -330,7 +332,7 @@ function openPopout() {
         </div>
         <div class="d-flex gap-2">
           <v-btn
-            v-if="environmentStatus === 'not_created' || environmentStatus === 'stopped' || environmentStatus === 'provisioning' || environmentStatus === 'starting'"
+            v-if="environmentStatus === 'not_created' || environmentStatus === 'stopped' || environmentStatus === 'provisioning' || environmentStatus === 'starting' || environmentStatus === 'degraded'"
             @click="startEnvironment" :loading="isStarting" color="success" size="small" variant="outlined">
             <v-icon size="small" class="me-1">mdi-play</v-icon>
             Start Environment
@@ -343,7 +345,7 @@ function openPopout() {
           </v-btn>
 
           <v-btn
-            v-if="environmentStatus === 'active' || environmentStatus === 'stopped' || environmentStatus === 'cleanup'"
+            v-if="environmentStatus === 'active' || environmentStatus === 'degraded' || environmentStatus === 'stopped' || environmentStatus === 'cleanup'"
             @click="cleanupEnvironment" :loading="isCleaning" color="error" size="small" variant="outlined">
             <v-icon size="small" class="me-1">mdi-delete</v-icon>
             Delete Environment
@@ -361,7 +363,9 @@ function openPopout() {
     </div>
 
     <div v-if="environmentStatus !== 'active' && taskId" class="placeholder-message">
-      Start the environment to use the VNC console.
+      {{ environmentStatus === 'degraded'
+        ? 'The environment is degraded. Start it to recover the missing VMs, or stop/delete it.'
+        : 'Start the environment to use the VNC console.' }}
     </div>
   </div>
 </template>

@@ -18,8 +18,8 @@ class NetworkTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(TaskVMConfiguration)
 class TaskVMConfigurationAdmin(admin.ModelAdmin):
-    list_display = ['task', 'network_template', 'allow_internet_access', 'max_runtime_hours', 'auto_cleanup_after_hours']
-    list_filter = ['allow_internet_access', 'max_runtime_hours']
+    list_display = ['task', 'network_template']
+    list_filter = []
 
 @admin.register(TaskVMTemplate)
 class TaskVMTemplateAdmin(admin.ModelAdmin):

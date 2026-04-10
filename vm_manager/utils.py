@@ -36,7 +36,7 @@ class AdvisoryLock:
                         return True
                     time.sleep(self.poll_interval)
                 self.acquired = False
-                raise TimeoutError(f"Timed out acquiring advisory lock")
+                return False
 
             cursor.execute("SELECT pg_advisory_lock(%s)", [self.lock_id])
             self.acquired = True

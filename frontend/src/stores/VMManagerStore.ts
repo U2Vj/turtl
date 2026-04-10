@@ -2,11 +2,44 @@ import { defineStore } from 'pinia'
 import { ref } from 'vue'
 import { makeAPIRequest } from '@/communication/APIRequests'
 
-interface EnvironmentStatus {
-    status: string
+type EnvironmentStatusValue =
+    | 'not_created'
+    | 'provisioning'
+    | 'starting'
+    | 'active'
+    | 'degraded'
+    | 'stopping'
+    | 'stopped'
+    | 'cleanup'
+
+type StartEnvironmentResponseStatus = 'created' | 'started' | 'error'
+type StopEnvironmentResponseStatus = 'stopped' | 'error'
+type CleanupEnvironmentResponseStatus = 'deleted' | 'error'
+
+interface EnvironmentStatusResponse {
+    status: EnvironmentStatusValue
     environment_id?: number
     created_at?: string
     vm_count?: number
+}
+
+interface StartEnvironmentResponse {
+    status: StartEnvironmentResponseStatus
+    message?: string
+    environment_id?: number
+}
+
+interface StopEnvironmentResponse {
+    status: StopEnvironmentResponseStatus
+    message?: string
+    detail?: string
+}
+
+interface CleanupEnvironmentResponse {
+    status: CleanupEnvironmentResponseStatus
+    message?: string
+    detail?: string
+    error_code?: string
 }
 
 interface VNCTicket {
@@ -18,7 +51,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
     const loading = ref(false)
     const error = ref<string | null>(null)
 
-    async function startEnvironment(taskId: number): Promise<EnvironmentStatus> {
+    async function startEnvironment(taskId: number): Promise<StartEnvironmentResponse> {
         loading.value = true
         error.value = null
 
@@ -30,7 +63,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
                 true
             )
 
-            return response.data as EnvironmentStatus
+            return response.data as StartEnvironmentResponse
         } catch (err: any) {
             error.value = err.message || 'Failed to start environment'
             throw err
@@ -39,7 +72,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
         }
     }
 
-    async function stopEnvironment(taskId: number): Promise<EnvironmentStatus> {
+    async function stopEnvironment(taskId: number): Promise<StopEnvironmentResponse> {
         loading.value = true
         error.value = null
 
@@ -51,7 +84,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
                 true
             )
 
-            return response.data as EnvironmentStatus
+            return response.data as StopEnvironmentResponse
         } catch (err: any) {
             error.value = err.message || 'Failed to stop environment'
             throw err
@@ -60,7 +93,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
         }
     }
 
-    async function cleanupEnvironment(taskId: number): Promise<EnvironmentStatus> {
+    async function cleanupEnvironment(taskId: number): Promise<CleanupEnvironmentResponse> {
         loading.value = true
         error.value = null
 
@@ -72,7 +105,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
                 true
             )
 
-            return response.data as EnvironmentStatus
+            return response.data as CleanupEnvironmentResponse
         } catch (err: any) {
             error.value = err.message || 'Failed to cleanup environment'
             throw err
@@ -81,7 +114,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
         }
     }
 
-    async function getEnvironmentStatus(taskId: number): Promise<EnvironmentStatus> {
+    async function getEnvironmentStatus(taskId: number): Promise<EnvironmentStatusResponse> {
         loading.value = true
         error.value = null
 
@@ -93,7 +126,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
                 true
             )
 
-            return response.data
+            return response.data as EnvironmentStatusResponse
         } catch (err: any) {
             error.value = err.message || 'Failed to get environment status'
             throw err
