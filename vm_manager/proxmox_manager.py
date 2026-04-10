@@ -21,10 +21,11 @@ logger = logging.getLogger(__name__)
 
 
 class ProxmoxManager:
-    # Constants
+    # Locking constants
     LOCK_TIMEOUT = 120
     POLL_INTERVAL = 2
     LOCK_ACQUIRE_TIMEOUT = 30
+
     def __init__(self):
         try:
             host = os.environ.get('PROXMOX_HOST')
@@ -44,6 +45,9 @@ class ProxmoxManager:
         except Exception:
             logger.exception("Failed to connect to Proxmox API")
             raise
+
+    def _get_lab_env_lock_name(self, lab_env_id):
+        return f"lab_env_operation_{lab_env_id}"
 
     def _authenticate(self):
         """
@@ -438,7 +442,7 @@ class ProxmoxManager:
         """
         Starts all VMs inside a lab environment
         """
-        env_operation_lock = f"lab_env_operation_{lab_env.id}"
+        env_operation_lock = self._get_lab_env_lock_name(lab_env.id)
         with AdvisoryLock(env_operation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
             if not acquired:
                 raise TimeoutError(f"Could not acquire lock for starting environment {lab_env.id}")
@@ -469,7 +473,7 @@ class ProxmoxManager:
         """
         Stops all VMs inside a lab environment
         """
-        env_operation_lock = f"lab_env_operation_{lab_env.id}"
+        env_operation_lock = self._get_lab_env_lock_name(lab_env.id)
         with AdvisoryLock(env_operation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
             if not acquired:
                 raise TimeoutError(f"Could not acquire lock for stopping environment {lab_env.id}")
@@ -516,9 +520,17 @@ class ProxmoxManager:
         """
 
         def _cleanup():
-            env_cleanup_lock = f"lab_env_cleanup_{user.id}_{task.id}"
+            existing_env = LabEnvironment.objects.filter(user=user, task=task).only('id').first()
+            if not existing_env:
+                logger.info(
+                    "No lab environment found for cleanup user_id=%s task_id=%s",
+                    user.id,
+                    task.id,
+                )
+                return "not_found"
 
-            with AdvisoryLock(env_cleanup_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
+            env_operation_lock = self._get_lab_env_lock_name(existing_env.id)
+            with AdvisoryLock(env_operation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
                 if not acquired:
                     logger.warning(
                         "Could not acquire lock for cleanup user_id=%s task_id=%s",
@@ -684,77 +696,82 @@ class ProxmoxManager:
         """
         Synchronizes VM status with Proxmox for a lab environment
         """
+        env_operation_lock = self._get_lab_env_lock_name(lab_env.id)
+        with AdvisoryLock(env_operation_lock, timeout_seconds=0) as acquired:
+            if not acquired:
+                logger.debug("Skipping VM status sync because environment is busy env_id=%s", lab_env.id)
+                return
 
-        try:
-            node = self.get_node()
+            try:
+                node = self.get_node()
 
-            any_vm = False
-            all_running = True
-            all_stopped = True
+                any_vm = False
+                all_running = True
+                all_stopped = True
 
-            for vm in lab_env.virtual_machines.all():
-                any_vm = True
-                try:
-                    vm_status = self.proxmox.nodes(node).qemu(vm.vmid).status.current.get().get('status')
+                for vm in lab_env.virtual_machines.all():
+                    any_vm = True
+                    try:
+                        vm_status = self.proxmox.nodes(node).qemu(vm.vmid).status.current.get().get('status')
 
-                    if vm.status != vm_status:
-                        vm.status = vm_status
-                        vm.save()
+                        if vm.status != vm_status:
+                            vm.status = vm_status
+                            vm.save()
 
-                    if vm_status != 'running':
+                        if vm_status != 'running':
+                            all_running = False
+                        if vm_status != 'stopped':
+                            all_stopped = False
+                    except Exception:
+                        logger.warning(
+                            "Could not sync status for VM vmid=%s env_id=%s",
+                            vm.vmid,
+                            lab_env.id,
+                            exc_info=True,
+                        )
                         all_running = False
-                    if vm_status != 'stopped':
                         all_stopped = False
-                except Exception:
-                    logger.warning(
-                        "Could not sync status for VM vmid=%s env_id=%s",
-                        vm.vmid,
-                        lab_env.id,
-                        exc_info=True,
-                    )
-                    all_running = False
-                    all_stopped = False
 
-            if any_vm:
-                if all_running:
-                    if lab_env.status != 'active' or lab_env.stopped_at is not None:
-                        lab_env.status = 'active'
-                        lab_env.stopped_at = None
-                        lab_env.last_seen_at = timezone.now()
-                        lab_env.save(update_fields=['status', 'stopped_at', 'last_seen_at'])
-                    return
+                if any_vm:
+                    if all_running:
+                        if lab_env.status != 'active' or lab_env.stopped_at is not None:
+                            lab_env.status = 'active'
+                            lab_env.stopped_at = None
+                            lab_env.last_seen_at = timezone.now()
+                            lab_env.save(update_fields=['status', 'stopped_at', 'last_seen_at'])
+                        return
 
-                if not all_stopped:
+                    if not all_stopped:
+                        update_fields = []
+                        if lab_env.status != 'degraded':
+                            lab_env.status = 'degraded'
+                            update_fields.append('status')
+                        if lab_env.stopped_at is not None:
+                            lab_env.stopped_at = None
+                            update_fields.append('stopped_at')
+                        if update_fields:
+                            lab_env.save(update_fields=update_fields)
+                        logger.info(
+                            "Degraded or unclear VM state detected during sync env_id=%s all_running=%s all_stopped=%s",
+                            lab_env.id,
+                            all_running,
+                            all_stopped,
+                        )
+                        return
+
                     update_fields = []
-                    if lab_env.status != 'degraded':
-                        lab_env.status = 'degraded'
+                    if lab_env.status != 'stopped':
+                        lab_env.status = 'stopped'
                         update_fields.append('status')
-                    if lab_env.stopped_at is not None:
-                        lab_env.stopped_at = None
+                    if lab_env.stopped_at is None:
+                        lab_env.stopped_at = timezone.now()
                         update_fields.append('stopped_at')
                     if update_fields:
                         lab_env.save(update_fields=update_fields)
-                    logger.info(
-                        "Degraded or unclear VM state detected during sync env_id=%s all_running=%s all_stopped=%s",
-                        lab_env.id,
-                        all_running,
-                        all_stopped,
-                    )
-                    return
 
-                update_fields = []
-                if lab_env.status != 'stopped':
-                    lab_env.status = 'stopped'
-                    update_fields.append('status')
-                if lab_env.stopped_at is None:
-                    lab_env.stopped_at = timezone.now()
-                    update_fields.append('stopped_at')
-                if update_fields:
-                    lab_env.save(update_fields=update_fields)
-
-        except Exception:
-            logger.exception("Error syncing VM status env_id=%s", lab_env.id)
-            raise
+            except Exception:
+                logger.exception("Error syncing VM status env_id=%s", lab_env.id)
+                raise
 
     def get_vm_console_ticket(self, node, vmid):
         """
