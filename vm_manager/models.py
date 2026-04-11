@@ -74,7 +74,6 @@ class NetworkTemplate(models.Model):
     """
     name = models.CharField(max_length=255)
     subnet = models.CharField(max_length=20)
-    vlan_id = models.IntegerField(null=True, blank=True)
     description = models.TextField(blank=True)
 
     def __str__(self):

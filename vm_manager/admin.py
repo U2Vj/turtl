@@ -19,8 +19,8 @@ class VMTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(NetworkTemplate)
 class NetworkTemplateAdmin(admin.ModelAdmin):
-    list_display = ['name', 'subnet', 'vlan_id']
-    list_filter = ['vlan_id']
+    list_display = ['name', 'subnet']
+    list_filter = []
 
 @admin.register(TaskVMConfiguration)
 class TaskVMConfigurationAdmin(admin.ModelAdmin):
