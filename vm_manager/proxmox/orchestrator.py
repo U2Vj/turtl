@@ -109,43 +109,43 @@ class ProxmoxManager(ProxmoxClient):
                     new_name=vm_name,
                 )
 
-            bridge_name = f"vmbr{network.vlan_id}"
+                bridge_name = f"vmbr{network.vlan_id}"
 
-            logger.debug(
-                "Configuring VM vmid=%s bridge=%s ip=%s planned_ip=%s",
-                vmid, bridge_name, ip_address, vm_template_config.planned_ip_address,
-            )
-            storage = 'local-lvm'
-            ci_user = 'student'
-            ci_password = 'student'
-
-            configure_vm(
-                proxmox=self.proxmox,
-                node=node,
-                vm_id=vmid,
-                storage=storage,
-                ci_user=ci_user,
-                ci_password=ci_password,
-                bridge=bridge_name,
-                ip_address=ip_address,
-                cpu_cores=template.cpu_cores,
-                memory_mb=template.memory_mb,
-            )
-
-            # Wait for Proxmox
-            wait_for_unlock(self.proxmox, node, vmid)
-
-            #Add VM to database
-            with transaction.atomic():
-                vm = VirtualMachine.objects.create(
-                    vmid=vmid,
-                    lab_environment=lab_env,
-                    template=template,
-                    name=vm_name,
-                    status='creating',
-                    network=network,
-                    assigned_ip_address=ip_address.split('/')[0]
+                logger.debug(
+                    "Configuring VM vmid=%s bridge=%s ip=%s planned_ip=%s",
+                    vmid, bridge_name, ip_address, vm_template_config.planned_ip_address,
                 )
+                storage = 'local-lvm'
+                ci_user = 'student'
+                ci_password = 'student'
+
+                configure_vm(
+                    proxmox=self.proxmox,
+                    node=node,
+                    vm_id=vmid,
+                    storage=storage,
+                    ci_user=ci_user,
+                    ci_password=ci_password,
+                    bridge=bridge_name,
+                    ip_address=ip_address,
+                    cpu_cores=template.cpu_cores,
+                    memory_mb=template.memory_mb,
+                )
+
+                # Wait for Proxmox
+                wait_for_unlock(self.proxmox, node, vmid)
+
+                #Add VM to database
+                with transaction.atomic():
+                    vm = VirtualMachine.objects.create(
+                        vmid=vmid,
+                        lab_environment=lab_env,
+                        template=template,
+                        name=vm_name,
+                        status='creating',
+                        network=network,
+                        assigned_ip_address=ip_address.split('/')[0]
+                    )
 
                 #Start the VM
                 logger.debug("Starting VM vmid=%s", vmid)
