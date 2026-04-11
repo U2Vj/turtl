@@ -6,7 +6,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.shortcuts import get_object_or_404
 from catalog.models import Task
-from .proxmox_manager import ProxmoxManager
+from .proxmox import ProxmoxManager, NoBridgeAvailableError
 from .access import user_can_access_task_vm
 from .models import VirtualMachine, LabEnvironment, TaskVMConfiguration
 from django.utils import timezone
@@ -76,6 +76,20 @@ def start_environment(request, task_id):
                     'environment_id': lab_env.id
                 }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+    except NoBridgeAvailableError:
+        logger.warning(
+            "No bridge available in pool for task_id=%s user_id=%s",
+            task_id,
+            getattr(request.user, "id", None),
+        )
+        return Response(
+            {
+                'status': 'error',
+                'detail': 'No network resources are currently available. Please try again later or contact an administrator.',
+                'error_code': 'NO_BRIDGE_AVAILABLE',
+            },
+            status=status.HTTP_503_SERVICE_UNAVAILABLE,
+        )
     except Exception:
         logger.exception(
             "Failed to start lab environment for task_id=%s user_id=%s",

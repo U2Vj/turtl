@@ -18,7 +18,7 @@ from .models import (
     VirtualMachine,
 )
 from .access import user_can_access_task_vm
-from .proxmox_manager import ProxmoxManager
+from .proxmox import ProxmoxManager
 from .utils import AdvisoryLock
 
 
@@ -170,7 +170,7 @@ class ProxmoxManagerLockingTest(TestCase):
         lock_context.__enter__.return_value = False
         lock_context.__exit__.return_value = False
 
-        with patch("vm_manager.proxmox_manager.AdvisoryLock", return_value=lock_context) as lock_cls:
+        with patch("vm_manager.proxmox.orchestrator.AdvisoryLock", return_value=lock_context) as lock_cls:
             manager.sync_vm_status(SimpleNamespace(id=42))
 
         lock_cls.assert_called_once_with("lab_env_operation_42", timeout_seconds=0)

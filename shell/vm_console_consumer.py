@@ -8,7 +8,7 @@ import urllib.parse
 import websockets
 from channels.generic.websocket import AsyncWebsocketConsumer
 from catalog.models import Task
-from vm_manager.proxmox_manager import ProxmoxManager
+from vm_manager.proxmox import ProxmoxManager
 from vm_manager.access import user_can_access_task_vm
 from vm_manager.models import VirtualMachine
 

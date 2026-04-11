@@ -1,5 +1,11 @@
 from django.contrib import admin
-from .models import Network, VMTemplate, NetworkTemplate, TaskVMConfiguration, TaskVMTemplate, LabEnvironment, VirtualMachine
+from .models import BridgePoolEntry, Network, VMTemplate, NetworkTemplate, TaskVMConfiguration, TaskVMTemplate, LabEnvironment, VirtualMachine
+
+
+@admin.register(BridgePoolEntry)
+class BridgePoolEntryAdmin(admin.ModelAdmin):
+    list_display = ['bridge_name', 'allocated_to']
+    readonly_fields = ['allocated_to']
 
 @admin.register(Network)
 class NetworkAdmin(admin.ModelAdmin):
