@@ -7,7 +7,7 @@ LOCK_TIMEOUT = 120
 POLL_INTERVAL = 2
 
 
-def clone_vm(proxmox, node, template_id, new_id, new_name, linked_clone=True):
+def clone_vm(proxmox, node, template_id, new_id, new_name, linked_clone=True, pool=None):
     """
     Clones a VM from a template_id as a linked clone
     """
@@ -17,6 +17,9 @@ def clone_vm(proxmox, node, template_id, new_id, new_name, linked_clone=True):
         'target': node,
         'full': 0 if linked_clone else 1
     }
+
+    if pool:
+        params['pool'] = pool
 
     try:
         proxmox.nodes(node).qemu(template_id).clone.post(**params)

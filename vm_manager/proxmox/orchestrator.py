@@ -1,3 +1,4 @@
+import os
 import logging
 from django.db import transaction
 from django.utils import timezone
@@ -101,12 +102,15 @@ class ProxmoxManager(ProxmoxClient):
                     vm_name,
                     vmid,
                 )
+                pool = os.environ.get('PROXMOX_VM_POOL')
+
                 clone_vm(
                     proxmox=self.proxmox,
                     node=node,
                     template_id=template.template_id,
                     new_id=vmid,
                     new_name=vm_name,
+                    pool=pool,
                 )
 
                 bridge_name = f"vmbr{network.vlan_id}"
@@ -350,16 +354,26 @@ class ProxmoxManager(ProxmoxClient):
 
                 if not vm_lock_acquired:
                     return
-                resources = self.proxmox.cluster.resources.get(type='vm')
+
+                pool = os.environ.get('PROXMOX_VM_POOL')
+
+                if not pool:
+                    logger.warning("PROXMOX_VM_POOL not set, skipping orphan cleanup")
+                    return
+
+                try:
+                    pool_data = self.proxmox.pools(pool).get()
+                    resources = [m for m in pool_data.get('members', []) if m.get('type') == 'qemu']
+                except Exception:
+                    logger.exception("Could not fetch pool '%s', skipping orphan cleanup", pool)
+                    return
+
                 for r in resources:
                     name = r.get('name', '')
                     vmid = int(r.get('vmid'))
 
-                    if not name.startswith("vm-"):
-                        continue
-
                     if not VirtualMachine.objects.filter(vmid=vmid).exists():
-                        logger.info("Found orphan VM vmid=%s name=%s, deleting", vmid, name)
+                        logger.info("Found orphan VM in pool=%s vmid=%s name=%s, deleting", pool, vmid, name)
                         try:
                             node = r.get('node') or self.get_vm_node(vmid)
                             self.proxmox.nodes(node).qemu(vmid).status.stop.post()
