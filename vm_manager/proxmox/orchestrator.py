@@ -46,8 +46,10 @@ class ProxmoxManager(ProxmoxClient):
                     raise ValueError(f"No VM configuration found for task: {task.title}")
 
                 with transaction.atomic():
-                    # 1. Assign network from bridge pool
-                    network = provision_network(user, task, task_config)
+                    # 1. Assign network from bridge pool if network template is set
+                    network = None
+                    if task_config.network_template:
+                        network = provision_network(user, task, task_config)
 
                     # 2. Create the lab environment record
                     lab_env = LabEnvironment.objects.create(
@@ -87,8 +89,14 @@ class ProxmoxManager(ProxmoxClient):
         try:
             template = vm_template_config.template
             node = self.get_node()
-            ip_address = format_ip(vm_template_config.planned_ip_address, network)
             vm_name = f"vm-{slugify(lab_env.task.title)}-{slugify(lab_env.user.username)}-{slugify(template.name)}"
+
+            # Network config
+            bridge_name = None
+            ip_address = None
+            if network:
+                ip_address = format_ip(vm_template_config.planned_ip_address, network)
+                bridge_name = f"vmbr{network.vlan_id}"
 
             with AdvisoryLock(vm_creation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
                 if not acquired:
@@ -113,12 +121,9 @@ class ProxmoxManager(ProxmoxClient):
                     pool=pool,
                 )
 
-                bridge_name = f"vmbr{network.vlan_id}"
-
                 logger.debug(
-                    "Configuring VM vmid=%s bridge=%s ip=%s planned_ip=%s cloud_init=%s",
-                    vmid, bridge_name, ip_address, vm_template_config.planned_ip_address,
-                    vm_template_config.cloud_init,
+                    "Configuring VM vmid=%s bridge=%s ip=%s cloud_init=%s",
+                    vmid, bridge_name, ip_address, vm_template_config.cloud_init,
                 )
                 storage = 'local-lvm'
 
@@ -127,10 +132,10 @@ class ProxmoxManager(ProxmoxClient):
                     node=node,
                     vm_id=vmid,
                     storage=storage,
-                    bridge=bridge_name,
-                    ip_address=ip_address,
                     cpu_cores=template.cpu_cores,
                     memory_mb=template.memory_mb,
+                    bridge=bridge_name,
+                    ip_address=ip_address,
                     cloud_init=vm_template_config.cloud_init,
                 )
 
@@ -146,10 +151,10 @@ class ProxmoxManager(ProxmoxClient):
                         name=vm_name,
                         status='creating',
                         network=network,
-                        assigned_ip_address=ip_address.split('/')[0]
+                        assigned_ip_address=ip_address.split('/')[0] if ip_address else None
                     )
 
-                #Start the VM
+                # Start the VM
                 logger.debug("Starting VM vmid=%s", vmid)
                 self.proxmox.nodes(node).qemu(vmid).status.start.post()
 

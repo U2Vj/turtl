@@ -129,7 +129,7 @@ class LabEnvironment(models.Model):
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="lab_environments")
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="lab_environments")
-    network = models.OneToOneField(Network, on_delete=models.CASCADE, related_name="lab_environments")
+    network = models.OneToOneField(Network, on_delete=models.CASCADE, null=True, blank=True, related_name="lab_environments")
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(default=timezone.now, db_index=True)
     stopped_at = models.DateTimeField(null=True, blank=True, db_index=True)
