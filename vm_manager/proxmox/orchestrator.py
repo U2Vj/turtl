@@ -116,24 +116,22 @@ class ProxmoxManager(ProxmoxClient):
                 bridge_name = f"vmbr{network.vlan_id}"
 
                 logger.debug(
-                    "Configuring VM vmid=%s bridge=%s ip=%s planned_ip=%s",
+                    "Configuring VM vmid=%s bridge=%s ip=%s planned_ip=%s cloud_init=%s",
                     vmid, bridge_name, ip_address, vm_template_config.planned_ip_address,
+                    vm_template_config.cloud_init,
                 )
                 storage = 'local-lvm'
-                ci_user = 'student'
-                ci_password = 'student'
 
                 configure_vm(
                     proxmox=self.proxmox,
                     node=node,
                     vm_id=vmid,
                     storage=storage,
-                    ci_user=ci_user,
-                    ci_password=ci_password,
                     bridge=bridge_name,
                     ip_address=ip_address,
                     cpu_cores=template.cpu_cores,
                     memory_mb=template.memory_mb,
+                    cloud_init=vm_template_config.cloud_init,
                 )
 
                 # Wait for Proxmox

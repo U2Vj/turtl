@@ -117,6 +117,7 @@ class TaskVMTemplate(models.Model):
     )
 
     planned_ip_address = models.CharField(max_length=15, validators=[validate_ipv4_address], null=True, blank=True)
+    cloud_init = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.template.name} for {self.configuration.task.title}"

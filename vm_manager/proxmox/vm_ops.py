@@ -76,27 +76,30 @@ def wait_for_vm_stopped(proxmox, node, vm_id, timeout=None, interval=None):
         time.sleep(interval)
 
 
-def configure_vm(proxmox, node, vm_id, storage, ci_user, ci_password, bridge, ip_address, cpu_cores, memory_mb):
+def configure_vm(proxmox, node, vm_id, storage, bridge, ip_address, cpu_cores, memory_mb, cloud_init=True):
     """
-    Configures the VM via Cloud-init
+    Configures the VM. When cloud_init is True, a cloud-init drive and
+    the snippet from local:snippets/user-data.yaml are attached.
+    TODO: Upload the user-data.yaml from TURTL instead of relying on pre-uploaded snippet.
+    This will require SSH access to Proxmox Host as snippet upload is not supported via the api.
     """
     try:
         config_params = {
-            'ide2': f"{storage}:cloudinit",
-            'ciuser': ci_user,
             'net0': f"virtio,bridge={bridge}",
-            'ipconfig0': f"ip={ip_address}",
-            'cipassword': ci_password,
             'agent': 'enabled=1',
             'boot': 'order=scsi0',
-            'cicustom': 'user=local:snippets/user-data.yaml',
             'sockets': 1,
             'cores': int(cpu_cores),
             'memory': int(memory_mb),
         }
 
+        if cloud_init:
+            config_params['ide2'] = f"{storage}:cloudinit"
+            config_params['ipconfig0'] = f"ip={ip_address}"
+            config_params['cicustom'] = 'user=local:snippets/user-data.yaml'
+
         proxmox.nodes(node).qemu(vm_id).config.post(**config_params)
-        logger.debug("VM options set successfully vmid=%s", vm_id)
+        logger.debug("VM options set successfully vmid=%s cloud_init=%s", vm_id, cloud_init)
     except Exception:
         logger.exception("Error configuring VM vmid=%s node=%s", vm_id, node)
         raise
