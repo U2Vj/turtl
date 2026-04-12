@@ -3,7 +3,7 @@ import logging
 from django.db import transaction
 from django.utils import timezone
 from ..utils import AdvisoryLock, slugify, format_ip
-from ..models import LabEnvironment, TaskVMConfiguration, VirtualMachine
+from ..models import LabEnvironment, Network, TaskVMConfiguration, VirtualMachine
 from .client import ProxmoxClient
 from .vm_ops import clone_vm, configure_vm, wait_for_unlock, wait_for_vm_stopped
 from .network_pool import provision_network, release_network
@@ -384,6 +384,12 @@ class ProxmoxManager(ProxmoxClient):
                             self.proxmox.nodes(node).qemu(vmid).delete()
                         except Exception:
                             logger.warning("Could not delete orphan VM vmid=%s", vmid, exc_info=True)
+
+                # Clean up orphan networks (without lab environment)
+                orphan_networks = Network.objects.filter(lab_environments=None)
+                for network in orphan_networks:
+                    logger.info("Deleting orphan network id=%s name=%s", network.id, network.name)
+                    network.delete()
 
     def sync_vm_status(self, lab_env):
         """
