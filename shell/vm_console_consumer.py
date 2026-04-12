@@ -141,16 +141,11 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         if self._is_ip(proxmox_host):
             ssl_context.check_hostname = False
         
-        # Prepare Proxmox authentication cookie
-        try:
-            pve_cookie = await pm.a_get_auth_cookie()
-        except Exception:
-            logger.exception("Failed to authenticate with Proxmox vmid=%s node=%s", user_vm.vmid, node)
-            await self.close()
-            return
+        # Prepare API token authentication for WebSocket
+        api_token = await pm.a_get_api_token()
 
         headers = {
-            "Cookie": f"PVEAuthCookie={pve_cookie}",
+            "Authorization": f"PVEAPIToken={api_token}",
             "Origin": f"https://{proxmox_host}:8006",
             "Host": f"{proxmox_host}:8006",
         }

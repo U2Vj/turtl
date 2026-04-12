@@ -1,7 +1,6 @@
 import os
 import asyncio
 import logging
-import requests
 from proxmoxer import ProxmoxAPI
 from dotenv import load_dotenv
 
@@ -19,18 +18,20 @@ class ProxmoxClient:
         try:
             host = os.environ.get('PROXMOX_HOST')
             user = os.environ.get('PROXMOX_USER')
-            password = os.environ.get('PROXMOX_PASSWORD')
+            token_name = os.environ.get('PROXMOX_TOKEN_NAME')
+            token_value = os.environ.get('PROXMOX_TOKEN_VALUE')
             verify_param = self._get_verify_param()
 
-            # Initialize Proxmox API connection
             self.proxmox = ProxmoxAPI(
                 host=host,
                 user=user,
-                password=password,
+                token_name=token_name,
+                token_value=token_value,
                 verify_ssl=verify_param,
             )
-            # Add attribute to store auth cookie for VNC WebSocket auth
-            self.auth_cookie = None
+
+            # Store token string for WebSocket authentication
+            self._api_token = f"{user}!{token_name}={token_value}"
         except Exception:
             logger.exception("Failed to connect to Proxmox API")
             raise
@@ -46,41 +47,11 @@ class ProxmoxClient:
         else:
             return True  # Fix: was returning False when SSL=true but no CA path set
 
-    def _authenticate(self):
+    def get_api_token(self):
         """
-        Ensure we are authenticated and have a valid auth cookie.
-        If not authenticated, perform a login request and store the cookie.
+        Returns the PVEAPIToken string for WebSocket authentication.
         """
-        if self.auth_cookie:
-            return
-        verify_param = self._get_verify_param()
-
-        try:
-            logger.debug("Authenticating with Proxmox")
-            login_response = requests.post(
-                f"https://{os.environ.get('PROXMOX_HOST')}/api2/json/access/ticket",
-                data={
-                    "username": os.environ.get('PROXMOX_USER'),
-                    "password": os.environ.get('PROXMOX_PASSWORD')
-                },
-                verify=verify_param
-            )
-            login_response.raise_for_status()
-            login_data = login_response.json()["data"]
-
-            self.auth_cookie = login_data["ticket"]
-            logger.debug("Successfully authenticated with Proxmox")
-        except requests.exceptions.RequestException:
-            logger.exception("Proxmox authentication failed")
-            raise
-
-    def get_auth_cookie(self):
-        """
-        Returns the stored authentication cookie, authenticating if necessary.
-        """
-        if not self.auth_cookie:
-            self._authenticate()
-        return self.auth_cookie
+        return self._api_token
 
     def get_node(self):
         """
@@ -122,8 +93,6 @@ class ProxmoxClient:
         Get console access ticket for a VM (for binary VNC).
         """
         try:
-            self._authenticate()
-
             ticket_data = self.proxmox.nodes(node).qemu(vmid).vncproxy.post(
                 websocket=1
             )
@@ -138,8 +107,8 @@ class ProxmoxClient:
             logger.exception("Error getting console ticket node=%s vmid=%s", node, vmid)
             raise
 
-    async def a_get_auth_cookie(self):
-        return await asyncio.to_thread(self.get_auth_cookie)
+    async def a_get_api_token(self):
+        return self._api_token
 
     async def a_get_vm_node(self, vmid: int) -> str:
         return await asyncio.to_thread(self.get_vm_node, vmid)
