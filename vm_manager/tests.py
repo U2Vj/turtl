@@ -44,7 +44,6 @@ class VMManagerModelsTest(TestCase):
         cls.network_template = NetworkTemplate.objects.create(
             name="Test Network Template",
             subnet="10.0.0.0/24",
-            vlan_id=100,
             description="Test network template",
         )
 

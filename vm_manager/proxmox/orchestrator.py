@@ -6,7 +6,7 @@ from ..utils import AdvisoryLock, slugify, format_ip
 from ..models import LabEnvironment, Network, TaskVMConfiguration, VirtualMachine
 from .client import ProxmoxClient
 from .vm_ops import clone_vm, configure_vm, wait_for_unlock, wait_for_vm_stopped
-from .network_pool import provision_network, release_network
+from .network_pool import provision_network, release_network, NoVlanAvailableError
 
 logger = logging.getLogger(__name__)
 
@@ -93,10 +93,12 @@ class ProxmoxManager(ProxmoxClient):
 
             # Network config
             bridge_name = None
+            vlan_tag = None
             ip_address = None
             if network:
                 ip_address = format_ip(vm_template_config.planned_ip_address, network)
-                bridge_name = f"vmbr{network.vlan_id}"
+                bridge_name = os.environ.get('PROXMOX_VLAN_BRIDGE', 'vmbr0')
+                vlan_tag = network.vlan_id
 
             with AdvisoryLock(vm_creation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:
                 if not acquired:
@@ -122,8 +124,8 @@ class ProxmoxManager(ProxmoxClient):
                 )
 
                 logger.debug(
-                    "Configuring VM vmid=%s bridge=%s ip=%s cloud_init=%s",
-                    vmid, bridge_name, ip_address, vm_template_config.cloud_init,
+                    "Configuring VM vmid=%s bridge=%s vlan_tag=%s ip=%s cloud_init=%s",
+                    vmid, bridge_name, vlan_tag, ip_address, vm_template_config.cloud_init,
                 )
                 storage = 'local-lvm'
 
@@ -135,6 +137,7 @@ class ProxmoxManager(ProxmoxClient):
                     cpu_cores=template.cpu_cores,
                     memory_mb=template.memory_mb,
                     bridge=bridge_name,
+                    vlan_tag=vlan_tag,
                     ip_address=ip_address,
                     cloud_init=vm_template_config.cloud_init,
                 )

@@ -1,50 +1,55 @@
+import os
 import logging
 from django.db import transaction
 from ..utils import AdvisoryLock, slugify
-from ..models import BridgePoolEntry, Network
+from ..models import Network
 
 logger = logging.getLogger(__name__)
 
 LOCK_ACQUIRE_TIMEOUT = 30
+VLAN_TAG_MIN = 2
+VLAN_TAG_MAX = 4094
 
 
-class NoBridgeAvailableError(Exception):
+class NoVlanAvailableError(Exception):
     pass
+
+
+def _next_free_vlan_id():
+    """
+    Returns the lowest VLAN tag in the configured range that is not
+    currently used by any Network record.
+    """
+    used = set(Network.objects.values_list('vlan_id', flat=True))
+    for tag in range(VLAN_TAG_MIN, VLAN_TAG_MAX + 1):
+        if tag not in used:
+            return tag
+    return None
 
 
 def provision_network(user, task, task_config):
     """
-    Assigns a bridge from the pool to a new network for the given user and task.
-    The subnet is taken from the NetworkTemplate (used for cloud-init IP assignment).
-    The bridges must already exist in Proxmox – no Proxmox API calls are made here.
+    Creates a network for the given user and task by assigning the next
+    available VLAN tag. No Proxmox API calls are made — the VLAN-aware
+    bridge must already exist on the Proxmox host.
     """
     network_template = task_config.network_template
     if not network_template:
         raise ValueError(f"No network template defined for task: {task.title}")
 
-    lock_name = "proxmox_bridge_allocation"
+    lock_name = "proxmox_vlan_allocation"
 
     with AdvisoryLock(lock_name, timeout_seconds=LOCK_ACQUIRE_TIMEOUT) as acquired:
         if not acquired:
-            raise TimeoutError("Could not acquire lock for bridge allocation")
+            raise TimeoutError("Could not acquire lock for VLAN allocation")
 
         with transaction.atomic():
-            # 1. Find next available bridge from pool
-            bridge_entry = BridgePoolEntry.objects.select_for_update().filter(allocated_to__isnull=True).first()
+            vlan_id = _next_free_vlan_id()
+            if vlan_id is None:
+                raise NoVlanAvailableError("No VLAN tags available in configured range.")
 
-            if not bridge_entry:
-                raise NoBridgeAvailableError("No bridge available in pool. Please add more bridges via Django admin.")
-
-            bridge_name = bridge_entry.bridge_name
             network_name = f"{slugify(task.title)}-{slugify(user.username)}-net"
 
-            # Extract numeric ID from bridge name (e.g. "vmbr100" -> 100) for vlan_id field
-            try:
-                vlan_id = int(bridge_name.replace("vmbr", ""))
-            except ValueError:
-                raise ValueError(f"Bridge name '{bridge_name}' does not follow expected format 'vmbrNNN'")
-
-            # 2. Create network in database (subnet from NetworkTemplate for cloud-init)
             network = Network.objects.create(
                 name=network_name,
                 subnet=network_template.subnet,
@@ -54,13 +59,9 @@ def provision_network(user, task, task_config):
                 task=task
             )
 
-            # 3. Mark bridge as allocated
-            bridge_entry.allocated_to = network
-            bridge_entry.save()
-
             logger.info(
-                "Bridge assigned from pool bridge=%s user_id=%s task_id=%s",
-                bridge_name,
+                "VLAN tag assigned vlan_id=%s user_id=%s task_id=%s",
+                vlan_id,
                 user.id,
                 task.id,
             )
@@ -69,15 +70,9 @@ def provision_network(user, task, task_config):
 
 def release_network(network):
     """
-    Returns the bridge assigned to the given network back to the pool and deletes the network record.
-    No Proxmox API calls are made – the bridge remains in Proxmox unchanged.
+    Deletes the network record, freeing its VLAN tag for reuse.
     """
-    try:
-        bridge_entry = network.bridge_pool_entry
-        bridge_entry.allocated_to = None
-        bridge_entry.save()
-        logger.info("Bridge returned to pool bridge=%s network_id=%s", bridge_entry.bridge_name, network.id)
-    except BridgePoolEntry.DoesNotExist:
-        logger.warning("No pool entry found for network_id=%s, skipping release", network.id)
-
+    vlan_id = network.vlan_id
+    network_id = network.id
     network.delete()
+    logger.info("Network released vlan_id=%s network_id=%s", vlan_id, network_id)

@@ -5,27 +5,6 @@ from catalog.models import Task
 from django.core.validators import validate_ipv4_address
 
 
-class BridgePoolEntry(models.Model):
-    """
-    Represents a pre-configured Linux bridge in Proxmox available for assignment to lab envs
-    """
-    bridge_name = models.CharField(max_length=20, unique=True)  # example: "vmbr100" 
-    allocated_to = models.OneToOneField(
-        'Network',
-        on_delete=models.SET_NULL,
-        null=True,
-        blank=True,
-        related_name='bridge_pool_entry'
-    )
-
-    class Meta:
-        ordering = ['bridge_name']
-
-    def __str__(self):
-        status = f"allocated to {self.allocated_to}" if self.allocated_to else "available"
-        return f"{self.bridge_name} – {status}"
-
-
 # Network Instance
 class Network(models.Model):
     """

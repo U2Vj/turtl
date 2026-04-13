@@ -1,4 +1,4 @@
 from .orchestrator import ProxmoxManager
-from .network_pool import NoBridgeAvailableError
+from .network_pool import NoVlanAvailableError
 
-__all__ = ['ProxmoxManager', 'NoBridgeAvailableError']
+__all__ = ['ProxmoxManager', 'NoVlanAvailableError']

@@ -76,24 +76,40 @@ def wait_for_vm_stopped(proxmox, node, vm_id, timeout=None, interval=None):
         time.sleep(interval)
 
 
-def configure_vm(proxmox, node, vm_id, storage, cpu_cores, memory_mb, bridge=None, ip_address=None, cloud_init=True):
+def _detect_boot_disk(proxmox, node, vm_id):
     """
-    Configures the VM. When cloud_init is True, a cloud-init drive and
-    the snippet from local:snippets/user-data.yaml are attached.
-    TODO: Upload the user-data.yaml snippet to Proxmox dynamically to support various cloud-init configurations.
-    This would require SSH access to Proxmox Host since uploading snippets via API is not supported.
+    Detects the boot disk of a VM by looking for the first existing
+    disk in common bus types (scsi, sata, ide, virtio).
+    """
+    config = proxmox.nodes(node).qemu(vm_id).config.get()
+    for bus in ('scsi', 'sata', 'ide', 'virtio'):
+        key = f'{bus}0'
+        if key in config:
+            return key
+    return 'scsi0'
+
+
+def configure_vm(proxmox, node, vm_id, storage, cpu_cores, memory_mb, bridge=None, vlan_tag=None, ip_address=None, cloud_init=True):
+    """
+    Configures the VM. When cloud_init is True, a cloud-init drive is
+    attached and ipconfig0 is set if an IP address is provided.
+    When bridge is provided, a network interface is configured with an optional VLAN tag.
     """
     try:
+        boot_disk = _detect_boot_disk(proxmox, node, vm_id)
         config_params = {
             'agent': 'enabled=1',
-            'boot': 'order=scsi0',
+            'boot': f'order={boot_disk}',
             'sockets': 1,
             'cores': int(cpu_cores),
             'memory': int(memory_mb),
         }
 
         if bridge:
-            config_params['net0'] = f"virtio,bridge={bridge}"
+            net0 = f"virtio,bridge={bridge}"
+            if vlan_tag is not None:
+                net0 += f",tag={vlan_tag}"
+            config_params['net0'] = net0
         else:
             config_params['delete'] = 'net0'
 
@@ -101,7 +117,8 @@ def configure_vm(proxmox, node, vm_id, storage, cpu_cores, memory_mb, bridge=Non
             config_params['ide2'] = f"{storage}:cloudinit"
             if ip_address:
                 config_params['ipconfig0'] = f"ip={ip_address}"
-            config_params['cicustom'] = 'user=local:snippets/user-data.yaml'
+            # TODO: cicustom can be re-enabled to support custom cloud-init snippets
+            # config_params['cicustom'] = 'user=local:snippets/user-data.yaml'
 
         proxmox.nodes(node).qemu(vm_id).config.post(**config_params)
         logger.debug("VM options set successfully vmid=%s cloud_init=%s", vm_id, cloud_init)
