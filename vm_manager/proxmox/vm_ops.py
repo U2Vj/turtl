@@ -76,12 +76,11 @@ def wait_for_vm_stopped(proxmox, node, vm_id, timeout=None, interval=None):
         time.sleep(interval)
 
 
-def _detect_boot_disk(proxmox, node, vm_id):
+def _detect_boot_disk_from_config(config):
     """
-    Detects the boot disk of a VM by looking for the first existing
-    disk in common bus types (scsi, sata, ide, virtio).
+    Detects the boot disk from a VM config dict by looking for the first
+    existing disk in common bus types (scsi, sata, ide, virtio).
     """
-    config = proxmox.nodes(node).qemu(vm_id).config.get()
     for bus in ('scsi', 'sata', 'ide', 'virtio'):
         key = f'{bus}0'
         if key in config:
@@ -96,7 +95,8 @@ def configure_vm(proxmox, node, vm_id, storage, cpu_cores, memory_mb, bridge=Non
     When bridge is provided, a network interface is configured with an optional VLAN tag.
     """
     try:
-        boot_disk = _detect_boot_disk(proxmox, node, vm_id)
+        vm_config = proxmox.nodes(node).qemu(vm_id).config.get()
+        boot_disk = _detect_boot_disk_from_config(vm_config)
         config_params = {
             'agent': 'enabled=1',
             'boot': f'order={boot_disk}',
@@ -106,9 +106,25 @@ def configure_vm(proxmox, node, vm_id, storage, cpu_cores, memory_mb, bridge=Non
         }
 
         if bridge:
-            net0 = f"virtio,bridge={bridge}"
-            if vlan_tag is not None:
-                net0 += f",tag={vlan_tag}"
+            # Preserve existing NIC model and MAC, only update bridge and VLAN tag
+            existing_net0 = vm_config.get('net0', '')
+            if existing_net0:
+                # Parse existing config into key=value parts, keeping model=MAC as-is
+                parts = existing_net0.split(',')
+                new_parts = []
+                for part in parts:
+                    key = part.split('=')[0] if '=' in part else ''
+                    if key in ('bridge', 'tag'):
+                        continue  # drop old bridge/tag
+                    new_parts.append(part)
+                new_parts.append(f"bridge={bridge}")
+                if vlan_tag is not None:
+                    new_parts.append(f"tag={vlan_tag}")
+                net0 = ','.join(new_parts)
+            else:
+                net0 = f"virtio,bridge={bridge}"
+                if vlan_tag is not None:
+                    net0 += f",tag={vlan_tag}"
             config_params['net0'] = net0
         else:
             config_params['delete'] = 'net0'
