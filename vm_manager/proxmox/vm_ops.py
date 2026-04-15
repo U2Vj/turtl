@@ -1,10 +1,12 @@
 import time
 import logging
+from proxmoxer.core import ResourceException
 
 logger = logging.getLogger(__name__)
 
 LOCK_TIMEOUT = 120
 POLL_INTERVAL = 2
+ACL_PROPAGATION_TIMEOUT = 30
 
 
 def clone_vm(proxmox, node, template_id, new_id, new_name, linked_clone=True, pool=None):
@@ -38,6 +40,23 @@ def clone_vm(proxmox, node, template_id, new_id, new_name, linked_clone=True, po
     logger.debug("Lock removed from vmid=%s", new_id)
 
 
+def _get_vm_status(proxmox, node, vm_id):
+    """
+    Gets VM status, retrying on 403 to allow for pool ACL propagation
+    after clone operations.
+    """
+    start = time.time()
+    while True:
+        try:
+            return proxmox.nodes(node).qemu(vm_id).status.current.get()
+        except ResourceException as e:
+            if e.status_code == 403 and time.time() - start < ACL_PROPAGATION_TIMEOUT:
+                logger.debug("Waiting for ACL propagation on vmid=%s", vm_id)
+                time.sleep(POLL_INTERVAL)
+                continue
+            raise
+
+
 def wait_for_unlock(proxmox, node, vm_id, timeout=None, interval=None):
     """
     Waits until the VM Lock is removed by Proxmox
@@ -49,7 +68,7 @@ def wait_for_unlock(proxmox, node, vm_id, timeout=None, interval=None):
 
     start = time.time()
     while True:
-        locks = proxmox.nodes(node).qemu(vm_id).status.current.get().get('lock')
+        locks = _get_vm_status(proxmox, node, vm_id).get('lock')
         if not locks:
             return
         if time.time() - start > timeout:
@@ -68,7 +87,7 @@ def wait_for_vm_stopped(proxmox, node, vm_id, timeout=None, interval=None):
 
     start = time.time()
     while True:
-        vm_status = proxmox.nodes(node).qemu(vm_id).status.current.get().get('status')
+        vm_status = _get_vm_status(proxmox, node, vm_id).get('status')
         if vm_status == 'stopped':
             return
         if time.time() - start > timeout:
