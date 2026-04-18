@@ -89,7 +89,7 @@ class ProxmoxManager(ProxmoxClient):
         try:
             template = vm_template_config.template
             node = self.get_node()
-            vm_name = f"vm-{slugify(lab_env.task.title)}-{slugify(lab_env.user.username)}-{slugify(template.name)}"
+            vm_name = f"vm-{slugify(template.name)}"
 
             # Network config
             bridge_name = None
@@ -97,7 +97,7 @@ class ProxmoxManager(ProxmoxClient):
             ip_address = None
             if network:
                 ip_address = format_ip(vm_template_config.planned_ip_address, network)
-                bridge_name = os.environ.get('PROXMOX_VLAN_BRIDGE', 'vmbr0')
+                bridge_name = os.environ.get('PROXMOX_VLAN_BRIDGE')
                 vlan_tag = network.vlan_id
 
             with AdvisoryLock(vm_creation_lock, timeout_seconds=self.LOCK_ACQUIRE_TIMEOUT) as acquired:

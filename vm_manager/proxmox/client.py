@@ -101,7 +101,7 @@ class ProxmoxClient:
                 'ticket': ticket_data['ticket'],
                 'port': ticket_data['port'],
                 'cert': ticket_data.get('cert', ''),
-                'user': ticket_data.get('user', os.environ.get('PROXMOX_USER'))
+                'user': ticket_data.get('user')
             }
         except Exception:
             logger.exception("Error getting console ticket node=%s vmid=%s", node, vmid)
