@@ -145,8 +145,6 @@ def configure_vm(proxmox, node, vm_id, storage, cpu_cores, memory_mb, bridge=Non
                 if vlan_tag is not None:
                     net0 += f",tag={vlan_tag}"
             config_params['net0'] = net0
-        else:
-            config_params['delete'] = 'net0'
 
         if cloud_init:
             config_params['ide2'] = f"{storage}:cloudinit"
