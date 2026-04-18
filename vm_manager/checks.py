@@ -15,6 +15,9 @@ REQUIRED_ENV_VARS = [
 
 @register()
 def check_proxmox_env(app_configs, **kwargs):
+    # If PROXMOX_HOST is not set, assume proxmox is not being used and skip checks
+    if not bool(os.environ.get('PROXMOX_HOST')):
+        return []
     errors = []
     for index, var in enumerate(REQUIRED_ENV_VARS, start=1):
         if not os.environ.get(var):
