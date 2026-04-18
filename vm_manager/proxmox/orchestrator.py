@@ -89,7 +89,7 @@ class ProxmoxManager(ProxmoxClient):
         try:
             template = vm_template_config.template
             node = self.get_node()
-            vm_name = f"vm-{slugify(template.name)}"
+            vm_name = f"vm-{slugify(lab_env.id)}-{slugify(template.name)}"
 
             # Network config
             bridge_name = None
