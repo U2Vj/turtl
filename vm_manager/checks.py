@@ -26,4 +26,20 @@ def check_proxmox_env(app_configs, **kwargs):
                 hint=f"Set {var} in .env or process environment.",
                 id=f'vm_manager.E{index:03d}',
             ))
+
+    verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
+    if verify_env not in ('false', '0'):
+        ca_path = os.environ.get('PROXMOX_CA_PATH')
+        if not ca_path:
+            errors.append(Error(
+                "PROXMOX_VERIFY_SSL is enabled but PROXMOX_CA_PATH is not set.",
+                hint="Set PROXMOX_CA_PATH to the Proxmox CA certificate",
+                id='vm_manager.E100',
+            ))
+        elif not os.path.isfile(ca_path):
+            errors.append(Error(
+                f"PROXMOX_CA_PATH points to a file that does not exist: {ca_path}",
+                hint="Check the path or copy the Proxmox CA certificate to that location.",
+                id='vm_manager.E101',
+            ))
     return errors
