@@ -4,6 +4,7 @@ from django.conf import settings
 from catalog.models import Task
 from django.core.validators import validate_ipv4_address
 
+
 # Network Instance
 class Network(models.Model):
     """
@@ -52,7 +53,6 @@ class NetworkTemplate(models.Model):
     """
     name = models.CharField(max_length=255)
     subnet = models.CharField(max_length=20)
-    vlan_id = models.IntegerField(null=True, blank=True)
     description = models.TextField(blank=True)
 
     def __str__(self):
@@ -96,6 +96,7 @@ class TaskVMTemplate(models.Model):
     )
 
     planned_ip_address = models.CharField(max_length=15, validators=[validate_ipv4_address], null=True, blank=True)
+    cloud_init = models.BooleanField(default=True)
 
     def __str__(self):
         return f"{self.template.name} for {self.configuration.task.title}"
@@ -107,7 +108,7 @@ class LabEnvironment(models.Model):
     """
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="lab_environments")
     task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name="lab_environments")
-    network = models.OneToOneField(Network, on_delete=models.CASCADE, related_name="lab_environments")
+    network = models.OneToOneField(Network, on_delete=models.CASCADE, null=True, blank=True, related_name="lab_environments")
     created_at = models.DateTimeField(auto_now_add=True)
     last_seen_at = models.DateTimeField(default=timezone.now, db_index=True)
     stopped_at = models.DateTimeField(null=True, blank=True, db_index=True)

@@ -1,6 +1,7 @@
 from django.contrib import admin
 from .models import Network, VMTemplate, NetworkTemplate, TaskVMConfiguration, TaskVMTemplate, LabEnvironment, VirtualMachine
 
+
 @admin.register(Network)
 class NetworkAdmin(admin.ModelAdmin):
     list_display = ['name', 'subnet', 'vlan_id', 'user', 'task', 'created_at']
@@ -13,8 +14,8 @@ class VMTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(NetworkTemplate)
 class NetworkTemplateAdmin(admin.ModelAdmin):
-    list_display = ['name', 'subnet', 'vlan_id']
-    list_filter = ['vlan_id']
+    list_display = ['name', 'subnet']
+    list_filter = []
 
 @admin.register(TaskVMConfiguration)
 class TaskVMConfigurationAdmin(admin.ModelAdmin):

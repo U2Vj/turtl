@@ -7,7 +7,7 @@ from django.utils import timezone
 from django.db.models import Q
 
 from vm_manager.models import LabEnvironment
-from vm_manager.proxmox_manager import ProxmoxManager
+from vm_manager.proxmox import ProxmoxManager
 
 logger = logging.getLogger(__name__)
 
