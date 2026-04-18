@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('vm_manager', '0010_bridgepoolentry'),
+        ('vm_manager', '0009_alter_labenvironment_status'),
     ]
 
     operations = [

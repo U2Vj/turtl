@@ -1,4 +1,3 @@
-import os
 import logging
 from django.db import transaction
 from ..utils import AdvisoryLock, slugify
