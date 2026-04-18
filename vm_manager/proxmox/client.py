@@ -45,7 +45,7 @@ class ProxmoxClient:
         elif ca_path:
             return ca_path
         else:
-            return True  # Fix: was returning False when SSL=true but no CA path set
+            return True
 
     def get_api_token(self):
         """
