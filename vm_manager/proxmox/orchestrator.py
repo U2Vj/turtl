@@ -187,11 +187,11 @@ class ProxmoxManager(ProxmoxClient):
             try:
                 lab_env.status = 'starting'
                 lab_env.save()
-                node = self.get_node()
                 with transaction.atomic():
                     for vm in lab_env.virtual_machines.select_for_update().all():
                         if vm.status != 'running':
                             # Start the VM
+                            node = self.get_vm_node(vm.vmid)
                             self.proxmox.nodes(node).qemu(vm.vmid).status.start.post()
                             vm.status = 'running'
                             vm.save()
@@ -218,12 +218,12 @@ class ProxmoxManager(ProxmoxClient):
             try:
                 lab_env.status = 'stopping'
                 lab_env.save()
-                node = self.get_node()
 
                 with transaction.atomic():
                     for vm in lab_env.virtual_machines.select_for_update().all():
                         if vm.status == 'running':
                             # Stop the VM
+                            node = self.get_vm_node(vm.vmid)
                             self.proxmox.nodes(node).qemu(vm.vmid).status.stop.post()
                             # Update VM status
                             vm.status = 'stopped'
@@ -291,7 +291,7 @@ class ProxmoxManager(ProxmoxClient):
                 # Delete all VMs
                 for vm in lab_env.virtual_machines.all():
                     try:
-                        node = self.get_node()
+                        node = self.get_vm_node(vm.vmid)
                         # Stop the VM and wait for it to stop
                         try:
                             self.proxmox.nodes(node).qemu(vm.vmid).status.stop.post()
@@ -405,8 +405,6 @@ class ProxmoxManager(ProxmoxClient):
                 return
 
             try:
-                node = self.get_node()
-
                 any_vm = False
                 all_running = True
                 all_stopped = True
@@ -414,6 +412,7 @@ class ProxmoxManager(ProxmoxClient):
                 for vm in lab_env.virtual_machines.all():
                     any_vm = True
                     try:
+                        node = self.get_vm_node(vm.vmid)
                         vm_status = self.proxmox.nodes(node).qemu(vm.vmid).status.current.get().get('status')
 
                         if vm.status != vm_status:
