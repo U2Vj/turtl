@@ -4,6 +4,9 @@ from unittest.mock import MagicMock, Mock, patch
 from django.test import TestCase
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
 
 from authentication.models import User
 from catalog.models import Classroom, ClassroomInstructor, Project, Task, AcceptanceCriteria
@@ -18,7 +21,7 @@ from .models import (
     VirtualMachine,
 )
 from .access import user_can_access_task_vm
-from .proxmox import ProxmoxManager
+from .proxmox import NoVlanAvailableError, ProxmoxManager
 from .utils import AdvisoryLock
 
 
@@ -158,6 +161,53 @@ class AdvisoryLockBehaviorTest(TestCase):
              patch("vm_manager.utils.time.sleep"):
             with AdvisoryLock("busy-lock", timeout_seconds=0.1) as acquired:
                 self.assertFalse(acquired)
+
+
+class StartEnvironmentViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_student("student@example.com", "password123")
+
+        classroom = Classroom.objects.create(title="Test Classroom")
+        project = Project.objects.create(title="Test Project", classroom=classroom)
+        acceptance = AcceptanceCriteria.objects.create()
+
+        cls.task = Task.objects.create(
+            title="Test Task",
+            project=project,
+            description="Test description",
+            task_type=Task.TaskType.NEUTRAL,
+            difficulty=Task.Difficulty.BEGINNER,
+            acceptance_criteria=acceptance,
+        )
+
+        network_template = NetworkTemplate.objects.create(
+            name="Test Network Template",
+            subnet="10.0.0.0/24",
+        )
+        TaskVMConfiguration.objects.create(task=cls.task, network_template=network_template)
+        Enrollment.objects.create(classroom=classroom, student=cls.user)
+
+    def setUp(self):
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse("start-environment", args=[self.task.id])
+
+    def test_no_vlan_available_returns_503_with_error_code(self):
+        with patch("vm_manager.views.ProxmoxManager") as manager_cls:
+            manager_cls.return_value.create_lab_environment.side_effect = NoVlanAvailableError()
+            response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.data.get("error_code"), "NO_VLAN_AVAILABLE")
+
+    def test_unexpected_exception_returns_500(self):
+        with patch("vm_manager.views.ProxmoxManager") as manager_cls:
+            manager_cls.return_value.create_lab_environment.side_effect = RuntimeError("boom test")
+            response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertNotEqual(response.data.get("error_code"), "NO_VLAN_AVAILABLE")
 
 
 class ProxmoxManagerLockingTest(TestCase):
