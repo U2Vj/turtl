@@ -24,8 +24,8 @@ SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
 DEBUG = os.environ.get('DJANGO_DEBUG') == 'true'
 
-allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS')
-ALLOWED_HOSTS = allowed_hosts_env.split(',') if allowed_hosts_env else []
+allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
 
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
@@ -73,7 +73,7 @@ if DEBUG:
     INSTALLED_APPS.append('corsheaders')
     MIDDLEWARE.insert(2, 'corsheaders.middleware.CorsMiddleware')
     cors_env = os.environ.get('CORS_ALLOWED_ORIGINS', '')
-    CORS_ALLOWED_ORIGINS = [o for o in cors_env.split(',') if o]
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in cors_env.split(',') if o.strip()]
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'turtl.exceptions.core_exception_handler',
