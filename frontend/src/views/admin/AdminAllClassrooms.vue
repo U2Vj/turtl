@@ -112,14 +112,14 @@ function getInstructor(instructors: any[]) {
         <template #[`item.link`]="{ item }">
           <TextButton
             buttonName="Edit"
-            :goTo="`/instructor/classrooms/${item.raw.id}`"
+            :goTo="`/instructor/classrooms/${item.id}`"
           ></TextButton>
         </template>
         <template v-slot:[`item.updated_at`]="{ item }">
-          {{ formatReadableDate(item.raw.updated_at) }}
+          {{ formatReadableDate(item.updated_at) }}
         </template>
         <template v-slot:[`item.created_at`]="{ item }">
-          {{ formatReadableDate(item.raw.created_at) }}
+          {{ formatReadableDate(item.created_at) }}
         </template>
       </v-data-table>
     </template>

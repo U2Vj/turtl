@@ -104,23 +104,23 @@ function getInstructor(instructors: any[]) {
         :search="search"
       >
         <template #[`item.title`]="{ item }">
-          {{ item.raw.title }}
-          <small class="text-grey" v-if="enrolledClassrooms.includes(item.raw.id)">
+          {{ item.title }}
+          <small class="text-grey" v-if="enrolledClassrooms.includes(item.id)">
             <em>(already enrolled)</em>
           </small>
         </template>
         <template #[`item.link`]="{ item }">
-          <template v-if="enrolledClassrooms.includes(item.raw.id)">
+          <template v-if="enrolledClassrooms.includes(item.id)">
             <TextButton
               :go-to="`/student/enrollments/${
-                myEnrollments[enrolledClassrooms.indexOf(item.raw.id)].id
+                myEnrollments[enrolledClassrooms.indexOf(item.id)].id
               }`"
             >
               Visit
             </TextButton>
           </template>
           <TextButton buttonName="Enroll" v-else>
-            <EnrollModal :title="item.raw.title" :id="item.raw.id" />
+            <EnrollModal :title="item.title" :id="item.id" />
           </TextButton>
         </template>
       </v-data-table>

@@ -60,17 +60,17 @@ function confirmInstructorRemoval(instructorId: number) {
               color="error"
               @click="
                 () => {
-                  if (item.raw.id === userStore.user?.id) {
-                    confirmInstructorRemoval(item.raw.id)
+                  if (item.id === userStore.user?.id) {
+                    confirmInstructorRemoval(item.id)
                   } else {
                     catalogStore
-                      .removeInstructor(item.raw.id)
+                      .removeInstructor(item.id)
                       .then(() => toast.info('Instructor removed'))
                       .catch((e) => toast.error(e.message))
                   }
                 }
               "
-              v-if="instructorInClassroom(item.raw.id)"
+              v-if="instructorInClassroom(item.id)"
             />
             <v-btn
               icon="mdi-plus"
@@ -78,7 +78,7 @@ function confirmInstructorRemoval(instructorId: number) {
               @click="
                 () => {
                   catalogStore
-                    .addInstructor(item.raw.id)
+                    .addInstructor(item.id)
                     .then(() => toast.success('Instructor added'))
                     .catch((e) => toast.error(e.message))
                 }
