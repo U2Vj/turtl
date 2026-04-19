@@ -207,7 +207,7 @@ EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_SSL = True
 
 
-VM_MANAGER_LOG_LEVEL = os.environ.get('VM_MANAGER_LOG_LEVEL', 'INFO')
+VM_MANAGER_LOG_LEVEL = os.environ.get('VM_MANAGER_LOG_LEVEL')
 
 LOGGING = {
     "version": 1,
