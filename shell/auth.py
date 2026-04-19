@@ -50,7 +50,7 @@ class JwtAuthMiddleware:
                     # Validate and read payload using SimpleJWT
                     access = AccessToken(token)
                     scope['user'] = await get_user(access.payload)
-                    logger.info("JWT Auth: Authenticated user_id=%s", getattr(scope["user"], "id", None))
+                    logger.debug("JWT Auth: Authenticated user_id=%s", getattr(scope["user"], "id", None))
                 except (InvalidToken, TokenError):
                     logger.warning("JWT Auth: Invalid token provided")
                     scope['user'] = AnonymousUser()

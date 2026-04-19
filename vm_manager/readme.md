@@ -28,6 +28,7 @@ PROXMOX_TOKEN_NAME=turtl-api
 PROXMOX_TOKEN_VALUE=<api-token>
 
 PROXMOX_VM_POOL=turtl-lab
+PROXMOX_VM_STORAGE=local-lvm
 PROXMOX_VLAN_BRIDGE=vmbr100
 PROXMOX_VERIFY_SSL=true
 PROXMOX_CA_PATH=/path/to/proxmox-ca.pem
