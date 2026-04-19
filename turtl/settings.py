@@ -20,14 +20,9 @@ load_dotenv()
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'dkzvccm3u=hxujl)q1a9jz1ush82b-*w@w5gx))%v_86+p4_$x'
-
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DJANGO_DEBUG') == 'true'
 
 allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS')
 ALLOWED_HOSTS = allowed_hosts_env.split(',') if allowed_hosts_env else []
@@ -126,7 +121,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('172.19.0.3', 6379)],
+            'hosts': [(os.environ['REDIS_HOST'], int(os.environ['REDIS_PORT']))],
         },
     },
 }
@@ -140,8 +135,8 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': 'localhost',
-        'PORT': '5432',
+        'HOST': os.environ['POSTGRES_HOST'],
+        'PORT': os.environ['POSTGRES_PORT'],
     }
 }
 
@@ -193,8 +188,7 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 CSRF_COOKIE_SECURE = True
 
-# URL for uploads
-APPLICATION_URL = 'http://localhost:8000'
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
@@ -204,8 +198,6 @@ FRONTEND_URL = 'http://localhost:5173'
 # No. of days for which invitation links sent via the email invitation system are valid
 INVITATION_EXPIRY_DAYS = 14
 
-# ID of the Kali container used to demonstrate the web shell
-KALI_CONTAINER_ID = "95731b391915"
 
 EMAIL_HOST = ""
 DEFAULT_FROM_EMAIL = ""
@@ -215,7 +207,7 @@ EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_SSL = True
 
 
-VM_MANAGER_LOG_LEVEL = "DEBUG"
+VM_MANAGER_LOG_LEVEL = os.environ.get('VM_MANAGER_LOG_LEVEL', 'INFO')
 
 LOGGING = {
     "version": 1,
