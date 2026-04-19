@@ -117,7 +117,13 @@ function confirmInstructorRemoval(instructorId: number) {
   showDialog.value = true
 }
 
-const enrolledStudents = ref([])
+type EnrolledStudent = {
+  id: number
+  student: { email: string; username: string }
+  date_enrolled: string
+  progress: number
+}
+const enrolledStudents = ref<EnrolledStudent[]>([])
 
 onMounted(async () => {
   enrolledStudents.value = await getEnrolledStudents(props.classroomId)
@@ -163,7 +169,7 @@ onMounted(async () => {
                 v-for="project in classroom.projects"
                 :classroom-id="props.classroomId"
                 :key="project.id"
-                :project-id="project.id"
+                :project-id="project.id!"
                 :project-title="project.title"
                 :tasks="project.tasks"
                 class="mt-5"
@@ -216,13 +222,13 @@ onMounted(async () => {
                           no-data-text="This classroom does not contain any helpful resources yet."
                         >
                           <template #[`item.url`]="{ item }">
-                            <a :href="item.columns.url" target="_blank">{{ item.columns.url }}</a>
+                            <a :href="item.url" target="_blank">{{ item.url }}</a>
                           </template>
                           <template #[`item.id`]="{ item }">
                             <v-btn
                               icon="mdi-trash-can-outline"
                               variant="text"
-                              @click="deleteHelpfulResource(item.columns.id)"
+                              @click="item.id !== undefined && deleteHelpfulResource(item.id)"
                             />
                           </template>
                         </v-data-table>
@@ -269,18 +275,18 @@ onMounted(async () => {
               ]"
               :items="classroom.instructors"
             >
-              <template #[`item.added_at`]="{ item }">{{ formatDate(item.raw.added_at) }}</template>
+              <template #[`item.added_at`]="{ item }">{{ formatDate(item.added_at ?? '') }}</template>
               <template #[`item.remove`]="{ item }">
                 <v-btn
                   icon="mdi-trash-can-outline"
                   variant="text"
                   @click="
                     () => {
-                      if (item.raw.instructor.id === userStore.user?.id) {
-                        confirmInstructorRemoval(item.raw.instructor.id)
+                      if (item.instructor.id === userStore.user?.id) {
+                        confirmInstructorRemoval(item.instructor.id)
                       } else {
                         catalogStore
-                          .removeInstructor(item.raw.instructor.id)
+                          .removeInstructor(item.instructor.id)
                           .then(() => toast.info('Instructor removed'))
                           .catch((e) => toast.error(e.message))
                       }
@@ -334,9 +340,9 @@ onMounted(async () => {
               no-data-text="There are no students who are currently enrolled in this classroom."
             >
               <template #[`item.date_enrolled`]="{ item }">{{
-                formatDate(item.raw.date_enrolled)
+                formatDate(item.date_enrolled)
               }}</template>
-              <template #[`item.progress`]="{ item }"> {{ item.raw.progress }}&percnt; </template>
+              <template #[`item.progress`]="{ item }"> {{ item.progress }}&percnt; </template>
             </v-data-table>
           </v-container>
         </v-window-item>

@@ -100,6 +100,18 @@ type Project = {
   tasks: Task[]
 }
 
+export enum VirtualizationRole {
+  UserShell = 'USER_SHELL',
+  UserAccessible = 'USER_ACCESSIBLE'
+}
+
+export type Virtualization = {
+  id?: number
+  name: string
+  virtualization_role: string
+  dockerfile: string
+}
+
 export type ClassroomDetail = {
   id: number
   title: string
