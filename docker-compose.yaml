@@ -37,6 +37,17 @@ services:
       - default
     restart: unless-stopped
 
+  nginx:
+    image: nginx:alpine
+    network_mode: host
+    volumes:
+      - ./deploy/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./staticfiles:/srv/turtl/static:ro
+      - ./media:/srv/turtl/media:ro
+      - ./frontend/dist:/srv/turtl/web:ro
+      - ./deploy/certs:/etc/nginx/certs:ro
+    restart: unless-stopped
+
 volumes:
   postgres_data:
 
