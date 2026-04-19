@@ -108,7 +108,7 @@ export enum VirtualizationRole {
 export type Virtualization = {
   id?: number
   name: string
-  virtualization_role: string
+  virtualization_role: VirtualizationRole
   dockerfile: string
 }
 
