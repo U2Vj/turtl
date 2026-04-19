@@ -7,21 +7,32 @@ First install and configure Proxmox VE.
 Then add a .env File to the root of the Project with the following variables:
 
 ```
+DJANGO_SECRET_KEY=<super-secret-key>
+DJANGO_DEBUG=true
+DJANGO_ALLOWED_HOSTS=<ips-of-allowed-hosts>
+
+VM_MANAGER_LOG_LEVEL=DEBUG
+
+POSTGRES_DB=turtl_db
+POSTGRES_USER=turtl_user
+POSTGRES_PASSWORD=turtl_password
+POSTGRES_HOST=localhost
+POSTGRES_PORT=5432
+
+REDIS_HOST=<ip-of-redis>
+REDIS_PORT=6379
+
 PROXMOX_HOST=proxmox-host:port
 PROXMOX_USER=turtl@pve
 PROXMOX_TOKEN_NAME=turtl-api
 PROXMOX_TOKEN_VALUE=<api-token>
 
-POSTGRES_DB=turtl_db
-POSTGRES_USER=turtl_user
-POSTGRES_PASSWORD=turtl_password
-
 PROXMOX_VM_POOL=turtl-lab
+PROXMOX_VM_STORAGE=local-lvm
 PROXMOX_VLAN_BRIDGE=vmbr100
 PROXMOX_VERIFY_SSL=true
 PROXMOX_CA_PATH=/path/to/proxmox-ca.pem
 
-DJANGO_ALLOWED_HOSTS=<ip of turtl host>
 ```
 
 If you enable TLS (`PROXMOX_VERIFY_SSL=true`), copy the **Proxmox CA certificate**  

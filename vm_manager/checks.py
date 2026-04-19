@@ -3,11 +3,20 @@ import os
 from django.core.checks import Error, register
 
 REQUIRED_ENV_VARS = [
+    'VM_MANAGER_LOG_LEVEL',
+    'POSTGRES_DB',
+    'POSTGRES_USER',
+    'POSTGRES_PASSWORD',
+    'POSTGRES_HOST',
+    'POSTGRES_PORT',
+    'REDIS_HOST',
+    'REDIS_PORT',
     'PROXMOX_HOST',
     'PROXMOX_USER',
     'PROXMOX_TOKEN_NAME',
     'PROXMOX_TOKEN_VALUE',
     'PROXMOX_VM_POOL',
+    'PROXMOX_VM_STORAGE',
     'PROXMOX_VLAN_BRIDGE',
     'PROXMOX_VERIFY_SSL',
 ]

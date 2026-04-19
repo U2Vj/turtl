@@ -127,7 +127,7 @@ class ProxmoxManager(ProxmoxClient):
                     "Configuring VM vmid=%s bridge=%s vlan_tag=%s ip=%s cloud_init=%s",
                     vmid, bridge_name, vlan_tag, ip_address, vm_template_config.cloud_init,
                 )
-                storage = 'local-lvm'
+                storage = os.environ.get('PROXMOX_VM_STORAGE')
 
                 configure_vm(
                     proxmox=self.proxmox,
