@@ -22,7 +22,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
-DEBUG = os.environ.get('DJANGO_DEBUG') == 'true'
+DEBUG = os.environ.get('DJANGO_DEBUG', '').strip().lower() in ('1', 'true', 'yes', 'on')
 
 allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS', '')
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
