@@ -5,22 +5,16 @@ import { useRoute } from 'vue-router';
 
 const route = useRoute();
 
+const extractString = (value: unknown): string | undefined => {
+  if (typeof value === 'string') return value;
+  if (Array.isArray(value) && typeof value[0] === 'string') return value[0];
+  return undefined;
+};
+
 const taskId = computed<number | undefined>(() => {
-  const taskIdParam = route.params.taskId;
-  const taskIdQuery = route.query.taskId;
+  const raw = extractString(route.params.taskId) ?? extractString(route.query.taskId);
 
-  const raw =
-    typeof taskIdParam === 'string'
-      ? taskIdParam
-      : Array.isArray(taskIdParam)
-        ? taskIdParam[0]
-        : typeof taskIdQuery === 'string'
-          ? taskIdQuery
-          : Array.isArray(taskIdQuery)
-            ? taskIdQuery[0]
-            : undefined;
-
-  const parsed = raw ? Number(raw) : NaN;
+  const parsed = raw ? Number(raw) : Number.NaN;
   return Number.isFinite(parsed) ? parsed : undefined;
 });
 </script>
