@@ -124,6 +124,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         ca_path = os.environ.get('PROXMOX_CA_PATH')
         verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
         ssl_context = ssl.create_default_context()
+        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
         
         if verify_env in ('false', '0'):
             logger.warning(
