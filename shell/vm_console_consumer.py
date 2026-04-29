@@ -220,6 +220,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
                 getattr(self.user, "id", None),
                 getattr(self, "task_id", None),
             )
+            raise
         except websockets.exceptions.ConnectionClosed:
             logger.info(
                 "Proxmox WebSocket connection closed user_id=%s task_id=%s",
