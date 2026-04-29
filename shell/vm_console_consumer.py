@@ -156,7 +156,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             self.proxmox_ws = await websockets.connect(
                 proxmox_url, 
                 ssl=ssl_context,
-                extra_headers=headers,
+                additional_headers=headers,
                 subprotocols=['binary'],
                 server_hostname=None if verify_off or self._is_ip(proxmox_host) else proxmox_host,
             )

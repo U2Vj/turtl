@@ -14,5 +14,4 @@ psycopg2-binary>=2.9
 python-dotenv>=1.2.2
 rules>=3.4
 websockets>=13
-dj-rest-auth>=7.0
 requests>=2.33.1
