@@ -57,7 +57,12 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         )
 
         requested = self.scope.get('subprotocols', []) or []
-        selected = 'binary' if 'binary' in requested else ( 'base64' if 'base64' in requested else None )
+        if 'binary' in requested:
+            selected = 'binary'
+        elif 'base64' in requested:
+            selected = 'base64'
+        else:
+            selected = None
         await self.accept(subprotocol=selected)
         logger.debug(
             "Client WebSocket accepted user_id=%s task_id=%s subprotocol=%s",
