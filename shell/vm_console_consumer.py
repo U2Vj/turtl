@@ -148,7 +148,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             ssl_context.check_hostname = False
         
         # Prepare API token authentication for WebSocket
-        api_token = await pm.a_get_api_token()
+        api_token = pm.get_api_token()
 
         headers = {
             "Authorization": f"PVEAPIToken={api_token}",
