@@ -57,7 +57,12 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         )
 
         requested = self.scope.get('subprotocols', []) or []
-        selected = 'binary' if 'binary' in requested else ( 'base64' if 'base64' in requested else None )
+        if 'binary' in requested:
+            selected = 'binary'
+        elif 'base64' in requested:
+            selected = 'base64'
+        else:
+            selected = None
         await self.accept(subprotocol=selected)
         logger.debug(
             "Client WebSocket accepted user_id=%s task_id=%s subprotocol=%s",
@@ -124,6 +129,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         ca_path = os.environ.get('PROXMOX_CA_PATH')
         verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
         ssl_context = ssl.create_default_context()
+        ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
         
         if verify_env in ('false', '0'):
             logger.warning(
@@ -142,7 +148,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             ssl_context.check_hostname = False
         
         # Prepare API token authentication for WebSocket
-        api_token = await pm.a_get_api_token()
+        api_token = pm.get_api_token()
 
         headers = {
             "Authorization": f"PVEAPIToken={api_token}",
@@ -219,6 +225,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
                 getattr(self.user, "id", None),
                 getattr(self, "task_id", None),
             )
+            raise
         except websockets.exceptions.ConnectionClosed:
             logger.info(
                 "Proxmox WebSocket connection closed user_id=%s task_id=%s",

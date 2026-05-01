@@ -107,9 +107,6 @@ class ProxmoxClient:
             logger.exception("Error getting console ticket node=%s vmid=%s", node, vmid)
             raise
 
-    async def a_get_api_token(self):
-        return self._api_token
-
     async def a_get_vm_node(self, vmid: int) -> str:
         return await asyncio.to_thread(self.get_vm_node, vmid)
 

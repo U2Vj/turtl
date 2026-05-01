@@ -159,7 +159,7 @@ class VirtualMachine(models.Model):
     #Current status of the VM
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='creating')
     status_changed_at = models.DateTimeField(auto_now_add=True)
-    error_message = models.TextField(blank=True, null=True)
+    error_message = models.TextField(blank=True, default="")
     #Network config
     network = models.ForeignKey('Network', on_delete=models.SET_NULL, null=True, related_name='vms')
     assigned_ip_address = models.GenericIPAddressField(null=True, blank=True)

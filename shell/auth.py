@@ -68,7 +68,7 @@ class JwtAuthMiddleware:
         return await self.inner(scope, receive, send)
 
 
-def JwtAuthMiddlewareStack(inner):
+def jwt_auth_middleware_stack(inner):
     """
     Create JWT authentication middleware stack
     """
