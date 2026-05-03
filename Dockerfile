@@ -4,14 +4,20 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
     PIP_NO_CACHE_DIR=1
 
+RUN adduser --system --no-create-home --group --uid 1000 app
+
 WORKDIR /app
 
 COPY requirements.txt constraints.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY --chown=app:app . .
 
-RUN chmod +x /app/deploy/entrypoint.sh
+RUN chmod +x /app/deploy/entrypoint.sh \
+ && mkdir -p /app/staticfiles /app/media \
+ && chown -R app:app /app/staticfiles /app/media
+
+USER app
 
 EXPOSE 8001
 

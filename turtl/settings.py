@@ -27,6 +27,9 @@ DEBUG = os.environ.get('DJANGO_DEBUG', '').strip().lower() in ('1', 'true', 'yes
 allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS', '')
 ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
 
+csrf_trusted_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in csrf_trusted_origins_env.split(',') if o.strip()]
+
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
 # the `authentication` module. This module is registered above in a setting
@@ -191,7 +194,7 @@ if not DEBUG:
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-FRONTEND_URL = 'http://localhost:5173'
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
 # No. of days for which invitation links sent via the email invitation system are valid
 INVITATION_EXPIRY_DAYS = 14

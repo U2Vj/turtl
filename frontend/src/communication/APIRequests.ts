@@ -11,7 +11,7 @@ type Response = {
   data: any
 }
 
-const APIRequests = axios.create({ baseURL: import.meta.env.VITE_API_URL })
+const APIRequests = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? '' })
 
 function isObject(value: any): boolean {
   return typeof value === 'object' && value !== null;
