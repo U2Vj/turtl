@@ -11,10 +11,9 @@ WORKDIR /app
 COPY requirements.txt constraints.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY --chown=app:app . .
+COPY --chown=app:app --chmod=0555 . .
 
-RUN chmod +x /app/deploy/entrypoint.sh \
- && mkdir -p /app/staticfiles /app/media \
+RUN mkdir -p /app/staticfiles /app/media \
  && chown -R app:app /app/staticfiles /app/media
 
 USER app
