@@ -165,10 +165,11 @@ function setupVNC() {
 
     // Fetch VNC ticket to be used as VNC password
     (async () => {
-      const wsBase = import.meta.env.VITE_WS_URL
-        ?? `${window.location.protocol === 'https:' ? 'wss:' : 'ws:'}//${window.location.host}/shell`;
-      const base = `${wsBase}/ws/vm-console/${props.taskId}/`;
-      let wsUrl = base;
+      const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsBase = import.meta.env.DEV && import.meta.env.VITE_WS_URL
+        ? import.meta.env.VITE_WS_URL
+        : `${wsProto}//${window.location.host}/shell`;
+      const wsUrl = `${wsBase}/ws/vm-console/${props.taskId}/`;
 
       try {
         const { ticket, port } = await vmStore.getVNCTicket(props.taskId!);
