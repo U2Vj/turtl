@@ -6,4 +6,4 @@ COPY frontend/ ./
 RUN npm run build
 
 FROM nginxinc/nginx-unprivileged:alpine
-COPY --from=build --chown=101:101 /app/dist /srv/turtl/web
+COPY --from=build --chown=101:101 --chmod=555 /app/dist /srv/turtl/web
