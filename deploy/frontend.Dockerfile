@@ -5,5 +5,5 @@ RUN npm ci
 COPY frontend/ ./
 RUN npm run build
 
-FROM nginx:alpine
-COPY --from=build /app/dist /srv/turtl/web
+FROM nginxinc/nginx-unprivileged:alpine
+COPY --from=build --chown=101:101 /app/dist /srv/turtl/web
