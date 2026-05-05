@@ -74,17 +74,15 @@ export async function makeAPIRequest(
     if(!error.response) {
       throw new ServerError("The backend API seems to be down or does not respond.", undefined)
     }
-    if(error.response.status === 401
-        && error.response.data?.code === 'token_not_valid'
-        && tryToUpdateTokenWhenUnauthorized) {
+    if(error.response.status === 401 && tryToUpdateTokenWhenUnauthorized) {
       return await userStore.refreshLogin().then(async () => {
         return await makeAPIRequest(url, method, useAuthorization, false, data)
-      }).catch((error) => {
-        if(error instanceof UnauthorizedError && error.getData().code == "token_not_valid") {
-          userStore.logout(router)
-          throw new UnauthorizedError('Your session has expired. Please sign in again.', error.getData())
+      }).catch(async (refreshError) => {
+        if(refreshError instanceof UnauthorizedError) {
+          await userStore.logout(router)
+          throw new UnauthorizedError('Your session has expired. Please sign in again.', refreshError.getData())
         }
-        throw error
+        throw refreshError
       })
     }
 
