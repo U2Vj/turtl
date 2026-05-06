@@ -165,8 +165,14 @@ function setupVNC() {
 
     // Fetch VNC ticket to be used as VNC password
     (async () => {
-      const base = `${import.meta.env.VITE_WS_URL}/ws/vm-console/${props.taskId}/`;
-      let wsUrl = base;
+      if (import.meta.env.DEV && !import.meta.env.VITE_WS_URL) {
+        throw new Error('VITE_WS_URL is required in dev. Set it in frontend/.env.development.')
+      }
+      const wsProto = globalThis.location.protocol === 'https:' ? 'wss:' : 'ws:';
+      const wsBase = import.meta.env.DEV
+        ? import.meta.env.VITE_WS_URL
+        : `${wsProto}//${globalThis.location.host}/shell`;
+      const wsUrl = `${wsBase}/ws/vm-console/${props.taskId}/`;
 
       try {
         const { ticket, port } = await vmStore.getVNCTicket(props.taskId!);
@@ -295,14 +301,14 @@ function reloadVNC() {
 }
 
 function openPopout() {
-  if (!props.taskId || typeof window === 'undefined') return;
+  if (!props.taskId || !globalThis.location || typeof globalThis.open !== 'function') return;
 
   const resolvedRoute = router.resolve({
     name: 'ShellPopout',
     params: { taskId: props.taskId }
   });
-  const popoutUrl = new URL(resolvedRoute.href, window.location.origin).toString();
-  const popout = window.open(popoutUrl, '_blank', 'noopener,noreferrer');
+  const popoutUrl = new URL(resolvedRoute.href, globalThis.location.origin).toString();
+  const popout = globalThis.open(popoutUrl, '_blank', 'noopener,noreferrer');
   if (popout) {
     popout.focus();
   } else {

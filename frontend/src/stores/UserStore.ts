@@ -83,7 +83,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function resetPasswordRequest(email: string) {
     return await axios
-      .post(import.meta.env.VITE_API_URL + '/users/request-reset-email', {
+      .post((import.meta.env.VITE_API_URL ?? '') + '/users/request-reset-email', {
         email: email
       })
       .then(() => {
@@ -124,7 +124,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function resetPassword(email: string, newPassword: string) {
     return await axios
-      .post(import.meta.env.VITE_API_URL + '/users/reset-password', {
+      .post((import.meta.env.VITE_API_URL ?? '') + '/users/reset-password', {
         email: email,
         newPassword: newPassword
       })

@@ -11,7 +11,11 @@ type Response = {
   data: any
 }
 
-const APIRequests = axios.create({ baseURL: import.meta.env.VITE_API_URL })
+if (import.meta.env.DEV && !import.meta.env.VITE_API_URL) {
+  throw new Error('VITE_API_URL is required in dev. Set it in frontend/.env.development.')
+}
+
+const APIRequests = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? '' })
 
 function isObject(value: any): boolean {
   return typeof value === 'object' && value !== null;
@@ -75,16 +79,16 @@ export async function makeAPIRequest(
       throw new ServerError("The backend API seems to be down or does not respond.", undefined)
     }
     if(error.response.status === 401
-        && error.response.data?.code === 'token_not_valid'
-        && tryToUpdateTokenWhenUnauthorized) {
+        && tryToUpdateTokenWhenUnauthorized
+        && await userStore.userIsSignedIn()) {
       return await userStore.refreshLogin().then(async () => {
         return await makeAPIRequest(url, method, useAuthorization, false, data)
-      }).catch((error) => {
-        if(error instanceof UnauthorizedError && error.getData().code == "token_not_valid") {
-          userStore.logout(router)
-          throw new UnauthorizedError('Your session has expired. Please sign in again.', error.getData())
+      }).catch(async (refreshError) => {
+        if(refreshError instanceof UnauthorizedError) {
+          await userStore.logout(router)
+          throw new UnauthorizedError('Your session has expired. Please sign in again.', refreshError.getData())
         }
-        throw error
+        throw refreshError
       })
     }
 
