@@ -165,8 +165,11 @@ function setupVNC() {
 
     // Fetch VNC ticket to be used as VNC password
     (async () => {
+      if (import.meta.env.DEV && !import.meta.env.VITE_WS_URL) {
+        throw new Error('VITE_WS_URL is required in dev. Set it in frontend/.env.development.')
+      }
       const wsProto = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsBase = import.meta.env.DEV && import.meta.env.VITE_WS_URL
+      const wsBase = import.meta.env.DEV
         ? import.meta.env.VITE_WS_URL
         : `${wsProto}//${window.location.host}/shell`;
       const wsUrl = `${wsBase}/ws/vm-console/${props.taskId}/`;

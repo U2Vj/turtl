@@ -11,6 +11,10 @@ type Response = {
   data: any
 }
 
+if (import.meta.env.DEV && !import.meta.env.VITE_API_URL) {
+  throw new Error('VITE_API_URL is required in dev. Set it in frontend/.env.development.')
+}
+
 const APIRequests = axios.create({ baseURL: import.meta.env.VITE_API_URL ?? '' })
 
 function isObject(value: any): boolean {
