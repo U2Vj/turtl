@@ -412,13 +412,13 @@ function openPopout() {
             <v-icon size="small" class="me-1">mdi-open-in-new</v-icon>
             Shell
           </v-btn>
+        </div>
+        <div class="d-flex gap-2">
           <v-btn v-if="environmentStatus === 'active' && connectionStatus === 'connected'" class="ms-2" size="small"
             color="primary" variant="tonal" @click="showClipboard = !showClipboard">
             <v-icon size="small" class="me-1">mdi-clipboard-text</v-icon>
             Clipboard
           </v-btn>
-        </div>
-        <div class="d-flex gap-2">
           <v-btn
             v-if="environmentStatus === 'not_created' || environmentStatus === 'stopped' || environmentStatus === 'provisioning' || environmentStatus === 'starting' || environmentStatus === 'degraded'"
             @click="startEnvironment" :loading="isStarting" color="success" size="small" variant="outlined">
