@@ -78,7 +78,9 @@ export async function makeAPIRequest(
     if(!error.response) {
       throw new ServerError("The backend API seems to be down or does not respond.", undefined)
     }
-    if(error.response.status === 401 && tryToUpdateTokenWhenUnauthorized) {
+    if(error.response.status === 401
+        && tryToUpdateTokenWhenUnauthorized
+        && await userStore.userIsSignedIn()) {
       return await userStore.refreshLogin().then(async () => {
         return await makeAPIRequest(url, method, useAuthorization, false, data)
       }).catch(async (refreshError) => {
