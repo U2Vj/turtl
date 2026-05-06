@@ -54,9 +54,10 @@ async function sendChar(r: any, ch: string) {
     await tapKey(r, ch.charCodeAt(0), undefined);
     return;
   }
+  const ks = spec.keysym ?? ch.charCodeAt(0);
   if (spec.shift) await pressKey(r, SHIFT_KEYSYM, 'ShiftLeft', true);
   if (spec.altgr) await pressKey(r, ALTGR_KEYSYM, 'AltRight', true);
-  await tapKey(r, ch.charCodeAt(0), spec.code);
+  await tapKey(r, ks, spec.code);
   if (spec.altgr) await pressKey(r, ALTGR_KEYSYM, 'AltRight', false);
   if (spec.shift) await pressKey(r, SHIFT_KEYSYM, 'ShiftLeft', false);
   if (spec.dead) await tapKey(r, SPACE_KEYSYM, 'Space');
@@ -471,7 +472,7 @@ function openPopout() {
             @click="toggleTyping"
           >
             <v-icon size="small" class="me-1">{{ isTyping ? 'mdi-stop' : 'mdi-keyboard' }}</v-icon>
-            {{ isTyping ? `Stoppen (${typingProgress}/${clipboardText.length})` : 'PASTE' }}
+            {{ isTyping ? `Stop (${typingProgress}/${clipboardText.length})` : 'PASTE' }}
           </v-btn>
         </div>
       </div>

@@ -1,10 +1,11 @@
-//German keyboard layout map for paste-as-keystrokes into a VNC session.
+// German keyboard layout map for paste-as-keystrokes into a VNC session.
 
 export type KeySpec = {
   code: string;
   shift?: boolean;
   altgr?: boolean;
   dead?: boolean;
+  keysym?: number;
 };
 
 export const SHIFT_KEYSYM = 0xffe1;
@@ -14,8 +15,8 @@ export const SPACE_KEYSYM = 0x20;
 function buildLayout(): Record<string, KeySpec> {
   const map: Record<string, KeySpec> = {
     ' ': { code: 'Space' },
-    '\n': { code: 'Enter' },
-    '\t': { code: 'Tab' },
+    '\n': { code: 'Enter', keysym: 0xff0d },
+    '\t': { code: 'Tab', keysym: 0xff09 },
   };
 
   for (let i = 0; i <= 9; i++) map[String(i)] = { code: `Digit${i}` };
