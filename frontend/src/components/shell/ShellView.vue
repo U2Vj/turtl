@@ -34,6 +34,34 @@ const isTyping = ref(false);
 const typingProgress = ref(0);
 let cancelTyping = false;
 
+const SUB_EVENT_DELAY = 5;
+const PER_CHAR_DELAY = 35;
+const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+async function pressKey(r: any, ks: number, code: string | undefined, down: boolean) {
+  r.sendKey(ks, code, down);
+  await sleep(SUB_EVENT_DELAY);
+}
+
+async function tapKey(r: any, ks: number, code: string | undefined) {
+  await pressKey(r, ks, code, true);
+  await pressKey(r, ks, code, false);
+}
+
+async function sendChar(r: any, ch: string) {
+  const spec = KEYBOARD_LAYOUT_DE[ch];
+  if (!spec) {
+    await tapKey(r, ch.charCodeAt(0), undefined);
+    return;
+  }
+  if (spec.shift) await pressKey(r, SHIFT_KEYSYM, 'ShiftLeft', true);
+  if (spec.altgr) await pressKey(r, ALTGR_KEYSYM, 'AltRight', true);
+  await tapKey(r, ch.charCodeAt(0), spec.code);
+  if (spec.altgr) await pressKey(r, ALTGR_KEYSYM, 'AltRight', false);
+  if (spec.shift) await pressKey(r, SHIFT_KEYSYM, 'ShiftLeft', false);
+  if (spec.dead) await tapKey(r, SPACE_KEYSYM, 'Space');
+}
+
 async function toggleTyping() {
   if (isTyping.value) {
     cancelTyping = true;
@@ -47,53 +75,15 @@ async function toggleTyping() {
 
   const text = clipboardText.value;
   const r = rfb.value as any;
-  const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
-  const SUB_EVENT_DELAY = 5;
-  const PER_CHAR_DELAY = 35;
 
   try {
     for (let i = 0; i < text.length; i++) {
       if (cancelTyping) break;
-      const ch = text[i];
-      if (ch === '\r') {
-        typingProgress.value = i + 1;
-        continue;
-      }
-      const spec = KEYBOARD_LAYOUT_DE[ch];
-      if (!spec) {
-        r.sendKey(ch.charCodeAt(0), undefined, true);
-        await sleep(SUB_EVENT_DELAY);
-        r.sendKey(ch.charCodeAt(0), undefined, false);
-      } else {
-        const ks = ch.charCodeAt(0);
-        if (spec.shift) {
-          r.sendKey(SHIFT_KEYSYM, 'ShiftLeft', true);
-          await sleep(SUB_EVENT_DELAY);
-        }
-        if (spec.altgr) {
-          r.sendKey(ALTGR_KEYSYM, 'AltRight', true);
-          await sleep(SUB_EVENT_DELAY);
-        }
-        r.sendKey(ks, spec.code, true);
-        await sleep(SUB_EVENT_DELAY);
-        r.sendKey(ks, spec.code, false);
-        await sleep(SUB_EVENT_DELAY);
-        if (spec.altgr) {
-          r.sendKey(ALTGR_KEYSYM, 'AltRight', false);
-          await sleep(SUB_EVENT_DELAY);
-        }
-        if (spec.shift) {
-          r.sendKey(SHIFT_KEYSYM, 'ShiftLeft', false);
-          await sleep(SUB_EVENT_DELAY);
-        }
-        if (spec.dead) {
-          r.sendKey(SPACE_KEYSYM, 'Space', true);
-          await sleep(SUB_EVENT_DELAY);
-          r.sendKey(SPACE_KEYSYM, 'Space', false);
-        }
+      if (text[i] !== '\r') {
+        await sendChar(r, text[i]);
+        await sleep(PER_CHAR_DELAY);
       }
       typingProgress.value = i + 1;
-      await sleep(PER_CHAR_DELAY);
     }
   } finally {
     try {
