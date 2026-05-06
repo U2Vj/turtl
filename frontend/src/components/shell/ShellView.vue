@@ -301,7 +301,7 @@ function reloadVNC() {
 }
 
 function openPopout() {
-  if (!props.taskId || typeof globalThis === 'undefined') return;
+  if (!props.taskId || !globalThis.location || typeof globalThis.open !== 'function') return;
 
   const resolvedRoute = router.resolve({
     name: 'ShellPopout',
