@@ -3,6 +3,12 @@ import { onMounted, onBeforeUnmount, ref, watch, nextTick } from 'vue';
 import RFB from '@novnc/novnc/core/rfb.js';
 import { useVMManagerStore } from '@/stores/VMManagerStore';
 import { useRouter } from 'vue-router';
+import {
+  KEYBOARD_LAYOUT_DE,
+  SHIFT_KEYSYM,
+  ALTGR_KEYSYM,
+  SPACE_KEYSYM,
+} from './keyboardLayouts';
 
 const props = withDefaults(
   defineProps<{ taskId?: number; hidePopoutButton?: boolean; scaleViewport?: boolean }>(),
@@ -21,6 +27,83 @@ const connectionStatus = ref<string>('disconnected');
 const isInitializing = ref<boolean>(false);
 const hasConfig = ref<boolean | null>(null);
 let statusPollingInterval: ReturnType<typeof setInterval> | null = null;
+
+const showClipboard = ref(false);
+const clipboardText = ref('');
+const isTyping = ref(false);
+const typingProgress = ref(0);
+let cancelTyping = false;
+
+async function toggleTyping() {
+  if (isTyping.value) {
+    cancelTyping = true;
+    return;
+  }
+  if (!rfb.value || connectionStatus.value !== 'connected' || !clipboardText.value) return;
+
+  isTyping.value = true;
+  cancelTyping = false;
+  typingProgress.value = 0;
+
+  const text = clipboardText.value;
+  const r = rfb.value as any;
+  const sleep = (ms: number) => new Promise(res => setTimeout(res, ms));
+  const SUB_EVENT_DELAY = 5;
+  const PER_CHAR_DELAY = 35;
+
+  try {
+    for (let i = 0; i < text.length; i++) {
+      if (cancelTyping) break;
+      const ch = text[i];
+      if (ch === '\r') {
+        typingProgress.value = i + 1;
+        continue;
+      }
+      const spec = KEYBOARD_LAYOUT_DE[ch];
+      if (!spec) {
+        r.sendKey(ch.charCodeAt(0), undefined, true);
+        await sleep(SUB_EVENT_DELAY);
+        r.sendKey(ch.charCodeAt(0), undefined, false);
+      } else {
+        const ks = ch.charCodeAt(0);
+        if (spec.shift) {
+          r.sendKey(SHIFT_KEYSYM, 'ShiftLeft', true);
+          await sleep(SUB_EVENT_DELAY);
+        }
+        if (spec.altgr) {
+          r.sendKey(ALTGR_KEYSYM, 'AltRight', true);
+          await sleep(SUB_EVENT_DELAY);
+        }
+        r.sendKey(ks, spec.code, true);
+        await sleep(SUB_EVENT_DELAY);
+        r.sendKey(ks, spec.code, false);
+        await sleep(SUB_EVENT_DELAY);
+        if (spec.altgr) {
+          r.sendKey(ALTGR_KEYSYM, 'AltRight', false);
+          await sleep(SUB_EVENT_DELAY);
+        }
+        if (spec.shift) {
+          r.sendKey(SHIFT_KEYSYM, 'ShiftLeft', false);
+          await sleep(SUB_EVENT_DELAY);
+        }
+        if (spec.dead) {
+          r.sendKey(SPACE_KEYSYM, 'Space', true);
+          await sleep(SUB_EVENT_DELAY);
+          r.sendKey(SPACE_KEYSYM, 'Space', false);
+        }
+      }
+      typingProgress.value = i + 1;
+      await sleep(PER_CHAR_DELAY);
+    }
+  } finally {
+    try {
+      r.sendKey(ALTGR_KEYSYM, 'AltRight', false);
+      r.sendKey(SHIFT_KEYSYM, 'ShiftLeft', false);
+    } catch {}
+    isTyping.value = false;
+    cancelTyping = false;
+  }
+}
 
 // loading flags for start/stop/cleanup buttons
 const isStarting = ref(false);
@@ -230,6 +313,10 @@ function setupVNC() {
 function cleanup() {
   console.log('Cleaning up VNC connection...');
 
+  if (isTyping.value) {
+    cancelTyping = true;
+  }
+
   // RFB disconnect und cleanup
   if (rfb.value) {
     try {
@@ -335,6 +422,11 @@ function openPopout() {
             <v-icon size="small" class="me-1">mdi-open-in-new</v-icon>
             Shell
           </v-btn>
+          <v-btn v-if="environmentStatus === 'active' && connectionStatus === 'connected'" class="ms-2" size="small"
+            color="primary" variant="tonal" @click="showClipboard = !showClipboard">
+            <v-icon size="small" class="me-1">mdi-clipboard-text</v-icon>
+            Clipboard
+          </v-btn>
         </div>
         <div class="d-flex gap-2">
           <v-btn
@@ -366,6 +458,33 @@ function openPopout() {
 
     <div v-show="environmentStatus === 'active'" class="vnc-container-wrapper">
       <div ref="vncContainer" class="vnc-wrapper"></div>
+      <div v-if="showClipboard" class="clipboard-panel">
+        <div class="clipboard-header">
+          <span class="clipboard-title">Clipboard</span>
+          <v-btn icon="mdi-close" size="x-small" variant="text" @click="showClipboard = false" />
+        </div>
+        <v-textarea
+          v-model="clipboardText"
+          class="clipboard-textarea"
+          placeholder="Enter text to copy to the machine"
+          hide-details
+          variant="outlined"
+          :readonly="isTyping"
+          no-resize
+        />
+        <div class="clipboard-actions">
+          <v-btn
+            :color="isTyping ? 'error' : 'primary'"
+            :disabled="!isTyping && !clipboardText"
+            size="small"
+            variant="tonal"
+            @click="toggleTyping"
+          >
+            <v-icon size="small" class="me-1">{{ isTyping ? 'mdi-stop' : 'mdi-keyboard' }}</v-icon>
+            {{ isTyping ? `Stoppen (${typingProgress}/${clipboardText.length})` : 'PASTE' }}
+          </v-btn>
+        </div>
+      </div>
     </div>
 
     <div v-if="environmentStatus !== 'active' && taskId" class="placeholder-message">
@@ -415,5 +534,41 @@ function openPopout() {
 
 .gap-2 {
   gap: 8px;
+}
+
+.clipboard-panel {
+  flex-shrink: 0;
+  width: 320px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px;
+  background-color: rgba(var(--v-theme-surface));
+  border-left: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+}
+
+.clipboard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.clipboard-title {
+  font-weight: 500;
+}
+
+.clipboard-textarea {
+  flex: 1;
+}
+
+.clipboard-textarea :deep(.v-field),
+.clipboard-textarea :deep(.v-field__field),
+.clipboard-textarea :deep(textarea) {
+  height: 100%;
+}
+
+.clipboard-actions {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>
