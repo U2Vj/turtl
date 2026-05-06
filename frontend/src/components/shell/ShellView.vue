@@ -86,6 +86,8 @@ async function toggleTyping() {
       }
       typingProgress.value = i + 1;
     }
+  } catch (e) {
+    console.warn('typing aborted', e);
   } finally {
     try {
       r.sendKey(ALTGR_KEYSYM, 'AltRight', false);
