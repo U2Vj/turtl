@@ -15,3 +15,5 @@ proxmox-ca.pem
 deploy/certs/
 .vscode/
 .idea/
+constraints.txt
+requirements.in

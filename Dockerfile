@@ -8,7 +8,7 @@ RUN adduser --system --no-create-home --group --uid 1000 app
 
 WORKDIR /app
 
-COPY requirements.txt constraints.txt ./
+COPY requirements.txt ./
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY --chown=app:app --chmod=0555 . .
