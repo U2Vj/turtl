@@ -1,6 +1,6 @@
 import logging
 
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
@@ -9,6 +9,7 @@ from catalog.models import Task
 from .proxmox import ProxmoxManager, NoVlanAvailableError
 from .access import user_can_access_task_vm
 from .models import VirtualMachine, LabEnvironment, TaskVMConfiguration
+from .throttling import VMActionThrottle
 from django.utils import timezone
 
 logger = logging.getLogger(__name__)
@@ -37,6 +38,7 @@ def _internal_vm_error(detail: str, error_code: str):
 
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([VMActionThrottle])
 def start_environment(request, task_id):
     """
     Starts a lab environment for the current user and given task
@@ -103,6 +105,7 @@ def start_environment(request, task_id):
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([VMActionThrottle])
 def stop_environment(request, task_id):
     """
     Stops a lab environment for the current user and given task
@@ -144,6 +147,7 @@ def stop_environment(request, task_id):
     
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
+@throttle_classes([VMActionThrottle])
 def cleanup_environment(request, task_id):
     """
     Stops and removes a lab environment for the current user and given task
