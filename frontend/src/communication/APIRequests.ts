@@ -84,8 +84,8 @@ export async function makeAPIRequest(
       return await userStore.refreshLogin().then(async () => {
         return await makeAPIRequest(url, method, useAuthorization, false, data)
       }).catch(async (refreshError) => {
+        await userStore.logout(router)
         if(refreshError instanceof UnauthorizedError) {
-          await userStore.logout(router)
           throw new UnauthorizedError('Your session has expired. Please sign in again.', refreshError.getData())
         }
         throw refreshError
