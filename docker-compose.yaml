@@ -29,7 +29,6 @@ services:
       POSTGRES_HOST: postgres
       REDIS_HOST: redis
       PROXMOX_CA_PATH: /app/proxmox-ca.pem
-      ASGI_THREADS: "32"
     volumes:
       - static_data:/app/staticfiles
       - media_data:/app/media
