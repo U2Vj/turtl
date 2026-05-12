@@ -7,7 +7,7 @@ class Command(BaseCommand):
     help = "Delete all users with role STUDENT."
 
     def add_arguments(self, parser):
-        parser.add_argument("--noinput", "--yes", action="store_true",
+        parser.add_argument("--no-input", "--noinput", action="store_true",
                             help="Skip the confirmation prompt.")
 
     def handle(self, *args, **options):
@@ -17,11 +17,11 @@ class Command(BaseCommand):
             self.stdout.write("No students found.")
             return
 
-        if not options["noinput"]:
+        if not options["no_input"]:
             try:
                 answer = input(f"WARNING. THIS ACTION CANNOT BE UNDONE: Delete {count} students? [y/N] ")
             except EOFError:
-                self.stdout.write("No TTY available. Use --noinput with the command.")
+                self.stdout.write("No TTY available. Use --no-input with the command.")
                 return
             if answer.strip().lower() != "y":
                 self.stdout.write("Aborted.")

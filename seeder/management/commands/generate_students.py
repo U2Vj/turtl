@@ -2,9 +2,12 @@ import argparse
 import secrets
 from pathlib import Path
 
-from django.contrib.auth.hashers import make_password
 from django.core.management import BaseCommand, CommandError
 from django.db import transaction
+
+from authentication.models import User
+from catalog.models import Classroom
+from enrollments.models import Enrollment
 
 
 def valid_int(value):
@@ -16,10 +19,6 @@ def valid_int(value):
         raise argparse.ArgumentTypeError(f"{value!r} must be >= 1")
     return ivalue
 
-from authentication.models import User
-from catalog.models import Classroom
-from enrollments.models import Enrollment
-
 
 ANIMALS = [
     "fox", "otter", "bear", "wolf", "eagle", "hawk", "lynx", "panda", "tiger",
@@ -29,7 +28,7 @@ ANIMALS = [
 ALPHABET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 
-def make_password_string(length):
+def make_password(length):
     return "".join(secrets.choice(ALPHABET) for _ in range(length))
 
 
@@ -66,13 +65,10 @@ class Command(BaseCommand):
         with transaction.atomic():
             for i in range(count):
                 email = make_email(used, i, options["domain"])
-                password = make_password_string(options["password_length"])
-                user = User.objects.create(
-                    email=email,
-                    username=email.split("@")[0],
-                    password=make_password(password),
-                    role=User.Role.STUDENT,
-                )
+                password = make_password(options["password_length"])
+                user = User.objects.create_student(email=email, password=password)
+                user.username = email.split("@")[0]
+                user.save()
                 Enrollment.objects.create(classroom=classroom, student=user)
                 created.append((email, password))
 
