@@ -41,6 +41,31 @@ services:
       - redis
     restart: unless-stopped
 
+  cleanup:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    env_file: .env
+    environment:
+      POSTGRES_HOST: postgres
+      REDIS_HOST: redis
+      PROXMOX_CA_PATH: /app/proxmox-ca.pem
+    volumes:
+      - ./proxmox-ca.pem:/app/proxmox-ca.pem:ro
+    networks:
+      - frontend
+      - backend
+    depends_on:
+      - postgres
+      - redis
+    restart: unless-stopped
+    entrypoint: []
+    command: >
+      sh -c 'while true; do
+        python manage.py cleanup_lab_envs || true;
+        sleep 600;
+      done'
+
   nginx:
     build:
       context: .

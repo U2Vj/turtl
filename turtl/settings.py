@@ -83,6 +83,9 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_THROTTLE_RATES': {
+        'vm_actions': '5/min',
+    },
 }
 SIMPLE_JWT = {
     # This serializer replaces the default serializer (TokenObtainPairSerializer).
@@ -132,6 +135,7 @@ DATABASES = {
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
         'HOST': os.environ['POSTGRES_HOST'],
         'PORT': os.environ['POSTGRES_PORT'],
+        'CONN_MAX_AGE': 60,
     }
 }
 

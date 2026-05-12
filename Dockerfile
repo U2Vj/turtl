@@ -21,4 +21,4 @@ USER app
 EXPOSE 8001
 
 ENTRYPOINT ["/app/deploy/entrypoint.sh"]
-CMD ["daphne", "-b", "0.0.0.0", "-p", "8001", "turtl.asgi:application"]
+CMD ["daphne", "--proxy-headers", "-b", "0.0.0.0", "-p", "8001", "turtl.asgi:application"]

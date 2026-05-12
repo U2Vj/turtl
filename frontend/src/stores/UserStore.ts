@@ -65,13 +65,16 @@ export const useUserStore = defineStore('user', () => {
     accessToken.value = response.data.access
   }
 
+  let refreshPromise: Promise<void> | null = null
   async function refreshLogin() {
-    const data = {
-      refresh: refreshToken.value
-    }
-    const response = await makeAPIRequest('/users/login/refresh', 'POST', false, false, data)
-    refreshToken.value = response.data.refresh
-    accessToken.value = response.data.access
+    if (refreshPromise) return refreshPromise
+    refreshPromise = (async () => {
+      const data = { refresh: refreshToken.value }
+      const response = await makeAPIRequest('/users/login/refresh', 'POST', false, false, data)
+      refreshToken.value = response.data.refresh
+      accessToken.value = response.data.access
+    })().finally(() => { refreshPromise = null })
+    return refreshPromise
   }
 
   async function userIsSignedIn() {

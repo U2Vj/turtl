@@ -1,7 +1,8 @@
 from types import SimpleNamespace
 from unittest.mock import MagicMock, Mock, patch
 
-from django.test import TestCase
+from django.core.cache import cache
+from django.test import TestCase, override_settings
 from django.core.exceptions import ValidationError
 from django.db import IntegrityError
 from django.urls import reverse
@@ -163,6 +164,7 @@ class AdvisoryLockBehaviorTest(TestCase):
                 self.assertFalse(acquired)
 
 
+@override_settings(SECURE_SSL_REDIRECT=False)
 class StartEnvironmentViewTest(TestCase):
     @classmethod
     def setUpTestData(cls):
@@ -208,6 +210,22 @@ class StartEnvironmentViewTest(TestCase):
 
         self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
         self.assertNotEqual(response.data.get("error_code"), "NO_VLAN_AVAILABLE")
+
+    def test_vm_throttling(self):
+        cache.clear()
+        self.addCleanup(cache.clear)
+
+        with patch("vm_manager.views.ProxmoxManager") as manager_cls:
+            manager_cls.return_value.create_lab_environment.return_value = SimpleNamespace(id=1)
+
+            for _ in range(5):
+                ok_response = self.client.post(self.url)
+                self.assertEqual(ok_response.status_code, status.HTTP_200_OK)
+
+            throttled_response = self.client.post(self.url)
+
+        self.assertEqual(throttled_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+        self.assertIn("throttled", throttled_response.data.get("detail", "").lower())
 
 
 class ProxmoxManagerLockingTest(TestCase):
