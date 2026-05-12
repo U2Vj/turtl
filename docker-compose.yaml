@@ -53,6 +53,7 @@ services:
     volumes:
       - ./proxmox-ca.pem:/app/proxmox-ca.pem:ro
     networks:
+      - frontend
       - backend
     depends_on:
       - postgres
