@@ -1,9 +1,20 @@
+import argparse
 import secrets
 from pathlib import Path
 
 from django.contrib.auth.hashers import make_password
 from django.core.management import BaseCommand, CommandError
 from django.db import transaction
+
+
+def valid_int(value):
+    try:
+        ivalue = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError(f"{value!r} is not an integer")
+    if ivalue < 1:
+        raise argparse.ArgumentTypeError(f"{value!r} must be >= 1")
+    return ivalue
 
 from authentication.models import User
 from catalog.models import Classroom
@@ -23,22 +34,24 @@ def make_password_string(length):
 
 
 def make_email(used, count, domain):
-    while True:
+    failcount = 0
+    while failcount < 100:
         candidate = f"{secrets.choice(ANIMALS)}-{count}@{domain}"
         if candidate in used or User.objects.filter(email=candidate).exists():
+            failcount += 1
             continue
         used.add(candidate)
         return candidate
-
+    raise CommandError("Failed to generate unique email after 100 attempts.")
 
 class Command(BaseCommand):
     help = "Generate student users for a classroom and output credentials in a printable file"
 
     def add_arguments(self, parser):
-        parser.add_argument("count", type=int)
-        parser.add_argument("classroom_id", type=int)
+        parser.add_argument("count", type=valid_int)
+        parser.add_argument("classroom_id", type=valid_int)
         parser.add_argument("--domain", default="turtl")
-        parser.add_argument("--password-length", type=int, default=10)
+        parser.add_argument("--password-length", type=valid_int, default=10)
         parser.add_argument("--output", default="users.html")
 
     def handle(self, *args, **options):
@@ -71,7 +84,7 @@ class Command(BaseCommand):
 def render_html(users):
     cards = "\n".join(
         f'<div class="card">'
-        f'<div>turtl.seclab.inf.fh-dortmund.de</div>'
+        f'<div class="tag">TURTL</div>'
         f'<div>Email: <code>{email}</code></div>'
         f'<div>Password: <code>{password}</code></div></div>'
         for email, password in users
@@ -81,6 +94,7 @@ def render_html(users):
         '<style>'
         '@page{size:A4;margin:10mm}'
         '.sheet{display:grid;grid-template-columns:1fr 1fr}'
+        '.tag{font-size:10pt;font-weight:bold;margin-bottom:4mm}'
         '.card{border:1px dashed #888;padding:6mm;min-height:30mm;page-break-inside:avoid;box-sizing:border-box;margin:-0.5px}'
         'code{font-size:11pt}'
         '</style>'
