@@ -23,11 +23,15 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
     async def connect(self):
         self.task_id = self.scope['url_route']['kwargs']['task_id']
         self.user = self.scope['user']
-        
+        self.user_group = None
+
         if not self.user.is_authenticated:
             logger.warning("Unauthenticated user attempted VM console connection")
             await self.close()
             return
+
+        self.user_group = f"user_{self.user.id}"
+        await self.channel_layer.group_add(self.user_group, self.channel_name)
         
         if not await self.can_access_task_vm():
             logger.warning(
@@ -189,12 +193,22 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             self.forward_task.cancel()
         if self.proxmox_ws:
             await self.proxmox_ws.close()
+        if self.user_group:
+            await self.channel_layer.group_discard(self.user_group, self.channel_name)
         logger.debug(
             "VM console disconnected user_id=%s task_id=%s close_code=%s",
             getattr(self.user, "id", None),
             getattr(self, "task_id", None),
             close_code,
         )
+
+    async def force_disconnect(self, event):
+        logger.info(
+            "Force-disconnecting VM console user_id=%s task_id=%s",
+            getattr(self.user, "id", None),
+            getattr(self, "task_id", None),
+        )
+        await self.close(code=4401)
     
     async def receive(self, text_data=None, bytes_data=None):
         # Forward to Proxmox
