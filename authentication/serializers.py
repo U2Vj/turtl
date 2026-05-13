@@ -124,6 +124,9 @@ class LoginRefreshSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise TokenError("No user found for given token")
 
+        if not user.is_active:
+            raise TokenError("User is inactive")
+
         refresh['username'] = access['username'] = user.username
 
         data = {"access": str(access)}
