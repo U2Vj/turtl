@@ -6,3 +6,8 @@ from django.apps import AppConfig
 # https://thinkster.io/tutorials/django-json-api/authentication
 class AuthenticationConfig(AppConfig):
     name = 'authentication'
+
+    def ready(self):
+        from django.core.validators import EmailValidator
+        if "turtl" not in EmailValidator.domain_allowlist:
+            EmailValidator.domain_allowlist = list(EmailValidator.domain_allowlist) + ["turtl"]
