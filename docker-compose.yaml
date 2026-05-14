@@ -15,7 +15,7 @@ services:
       POSTGRES_HOST_AUTH_METHOD: scram-sha-256
       POSTGRES_INITDB_ARGS: "--auth-host=scram-sha-256 --auth-local=scram-sha-256"
     volumes:
-      - postgres_database:/var/lib/postgresql/data
+      - postgres_database:/var/lib/postgresql
     networks:
       - backend
     restart: unless-stopped
