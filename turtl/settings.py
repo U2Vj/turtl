@@ -58,6 +58,7 @@ INSTALLED_APPS = [
     'seeder',
     'shell',
     'vm_manager',
+    'analytics',
 ]
 
 MIDDLEWARE = [
