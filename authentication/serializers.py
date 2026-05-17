@@ -168,11 +168,7 @@ class LoginSerializer(TokenObtainPairSerializer):
         return token
     
     def validate(self, attrs):
-        try:
-            data = super().validate(attrs)
-        except AuthenticationFailed as e:
-            track('user_login_failed', email=attrs.get('email'))
-            raise
+        data = super().validate(attrs)
         track('user_login', user=self.user)
         return data
 
