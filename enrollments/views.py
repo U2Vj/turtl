@@ -17,6 +17,7 @@ from .models import Enrollment
 from .models import TaskSolution
 from .serializers import EnrollmentSerializer, EnrollmentDetailSerializer, EnrollmentUserSerializer, \
     TaskSubmissionSerializer
+from analytics.tracker import track
 
 
 class EnrollmentViewSet(ModelViewSet):
@@ -155,8 +156,22 @@ class TaskSubmissionView(GenericAPIView):
         response_data["passed"] = regexes_valid and flags_valid and questions_valid
 
         status_code = status.HTTP_200_OK
+
+        already_completed = TaskSolution.objects.filter(enrollment=enrollment, task=task).exists()
+
         if response_data["passed"]:
             _, created = TaskSolution.objects.get_or_create(enrollment=enrollment, task=task)
             if created:
                 status_code = status.HTTP_201_CREATED
+                track('task_completed',
+                      user=request.user,
+                      task_id=task.id,
+                      classroom_id=enrollment.classroom_id)
+        else:
+            if not already_completed:
+                track('task_failed',
+                    user=request.user,
+                    task_id=task.id,
+                    classroom_id=enrollment.classroom_id)
+            
         return Response(response_data, status=status_code)
