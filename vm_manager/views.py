@@ -11,6 +11,7 @@ from .access import user_can_access_task_vm
 from .models import VirtualMachine, LabEnvironment, TaskVMConfiguration
 from .throttling import VMActionThrottle
 from django.utils import timezone
+from analytics.tracker import track
 
 logger = logging.getLogger(__name__)
 
@@ -57,6 +58,7 @@ def start_environment(request, task_id):
         if not lab_env:
             # Create new environment
             lab_env = proxmox_manager.create_lab_environment(user, task)
+            track('lab_created', user=user, task_id=task.id, lab_environment_id=lab_env.id)
             return Response({
                 'status': 'created',
                 'message': 'Lab environment created and started successfully',
@@ -66,6 +68,7 @@ def start_environment(request, task_id):
             # Start existing environment
             started = proxmox_manager.start_environment(lab_env)
             if (started):
+                track('lab_resumed', user=user, task_id=task.id, lab_environment_id=lab_env.id)
                 return Response({
                     'status': 'started',
                     'message': 'Lab environment started successfully',
@@ -128,6 +131,8 @@ def stop_environment(request, task_id):
         proxmox_manager = ProxmoxManager()
         proxmox_manager.stop_environment(lab_env)
 
+        track('lab_stopped', user=user, task_id=task.id, lab_environment_id=lab_env.id)
+
         return Response({
             'status': 'stopped',
             'message': 'Lab environment stopped successfully'
@@ -159,10 +164,14 @@ def cleanup_environment(request, task_id):
         if not user_can_access_task_vm(user, task):
             return _forbidden_task_vm_access()
         
+        lab_env = LabEnvironment.objects.filter(user=user, task=task).first()
+        lab_env_id = lab_env.id if lab_env else None
+
         proxmox_manager = ProxmoxManager()
         cleanup_result = proxmox_manager.cleanup_environment(user, task)
 
         if cleanup_result == 'deleted':
+            track('lab_deleted', user=user, task_id=task.id, lab_environment_id=lab_env_id)
             return Response({
                 'status': 'deleted',
                 'message': 'Lab environment deleted successfully'
