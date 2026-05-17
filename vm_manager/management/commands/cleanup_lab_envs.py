@@ -9,6 +9,8 @@ from django.db.models import Q
 from vm_manager.models import LabEnvironment
 from vm_manager.proxmox import ProxmoxManager
 
+from analytics.tracker import track
+
 logger = logging.getLogger(__name__)
 
 # Cleanup time config
@@ -31,6 +33,7 @@ class Command(BaseCommand):
         for env in active_envs:
             try:
                 pm.stop_environment(env)
+                track('lab_stopped', user=env.user, task_id=env.task_id, lab_environment_id=env.id, auto=True)
                 logger.info("Stopped env_id=%s (user=%s, task=%s)", env.id, env.user_id, env.task_id)
             except Exception:
                 logger.exception("Failed stopping env_id=%s", env.id)
@@ -40,6 +43,7 @@ class Command(BaseCommand):
             try:
                 result = pm.cleanup_environment(env.user, env.task)
                 if result == 'deleted':
+                    track('lab_deleted', user=env.user, task_id=env.task_id, lab_environment_id=env.id, auto=True)
                     logger.info(f"Cleaned up env {env.id} (user={env.user_id}, task={env.task_id})")
                 elif result == 'locked':
                     logger.info(
