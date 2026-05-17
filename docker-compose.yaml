@@ -85,11 +85,33 @@ services:
     depends_on:
       - app
     restart: unless-stopped
+  
+  grafana:
+    image: grafana/grafana-oss:13.0.1
+    ports:
+      - "127.0.0.1:3000:3000"
+    environment:
+      GF_SECURITY_ADMIN_USER: ${GRAFANA_ADMIN_USER:?GRAFANA_ADMIN_USER must be set}
+      GF_SECURITY_ADMIN_PASSWORD: ${GRAFANA_ADMIN_PASSWORD:?GRAFANA_ADMIN_PASSWORD must be set}
+      GF_USERS_ALLOW_SIGN_UP: "false"
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./deploy/grafana-provisioning:/etc/grafana/provisioning:ro
+    networks:
+      - backend
+      - frontend
+    depends_on:
+      - postgres
+    restart: unless-stopped
 
 volumes:
   postgres_database:
   static_data:
   media_data:
+  grafana_data:
 
 networks:
   frontend:
