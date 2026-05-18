@@ -211,11 +211,8 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
     @sync_to_async
     def _incr_user_ws_count(user_id):
         key = f"ws_console_count_{user_id}"
-        try:
-            return cache.incr(key)
-        except ValueError:
-            cache.set(key, 1, timeout=5000)
-            return 1
+        cache.add(key, 0, timeout=5000)
+        return cache.incr(key)
 
     @staticmethod
     @sync_to_async
