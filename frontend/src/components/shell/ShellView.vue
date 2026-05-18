@@ -266,19 +266,19 @@ function setupVNC() {
         console.error('Failed to fetch VNC ticket', e);
       }
 
-      // Capture the close code from the WebSocket to display ws rate limit
+      // Capture the close code from the WebSocket to display ws rate limit.
       const OriginalWebSocket = globalThis.WebSocket;
-      class TrackedWebSocket extends OriginalWebSocket {
-        constructor(url: string | URL, protocols?: string | string[]) {
-          super(url, protocols);
-          this.addEventListener('close', (event: CloseEvent) => {
+      globalThis.WebSocket = new Proxy(OriginalWebSocket, {
+        construct(target, args) {
+          const ws = new (target as any)(...args);
+          ws.addEventListener('close', (event: CloseEvent) => {
             if (event.code === 4429) {
               vmStore.error = 'Too many active shell sessions. Close another tab and try again.';
             }
           });
+          return ws;
         }
-      }
-      globalThis.WebSocket = TrackedWebSocket as unknown as typeof WebSocket;
+      });
       try {
         rfb.value = new RFB(vncContainerElement, wsUrl, rfbOptions);
       } finally {

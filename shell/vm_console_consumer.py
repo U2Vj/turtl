@@ -40,6 +40,15 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
                 self.user.id, count, max_connections,
             )
             await self._decr_user_ws_count(self.user.id)
+
+            requested = self.scope.get('subprotocols', []) or []
+            if 'binary' in requested:
+                selected = 'binary'
+            elif 'base64' in requested:
+                selected = 'base64'
+            else:
+                selected = None
+            await self.accept(subprotocol=selected)
             await self.close(code=4429)
             return
         self._ws_count_incremented = True
