@@ -77,12 +77,16 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             await self.accept(subprotocol=selected)
             await self.close(code=4429)
             return
+
+        try:
+            self.user_group = f"user_{self.user.id}"
+            await self.channel_layer.group_add(self.user_group, self.channel_name)
+            await self.accept(subprotocol=selected)
+        except BaseException:
+            await self._decr_user_ws_count(self.user.id)
+            raise
+        
         self._ws_count_incremented = True
-
-        self.user_group = f"user_{self.user.id}"
-        await self.channel_layer.group_add(self.user_group, self.channel_name)
-
-        await self.accept(subprotocol=selected)
         logger.debug(
             "Client WebSocket accepted user_id=%s task_id=%s subprotocol=%s",
             getattr(self.user, "id", None),
