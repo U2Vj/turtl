@@ -32,30 +32,6 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             await self.close()
             return
 
-        max_connections = int(os.environ.get('WS_MAX_PARALLEL_PER_USER', '3'))
-        count = await self._incr_user_ws_count(self.user.id)
-        if count > max_connections:
-            logger.warning(
-                "WS connection limit exceeded user_id=%s count=%s max=%s",
-                self.user.id, count, max_connections,
-            )
-            await self._decr_user_ws_count(self.user.id)
-
-            requested = self.scope.get('subprotocols', []) or []
-            if 'binary' in requested:
-                selected = 'binary'
-            elif 'base64' in requested:
-                selected = 'base64'
-            else:
-                selected = None
-            await self.accept(subprotocol=selected)
-            await self.close(code=4429)
-            return
-        self._ws_count_incremented = True
-
-        self.user_group = f"user_{self.user.id}"
-        await self.channel_layer.group_add(self.user_group, self.channel_name)
-        
         if not await self.can_access_task_vm():
             logger.warning(
                 "Forbidden VM console access user_id=%s task_id=%s",
@@ -64,8 +40,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             )
             await self.close()
             return
-        
-        # Get user vm
+
         user_vm = await self.get_user_vm()
         if not user_vm:
             logger.warning(
@@ -75,7 +50,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             )
             await self.close()
             return
-        
+
         logger.info(
             "Found VM for console connection user_id=%s task_id=%s vmid=%s",
             getattr(self.user, "id", None),
@@ -90,6 +65,23 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             selected = 'base64'
         else:
             selected = None
+
+        max_connections = int(os.environ.get('WS_MAX_PARALLEL_PER_USER', '3'))
+        count = await self._incr_user_ws_count(self.user.id)
+        if count > max_connections:
+            logger.warning(
+                "WS connection limit exceeded user_id=%s count=%s max=%s",
+                self.user.id, count, max_connections,
+            )
+            await self._decr_user_ws_count(self.user.id)
+            await self.accept(subprotocol=selected)
+            await self.close(code=4429)
+            return
+        self._ws_count_incremented = True
+
+        self.user_group = f"user_{self.user.id}"
+        await self.channel_layer.group_add(self.user_group, self.channel_name)
+
         await self.accept(subprotocol=selected)
         logger.debug(
             "Client WebSocket accepted user_id=%s task_id=%s subprotocol=%s",
@@ -218,7 +210,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         try:
             return cache.incr(key)
         except ValueError:
-            cache.set(key, 1, timeout=3600)
+            cache.set(key, 1, timeout=5000)
             return 1
 
     @staticmethod
