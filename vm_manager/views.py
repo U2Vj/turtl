@@ -53,7 +53,7 @@ def start_environment(request, task_id):
             return _forbidden_task_vm_access()
 
         if user.is_student:
-            quota = int(os.environ.get('USER_ACTIVE_LAB_ENV_QUOTA', '2'))
+            quota = int(os.environ.get('THROTTLE_USER_ACTIVE_LAB_ENV', '2'))
             active_count = LabEnvironment.objects.filter(
                 user=user,
                 status__in=('provisioning', 'starting', 'active', 'degraded'),
