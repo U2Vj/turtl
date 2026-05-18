@@ -266,7 +266,24 @@ function setupVNC() {
         console.error('Failed to fetch VNC ticket', e);
       }
 
-      rfb.value = new RFB(vncContainerElement, wsUrl, rfbOptions);
+      // Capture the close code from the WebSocket to display ws rate limit.
+      const OriginalWebSocket = globalThis.WebSocket;
+      globalThis.WebSocket = new Proxy(OriginalWebSocket, {
+        construct(target, args) {
+          const ws = new (target as any)(...args);
+          ws.addEventListener('close', (event: CloseEvent) => {
+            if (event.code === 4429) {
+              vmStore.error = 'Too many active shell sessions. Close another tab and try again.';
+            }
+          });
+          return ws;
+        }
+      });
+      try {
+        rfb.value = new RFB(vncContainerElement, wsUrl, rfbOptions);
+      } finally {
+        globalThis.WebSocket = OriginalWebSocket;
+      }
       rfb.value.showDotCursor = true;
 
       rfb.value.addEventListener('connect', () => {

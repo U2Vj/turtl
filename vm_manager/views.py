@@ -1,4 +1,5 @@
 import logging
+import os
 
 from rest_framework.decorators import api_view, permission_classes, throttle_classes
 from rest_framework.permissions import IsAuthenticated
@@ -50,6 +51,22 @@ def start_environment(request, task_id):
 
         if not user_can_access_task_vm(user, task):
             return _forbidden_task_vm_access()
+
+        if user.is_student:
+            quota = int(os.environ.get('THROTTLE_USER_ACTIVE_LAB_ENV', '2'))
+            active_count = LabEnvironment.objects.filter(
+                user=user,
+                status__in=('provisioning', 'starting', 'active', 'degraded'),
+            ).exclude(task=task).count()
+            if active_count >= quota:
+                return Response(
+                    {
+                        'status': 'error',
+                        'detail': 'You have reached the maximum number of active lab environments. Stop another environment before starting a new one.',
+                        'error_code': 'LAB_ENV_QUOTA_EXCEEDED',
+                    },
+                    status=status.HTTP_429_TOO_MANY_REQUESTS,
+                )
 
         # Check if user has a lab environment
         lab_env = LabEnvironment.objects.filter(user=user, task=task).first()

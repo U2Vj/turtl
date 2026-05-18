@@ -87,10 +87,20 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
     'DEFAULT_THROTTLE_RATES': {
-        'vm_actions': '5/min',
+        'user': os.environ.get('USER_THROTTLE_RATE', '200/minute'),
+        'anon': os.environ.get('ANON_THROTTLE_RATE', '100/minute'),
+        'vm_actions': os.environ.get('VM_ACTIONS_THROTTLE_RATE', '5/minute'),
+        'login_ip': os.environ.get('LOGIN_IP_THROTTLE_RATE', '100/minute'),
+        'login_user': os.environ.get('LOGIN_USER_THROTTLE_RATE', '10/minute'),
     },
+    'NUM_PROXIES': os.environ.get('NUMBER_OF_PROXIES', 2),
 }
+
 SIMPLE_JWT = {
     # This serializer replaces the default serializer (TokenObtainPairSerializer).
     "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.LoginSerializer",
@@ -126,6 +136,13 @@ CHANNEL_LAYERS = {
             'hosts': [f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/0"],
         },
     },
+}
+
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/1",
+    }
 }
 
 # Database
