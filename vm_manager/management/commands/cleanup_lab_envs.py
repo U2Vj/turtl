@@ -1,3 +1,4 @@
+import os
 from datetime import timedelta
 import logging
 
@@ -14,8 +15,8 @@ from analytics.tracker import track
 logger = logging.getLogger(__name__)
 
 # Cleanup time config
-STOP_AFTER_HOURS = 1
-CLEANUP_AFTER_HOURS = 48
+STOP_AFTER_HOURS = int(os.environ.get('VM_MANAGER_STOP_AFTER_HOURS', 1))
+CLEANUP_AFTER_HOURS = int(os.environ.get('VM_MANAGER_CLEANUP_AFTER_HOURS', 8))
 
 class Command(BaseCommand):
     help = "Stops inactive lab environments and deletes stale stopped environments"
