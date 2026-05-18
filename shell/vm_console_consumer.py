@@ -6,7 +6,9 @@ import ssl
 import urllib.parse
 
 import websockets
+from asgiref.sync import sync_to_async
 from channels.generic.websocket import AsyncWebsocketConsumer
+from django.core.cache import cache
 from catalog.models import Task
 from vm_manager.proxmox import ProxmoxManager
 from vm_manager.access import user_can_access_task_vm
@@ -29,6 +31,18 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             logger.warning("Unauthenticated user attempted VM console connection")
             await self.close()
             return
+
+        max_connections = int(os.environ.get('WS_MAX_PARALLEL_PER_USER', '3'))
+        count = await self._incr_user_ws_count(self.user.id)
+        if count > max_connections:
+            logger.warning(
+                "WS connection limit exceeded user_id=%s count=%s max=%s",
+                self.user.id, count, max_connections,
+            )
+            await self._decr_user_ws_count(self.user.id)
+            await self.close(code=4429)
+            return
+        self._ws_count_incremented = True
 
         self.user_group = f"user_{self.user.id}"
         await self.channel_layer.group_add(self.user_group, self.channel_name)
@@ -187,8 +201,29 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             return all(0 <= int(p) <= 255 for p in parts)
         except ValueError:
             return False
+
+    @staticmethod
+    @sync_to_async
+    def _incr_user_ws_count(user_id):
+        key = f"ws_console_count_{user_id}"
+        try:
+            return cache.incr(key)
+        except ValueError:
+            cache.set(key, 1, timeout=3600)
+            return 1
+
+    @staticmethod
+    @sync_to_async
+    def _decr_user_ws_count(user_id):
+        key = f"ws_console_count_{user_id}"
+        try:
+            cache.decr(key)
+        except ValueError:
+            pass
     
     async def disconnect(self, close_code):
+        if getattr(self, '_ws_count_incremented', False):
+            await self._decr_user_ws_count(self.user.id)
         if self.forward_task:
             self.forward_task.cancel()
         if self.proxmox_ws:
