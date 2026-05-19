@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+from datetime import timedelta
 import os
 from urllib.parse import quote
 from dotenv import load_dotenv
@@ -106,7 +107,9 @@ SIMPLE_JWT = {
     "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.LoginSerializer",
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": True
+    "UPDATE_LAST_LOGIN": True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
 ROOT_URLCONF = 'turtl.urls'
