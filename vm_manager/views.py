@@ -145,9 +145,10 @@ def stop_environment(request, task_id):
             }, status=status.HTTP_404_NOT_FOUND)
         
         proxmox_manager = ProxmoxManager()
-        proxmox_manager.stop_environment(lab_env)
+        stopped = proxmox_manager.stop_environment(lab_env)
 
-        track('lab_stopped', user=user, task_id=task.id, lab_environment_id=lab_env.id)
+        if stopped:
+            track('lab_stopped', user=user, task_id=task.id, lab_environment_id=lab_env.id)
 
         return Response({
             'status': 'stopped',

@@ -216,6 +216,10 @@ class ProxmoxManager(ProxmoxClient):
                 raise TimeoutError(f"Could not acquire lock for stopping environment {lab_env.id}")
 
             try:
+                lab_env.refresh_from_db()
+                if lab_env.status == 'stopped':
+                    return False
+
                 lab_env.status = 'stopping'
                 lab_env.save()
 
