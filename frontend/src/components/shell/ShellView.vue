@@ -430,7 +430,7 @@ function openPopout() {
           <v-btn v-if="environmentStatus === 'active' && taskId && !hidePopoutButton" class="ms-2" size="small"
             color="primary" variant="tonal" @click="openPopout">
             <v-icon size="small" class="me-1">mdi-open-in-new</v-icon>
-            Shell
+            Fullscreen
           </v-btn>
         </div>
         <div class="d-flex gap-2">
