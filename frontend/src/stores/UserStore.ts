@@ -68,11 +68,21 @@ export const useUserStore = defineStore('user', () => {
   let refreshPromise: Promise<void> | null = null
   async function refreshLogin() {
     if (refreshPromise) return refreshPromise
-    refreshPromise = (async () => {
+    // Snapshot the access token that triggered this refresh so we can detect if another tab rotated it
+    const accessAtStart = accessToken.value
+    const doRefresh = async () => {
+      if (accessToken.value && accessToken.value !== accessAtStart) return
       const data = { refresh: refreshToken.value }
       const response = await makeAPIRequest('/users/login/refresh', 'POST', false, false, data)
       refreshToken.value = response.data.refresh
       accessToken.value = response.data.access
+    }
+    refreshPromise = (async () => {
+      if (typeof navigator !== 'undefined' && 'locks' in navigator) {
+        await navigator.locks.request('turtl-refresh-token', doRefresh)
+      } else {
+        await doRefresh()
+      }
     })().finally(() => { refreshPromise = null })
     return refreshPromise
   }
