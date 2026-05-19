@@ -216,7 +216,7 @@ class StartEnvironmentViewTest(TestCase):
         self.addCleanup(cache.clear)
 
         with patch("vm_manager.views.ProxmoxManager") as manager_cls:
-            manager_cls.return_value.create_lab_environment.return_value = SimpleNamespace(id=1)
+            manager_cls.return_value.create_lab_environment.return_value = (SimpleNamespace(id=1), True)
 
             for _ in range(5):
                 ok_response = self.client.post(self.url)

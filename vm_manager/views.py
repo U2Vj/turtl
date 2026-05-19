@@ -73,30 +73,29 @@ def start_environment(request, task_id):
 
         proxmox_manager = ProxmoxManager()
         if not lab_env:
-            # Create new environment
-            lab_env = proxmox_manager.create_lab_environment(user, task)
-            track('lab_created', user=user, task_id=task.id, lab_environment_id=lab_env.id)
+            lab_env, created = proxmox_manager.create_lab_environment(user, task)
+            if created:
+                track('lab_created', user=user, task_id=task.id, lab_environment_id=lab_env.id)
+                return Response({
+                    'status': 'created',
+                    'message': 'Lab environment created and started successfully',
+                    'environment_id': lab_env.id
+                })
+
+        started = proxmox_manager.start_environment(lab_env)
+        if (started):
+            track('lab_resumed', user=user, task_id=task.id, lab_environment_id=lab_env.id)
             return Response({
-                'status': 'created',
-                'message': 'Lab environment created and started successfully',
+                'status': 'started',
+                'message': 'Lab environment started successfully',
                 'environment_id': lab_env.id
             })
         else:
-            # Start existing environment
-            started = proxmox_manager.start_environment(lab_env)
-            if (started):
-                track('lab_resumed', user=user, task_id=task.id, lab_environment_id=lab_env.id)
-                return Response({
-                    'status': 'started',
-                    'message': 'Lab environment started successfully',
-                    'environment_id': lab_env.id
-                })
-            else:
-                return Response({
-                    'status': 'error',
-                    'detail': 'VMs for LabEnvironment could not be started. Check Proxmox logs',
-                    'environment_id': lab_env.id
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({
+                'status': 'error',
+                'detail': 'VMs for LabEnvironment could not be started. Check Proxmox logs',
+                'environment_id': lab_env.id
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
     except NoVlanAvailableError:
         logger.warning(

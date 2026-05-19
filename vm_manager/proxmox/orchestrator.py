@@ -39,7 +39,7 @@ class ProxmoxManager(ProxmoxClient):
                         user.id,
                         task.id,
                     )
-                    return existing_env
+                    return existing_env, False
 
                 task_config = TaskVMConfiguration.objects.filter(task=task).first()
                 if not task_config:
@@ -68,7 +68,7 @@ class ProxmoxManager(ProxmoxClient):
                     lab_env.stopped_at = None
                     lab_env.save()
 
-                    return lab_env
+                    return lab_env, True
 
             except Exception:
                 logger.exception(
