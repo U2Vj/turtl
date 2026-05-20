@@ -15,8 +15,8 @@ from analytics.tracker import track
 logger = logging.getLogger(__name__)
 
 # Cleanup time config
-STOP_AFTER_HOURS = int(os.environ.get('VM_MANAGER_STOP_AFTER_HOURS', 1))
-CLEANUP_AFTER_HOURS = int(os.environ.get('VM_MANAGER_CLEANUP_AFTER_HOURS', 8))
+STOP_AFTER_MINUTES = int(os.environ.get('VM_MANAGER_STOP_AFTER_MINUTES', 60))
+CLEANUP_AFTER_MINUTES = int(os.environ.get('VM_MANAGER_CLEANUP_AFTER_MINUTES', 480))
 
 class Command(BaseCommand):
     help = "Stops inactive lab environments and deletes stale stopped environments"
@@ -24,8 +24,8 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         now = timezone.now()
         pm = ProxmoxManager()
-        stop_threshold = now - timedelta(hours=STOP_AFTER_HOURS)  
-        cleanup_threshold = now - timedelta(hours=CLEANUP_AFTER_HOURS)
+        stop_threshold = now - timedelta(minutes=STOP_AFTER_MINUTES)
+        cleanup_threshold = now - timedelta(minutes=CLEANUP_AFTER_MINUTES)
 
         active_envs = LabEnvironment.objects.filter(
             Q(status='active') | Q(status='degraded'),
