@@ -136,7 +136,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/0"],
+            'hosts': [f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '5432')}/0"],
         },
     },
 }
@@ -144,7 +144,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/1",
+        "LOCATION": f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '5432')}/1",
     }
 }
 
@@ -157,8 +157,8 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ['POSTGRES_HOST'],
-        'PORT': os.environ['POSTGRES_PORT'],
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
         'CONN_MAX_AGE': 60,
     }
 }
