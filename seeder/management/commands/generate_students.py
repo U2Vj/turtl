@@ -48,7 +48,7 @@ class Command(BaseCommand):
 
     def add_arguments(self, parser):
         parser.add_argument("count", type=valid_int)
-        parser.add_argument("classroom_id", type=valid_int)
+        parser.add_argument("--classroom_id", type=valid_int)
         parser.add_argument("--domain", default="turtl")
         parser.add_argument("--password-length", type=valid_int, default=10)
         parser.add_argument("--output", default="users.html")
