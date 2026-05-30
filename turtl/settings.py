@@ -136,7 +136,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '5432')}/0"],
+            'hosts': [f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '6379')}/0"],
         },
     },
 }
@@ -144,7 +144,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '5432')}/1",
+        "LOCATION": f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '6379')}/1",
     }
 }
 
