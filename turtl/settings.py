@@ -99,7 +99,7 @@ REST_FRAMEWORK = {
         'login_ip': os.environ.get('LOGIN_IP_THROTTLE_RATE', '100/minute'),
         'login_user': os.environ.get('LOGIN_USER_THROTTLE_RATE', '10/minute'),
     },
-    'NUM_PROXIES': int(os.environ.get('NUMBER_OF_PROXIES', 2)),
+    'NUM_PROXIES': int(os.environ.get('NUMBER_OF_PROXIES', 1)),
 }
 
 SIMPLE_JWT = {

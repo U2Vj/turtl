@@ -29,28 +29,29 @@ Then fill out the following variables
 | POSTGRES_DB                    | Name of PostgreSQL db |
 | POSTGRES_USER                  | PostgreSQL username |
 | POSTGRES_PASSWORD              | PostgreSQL password |
-| POSTGRES_HOST                  | optional for local dev outside docker |
-| POSTGRES_PORT                  | optional for local dev outside docker |
-| REDIS_HOST                     | optional for local dev outside docker |
-| REDIS_PORT                     | optional for local dev outside docker |
-| GRAFANA_ADMIN_USER             |  |
-| GRAFANA_ADMIN_PASSWORD         |  |
-| GRAFANA_DB_USER                |  |
-| GRAFANA_DB_PASSWORD            |  |
-| PROXMOX_HOST                   |  |
-| PROXMOX_USER                   |  |
-| PROXMOX_TOKEN_NAME             |  |
-| PROXMOX_TOKEN_VALUE            |  |
-| PROXMOX_VM_POOL                |  |
-| PROXMOX_VM_STORAGE             |  |
-| PROXMOX_VLAN_BRIDGE            |  |
-| PROXMOX_VERIFY_SSL             |  |
-| USER_THROTTLE_RATE             |  |
-| ANON_THROTTLE_RATE             |  |
-| VM_ACTIONS_THROTTLE_RATE       |  |
-| LOGIN_IP_THROTTLE_RATE         |  |
-| LOGIN_USER_THROTTLE_RATE       |  |
-| THROTTLE_USER_ACTIVE_LAB_ENV   |  |
-| VM_MANAGER_STOP_AFTER_MINUTES  |  |
-| VM_MANAGER_CLEANUP_AFTER_MINUTES |  |
-| NUMBER_OF_PROXIES              |  |
+| POSTGRES_HOST                  | Optional for local dev outside docker |
+| POSTGRES_PORT                  | Optional for local dev outside docker |
+| REDIS_HOST                     | Optional for local dev outside docker |
+| REDIS_PORT                     | Optional for local dev outside docker |
+| REDIS_PASSWORD                 | Set secure password for redis |
+| GRAFANA_ADMIN_USER             | Grafana admin username |
+| GRAFANA_ADMIN_PASSWORD         | Strong admin password |
+| GRAFANA_DB_USER                | Create a seperate read only user for Grafana (recommended) |
+| GRAFANA_DB_PASSWORD            | Password for Grafana user |
+| PROXMOX_HOST                   | IP or hostname of Proxmox VE Host + Port e.g. 10.0.0.1:8006 |
+| PROXMOX_USER                   | Username of Proxmox User |
+| PROXMOX_TOKEN_NAME             | Name of API key |
+| PROXMOX_TOKEN_VALUE            | Value of API key |
+| PROXMOX_VM_POOL                | Name of the pool where VMs for lab environments get created e.g. turtl-lab |
+| PROXMOX_VM_STORAGE             | Disk storage for the cloned vms e.g. local-zfs-turtl |
+| PROXMOX_VLAN_BRIDGE            | VLAN-Bridge used for networking for the lab environments  |
+| PROXMOX_VERIFY_SSL             | if true, verifies Proxmox SSL certificate (requires proxmox-ca.pem in project root) |
+| USER_THROTTLE_RATE             | Limit how many requests a logged in user can make e.g. 200/minute |
+| ANON_THROTTLE_RATE             | Limit how many request anonymous users can make e.g. 100/minute |
+| VM_ACTIONS_THROTTLE_RATE       | Limit how many lab environment actions a user can make (create/start/stop/delete) e.g. 4/minute |
+| LOGIN_IP_THROTTLE_RATE         | Limit how many login requests can come from one ip address e.g. 100/minute |
+| LOGIN_USER_THROTTLE_RATE       | Limit how many login requests can be made for a specific user e.g. 10/minute |
+| THROTTLE_USER_ACTIVE_LAB_ENV   | Limit how many active lab environments a user can have in parallel (users need to stop/delete existing lab envs to create new ones) |
+| VM_MANAGER_STOP_AFTER_MINUTES  | Set the time after which the cleanup system stops a lab environment (time starts once user disconnects from lab environment) |
+| VM_MANAGER_CLEANUP_AFTER_MINUTES | Set the time after which the cleanup system deletes a lab environment (time starts after lab environment has been stopped)  |
+| NUMBER_OF_PROXIES              | Set the number of proxies the application is running behind. Default: 1 (nginx) |
