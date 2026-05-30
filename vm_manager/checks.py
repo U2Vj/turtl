@@ -1,6 +1,7 @@
 import os
 
 from django.core.checks import Error, register
+from django.conf import settings
 
 REQUIRED_ENV_VARS = [
     'VM_MANAGER_LOG_LEVEL',
@@ -35,17 +36,11 @@ def check_proxmox_env(app_configs, **kwargs):
 
     verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
     if verify_env not in ('false', '0'):
-        ca_path = os.environ.get('PROXMOX_CA_PATH')
-        if not ca_path:
+        ca_path = os.environ.get('PROXMOX_CA_PATH') or os.path.join(settings.BASE_DIR, 'proxmox-ca.pem')
+        if not os.path.isfile(ca_path):
             errors.append(Error(
-                "PROXMOX_VERIFY_SSL is enabled but PROXMOX_CA_PATH is not set.",
-                hint="Set PROXMOX_CA_PATH to the Proxmox CA certificate",
-                id='vm_manager.E100',
-            ))
-        elif not os.path.isfile(ca_path):
-            errors.append(Error(
-                f"PROXMOX_CA_PATH points to a file that does not exist: {ca_path}",
-                hint="Check the path or copy the Proxmox CA certificate to that location.",
+                f"Proxmox CA cert not found: {ca_path}",
+                hint="Place the Proxmox CA certificate in the project root or set PROXMOX_CA_PATH to the correct location.",
                 id='vm_manager.E101',
             ))
     return errors

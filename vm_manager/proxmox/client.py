@@ -3,6 +3,7 @@ import asyncio
 import logging
 from proxmoxer import ProxmoxAPI
 from dotenv import load_dotenv
+from django.conf import settings
 
 load_dotenv()
 logger = logging.getLogger(__name__)
@@ -37,16 +38,9 @@ class ProxmoxClient:
             raise
 
     def _get_verify_param(self):
-        ca_path = os.environ.get('PROXMOX_CA_PATH')
-        verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
-
-        if verify_env in ('false', '0'):
-            return False
-        elif ca_path:
-            return ca_path
-        else:
-            return True
-
+        ca_path = os.environ.get('PROXMOX_CA_PATH') or os.path.join(settings.BASE_DIR, 'proxmox-ca.pem')
+        return ca_path if os.path.isfile(ca_path) else True
+    
     def get_api_token(self):
         """
         Returns the PVEAPIToken string for WebSocket authentication.
