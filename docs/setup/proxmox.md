@@ -1,46 +1,121 @@
 # Setup Proxmox VE for usage in TURTL
 
-## Requirements
+This guide describes how to prepare a Proxmox VE instance to use for TURTLs virtualization features
 
-First install and configure Proxmox VE.
+## Installing Proxmox
+Install [Proxmox VE 9.0](https://www.proxmox.com/en/products/proxmox-virtual-environment/get-started) or higher on a dedicated machine.
+The machine needs to be reachable from the TURTL host.
 
-Then add a .env File to the root of the Project with the following variables:
+## Configuring Proxmox
+The following commands need to be executed in the shell of the proxmox host to setup the roles and access tokens needed for TURTL.
 
-```
-DJANGO_SECRET_KEY=<super-secret-key>
-DJANGO_DEBUG=true
-DJANGO_ALLOWED_HOSTS=<ips-of-allowed-hosts>
+### 1. Add resource pools
 
-VM_MANAGER_LOG_LEVEL=DEBUG
-
-POSTGRES_DB=turtl_db
-POSTGRES_USER=turtl_user
-POSTGRES_PASSWORD=turtl_password
-POSTGRES_HOST=localhost
-POSTGRES_PORT=5432
-
-REDIS_HOST=<ip-of-redis>
-REDIS_PORT=6379
-
-PROXMOX_HOST=proxmox-host:port
-PROXMOX_USER=turtl@pve
-PROXMOX_TOKEN_NAME=turtl-api
-PROXMOX_TOKEN_VALUE=<api-token>
-
-PROXMOX_VM_POOL=turtl-lab
-PROXMOX_VM_STORAGE=local-lvm
-PROXMOX_VLAN_BRIDGE=vmbr100
-PROXMOX_VERIFY_SSL=true
-PROXMOX_CA_PATH=/path/to/proxmox-ca.pem
-
+```bash
+pveum pool add turtl-lab
+pveum pool add turtl-templates 
 ```
 
-If you enable TLS (`PROXMOX_VERIFY_SSL=true`), copy the **Proxmox CA certificate**  
-(`/etc/pve/pve-root-ca.pem` on the Proxmox host) into your project and update the path accordingly.
+### 2. Create roles
 
-The PostgreSQL Database is required for the **Advisory Locks**. You may change the user and password and start the db with docker-compose.
+```bash
+pveum role add TurtlApp -privs "VM.Allocate,VM.Clone,VM.Config.Disk,VM.Config.CPU,VM.Config.Memory,VM.Config.Network,VM.Config.Options,VM.Config.Cloudinit,VM.Config.CDROM,VM.Config.HWType,VM.PowerMgmt,VM.Console,VM.Monitor,VM.Audit,Datastore.AllocateSpace,Datastore.Audit,Pool.Audit,Pool.Allocate,SDN.Use"
+```
+
+and for the user:
+
+```bash
+pveum role add TurtlUser -privs "VM.Allocate,VM.Clone,VM.Config.Disk,VM.Config.CPU,VM.Config.Memory,VM.Config.Network,VM.Config.Options,VM.Config.Cloudinit,VM.Config.CDROM,VM.Config.HWType,VM.PowerMgmt,VM.Console,VM.Monitor,VM.Audit,Datastore.AllocateSpace,Datastore.Audit,Datastore.Allocate,Datastore.AllocateTemplate,Pool.Audit,Pool.Allocate,SDN.Use"
+```
+
+### 3. Create user and API token
+
+The TURTL application needs an API token for authentication to Proxmox. Additionally a user is needed to access the Proxmox webinterface to prepare the VM templates.
+
+```bash
+pveum user add turtl@pve
+pveum passwd turtl@pve
+pveum user token add turtl@pve turtl-api --privsep 1
+```
+
+### 4. Set ACLs
+
+```bash
+pveum aclmod /pool/turtl-lab -user turtl@pve -role TurtlUser
+pveum aclmod /pool/turtl-templates -user turtl@pve -role TurtlUser
+pveum aclmod /storage/local-lvm -user turtl@pve -role TurtlUser
+pveum aclmod /storage/local -user turtl@pve -role TurtlUser
+pveum aclmod /sdn/zones/localnetwork/vmbr100 -user turtl@pve -role PVESDNUser
+```
+
+and for the token:
+
+```bash
+pveum aclmod /pool/turtl-lab -token 'turtl@pve!turtl-api' -role TurtlApp
+pveum aclmod /pool/turtl-templates -token 'turtl@pve!turtl-api' -role TurtlApp
+pveum aclmod /storage/local-lvm -token 'turtl@pve!turtl-api' -role TurtlApp
+pveum aclmod /sdn/zones/localnetwork/vmbr100 -tokens 'turtl@pve!turtl-api' -role PVESDNUser
+```
+
+### 5. Create vlan aware Linux Bridge
+
+TURTL uses a vlan aware linux bridge to provide an isolated network for every lab environment.
+
+```bash
+pvesh create /nodes/<nodename>/network \
+  --iface vmbr100 \
+  --type bridge \
+  --bridge_vlan_aware 1 \
+  --autostart 1
+```
+
+Apply the network settings:
+
+```bash
+pvesh set /nodes/<nodename>/network
+```
 
 
+## Creating Virtual Machine Templates in Proxmox
+
+TURTL uses VM templates to clone individual virtual machines for every task and student. To create a template you can either import a virtual machine from a disk or create an entirely new VM from scratch inside proxmox.
+
+### Example import from disk:
+
+```bash
+qm create 9000 --name "EternalBlue" --memory 2048 --cores 2 --ostype win7
+
+qm importdisk 9000 /tmp/EternalBlue-disk001.vmdk local-lvm
+
+qm set 9000 --sata0 local-lvm:vm-9000-disk-0
+qm set 9000 --boot order=sata0
+qm set 9000 --net0 e1000,bridge=vmbr100
+
+pvesh set /pools/turtl-templates --vms 9000
+```
+
+### Create a new VM in Proxmox:
+
+The simplest way to do this is to use the Proxmox webinterface. Login to the webinterface and expand the node. Click on 'local' and select 'ISO Images' on the side bar. There you can upload an ISO file from a Windows or Linux operating system of your choice.
+If you right click on the node in the sidebar you can now create a new VM using the uploaded ISO file.
+
+When creating VMs make sure to set the checkmark for 'Qemu Agent' and assign them to the configured linux bridge (e.g. vmbr100). If you need an internet connection to install software you can temporarily set a second network device.
+
+Be aware that it is currently not possible to provide internet access to the VMs when cloned using TURTL. Make sure to read the [limitations](../info/limitations.md) documentation to learn more.
+
+You can set a higher CPU and RAM for installing the VM faster. The resources allocated to the lab VMs can be set later inside of TURTL.
+
+If the VM should be used in a lab environment configuration with other VMs you need to manually set the IP address inside the virtual machine
+
+### Convert to template
+
+If your done configuring the VM you need to convert it into a template for TURTL to be able to clone the VMs.
+Beware that the state of the VM cannot be changed after the conversion.
+You can either right click the VM in turtl and select 'Convert to template' or run the following command inside of the Proxmox shell:
+
+```bash
+qm template <vmid>
+```
 
 ## Configure Virtual Machine Templates in Django Admin
 
@@ -50,7 +125,9 @@ To define lab environments, open the Django admin panel and configure:
    - Choose the `purpose` (e.g. `USER_SHELL`)  
    - Set required CPU cores and memory
 
-2. **NetworkTemplate**  
+2. **NetworkTemplate**
+   
+   If the VM is part of a lab environment consisting of multiple VMs you need to create a **NetworkTemplate**
    - Define a name  
    - Set a subnet (e.g. `10.10.0.0/24`)  
    - Enter a starting `vlan_id`
@@ -62,6 +139,5 @@ To define lab environments, open the Django admin panel and configure:
 4. **TaskVMTemplate**  
 For each VM you want in the environment:  
      - Select the TaskVMConfiguration  
-     - Select the VMTemplate  
-     - Set the `planned_ip_address` (assigned via cloud-init)
+     - Select the VMTemplate
 

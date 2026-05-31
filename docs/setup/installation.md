@@ -56,6 +56,26 @@ Then fill out the following variables
 | VM_MANAGER_CLEANUP_AFTER_MINUTES | Set the time after which the cleanup system deletes a lab environment (time starts after lab environment has been stopped)  |
 | NUMBER_OF_PROXIES              | Set the number of proxies the application is running behind. Default: 1 (nginx) |
 
+### Setup certificates
+
+```bash
+mkdir -po deploy/certs
+cd deploy/certs
+```
+
+#### IP based:
+
+```bash
+openssl req -x509 -nodes -newkey rsa:4096 -keyout turtl.key -out turtl.crt -days 365 -subj "/CN=<ip>" -addext "subjectAltName=IP:<ip>"
+```
+or:
+
+#### Domain based:
+
+```bash
+openssl req -x509 -nodes -newkey rsa:4096 -keyout turtl.key -out turtl.crt -days 365 -subj "/CN=<domain>" -addext "subjectAltName=DNS:<domain>"
+```
+
 ### Start the application:
 
 ```bash
@@ -169,7 +189,7 @@ To ensure correct and secure deployment the following criteria should be met:
 
 - Fully configured .env
 - Django_DEBUG=false
-- TLS-Zertifikate in deploy/certs
+- TLS certificates in deploy/certs
 - Proxmox VE configured as described in [Proxmox](proxmox.md)
 
 ### Start application
@@ -189,5 +209,15 @@ sudo docker compose exec app python manage.py createsuperuser
 The seeder app provides a script to mass create student accounts in the database and generate a printable html file. The following example generates 100 Student accounts enrolled for classroom id 1:
 
 ```bash
-python manage.py generate_students 100 --classroom_id 1 --domain "turtl" --password-length 10 --output users.html
+sudo docker compose exec app python manage.py generate_students 100 --classroom_id 1 --domain "turtl" --password-length 10 --output users.html
+
+sudo docker compose cp app:/app/users.html ./users.html
+```
+
+#### Delete student accounts:
+
+To delete all student accounts use the following command:
+
+```bash
+sudo docker compose exec app python manage.py cleanup_students
 ```
