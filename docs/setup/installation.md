@@ -177,7 +177,6 @@ The seeder inserts the following accounts into the database:
 TURTL uses Proxmox VE for the virtualizations associated with the tasks. For instructions on how to setup proxmox and create templates refer to the linked documentation
 
 - [Proxmox Setup](proxmox.md)
-- [Create Templates](templates.md)
 
 ## Email System
 

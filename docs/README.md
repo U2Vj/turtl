@@ -19,11 +19,21 @@ TURTL aims to:
 - Allow students to experience and respond to IT security challenges relevant in practice.
 - Reduce the effort to provide practical scenarios using virtualization.
 
-## Quick Start
+## Documentation
+
+### Quick Start
 
 - [TURTL Install](setup/installation.md)
 - [Setup Proxmox](setup/proxmox.md)
-- [Build VM Templates](setup/templates.md)
-- [Deployment Guide](setup/deployment.md)
 
-## Documentation
+### Information
+
+- [Concept](info/concept.md)
+- [Features](info/features.md)
+- [Limitations](info/limitations.md)
+
+### Development guide
+
+- [Backend](development/backend.md)
+- [Frontend](development/frontend.md)
+- [Authentication](development/authentication.md)

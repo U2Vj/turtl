@@ -30,7 +30,8 @@ Classes can be used to throw and catch specific types of API-related errors.
 - Contains all pop-up modals of the project. 
 
 #### shell/
-- Define the Shell for the 'Solving Task' page.
+- Define the Shell for the 'Solving Task' page. It uses the noVNC library to provide a visual interface for the lab environment.
+- As the shell does not synchronize the clipboard between the browser and the VM, a clipboard has been implemented that types a text from the user into the VM. keyboardLayouts.ts is used to define a German keyboard and map special characters to send with VNC.
 
 #### tabs/
 - Define the tabs for inviting multiple or single Users.
@@ -61,7 +62,11 @@ Contains two reactive properties, allInvitations and myInvitations, both arrays 
 This store is essential for managing user authentication, including login, logout, and role verification. It uses JWT for secure authentication and interacts with the API for various user operations. \
 _refreshToken_ and _accessToken_: Stored JWT tokens in local storage, used for authentication. \
 _refreshTokenPayload_: Decodes the refresh token to get user information. \
-_user_: Constructs a user object from refreshTokenPayload. \ 
+_user_: Constructs a user object from refreshTokenPayload. \
+
+- **VMManagerStore.ts** \
+This store is essential for managing the lab environments.
+It allows users to start, stop or delete a lab environment and calls the functions from the VM manager using makeAPIRequest from '@/communication/APIRequests'. It also provides helper functions to get a VNC ticket for shell authentication, to check the current environment status and to check if a task has a lab environment configured.
 
 ### frontend/src/views
 Contains all pages of the TURTL project and uses the components defined in 'src/components/'.
@@ -71,6 +76,9 @@ Contains all specific pages for the Administrator; Instructor; Student.
 
 #### general
 Contains all pages needed by every user.
+
+#### shell
+Contains a popout view of the shell component, which allows users to work with the lab_environment in fullscreen in a new tab.
 
 ### frontend/src/App.vue
 Integrates the Vue Router with the Vuetify application. It is the core layout component for TURTL where different pages will be rendered depending on the route.

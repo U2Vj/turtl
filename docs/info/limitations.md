@@ -29,3 +29,11 @@ IPv6 is currently not supported for planned VM IP addresses.
 ## Maximum number of networks
 
 VLAN tags count from 2 to 4094, allowing for a maximum of 4093 active networks in TURTL.
+
+## No bidirectional clipboard
+The TURTL shell currently uses the RFB client from noVNC for shell functionality.
+To use a bidirectional clipboard additional configuration in the VM templates and additions to the frontend would be necessary.
+
+As a simple workaround, a unidirectional clipboard has been implemented in the frontend, which types text from a textbox manually into the VM. This works for copying scripts or commands, but the typing is very slow. 
+
+Based on user feedback, implementing a true bidirectional clipboard would be a valuable addition to the application.
