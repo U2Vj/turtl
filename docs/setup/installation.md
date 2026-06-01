@@ -26,6 +26,9 @@ Then fill out the following variables
 | DJANGO_DEBUG                   | Toggle for debug mode, set to false in production |
 | VM_MANAGER_LOG_LEVEL           | DEBUG, INFO, WARN, ERROR |
 | PUBLIC_HOSTNAME                | Domain or IP at which the app will be hosted at |
+| DJANGO_ALLOWED_HOSTS           | List of hostnames Django accepts requests from |
+| CSRF_TRUSTED_ORIGINS           | List of trusted origins for Django CSRF |
+| FRONTEND_URL                   | Base URL of the frontend |
 | POSTGRES_DB                    | Name of PostgreSQL db |
 | POSTGRES_USER                  | PostgreSQL username |
 | POSTGRES_PASSWORD              | PostgreSQL password |
