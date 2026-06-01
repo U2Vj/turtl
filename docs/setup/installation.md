@@ -54,6 +54,7 @@ Then fill out the following variables
 | THROTTLE_USER_ACTIVE_LAB_ENV   | Limit how many active lab environments a user can have in parallel (users need to stop/delete existing lab envs to create new ones) |
 | VM_MANAGER_STOP_AFTER_MINUTES  | Set the time after which the cleanup system stops a lab environment (time starts once user disconnects from lab environment) |
 | VM_MANAGER_CLEANUP_AFTER_MINUTES | Set the time after which the cleanup system deletes a lab environment (time starts after lab environment has been stopped)  |
+| WS_MAX_PARALLEL_PER_USER       | Limits how many websockets and therefore noVNC shells a user can have open in parallel |
 | NUMBER_OF_PROXIES              | Set the number of proxies the application is running behind. Default: 1 (nginx) |
 
 ### Setup certificates
