@@ -12,18 +12,21 @@ TURTL consists of a Vue.js frontend (for a development guide, see [here](https:/
 
 #### Django REST Framework SimpleJWT
 * provides an authentication backend for the Django REST Framework that uses JWT tokens
-* For more information, see [[Authentication and Authorization]]
+* For more information, see [Authentication](authentication.md)
 * Docs: [https://django-rest-framework-simplejwt.readthedocs.io/en/latest/](https://django-rest-framework-simplejwt.readthedocs.io/en/latest/)
 
 #### Django Rules
 * provides object-level permissions to Django, e.g. checking whether an instructor manages a classroom (and can therefore modify/delete it)
-* For more information, see [[Authentication and Authorization]]
+* For more information, see [Authentication](authentication.md)
 * Docs: [https://github.com/dfunckt/django-rules/blob/master/README.rst](https://github.com/dfunckt/django-rules/blob/master/README.rst)
 
 #### Django Channels and channels_redis
 * used to handle WebSocket connections. channels_redis is a Redis channel layer backend for Django Channels.
-* For more information, see [[Virtualization and Shell]]
 * Docs: [https://channels.readthedocs.io/en/latest/](https://channels.readthedocs.io/en/latest/) and [https://github.com/django/channels_redis/](https://github.com/django/channels_redis/)
+
+#### Proxmoxer
+* used to call the Proxmox VE API from the vm manager.
+* Docs: [https://github.com/proxmoxer/proxmoxer/](https://github.com/proxmoxer/proxmoxer/)
 
 
 ### Backend architecture
@@ -60,7 +63,7 @@ Connections are limited via the WS_MAX_PARALLEL_PER_USER environment variable wh
 
 #### VM Manager
 The VM manager app handles the creation and management of the virtualizations and lab environments by provisioning the resources on Proxmox VE.
-It allows tasks to have realistic lab environments that can have one ore multiple interconnected VMs.
+It allows tasks to have realistic lab environments that can have one or multiple interconnected VMs.
 The Proxmox logic is seperated into 3 different files:
 
 - [network_pool.py](../../vm_manager/proxmox/network_pool.py) handles the creation and deletion of networks for lab environments
@@ -79,7 +82,7 @@ The app is dependent on the authentication app, the catalog app and the analytic
 The analytics app provides a data model to record various events about how users are interacting with the application. It contains a data model and a tracker function that can be called from anywhere in the TURTL app to record user events.
 Currently the following events are recorded: user_login, user_logout, task_failed, task_completed, lab_stopped, lab_resumed, lab_deleted, lab_created
 
+### Database
+**PostgreSQL** has been choosen as the database because some parts of VM provisioning cannot run in parallel. Therefore the application uses PostgreSQL locking mechanism to prevent these race conditions.
 
-///
-
-PostgreSQL has been choosen as the database because some parts of VM provisioning cannot run in parallel. Therefore the application uses PostgreSQL locking mechanism  to prevent these race conditions.
+**Redis** is used as a Channel layer and for websocket connection rate limitingr
