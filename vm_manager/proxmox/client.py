@@ -40,7 +40,7 @@ class ProxmoxClient:
     def _get_verify_param(self):
 
         verify_env = os.environ.get('PROXMOX_VERIFY_SSL')
-        if verify_env.equals('false'):
+        if verify_env == 'false':
             return False
 
         ca_path = os.environ.get('PROXMOX_CA_PATH') or os.path.join(settings.BASE_DIR, 'proxmox-ca.pem')
