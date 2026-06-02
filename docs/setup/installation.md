@@ -48,7 +48,7 @@ Then fill out the following variables
 | PROXMOX_VM_POOL                | Name of the pool where VMs for lab environments get created e.g. turtl-lab |
 | PROXMOX_VM_STORAGE             | Disk storage for the cloned vms e.g. local-zfs-turtl |
 | PROXMOX_VLAN_BRIDGE            | VLAN-Bridge used for networking for the lab environments  |
-| PROXMOX_VERIFY_SSL             | if true, verifies Proxmox SSL certificate (requires proxmox-ca.pem in project root) |
+| PROXMOX_VERIFY_SSL             | if true, verifies Proxmox SSL certificate (requires proxmox-ca.pem in project root). The certificates hostname or ip must match the configured PROXMOX_HOST |
 | USER_THROTTLE_RATE             | Limit how many requests a logged in user can make e.g. 200/minute |
 | ANON_THROTTLE_RATE             | Limit how many request anonymous users can make e.g. 100/minute |
 | VM_ACTIONS_THROTTLE_RATE       | Limit how many lab environment actions a user can make (create/start/stop/delete) e.g. 4/minute |
