@@ -282,7 +282,7 @@ def environment_status(request, task_id):
             error_code='ENVIRONMENT_STATUS_FAILED',
         )
             
-@api_view(['GET'])
+@api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def vnc_ticket(request, task_id):
     """
