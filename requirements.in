@@ -15,4 +15,3 @@ python-dotenv>=1.2.2
 rules>=3.4
 websockets>=13
 requests>=2.33.1
-django-prometheus>=2.4.1
