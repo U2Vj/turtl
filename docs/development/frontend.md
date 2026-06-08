@@ -8,7 +8,7 @@ The source code of the frontend has the following structure:
 - **APIRequests.ts:** \
 An Axios instance for HTTP requests, initialized with a base URL from environment variables. \
 _makeAPIRequest:_ Main function for API requests. Performs API requests, handles authorization and errors, attempts token update when necessary.
-- **exeptions.ts:** \
+- **exceptions.ts:** \
 Classes can be used to throw and catch specific types of API-related errors.
 
 ### frontend/src/components/
@@ -51,7 +51,7 @@ Contains classroom (a detailed view of a specific classroom) and classroomList (
 This store is designed to handle the enrollment process of students in classrooms, task submissions, and retrieval of relevant classroom and task details. It uses makeAPIRequest from '@/communication/APIRequests' to interact with the backend API. \ 
 Contains myEnrollments (an array of brief enrollment overviews) and enrollment (a detailed view of a specific enrollment).
 
-- **exeptions.ts:** \
+- **exceptions.ts:** \
 Defines two error classes, ClassroomNotLoadedError and EnrollmentNotLoadedError. These errors can be thrown when the requisite data (classroom or enrollment) is not present during an operation.
 
 - **InvitationStore.ts:** \

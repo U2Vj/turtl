@@ -83,6 +83,6 @@ The analytics app provides a data model to record various events about how users
 Currently the following events are recorded: user_login, user_logout, task_failed, task_completed, lab_stopped, lab_resumed, lab_deleted, lab_created
 
 ### Database
-**PostgreSQL** has been choosen as the database because some parts of VM provisioning cannot run in parallel. Therefore the application uses PostgreSQL locking mechanism to prevent these race conditions.
+**PostgreSQL** has been chosen as the database because some parts of VM provisioning cannot run in parallel. Therefore the application uses PostgreSQL locking mechanism to prevent these race conditions.
 
-**Redis** is used as a Channel layer and for websocket connection rate limitingr
+**Redis** is used as a Channel layer and for websocket connection rate limiting.

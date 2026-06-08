@@ -10,7 +10,7 @@ The primary goal of TURTL is to provide a hands-on experience in IT security in 
 
 ### Unique Features
 - **Role-Based Scenarios:** TURTL offers distinct roles for students to engage with, including Attack, Defense, and Neutral. Each role presents unique challenges and learning opportunities.
-- **Practical Tasks:** Students work on tasks within a terminal environment which consists of one ore more interconnected virtual machines. TURTL uses Proxmox VE to provision these VMs from premade templates.
+- **Practical Tasks:** Students work on tasks within a terminal environment which consists of one or more interconnected virtual machines. TURTL uses Proxmox VE to provision these VMs from premade templates.
 - **Interactive Learning:** TURTL encourages active learning, where students can test and refine their skills in a dynamic and responsive environment.
 
 ### Educational Benefits

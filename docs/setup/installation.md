@@ -9,7 +9,7 @@ For the virtualization features TURTL requires an Instance of [Proxmox VE](https
 ### Clone repository
 
 ```bash
-git clone <insert final gitlab url here>
+git clone https://github.com/U2Vj/turtl.git
 cd turtl
 ```
 
@@ -63,7 +63,7 @@ Then fill out the following variables
 ### Setup certificates
 
 ```bash
-mkdir -po deploy/certs
+mkdir -p deploy/certs
 cd deploy/certs
 ```
 
@@ -108,7 +108,7 @@ source ./venv/bin/activate
 ```
 #### Windows PowerShell
 ```powershell
-venv\Scripts\Activate.ps
+venv\Scripts\Activate.ps1
 ```
 If PowerShell returns an error, there might be an issue with your execution policy. Please refer to the [PowerShell Documentation](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies) for additional information.
 #### Windows Command Prompt (cmd.exe)
