@@ -39,7 +39,7 @@ Then fill out the following variables
 | REDIS_PASSWORD                 | Set secure password for redis |
 | GRAFANA_ADMIN_USER             | Grafana admin username |
 | GRAFANA_ADMIN_PASSWORD         | Strong admin password |
-| GRAFANA_DB_USER                | Create a seperate read only user for Grafana (recommended) |
+| GRAFANA_DB_USER                | Create a separate read only user for Grafana (recommended) |
 | GRAFANA_DB_PASSWORD            | Password for Grafana user |
 | PROXMOX_HOST                   | IP or hostname of Proxmox VE Host + Port e.g. 10.0.0.1:8006 |
 | PROXMOX_USER                   | Username of Proxmox User |

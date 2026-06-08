@@ -58,14 +58,15 @@ For more information, see [Installation Guide](../setup/installation.md). The se
 The shell app handles the websocket connections for the noVNC shell.
 The central component is the VMConsoleConsumer (a Django Channels AsyncWebsocketConsumer) which is used as a proxy between the client browser and the VNC WebSocket endpoint of Proxmox VE. This way the Proxmox host does not need to be exposed directly.
 
-Connections are limited via the WS_MAX_PARALLEL_PER_USER environment variable which has the default value of 3. This is counted via Redis cache and prevents users from opening too many tabs to help preserve the server ressources.
+Connections are limited via the WS_MAX_PARALLEL_PER_USER environment variable which has the default value of 3. This is counted via Redis cache and prevents users from opening too many tabs to help preserve the server resources.
 
 
 #### VM Manager
 The VM manager app handles the creation and management of the virtualizations and lab environments by provisioning the resources on Proxmox VE.
 It allows tasks to have realistic lab environments that can have one or multiple interconnected VMs.
-The Proxmox logic is seperated into 3 different files:
+The Proxmox logic is separated into 4 different files:
 
+- [client.py](../../vm_manager/proxmox/client.py) handles the connection to the Proxmox API with Proxmoxer.
 - [network_pool.py](../../vm_manager/proxmox/network_pool.py) handles the creation and deletion of networks for lab environments
 - [orchestrator.py](../../vm_manager/proxmox/orchestrator.py) contains the functions that create, start, stop and delete lab environments as well as a function to clean up orphan VMs that exist on proxmox while missing in the database
 - [vm_ops.py](../../vm_manager/proxmox/vm_ops.py) contains the underlying functions to clone and configure individual VMs as well as monitoring their status.

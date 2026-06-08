@@ -10,9 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 class ProxmoxClient:
-    # Locking constants
-    LOCK_TIMEOUT = 120
-    POLL_INTERVAL = 2
+    # Locking timeout
     LOCK_ACQUIRE_TIMEOUT = 30
 
     def __init__(self):
