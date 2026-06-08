@@ -67,6 +67,7 @@ services:
     command: >
       sh -c 'while true; do
         python manage.py cleanup_lab_envs || true;
+        python manage.py flushexpiredtokens || true;
         sleep 600;
       done'
 
