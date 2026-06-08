@@ -50,7 +50,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'django_prometheus',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -64,7 +63,6 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
-    'django_prometheus.middleware.PrometheusBeforeMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -72,7 +70,6 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_prometheus.middleware.PrometheusAfterMiddleware',
 ]
 
 # CORS: only enabled in DEBUG (dev). Prod runs same-origin behind nginx.
@@ -85,6 +82,11 @@ if DEBUG:
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'turtl.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
+
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
@@ -99,7 +101,7 @@ REST_FRAMEWORK = {
         'login_ip': os.environ.get('LOGIN_IP_THROTTLE_RATE', '100/minute'),
         'login_user': os.environ.get('LOGIN_USER_THROTTLE_RATE', '10/minute'),
     },
-    'NUM_PROXIES': int(os.environ.get('NUMBER_OF_PROXIES', 2)),
+    'NUM_PROXIES': int(os.environ.get('NUMBER_OF_PROXIES', 1)),
 }
 
 SIMPLE_JWT = {
@@ -136,7 +138,7 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/0"],
+            'hosts': [f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '6379')}/0"],
         },
     },
 }
@@ -144,7 +146,7 @@ CHANNEL_LAYERS = {
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ['REDIS_HOST']}:{os.environ['REDIS_PORT']}/1",
+        "LOCATION": f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '6379')}/1",
     }
 }
 
@@ -157,8 +159,8 @@ DATABASES = {
         'NAME': os.environ.get('POSTGRES_DB'),
         'USER': os.environ.get('POSTGRES_USER'),
         'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
-        'HOST': os.environ['POSTGRES_HOST'],
-        'PORT': os.environ['POSTGRES_PORT'],
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
         'CONN_MAX_AGE': 60,
     }
 }
@@ -216,7 +218,9 @@ if not DEBUG:
     SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
     SECURE_SSL_REDIRECT = True
     SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_NAME = '__Host-sessionid'
     CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_NAME = '__Host-csrftoken'
 
 
 

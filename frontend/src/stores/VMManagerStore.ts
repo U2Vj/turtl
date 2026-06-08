@@ -163,7 +163,7 @@ export const useVMManagerStore = defineStore('vmManager', () => {
         try {
             const response = await makeAPIRequest(
                 `/vm/vnc-ticket/${taskId}/`,
-                'GET',
+                'POST',
                 true,
                 true
             )

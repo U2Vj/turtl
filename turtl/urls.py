@@ -17,7 +17,6 @@ from django.contrib import admin
 from django.urls import path
 from django.urls import include
 
-from django_prometheus.exports import ExportToDjangoView
 
 
 urlpatterns = [
@@ -26,7 +25,6 @@ urlpatterns = [
     path('catalog/', include('catalog.urls')),
     path('enrollments/', include('enrollments.urls')),
     path('vm/', include('vm_manager.urls')),
-    path('metrics/', ExportToDjangoView, name='prometheus-django-metrics'),
 ]
 
 

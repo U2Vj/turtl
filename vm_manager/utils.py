@@ -43,12 +43,10 @@ class AdvisoryLock:
             return True
 
     def __exit__(self, exc_type, exc_value, traceback):
-        if not self.acquired:
-            return False
-        with connection.cursor() as cursor:
-            cursor.execute("SELECT pg_advisory_unlock(%s);", [self.lock_id])
-        self.acquired = False
-        return False
+        if self.acquired:
+            with connection.cursor() as cursor:
+                cursor.execute("SELECT pg_advisory_unlock(%s);", [self.lock_id])
+            self.acquired = False
             
 def slugify(value, max_length=40):
     """

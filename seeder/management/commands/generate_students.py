@@ -19,12 +19,6 @@ def valid_int(value):
         raise argparse.ArgumentTypeError(f"{value!r} must be >= 1")
     return ivalue
 
-
-ANIMALS = [
-    "fox", "otter", "bear", "wolf", "eagle", "hawk", "lynx", "panda", "tiger",
-    "lion", "koala", "moose", "deer", "owl", "raven", "seal", "shark", "whale",
-    "zebra", "badger", "beaver", "falcon", "heron", "puma",
-]
 ALPHABET = "abcdefghijkmnopqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ23456789"
 
 
@@ -32,23 +26,17 @@ def make_password(length):
     return "".join(secrets.choice(ALPHABET) for _ in range(length))
 
 
-def make_email(used, count, domain):
-    failcount = 0
-    while failcount < 100:
-        candidate = f"{secrets.choice(ANIMALS)}-{count}@{domain}"
-        if candidate in used or User.objects.filter(email=candidate).exists():
-            failcount += 1
-            continue
-        used.add(candidate)
-        return candidate
-    raise CommandError("Failed to generate unique email after 100 attempts.")
+def make_email(count, domain):
+    email = f"student-{count}@{domain}"
+    return email
+
 
 class Command(BaseCommand):
     help = "Generate student users for a classroom and output credentials in a printable file"
 
     def add_arguments(self, parser):
         parser.add_argument("count", type=valid_int)
-        parser.add_argument("classroom_id", type=valid_int)
+        parser.add_argument("--classroom_id", type=valid_int, required=True)
         parser.add_argument("--domain", default="turtl")
         parser.add_argument("--password-length", type=valid_int, default=10)
         parser.add_argument("--output", default="users.html")
@@ -61,10 +49,11 @@ class Command(BaseCommand):
             raise CommandError(f"Classroom {options['classroom_id']} does not exist.")
 
         created = []
-        used = set()
+        users = User.objects.filter(email__startswith="student-", email__endswith=f"@{options['domain']}").values_list("email", flat=True)
+        max_number = max((int(e.split("-")[1].split("@")[0]) for e in users), default=0)
         with transaction.atomic():
             for i in range(count):
-                email = make_email(used, i, options["domain"])
+                email = make_email(max_number + i + 1, options["domain"])
                 password = make_password(options["password_length"])
                 user = User.objects.create_student(email=email, password=password)
                 user.username = email.split("@")[0]
