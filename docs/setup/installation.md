@@ -25,7 +25,6 @@ Then fill out the following variables
 | DJANGO_SECRET_KEY              | Insert a secure random string  |
 | DJANGO_DEBUG                   | Toggle for debug mode, set to false in production |
 | VM_MANAGER_LOG_LEVEL           | DEBUG, INFO, WARN, ERROR |
-| PUBLIC_HOSTNAME                | Domain or IP at which the app will be hosted at |
 | DJANGO_ALLOWED_HOSTS           | List of hostnames Django accepts requests from |
 | CSRF_TRUSTED_ORIGINS           | List of trusted origins for Django CSRF |
 | FRONTEND_URL                   | Base URL of the frontend |
@@ -194,6 +193,20 @@ To ensure correct and secure deployment the following criteria should be met:
 - Django_DEBUG=false
 - TLS certificates in deploy/certs
 - Proxmox VE configured as described in [Proxmox](proxmox.md)
+
+### Configure nginx
+Copy the example nginx configuration:
+```bash
+cp deploy/frontend/nginx.conf.example deploy/frontend/nginx.conf
+```
+Insert the hostname or ip where the application is hosted (must match the certificates):
+```
+server_name <insert hostname or ip where application is hosted>;
+```
+and:
+```
+proxy_set_header Host <insert url or ip where application is hosted>;
+```
 
 ### Start application
 
