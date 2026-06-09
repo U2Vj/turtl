@@ -64,8 +64,10 @@ services:
       - redis
     labels:
       ofelia.enabled: "true"
-      ofelia.job-exec.datecron.schedule: "@every 5m"
-      ofelia.job-exec.datecron.command: "python manage.py cleanup_lab_envs && python manage.py flushexpiredtokens"
+      ofelia.job-exec.cleanupenv.schedule: "@every 30s"
+      ofelia.job-exec.cleanupenv.command: "python manage.py cleanup_lab_envs"
+      ofelia.job-exec.flushtokens.schedule: "@every 30s"
+      ofelia.job-exec.flushtokens.command: "python manage.py flushexpiredtokens"
     post_start:
       - command: python manage.py migrate
       - command: python manage.py collectstatic --noinput
