@@ -40,7 +40,6 @@ services:
       - turtl.key
     networks:
       - frontend
-      - backend
       
   backend:
     build:
