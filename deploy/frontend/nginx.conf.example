@@ -39,7 +39,7 @@ http {
         }
 
         location ^~ /static/ {
-            proxy_set_header Host 192.168.178.87;
+            proxy_set_header Host <insert url or ip where application is hosted>;
             proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
             proxy_set_header X-Forwarded-Proto https;
             proxy_pass http://backend:8000;
