@@ -1,4 +1,11 @@
 services:
+  ofelia:
+    image: mcuadros/ofelia:latest
+    depends_on:
+      - backend
+    command: daemon --docker
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
   postgres:
     image: postgres:18-alpine
     environment:
@@ -52,6 +59,10 @@ services:
     depends_on:
       - postgres
       - redis
+    labels:
+      ofelia.enabled: "true"
+      ofelia.job-exec.datecron.schedule: "@every 5m"
+      ofelia.job-exec.datecron.command: "python manage.py cleanup_lab_envs && python manage.py flushexpiredtokens"
     post_start:
       - command: python manage.py migrate
     restart: unless-stopped
