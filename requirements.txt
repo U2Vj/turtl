@@ -128,7 +128,5 @@ urllib3==2.6.3
     # via requests
 websockets==16.0
     # via -r requirements.in
-whitenoise==6.12.0
-    # via -r requirements.in
 zope-interface==8.4
     # via twisted

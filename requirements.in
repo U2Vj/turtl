@@ -15,4 +15,3 @@ python-dotenv>=1.2.2
 rules>=3.4
 websockets>=13
 requests>=2.33.1
-whitenoise>=6.12.0

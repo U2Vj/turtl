@@ -40,6 +40,8 @@ services:
       - turtl.key
     networks:
       - frontend
+    volumes:
+      - static_data:/usr/share/nginx/html/static:ro
       
   backend:
     build:
@@ -55,6 +57,8 @@ services:
     networks:
       - backend
       - frontend
+    volumes:
+      - static_data:/app/staticfiles
     depends_on:
       - postgres
       - redis
@@ -75,6 +79,7 @@ secrets:
 
 volumes:
   postgres_db:
+  static_data:
 
 networks:
   backend:
