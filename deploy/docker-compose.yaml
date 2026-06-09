@@ -65,6 +65,7 @@ services:
       ofelia.job-exec.datecron.command: "python manage.py cleanup_lab_envs && python manage.py flushexpiredtokens"
     post_start:
       - command: python manage.py migrate
+      - command: python manage.py collectstatic --noinput
     restart: unless-stopped
 
 secrets:
