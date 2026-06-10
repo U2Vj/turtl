@@ -2,7 +2,9 @@ services:
   ofelia:
     image: mcuadros/ofelia:latest
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+        restart: true
     command: daemon --docker
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock:ro
@@ -38,6 +40,10 @@ services:
       - frontend
     volumes:
       - static_data:/usr/share/nginx/html/static:ro
+    depends_on:
+      backend:
+        condition: service_healthy
+        restart: true
       
   backend:
     build:
@@ -56,8 +62,12 @@ services:
     volumes:
       - static_data:/app/staticfiles
     depends_on:
-      - postgres
-      - redis
+      postgres:
+        condition: service_healthy
+        restart: true
+      redis:
+        condition: service_healthy
+        restart: true
     labels:
       ofelia.enabled: "true"
       ofelia.job-exec.cleanupenv.schedule: "@every 5m"
@@ -79,6 +89,10 @@ services:
       POSTGRES_DB: ${POSTGRES_DB}
     ports:
       - '127.0.0.1:3000:3000'
+    depends_on:
+      backend:
+        condition: service_healthy
+        restart: true
     networks:
       - frontend
       - backend
