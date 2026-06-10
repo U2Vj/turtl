@@ -36,8 +36,6 @@ Then fill out the following variables
 | REDIS_HOST                     | Optional for local dev outside docker |
 | REDIS_PORT                     | Optional for local dev outside docker |
 | REDIS_PASSWORD                 | Set secure password for redis |
-| GRAFANA_ADMIN_USER             | Grafana admin username |
-| GRAFANA_ADMIN_PASSWORD         | Strong admin password |
 | GRAFANA_DB_USER                | Create a separate read only user for Grafana (recommended) |
 | GRAFANA_DB_PASSWORD            | Password for Grafana user |
 | PROXMOX_HOST                   | IP or hostname of Proxmox VE Host + Port e.g. 10.0.0.1:8006 |
@@ -207,6 +205,20 @@ and:
 ```
 proxy_set_header Host <insert url or ip where application is hosted>;
 ```
+
+### Configure Grafana
+Grafana can be used to monitor the number of active and running lab environments with data coming from the analytics table. This feature is very rudimentary but can be expanded by more data sources and views in the future. Data sources and dashboards are imported using Grafana provisioning: https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+Grafana connects to the PostgreSQL Database with the credentials from GRAFANA_DB_USER and GRAFANA_DB_PASSWORD.
+You could set the same user for both grafana and django, but it is recommended to create a seperate readonly user in the grafana
+
+Grafana binds to the localhost of the machine running the turtl application. If you want to access it you can setup ssh port forwarding like this:
+```bash
+ssh -L 3001:localhost:3000 username@server
+```
+then you can reach grafana on your local device in a webbrowser by going to: http://localhost:3001
+
+The initial login is admin:admin, but it is recommended to change it to something more secure.
 
 ### Start application
 
