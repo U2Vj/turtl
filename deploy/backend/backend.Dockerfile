@@ -27,12 +27,12 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 WORKDIR /app 
 
-COPY --chown=appuser:appuser . .
+COPY --chown=appuser:appuser --chmod=755 . .
 
 RUN mkdir -p /app/staticfiles /app/media \
 && chown -R appuser:appuser /app/staticfiles /app/media
 
-RUN apt-get update && apt-get install -y curl
+RUN apt-get update && apt-get install --no-install-recommends -y curl
 # Envs to optimize python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1
