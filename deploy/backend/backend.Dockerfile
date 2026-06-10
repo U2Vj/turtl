@@ -32,6 +32,7 @@ COPY --chown=appuser:appuser . .
 RUN mkdir -p /app/staticfiles /app/media \
 && chown -R appuser:appuser /app/staticfiles /app/media
 
+RUN apt-get update && apt-get install -y curl
 # Envs to optimize python
 ENV PYTHONDONTWRITEBYTECODE=1
 ENV PYTHONUNBUFFERED=1

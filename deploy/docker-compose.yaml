@@ -19,12 +19,24 @@ services:
     networks:
       - backend
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "pg_isready"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+      timeout: 10s
 
   redis:
     image: redis:8-alpine
     command: ["redis-server", "--requirepass", "${REDIS_PASSWORD}"]
     networks:
       - backend
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      retries: 5
+      start_period: 15s
+      timeout: 10s
     restart: unless-stopped
     
   frontend:
@@ -68,6 +80,12 @@ services:
       redis:
         condition: service_healthy
         restart: true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/django-admin"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 10s
     labels:
       ofelia.enabled: "true"
       ofelia.job-exec.cleanupenv.schedule: "@every 5m"
