@@ -41,7 +41,7 @@ class ProxmoxClient:
         if verify_env == 'false':
             return False
 
-        ca_path = os.environ.get('PROXMOX_CA_PATH') or os.path.join(settings.BASE_DIR, 'proxmox-ca.pem')
+        ca_path = os.path.join('/run/secrets', 'proxmox-ca.pem')
         return ca_path if os.path.isfile(ca_path) else True
     
     def get_api_token(self):

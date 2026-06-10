@@ -149,7 +149,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
         logger.debug("Connecting to Proxmox WebSocket vmid=%s node=%s", user_vm.vmid, node)
         
         # Setup SSL context 
-        ca_path = os.environ.get('PROXMOX_CA_PATH')
+        ca_path = os.path.join('/run/secrets', 'proxmox-ca.pem')
         verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
         ssl_context = ssl.create_default_context()
         ssl_context.minimum_version = ssl.TLSVersion.TLSv1_2
@@ -164,7 +164,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             )
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
-        elif ca_path:
+        elif ca_path and os.path.isfile(ca_path):
             ssl_context.load_verify_locations(cafile=ca_path)
 
         if self._is_ip(proxmox_host):

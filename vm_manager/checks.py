@@ -36,11 +36,11 @@ def check_proxmox_env(app_configs, **kwargs):
 
     verify_env = os.environ.get('PROXMOX_VERIFY_SSL', 'true').strip().lower()
     if verify_env not in ('false', '0'):
-        ca_path = os.environ.get('PROXMOX_CA_PATH') or os.path.join(settings.BASE_DIR, 'proxmox-ca.pem')
+        ca_path = os.path.join('/run/secrets', 'proxmox-ca.pem')
         if not os.path.isfile(ca_path):
             errors.append(Error(
                 f"Proxmox CA cert not found: {ca_path}",
-                hint="Place the Proxmox CA certificate in the project root or set PROXMOX_CA_PATH to the correct location.",
+                hint="Place the Proxmox CA certificate in the /deploy/certs directory",
                 id='vm_manager.E101',
             ))
     return errors

@@ -25,8 +25,7 @@ Then fill out the following variables
 | DJANGO_SECRET_KEY              | Insert a secure random string  |
 | DJANGO_DEBUG                   | Toggle for debug mode, set to false in production |
 | VM_MANAGER_LOG_LEVEL           | DEBUG, INFO, WARN, ERROR |
-| PUBLIC_HOSTNAME                | Domain or IP at which the app will be hosted at |
-| DJANGO_ALLOWED_HOSTS           | List of hostnames Django accepts requests from |
+| DJANGO_ALLOWED_HOSTS           | Comma separated list of hostnames Django accepts requests from. MUST inlude localhost for backend healthcheck to work |
 | CSRF_TRUSTED_ORIGINS           | List of trusted origins for Django CSRF |
 | FRONTEND_URL                   | Base URL of the frontend |
 | POSTGRES_DB                    | Name of PostgreSQL db |
@@ -37,8 +36,6 @@ Then fill out the following variables
 | REDIS_HOST                     | Optional for local dev outside docker |
 | REDIS_PORT                     | Optional for local dev outside docker |
 | REDIS_PASSWORD                 | Set secure password for redis |
-| GRAFANA_ADMIN_USER             | Grafana admin username |
-| GRAFANA_ADMIN_PASSWORD         | Strong admin password |
 | GRAFANA_DB_USER                | Create a separate read only user for Grafana (recommended) |
 | GRAFANA_DB_PASSWORD            | Password for Grafana user |
 | PROXMOX_HOST                   | IP or hostname of Proxmox VE Host + Port e.g. 10.0.0.1:8006 |
@@ -48,7 +45,7 @@ Then fill out the following variables
 | PROXMOX_VM_POOL                | Name of the pool where VMs for lab environments get created e.g. turtl-lab |
 | PROXMOX_VM_STORAGE             | Disk storage for the cloned vms e.g. local-zfs-turtl |
 | PROXMOX_VLAN_BRIDGE            | VLAN-Bridge used for networking for the lab environments  |
-| PROXMOX_VERIFY_SSL             | if true, verifies Proxmox SSL certificate (requires proxmox-ca.pem in project root). The certificates hostname or ip must match the configured PROXMOX_HOST |
+| PROXMOX_VERIFY_SSL             | if true, verifies Proxmox SSL certificate (requires proxmox-ca.pem in /deploy/certs). The certificates hostname or ip must match the configured PROXMOX_HOST |
 | USER_THROTTLE_RATE             | Limit how many requests a logged in user can make e.g. 200/minute |
 | ANON_THROTTLE_RATE             | Limit how many request anonymous users can make e.g. 100/minute |
 | VM_ACTIONS_THROTTLE_RATE       | Limit how many lab environment actions a user can make (create/start/stop/delete) e.g. 4/minute |
@@ -195,10 +192,39 @@ To ensure correct and secure deployment the following criteria should be met:
 - TLS certificates in deploy/certs
 - Proxmox VE configured as described in [Proxmox](proxmox.md)
 
+### Configure nginx
+Copy the example nginx configuration:
+```bash
+cp deploy/frontend/nginx.conf.example deploy/frontend/nginx.conf
+```
+Insert the hostname or ip where the application is hosted (must match the certificates):
+```
+server_name <insert hostname or ip where application is hosted>;
+```
+and:
+```
+proxy_set_header Host <insert url or ip where application is hosted>;
+```
+
+### Configure Grafana
+Grafana can be used to monitor the number of active and running lab environments with data coming from the analytics table. This feature is very rudimentary but can be expanded by more data sources and views in the future. Data sources and dashboards are imported using Grafana provisioning: https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+Grafana connects to the PostgreSQL Database with the credentials from GRAFANA_DB_USER and GRAFANA_DB_PASSWORD.
+You could set the same user for both grafana and django, but it is recommended to create a separate readonly user in the grafana
+
+Grafana binds to the localhost of the machine running the turtl application. If you want to access it you can setup ssh port forwarding like this:
+```bash
+ssh -L 3001:localhost:3000 username@server
+```
+then you can reach grafana on your local device in a webbrowser by going to: http://localhost:3001
+
+The initial login is admin:admin, but it is recommended to change it to something more secure.
+
 ### Start application
 
 ```bash
-sudo docker compose up -d --build
+cd deploy
+sudo docker compose up --build
 ```
 
 #### Create admin user:
@@ -212,9 +238,9 @@ sudo docker compose exec app python manage.py createsuperuser
 The seeder app provides a script to mass create student accounts in the database and generate a printable html file. The following example generates 100 Student accounts enrolled for classroom id 1:
 
 ```bash
-sudo docker compose exec app python manage.py generate_students 100 --classroom_id 1 --domain "turtl" --password-length 10 --output users.html
+sudo docker compose exec backend python manage.py generate_students 100 --classroom_id 1 --domain "turtl" --password-length 10 --output users.html
 
-sudo docker compose cp app:/app/users.html ./users.html
+sudo docker compose cp backend:/app/users.html ./users.html
 ```
 
 #### Delete student accounts:
