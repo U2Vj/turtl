@@ -48,6 +48,8 @@ services:
     environment:
       POSTGRES_HOST: postgres
       REDIS_HOST: redis
+    secrets:
+      - proxmox-ca.pem
     networks:
       - backend
       - frontend
@@ -88,6 +90,8 @@ secrets:
     file: ./certs/turtl.crt
   turtl.key:
     file: ./certs/turtl.key
+  proxmox-ca.pem:
+    file: ./certs/proxmox-ca.pem
 
 volumes:
   postgres_db:
