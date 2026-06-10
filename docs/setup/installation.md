@@ -25,7 +25,7 @@ Then fill out the following variables
 | DJANGO_SECRET_KEY              | Insert a secure random string  |
 | DJANGO_DEBUG                   | Toggle for debug mode, set to false in production |
 | VM_MANAGER_LOG_LEVEL           | DEBUG, INFO, WARN, ERROR |
-| DJANGO_ALLOWED_HOSTS           | List of hostnames Django accepts requests from |
+| DJANGO_ALLOWED_HOSTS           | Comma seperated List of hostnames Django accepts requests from. MUST inlude localhost for backend healthcheck to work |
 | CSRF_TRUSTED_ORIGINS           | List of trusted origins for Django CSRF |
 | FRONTEND_URL                   | Base URL of the frontend |
 | POSTGRES_DB                    | Name of PostgreSQL db |
