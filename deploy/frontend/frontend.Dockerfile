@@ -17,7 +17,7 @@ FROM nginxinc/nginx-unprivileged:alpine3.23-perl AS runner
 
 COPY deploy/frontend/nginx.conf /etc/nginx/nginx.conf
 
-COPY --chown=nginx:nginx --chmod=755 --from=builder /app/dist /usr/share/nginx/html
+COPY --chown=root:root --chmod=755 --from=builder /app/dist /usr/share/nginx/html
 
 USER nginx
 

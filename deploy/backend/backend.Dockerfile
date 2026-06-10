@@ -27,7 +27,7 @@ COPY --from=builder /usr/local/bin/ /usr/local/bin/
 
 WORKDIR /app 
 
-COPY --chown=appuser:appuser --chmod=755 . .
+COPY --chown=root:root --chmod=755 . .
 
 RUN mkdir -p /app/staticfiles /app/media \
 && chown -R appuser:appuser /app/staticfiles /app/media
