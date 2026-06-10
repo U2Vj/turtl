@@ -38,13 +38,6 @@ http {
             try_files $uri $uri/ /index.html;
         }
 
-        location ^~ /static/ {
-            proxy_set_header Host <insert url or ip where application is hosted>;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto https;
-            proxy_pass http://backend:8000;
-        }
-
         location ~* \.(?:ico|css|js|gif|jpe?g|png|woff2?|eot|ttf|svg|map)$ {
             expires 1y;
             access_log off;
@@ -52,7 +45,7 @@ http {
             add_header X-Content-Type-Options nosniff;
         }
 
-        location /assets/ {
+        location /(assets|static){
             expires 1y;
             add_header Cache-Control "public, immutable";
             add_header X-Content-Type-Options nosniff;
