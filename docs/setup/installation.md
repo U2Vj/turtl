@@ -80,25 +80,33 @@ openssl req -x509 -nodes -newkey rsa:4096 -keyout turtl.key -out turtl.crt -days
 ### Start the application:
 
 ```bash
+cd deploy
 sudo docker compose up --build
 ```
 
 ## Local Development
+For local development a separate docker-compose.yaml is provided in the root of the project. This will start Redis and PostgreSQL development containers.
 
 ### Backend
 
-1. Start the PostgreSQL and Redis Container (make sure to set the required environment variables listed above)
+1. Copy the .env.development file and set the correct values for Proxmox.
+```bash
+cp .env.development .env
+```
+Note that PROXMOX_VERIFY_SSL will not work in local development and must be left disabled as the certificate is fetched via docker secrets in production.
+
+2. Start the PostgreSQL and Redis Container (make sure to set the required environment variables listed above)
 
 ```bash
-sudo docker compose up -d postgres redis
+sudo docker compose up -d
 ```
 
-2. It is highly recommended to run Python applications inside virtual environments (please refer to the [Python Documentation](https://docs.python.org/3/library/venv.html) for further explanation). To create a new virtual environment in a new folder called _venv/_, run the following command inside of the repository's root folder:
+3. It is highly recommended to run Python applications inside virtual environments (please refer to the [Python Documentation](https://docs.python.org/3/library/venv.html) for further explanation). To create a new virtual environment in a new folder called _venv/_, run the following command inside of the repository's root folder:
 ```shell
 python -m venv venv
 ```
 
-3. Now, enter the newly created virtual environment:
+4. Now, enter the newly created virtual environment:
 #### macOS / Linux
 ```shell
 source ./venv/bin/activate
@@ -114,22 +122,22 @@ venv\Scripts\activate.bat
 ```
 The prompt should now begin or end with _(venv)_ to indicate that you have entered the environment.
 
-4. Install the dependencies:
+5. Install the dependencies:
 ```shell
 pip install -r requirements.txt
 ```
 
-5. Create a database and all necessary tables:
+6. Create a database and all necessary tables:
 ```shell
 python manage.py migrate
 ```
 
-6. All users of TURTL have to be invited by others first, which is why TURTL does not come with a registration form. To have an initial account, either use the accounts provided by the database seeder (if applicable, see the section below) or create an administrator account manually using the following command:
+7. All users of TURTL have to be invited by others first, which is why TURTL does not come with a registration form. To have an initial account, either use the accounts provided by the database seeder (if applicable, see the section below) or create an administrator account manually using the following command:
 ```shell
 python manage.py createsuperuser
 ```
 
-7. Run the backend API with a development server:
+8. Run the backend API with a development server:
 ```shell
 python manage.py runserver
 ```
@@ -230,7 +238,7 @@ sudo docker compose up --build
 #### Create admin user:
 
 ```bash
-sudo docker compose exec app python manage.py createsuperuser
+sudo docker compose exec backend python manage.py createsuperuser
 ```
 
 #### Create student accounts:
@@ -248,5 +256,11 @@ sudo docker compose cp backend:/app/users.html ./users.html
 To delete all student accounts use the following command:
 
 ```bash
-sudo docker compose exec app python manage.py cleanup_students
+sudo docker compose exec backend python manage.py cleanup_students
+```
+
+#### Django Admin panel:
+The admin panel can be reached at:
+```bash
+https://your-deployment-url/django-admin
 ```
