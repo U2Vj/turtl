@@ -40,7 +40,7 @@ def check_proxmox_env(app_configs, **kwargs):
         if not os.path.isfile(ca_path):
             errors.append(Error(
                 f"Proxmox CA cert not found: {ca_path}",
-                hint="Place the Proxmox CA certificate in the project root or set PROXMOX_CA_PATH to the correct location.",
+                hint="Place the Proxmox CA certificate in the /deploy/certs directory",
                 id='vm_manager.E101',
             ))
     return errors

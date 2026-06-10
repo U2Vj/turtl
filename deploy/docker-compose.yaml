@@ -1,6 +1,6 @@
 services:
   ofelia:
-    image: mcuadros/ofelia:latest
+    image: mcuadros/ofelia:0.3
     depends_on:
       backend:
         condition: service_healthy

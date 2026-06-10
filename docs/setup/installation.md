@@ -25,7 +25,7 @@ Then fill out the following variables
 | DJANGO_SECRET_KEY              | Insert a secure random string  |
 | DJANGO_DEBUG                   | Toggle for debug mode, set to false in production |
 | VM_MANAGER_LOG_LEVEL           | DEBUG, INFO, WARN, ERROR |
-| DJANGO_ALLOWED_HOSTS           | Comma seperated List of hostnames Django accepts requests from. MUST inlude localhost for backend healthcheck to work |
+| DJANGO_ALLOWED_HOSTS           | Comma separated list of hostnames Django accepts requests from. MUST inlude localhost for backend healthcheck to work |
 | CSRF_TRUSTED_ORIGINS           | List of trusted origins for Django CSRF |
 | FRONTEND_URL                   | Base URL of the frontend |
 | POSTGRES_DB                    | Name of PostgreSQL db |
@@ -45,7 +45,7 @@ Then fill out the following variables
 | PROXMOX_VM_POOL                | Name of the pool where VMs for lab environments get created e.g. turtl-lab |
 | PROXMOX_VM_STORAGE             | Disk storage for the cloned vms e.g. local-zfs-turtl |
 | PROXMOX_VLAN_BRIDGE            | VLAN-Bridge used for networking for the lab environments  |
-| PROXMOX_VERIFY_SSL             | if true, verifies Proxmox SSL certificate (requires proxmox-ca.pem in project root). The certificates hostname or ip must match the configured PROXMOX_HOST |
+| PROXMOX_VERIFY_SSL             | if true, verifies Proxmox SSL certificate (requires proxmox-ca.pem in /deploy/certs). The certificates hostname or ip must match the configured PROXMOX_HOST |
 | USER_THROTTLE_RATE             | Limit how many requests a logged in user can make e.g. 200/minute |
 | ANON_THROTTLE_RATE             | Limit how many request anonymous users can make e.g. 100/minute |
 | VM_ACTIONS_THROTTLE_RATE       | Limit how many lab environment actions a user can make (create/start/stop/delete) e.g. 4/minute |
@@ -210,7 +210,7 @@ proxy_set_header Host <insert url or ip where application is hosted>;
 Grafana can be used to monitor the number of active and running lab environments with data coming from the analytics table. This feature is very rudimentary but can be expanded by more data sources and views in the future. Data sources and dashboards are imported using Grafana provisioning: https://grafana.com/docs/grafana/latest/administration/provisioning/
 
 Grafana connects to the PostgreSQL Database with the credentials from GRAFANA_DB_USER and GRAFANA_DB_PASSWORD.
-You could set the same user for both grafana and django, but it is recommended to create a seperate readonly user in the grafana
+You could set the same user for both grafana and django, but it is recommended to create a separate readonly user in the grafana
 
 Grafana binds to the localhost of the machine running the turtl application. If you want to access it you can setup ssh port forwarding like this:
 ```bash
@@ -223,7 +223,8 @@ The initial login is admin:admin, but it is recommended to change it to somethin
 ### Start application
 
 ```bash
-sudo docker compose up -d --build
+cd deploy
+sudo docker compose up --build
 ```
 
 #### Create admin user:
@@ -237,9 +238,9 @@ sudo docker compose exec app python manage.py createsuperuser
 The seeder app provides a script to mass create student accounts in the database and generate a printable html file. The following example generates 100 Student accounts enrolled for classroom id 1:
 
 ```bash
-sudo docker compose exec app python manage.py generate_students 100 --classroom_id 1 --domain "turtl" --password-length 10 --output users.html
+sudo docker compose exec backend python manage.py generate_students 100 --classroom_id 1 --domain "turtl" --password-length 10 --output users.html
 
-sudo docker compose cp app:/app/users.html ./users.html
+sudo docker compose cp backend:/app/users.html ./users.html
 ```
 
 #### Delete student accounts:

@@ -42,7 +42,7 @@ USER appuser
 
 EXPOSE 8000
 
-# Start app with daphane
+# Start app with daphne
 CMD ["daphne", "--proxy-headers", "-b", "0.0.0.0", "-p", "8000", "turtl.asgi:application"]
 
 

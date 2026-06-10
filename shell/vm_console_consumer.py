@@ -164,7 +164,7 @@ class VMConsoleConsumer(AsyncWebsocketConsumer):
             )
             ssl_context.check_hostname = False
             ssl_context.verify_mode = ssl.CERT_NONE
-        elif ca_path:
+        elif ca_path and os.path.isfile(ca_path):
             ssl_context.load_verify_locations(cafile=ca_path)
 
         if self._is_ip(proxmox_host):
