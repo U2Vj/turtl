@@ -98,3 +98,7 @@ Currently the following events are recorded: user_login, user_logout, task_faile
 **PostgreSQL** has been chosen as the database because some parts of VM provisioning cannot run in parallel. Therefore the application uses PostgreSQL locking mechanism to prevent these race conditions.
 
 **Redis** is used as a Channel layer and for websocket connection rate limiting.
+
+## Email System
+
+Please note: To use the email invitation system, TURTL requires an SMTP server. Further information about configuring the Django email service is provided in the [official Django documentation](https://docs.djangoproject.com/en/5.0/ref/settings/#std-setting-EMAIL_HOST). TURTL uses the default Django email backend and sends every email from the email address specified in the `DEFAULT_FROM_EMAIL` setting. This feature is untested in production and is optional as user acccounts can be created manually or via management command.

@@ -37,3 +37,6 @@ To use a bidirectional clipboard additional configuration in the VM templates an
 As a simple workaround, a unidirectional clipboard has been implemented in the frontend, which types text from a textbox manually into the VM. This works for copying scripts or commands, but the typing is very slow. 
 
 Based on user feedback, implementing a true bidirectional clipboard would be a valuable addition to the application.
+
+## Email System
+The email system remains untested and it should be explored wether to keep it or replace it with something else

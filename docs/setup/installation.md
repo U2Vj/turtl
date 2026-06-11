@@ -1,10 +1,13 @@
 # Installation Guide
+This guide explains how to setup TURTL in Production. 
+For a guide on how to setup local development see [Development](development.md) 
 
 ## Prerequisites
 TURTL requires a recent version of [Python](https://www.python.org/) (Python 3.12 or later), [Docker](https://www.docker.com/), [Docker Compose](https://docs.docker.com/compose/install/linux/) and the latest LTS version of [NodeJS](https://nodejs.org/en).
 For the virtualization features TURTL requires an Instance of [Proxmox VE](https://www.proxmox.com/en/products/proxmox-virtual-environment/overview) connected to a network that the machine running TURTL has access to.
 
-## Quick start
+### Requirements
+Proxmox VE configured as described in [Proxmox](proxmox.md)
 
 ### Clone repository
 
@@ -77,129 +80,6 @@ or:
 openssl req -x509 -nodes -newkey rsa:4096 -keyout turtl.key -out turtl.crt -days 365 -subj "/CN=<domain>" -addext "subjectAltName=DNS:<domain>"
 ```
 
-### Start the application:
-
-```bash
-cd deploy
-sudo docker compose up --build
-```
-
-## Local Development
-For local development a separate docker-compose.yaml is provided in the root of the project. This will start Redis and PostgreSQL development containers.
-
-### Backend
-
-1. Copy the .env.development file and set the correct values for Proxmox.
-```bash
-cp .env.development .env
-```
-Note that PROXMOX_VERIFY_SSL will not work in local development and must be left disabled as the certificate is fetched via docker secrets in production.
-
-2. Start the PostgreSQL and Redis Container (make sure to set the required environment variables listed above)
-
-```bash
-sudo docker compose up -d
-```
-
-3. It is highly recommended to run Python applications inside virtual environments (please refer to the [Python Documentation](https://docs.python.org/3/library/venv.html) for further explanation). To create a new virtual environment in a new folder called _venv/_, run the following command inside of the repository's root folder:
-```shell
-python -m venv venv
-```
-
-4. Now, enter the newly created virtual environment:
-#### macOS / Linux
-```shell
-source ./venv/bin/activate
-```
-#### Windows PowerShell
-```powershell
-venv\Scripts\Activate.ps1
-```
-If PowerShell returns an error, there might be an issue with your execution policy. Please refer to the [PowerShell Documentation](https://learn.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_execution_policies) for additional information.
-#### Windows Command Prompt (cmd.exe)
-```powershell
-venv\Scripts\activate.bat
-```
-The prompt should now begin or end with _(venv)_ to indicate that you have entered the environment.
-
-5. Install the dependencies:
-```shell
-pip install -r requirements.txt
-```
-
-6. Create a database and all necessary tables:
-```shell
-python manage.py migrate
-```
-
-7. All users of TURTL have to be invited by others first, which is why TURTL does not come with a registration form. To have an initial account, either use the accounts provided by the database seeder (if applicable, see the section below) or create an administrator account manually using the following command:
-```shell
-python manage.py createsuperuser
-```
-
-8. Run the backend API with a development server:
-```shell
-python manage.py runserver
-```
-
-### Frontend
-
-1. Change into the _frontend/_ directory:
-```shell
-cd frontend/
-```
-2. Install dependencies:
-```shell
-npm install
-```
-3. Run the frontend using the [Vite](https://vitejs.dev/) development server:
-```shell
-npm run dev
-```
-
-### Database Seeding
-
-To ease development, TURTL provides a database seeder that fills the database with users, classrooms, projects, tasks and enrollments.
-
-The following Django management command seeds the database:
-```shell
-python manage.py seed
-```
-
-Clearing the database, seeding it and starting TURTL is possible by chaining the following commands:
-```shell
-python manage.py flush --noinput && python manage.py seed --noinput && python manage.py runserver
-```
-
-### Account credentials
-The seeder inserts the following accounts into the database:
-| Role | No. of accounts | Emails | Password for each account |
-| ---- | --------------- | ------ | ------------------------- |
-| Administrator | 1 | admin@localhost | admin |
-| Instructor | 3 | instructor@localhost, instructor2@localhost, instructor3@localhost | instructor |
-| Student | 5 | student@localhost, student2@localhost, student3@localhost, student4@localhost, student5@localhost | student |
-
-
-## Proxmox VE
-
-TURTL uses Proxmox VE for the virtualizations associated with the tasks. For instructions on how to setup proxmox and create templates refer to the linked documentation
-
-- [Proxmox Setup](proxmox.md)
-
-## Email System
-
-Please note: To use the email invitation system, TURTL requires an SMTP server. Further information about configuring the Django email service is provided in the [official Django documentation](https://docs.djangoproject.com/en/5.0/ref/settings/#std-setting-EMAIL_HOST). TURTL uses the default Django email backend and sends every email from the email address specified in the `DEFAULT_FROM_EMAIL` setting. This feature is untested in production and is optional as user acccounts can be created manually or via management command.
-
-## Deployment
-
-### Requirements
-To ensure correct and secure deployment the following criteria should be met:
-
-- Fully configured .env
-- Django_DEBUG=false
-- TLS certificates in deploy/certs
-- Proxmox VE configured as described in [Proxmox](proxmox.md)
-
 ### Configure nginx
 Copy the example nginx configuration:
 ```bash
@@ -213,20 +93,6 @@ and:
 ```
 proxy_set_header Host <insert url or ip where application is hosted>;
 ```
-
-### Configure Grafana
-Grafana can be used to monitor the number of active and running lab environments with data coming from the analytics table. This feature is very rudimentary but can be expanded by more data sources and views in the future. Data sources and dashboards are imported using Grafana provisioning: https://grafana.com/docs/grafana/latest/administration/provisioning/
-
-Grafana connects to the PostgreSQL Database with the credentials from GRAFANA_DB_USER and GRAFANA_DB_PASSWORD.
-You could set the same user for both grafana and django, but it is recommended to create a separate readonly user in the grafana
-
-Grafana binds to the localhost of the machine running the turtl application. If you want to access it you can setup ssh port forwarding like this:
-```bash
-ssh -L 3001:localhost:3000 username@server
-```
-then you can reach grafana on your local device in a webbrowser by going to: http://localhost:3001
-
-The initial login is admin:admin, but it is recommended to change it to something more secure.
 
 ### Start application
 
@@ -264,3 +130,17 @@ The admin panel can be reached at:
 ```bash
 https://your-deployment-url/django-admin
 ```
+
+### Configure Grafana
+Grafana can be used to monitor the number of active and running lab environments with data coming from the analytics table. This feature is very rudimentary but can be expanded by more data sources and views in the future. Data sources and dashboards are imported using Grafana provisioning: https://grafana.com/docs/grafana/latest/administration/provisioning/
+
+Grafana connects to the PostgreSQL Database with the credentials from GRAFANA_DB_USER and GRAFANA_DB_PASSWORD.
+You could set the same user for both grafana and django, but it is recommended to create a separate readonly user in the grafana
+
+Grafana binds to the localhost of the machine running the turtl application. If you want to access it you can setup ssh port forwarding like this:
+```bash
+ssh -L 3001:localhost:3000 username@server
+```
+then you can reach grafana on your local device in a webbrowser by going to: http://localhost:3001
+
+The initial login is admin:admin, but it is recommended to change it to something more secure.
