@@ -81,7 +81,7 @@ openssl req -x509 -nodes -newkey rsa:4096 -keyout turtl.key -out turtl.crt -days
 ```
 
 ### Proxmox certificate
-To communicate with Proxmox via SSL it is necessary to import the ca file from Proxmox. This is found on the Proxmox host at: /etc/pve/pve-root-ca.pem. More info at: https://pve.proxmox.com/wiki/Certificate_Management
+To communicate with Proxmox via SSL it is necessary to import the ca file from Proxmox. This is found on the Proxmox host at: _/etc/pve/pve-root-ca.pem._ More info at: https://pve.proxmox.com/wiki/Certificate_Management
 
 Copy the contents of the file into the following file in turtl and save it:
 ```bash

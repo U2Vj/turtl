@@ -9,7 +9,7 @@ For local development a separate docker-compose.yaml is provided in the root of 
 
 ### Backend
 
-1. Copy the .env.development file and set the correct values for Proxmox.
+1. Copy the _.env.development_ file and set the correct values for Proxmox.
 ```bash
 cp .env.development .env
 ```
