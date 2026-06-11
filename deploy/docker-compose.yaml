@@ -98,7 +98,7 @@ services:
     restart: unless-stopped
   
   grafana:
-    image: grafana/grafana
+    image: grafana/grafana:13.0.1
     container_name: grafana
     restart: unless-stopped
     environment:

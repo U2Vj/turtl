@@ -80,6 +80,14 @@ or:
 openssl req -x509 -nodes -newkey rsa:4096 -keyout turtl.key -out turtl.crt -days 365 -subj "/CN=<domain>" -addext "subjectAltName=DNS:<domain>"
 ```
 
+### Proxmox certificate
+To communicate with Proxmox via SSL it is necessary to import the ca file from Proxmox. This is found on the Proxmox host at: /etc/pve/pve-root-ca.pem. More info at: https://pve.proxmox.com/wiki/Certificate_Management
+
+Copy the contents of the file into the following file in turtl and save it:
+```bash
+nano deploy/certs/proxmox-ca.pem
+```
+
 ### Configure nginx
 Copy the example nginx configuration:
 ```bash
