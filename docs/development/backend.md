@@ -41,7 +41,7 @@ pip install -r requirements.txt
 
 
 ### Backend architecture
-Django projects are structured into [applications](https://docs.djangoproject.com/en/5.0/ref/applications/). Each application is also a Python package. The _turtl_ folder is the project Python package which contains a settings module (_settings.py_) that defines the TURTL configuration. It also contains a custom exception handler and routing configurations for both ASGI (in the _routing.py_ file) and WSGI (in the _urls.py_ file). ASGI is used for asynchronous communication (e.g. WebSocket connections), WSGI for regular HTTP.
+Django projects are structured into [applications](https://docs.djangoproject.com/en/5.0/ref/applications/). Each application is also a Python package. The _turtl_ folder is the project Python package which contains a settings module (_settings.py_) that defines the TURTL configuration. It also contains a custom exception handler and routing configurations for both ASGI (in the _asgi.py_ file) and WSGI (in the _urls.py_ file). ASGI is used for asynchronous communication (e.g. WebSocket connections), WSGI for regular HTTP.
 
 TURTL consists of seven custom applications:
 

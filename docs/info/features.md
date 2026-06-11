@@ -131,4 +131,4 @@ Administrators have the authority to edit any classroom within the system, regar
 In the 'Invite Users' section administrators have the authority to also invite a single instructor by entering the email address and then confirming the entry by clicking on 'Invite'.
 
 ## Django Admin panel
-An administrator can assign roles in the Django Admin Panel. The Django Admin Panel can be accessed via the backend URL plus `/admin/`, e.g. for development purposes `http://localhost:8000/admin/`.
+An administrator can assign roles in the Django Admin Panel. The Django Admin Panel can be accessed via the backend URL plus `/django-admin/`, e.g. for development purposes `http://localhost:8000/django-admin/`.
