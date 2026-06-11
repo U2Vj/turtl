@@ -23,7 +23,7 @@ TURTL aims to:
 
 ### Quick Start
 
-- [TURTL Install](setup/installation.md)
+- [TURTL Deployment](setup/installation.md)
 - [Setup Proxmox](setup/proxmox.md)
 
 ### Information
@@ -34,7 +34,7 @@ TURTL aims to:
 - [Known bugs](info/knownbugs.md)
 
 ### Development guide
-
+- [Local development](setup/development.md)
 - [Backend](development/backend.md)
 - [Frontend](development/frontend.md)
 - [Authentication](development/authentication.md)
