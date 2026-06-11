@@ -30,7 +30,8 @@ TURTL aims to:
 
 - [Concept](info/concept.md)
 - [Features](info/features.md)
-- [Limitations](info/limitations.md)
+- [Possible improvements](info/future_improvements.md)
+- [Known bugs](info/knownbugs.md)
 
 ### Development guide
 
