@@ -28,6 +28,17 @@ TURTL consists of a Vue.js frontend (for a development guide, see [here](https:/
 * used to call the Proxmox VE API from the vm manager.
 * Docs: [https://github.com/proxmoxer/proxmoxer/](https://github.com/proxmoxer/proxmoxer/)
 
+### Add new libraries
+For a better overview of core dependencies pip-tools is used to generate the requirements.txt file from the requirements.in file.
+https://pip-tools.readthedocs.io/en/stable/
+
+If you want to add a new library, add it to the requirements.in file and do the following:
+```bash
+pip install pip-tools
+pip-compile requirements.in
+pip install -r requirements.txt
+```
+
 
 ### Backend architecture
 Django projects are structured into [applications](https://docs.djangoproject.com/en/5.0/ref/applications/). Each application is also a Python package. The _turtl_ folder is the project Python package which contains a settings module (_settings.py_) that defines the TURTL configuration. It also contains a custom exception handler and routing configurations for both ASGI (in the _routing.py_ file) and WSGI (in the _urls.py_ file). ASGI is used for asynchronous communication (e.g. WebSocket connections), WSGI for regular HTTP.
@@ -71,7 +82,7 @@ The Proxmox logic is separated into 4 different files:
 - [orchestrator.py](../../vm_manager/proxmox/orchestrator.py) contains the functions that create, start, stop and delete lab environments as well as a function to clean up orphan VMs that exist on proxmox while missing in the database
 - [vm_ops.py](../../vm_manager/proxmox/vm_ops.py) contains the underlying functions to clone and configure individual VMs as well as monitoring their status.
 
-The VM Manager also provides a management command to cleanup unused lab environments and delete orphan VMs. It is called in deployment by the cleanup service every 10 minutes. The time after which a VM is stopped as well as the time after which a VM is deleted can be set in the .env file.
+The VM Manager also provides a management command to cleanup unused lab environments and delete orphan VMs. It is called in deployment by ofelia every 5 minutes. The time after which a VM is stopped as well as the time after which a VM is deleted can be set in the .env file.
 You can also call the command manually by running:
 
 ```bash
