@@ -22,6 +22,8 @@ http {
         ssl_certificate /run/secrets/turtl.crt;
         ssl_certificate_key /run/secrets/turtl.key;
 
+        #Enable HSTS with short max age for testing. Increase to 31536000 after verifying everything works
+        add_header Strict-Transport-Security "max-age=3600" always;
 
         ssl_protocols TLSv1.2 TLSv1.3;
         ssl_ecdh_curve X25519MLKEM768:X25519:prime256v1:secp384r1;
