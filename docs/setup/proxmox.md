@@ -80,19 +80,49 @@ pveum aclmod /sdn/zones/localnetwork/vmbr100 -token 'turtl@pve!turtl-api' -role 
 
 TURTL uses VM templates to clone individual virtual machines for every task and student. To create a template you can either import a virtual machine from a disk or create an entirely new VM from scratch inside proxmox.
 
-### Example import from disk:
+### Example import of VirtualBox VM:
+In this example, the _Metasploitable 3_ VM is imported into Proxmox to be used as a machine for lab environments. This is not applicable to any VM, some may require diffrent configurations. There are usually guides on how to install the desired VMs in Proxmox.
 
-```bash
-qm create 9000 --name "EternalBlue" --memory 2048 --cores 2 --ostype win7
+1. Download the VirtualBox VM: https://portal.cloud.hashicorp.com/vagrant/discover/rapid7/metasploitable3-ub1404
 
-qm disk import 9000 /tmp/EternalBlue-disk001.vmdk local-lvm
+2. Copy the VirtualBox VM to the Proxmox-Host, for example with WinSCP
 
-qm set 9000 --sata0 local-lvm:vm-9000-disk-0
-qm set 9000 --boot order=sata0
-qm set 9000 --net0 e1000,bridge=vmbr100
+3. Extract the disk
+   ```bash
+   tar -xf filename
+   ```
 
-pvesh set /pools/turtl-templates --vms 9000
-```
+4. Create a new VM in Proxmox and select 'Do not use any media' on the operating system page. Select 'Qemu Agent' and delete the disk on the discs page. Select the network bridge created for Proxmox on the Network tab. Adjust the network device model, for metasploitable3 it is _Intel E1000_ The rest can be left as default.
+
+5. Import the disk by running the following command (adjust the storage if using a custom storage):
+
+   ```bash
+   qm importdisk 7000 /root/metasplotable.vmdk local-lvm
+   ```
+6. Go to the hardware tab of the VM and select the unused disk and select edit -> then add.
+
+7. Go to Options -> Boot Order, enable the new disk and move it to the top
+
+8. Then start the VM
+
+9. You then need to set an ip address for the machine since there is not DHCP server in the network
+   ```bash
+   nano /etc/network/interfaces
+   ```
+   set:
+   ```
+   auto eth0
+   iface eth0 inet static 
+      address 10.10.0.2
+      netmask 255.255.255.0
+   ```
+   delete the persistent-net.rules:
+   ```bash
+   sudo rm -f /etc/udev/rules.d/70-persistent-net.rules
+   ```
+10. Finally you can convert the VM to a template and add it to the turtl-templates pool
+
+
 
 ### Create a new VM in Proxmox:
 
@@ -109,7 +139,7 @@ Be aware that it is currently not possible to provide internet access to the VMs
 
 You can set a higher CPU and RAM for installing the VM faster. The resources allocated to the lab VMs can be set later inside of TURTL.
 
-If the VM should be used in a lab environment configuration with other VMs you need to manually set the IP address inside the virtual machine.
+If the VM is used in a lab environment configuration with other VMs you need to manually set the IP address inside the virtual machine.
 
 The alternative is to use **Cloud-Init** to set the ip address in the vm when it is cloned. This has the advantage that you can reuse the same template for multiple tasks with different ip addresses.
 For this to work, cloud-init must be installed and running on the VM.
