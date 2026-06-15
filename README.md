@@ -21,8 +21,8 @@ TURTL aims to:
 
 ### Quick Start
 
-- [TURTL Deployment](setup/installation.md)
-- [Setup Proxmox](setup/proxmox.md)
+- [TURTL Deployment](docs/setup/installation.md)
+- [Setup Proxmox](docs/setup/proxmox.md)
 
 ### Information
 
