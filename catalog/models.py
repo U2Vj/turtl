@@ -221,26 +221,3 @@ class Task(RulesModel):
             "delete": is_authenticated & is_instructor & manages_task,
         }
         unique_together = ('title', 'project',)
-
-
-class Virtualization(models.Model):
-    """
-        A Virtualization is a virtual machine that is created for a task.
-    """
-
-    # Name of the virtualization
-    name = models.CharField(max_length=30)
-
-    # The task that this virtualization belongs to
-    task = models.ForeignKey(Task, on_delete=models.CASCADE, related_name='virtualizations')
-
-    # Virtualizations have a role: they are either a shell visible to the user, or accessible by the user shell
-    # via an IP address
-    class Role(models.TextChoices):
-        USER_SHELL = 'USER_SHELL', _('User Shell')
-        USER_ACCESSIBLE = 'USER_ACCESSIBLE', _('User-accessible via IP')
-
-    virtualization_role = models.CharField(choices=Role.choices, max_length=15)
-
-    # File of the Dockerfile that is used to create the virtualization
-    dockerfile = models.TextField()

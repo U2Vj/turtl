@@ -11,6 +11,8 @@ from rest_framework_simplejwt.serializers import TokenObtainPairSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework.exceptions import AuthenticationFailed
 
+from analytics.tracker import track
+
 from .models import User, Invitation
 
 
@@ -124,6 +126,9 @@ class LoginRefreshSerializer(serializers.Serializer):
         except User.DoesNotExist:
             raise TokenError("No user found for given token")
 
+        if not user.is_active:
+            raise TokenError("User is inactive")
+
         refresh['username'] = access['username'] = user.username
 
         data = {"access": str(access)}
@@ -161,6 +166,11 @@ class LoginSerializer(TokenObtainPairSerializer):
         token['email'] = user.email
 
         return token
+    
+    def validate(self, attrs):
+        data = super().validate(attrs)
+        track('user_login', user=self.user)
+        return data
 
 
 class UserSerializer(serializers.ModelSerializer):

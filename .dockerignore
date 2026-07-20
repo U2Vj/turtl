@@ -1,0 +1,15 @@
+venv/
+**/__pycache__/
+*.pyc
+*.pyo
+.git/
+.gitignore
+frontend/node_modules/
+frontend/dist/
+staticfiles/
+media/
+deploy/.env
+deploy/.env.*
+deploy/proxmox-ca.pem
+deploy/certs/
+requirements.in

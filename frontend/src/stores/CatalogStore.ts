@@ -30,21 +30,9 @@ export type Task = {
   description: string
   task_type: TaskType
   difficulty: TaskDifficulty
-  virtualizations: Virtualization[]
   acceptance_criteria: AcceptanceCriteria
 }
 
-export enum VirtualizationRole {
-  UserShell = 'USER_SHELL',
-  UserAccessible = 'USER_ACCESSIBLE'
-}
-
-export type Virtualization = {
-  id?: number
-  name: string
-  virtualization_role: VirtualizationRole
-  dockerfile: string
-}
 
 export enum AcceptanceCriteriaType {
   Disabled = 'DISABLED',
@@ -110,6 +98,18 @@ type Project = {
   id?: number
   title: string
   tasks: Task[]
+}
+
+export enum VirtualizationRole {
+  UserShell = 'USER_SHELL',
+  UserAccessible = 'USER_ACCESSIBLE'
+}
+
+export type Virtualization = {
+  id?: number
+  name: string
+  virtualization_role: VirtualizationRole
+  dockerfile: string
 }
 
 export type ClassroomDetail = {
@@ -207,7 +207,6 @@ export const useCatalogStore = defineStore('catalog', () => {
         description: description,
         task_type: taskType,
         difficulty: difficulty,
-        virtualizations: [],
         acceptance_criteria: {}
       })
     return updateClassroom(classroom.value.id, updatedClassroomData)

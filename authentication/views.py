@@ -6,12 +6,38 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveUpdateAPIView, CreateAPIView
 from rest_framework.viewsets import ModelViewSet
-from rest_framework_simplejwt.views import TokenRefreshView
+from rest_framework_simplejwt.views import TokenRefreshView, TokenBlacklistView
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.views import TokenObtainPairView
 from turtl.utils.permissions import AutoPermissionViewSetWithListMixin
 
+from analytics.tracker import track
 from .models import User, Invitation
 from .serializers import (ProfileUpdateSerializer, LoginRefreshSerializer,
                           InvitationSerializer, AcceptInvitationSerializer, BulkInvitationSerializer, UserSerializer)
+
+from .throttling import LoginIPThrottle, LoginUsernameThrottle
+
+class LogoutView(TokenBlacklistView):
+    def post(self, request, *args, **kwargs):
+        user = None
+        refresh_str = request.data.get('refresh')
+        if refresh_str:
+            try:
+                user_id = RefreshToken(refresh_str).payload.get('user_id')
+                if user_id:
+                    user = User.objects.filter(id=user_id).first()
+            except Exception:
+                pass
+
+        response = super().post(request, *args, **kwargs)
+        if response.status_code == status.HTTP_200_OK:
+            track('user_logout', user=user)
+        return response
+    
+
+class LoginView(TokenObtainPairView):
+    throttle_classes = [LoginIPThrottle, LoginUsernameThrottle]
 
 
 class ProfileUpdateView(RetrieveUpdateAPIView):
@@ -44,6 +70,7 @@ class LoginRefreshView(TokenRefreshView):
         payload) might have been changed.
     """
     serializer_class = LoginRefreshSerializer
+    throttle_classes = [LoginIPThrottle,]
 
 
 class InvitationViewSet(AutoPermissionViewSetWithListMixin, ModelViewSet):

@@ -18,11 +18,13 @@ from django.urls import path
 from django.urls import include
 
 
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
+    path('django-admin/', admin.site.urls),
     path('users/', include('authentication.urls')),
     path('catalog/', include('catalog.urls')),
     path('enrollments/', include('enrollments.urls')),
+    path('vm/', include('vm_manager.urls')),
 ]
 
 

@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import DefaultFooter from '@/components/menus/DefaultFooter.vue'
 import DefaultHeader from '@/components/menus/DefaultHeader.vue'
-import { defineProps } from 'vue'
 
-const props = defineProps<{
-  breadcrumbItems: any[]
-}>()
+const props = withDefaults(
+  defineProps<{
+    breadcrumbItems?: any[]
+  }>(),
+  { breadcrumbItems: () => [] }
+)
 </script>
 <template>
   <DefaultHeader />

@@ -207,7 +207,7 @@ function submitSolution() {
             <br />
           </v-col>
           <v-col cols="6">
-            <Shell />
+            <Shell :task-id="taskId"/>
           </v-col>
         </v-row>
         <v-divider class="mt-4 mb-4"></v-divider>
@@ -274,7 +274,8 @@ function submitSolution() {
                       v-if="question.question_type == QuestionType.SingleChoice"
                       :model-value="getSingleChoiceSelectedAnswerOption(question.id)"
                       @update:model-value="
-                        (choiceId) => setSingleChoiceSelectedAnswerOption(question.id, choiceId)
+                        (choiceId: number | null) =>
+                          choiceId !== null && setSingleChoiceSelectedAnswerOption(question.id, choiceId)
                       "
                     >
                       <v-radio :label="choice.answer" :value="choice.id" />

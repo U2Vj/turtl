@@ -10,22 +10,27 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
+from datetime import timedelta
 import os
+from urllib.parse import quote
+from dotenv import load_dotenv
+
+# take environment variables
+load_dotenv()
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
+SECRET_KEY = os.environ['DJANGO_SECRET_KEY']
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'dkzvccm3u=hxujl)q1a9jz1ush82b-*w@w5gx))%v_86+p4_$x'
+DEBUG = os.environ.get('DJANGO_DEBUG', '').strip().lower() in ('1', 'true', 'yes', 'on')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+allowed_hosts_env = os.getenv('DJANGO_ALLOWED_HOSTS', '')
+ALLOWED_HOSTS = [h.strip() for h in allowed_hosts_env.split(',') if h.strip()]
 
-ALLOWED_HOSTS = []
+csrf_trusted_origins_env = os.getenv('CSRF_TRUSTED_ORIGINS', '')
+CSRF_TRUSTED_ORIGINS = [o.strip() for o in csrf_trusted_origins_env.split(',') if o.strip()]
 
 # Tell Django about the custom `User` model we created. The string
 # `authentication.User` tells Django we are referring to the `User` model in
@@ -45,9 +50,6 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'django_extensions',
-    'corsheaders',
-    'rest_auth',
-    'rest_auth.registration',
     'rest_framework',
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',
@@ -56,12 +58,13 @@ INSTALLED_APPS = [
     'enrollments',
     'seeder',
     'shell',
+    'vm_manager',
+    'analytics',
 ]
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -69,30 +72,46 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# Only use this settings for Development
-CORS_ORIGIN_ALLOW_ALL = True
-CORS_ORIGIN_WHITELIST = (
-    'http://localhost:8080',
-    'http://localhost',
-    'http://localhost:8000',
-    'http://127.0.0.1',
-    'http://127.0.0.1:8000',
-    'http://127.0.0.1:8080',
-)
+# CORS: only enabled in DEBUG (dev). Prod runs same-origin behind nginx.
+if DEBUG:
+    INSTALLED_APPS.append('corsheaders')
+    MIDDLEWARE.insert(2, 'corsheaders.middleware.CorsMiddleware')
+    cors_env = os.environ.get('CORS_ALLOWED_ORIGINS', '')
+    CORS_ALLOWED_ORIGINS = [o.strip() for o in cors_env.split(',') if o.strip()]
 
 REST_FRAMEWORK = {
     'EXCEPTION_HANDLER': 'turtl.exceptions.core_exception_handler',
     'NON_FIELD_ERRORS_KEY': 'error',
+
+    'DEFAULT_RENDERER_CLASSES': [
+        'rest_framework.renderers.JSONRenderer',
+    ],
+
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    'DEFAULT_THROTTLE_CLASSES': [
+        'rest_framework.throttling.UserRateThrottle',
+        'rest_framework.throttling.AnonRateThrottle',
+    ],
+    'DEFAULT_THROTTLE_RATES': {
+        'user': os.environ.get('USER_THROTTLE_RATE', '200/minute'),
+        'anon': os.environ.get('ANON_THROTTLE_RATE', '100/minute'),
+        'vm_actions': os.environ.get('VM_ACTIONS_THROTTLE_RATE', '5/minute'),
+        'login_ip': os.environ.get('LOGIN_IP_THROTTLE_RATE', '100/minute'),
+        'login_user': os.environ.get('LOGIN_USER_THROTTLE_RATE', '10/minute'),
+    },
+    'NUM_PROXIES': int(os.environ.get('NUMBER_OF_PROXIES', 1)),
 }
+
 SIMPLE_JWT = {
     # This serializer replaces the default serializer (TokenObtainPairSerializer).
     "TOKEN_OBTAIN_SERIALIZER": "authentication.serializers.LoginSerializer",
     "ROTATE_REFRESH_TOKENS": True,
     "BLACKLIST_AFTER_ROTATION": True,
-    "UPDATE_LAST_LOGIN": True
+    "UPDATE_LAST_LOGIN": True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
 }
 
 ROOT_URLCONF = 'turtl.urls'
@@ -119,18 +138,30 @@ CHANNEL_LAYERS = {
     'default': {
         'BACKEND': 'channels_redis.core.RedisChannelLayer',
         'CONFIG': {
-            'hosts': [('172.19.0.2', 6379)],
+            'hosts': [f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '6379')}/0"],
         },
     },
 }
 
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": f"redis://:{quote(os.environ['REDIS_PASSWORD'], safe='')}@{os.environ.get('REDIS_HOST', 'localhost')}:{os.environ.get('REDIS_PORT', '6379')}/1",
+    }
+}
+
 # Database
 # https://docs.djangoproject.com/en/3.0/ref/settings/#databases
-# Can be modified to use a MariaDB etc.
+# PostgreSQL configuration
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.environ.get('POSTGRES_DB'),
+        'USER': os.environ.get('POSTGRES_USER'),
+        'PASSWORD': os.environ.get('POSTGRES_PASSWORD'),
+        'HOST': os.environ.get('POSTGRES_HOST', 'localhost'),
+        'PORT': os.environ.get('POSTGRES_PORT', '5432'),
+        'CONN_MAX_AGE': 60,
     }
 }
 
@@ -176,25 +207,31 @@ USE_TZ = True
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 # File upload
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
-CSRF_COOKIE_SECURE = True
 
-# URL for uploads
-APPLICATION_URL = 'http://localhost:8000'
+# Production ssl settings
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = True
+    SESSION_COOKIE_SECURE = True
+    SESSION_COOKIE_NAME = '__Host-sessionid'
+    CSRF_COOKIE_SECURE = True
+    CSRF_COOKIE_NAME = '__Host-csrftoken'
+
+
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
-FRONTEND_URL = 'http://localhost:5173'
+FRONTEND_URL = os.getenv('FRONTEND_URL', 'http://localhost:5173')
 
 # No. of days for which invitation links sent via the email invitation system are valid
 INVITATION_EXPIRY_DAYS = 14
 
-# ID of the Kali container used to demonstrate the web shell
-KALI_CONTAINER_ID = "ac4bb0ffc14a"
 
 EMAIL_HOST = ""
 DEFAULT_FROM_EMAIL = ""
@@ -202,3 +239,29 @@ EMAIL_PORT = 465
 EMAIL_HOST_USER = ""
 EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_SSL = True
+
+
+VM_MANAGER_LOG_LEVEL = os.environ.get('VM_MANAGER_LOG_LEVEL', 'INFO').strip().upper()
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "standard": {
+            "format": "%(levelname)s %(message)s",
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "standard",
+        },
+    },
+    "loggers": {
+        "vm_manager": {
+            "handlers": ["console"],
+            "level": VM_MANAGER_LOG_LEVEL,
+            "propagate": False,
+        },
+    },
+}

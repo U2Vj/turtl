@@ -23,6 +23,7 @@ import DefaultLayout from '@/components/layouts/DefaultLayout.vue'
           Non-Personally Identifiable Information (NPII) such as browser type, operating system, and
           IP address.
         </li>
+        <li>Usage data such as pages visited and time spent on the site.</li>
       </ul>
 
       <br />

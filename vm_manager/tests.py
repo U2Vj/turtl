@@ -1,0 +1,244 @@
+from types import SimpleNamespace
+from unittest.mock import MagicMock, Mock, patch
+
+from django.core.cache import cache
+from django.test import TestCase, override_settings
+from django.core.exceptions import ValidationError
+from django.db import IntegrityError
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APIClient
+
+from authentication.models import User
+from catalog.models import Classroom, ClassroomInstructor, Project, Task, AcceptanceCriteria
+from enrollments.models import Enrollment
+from .models import (
+    Network,
+    VMTemplate,
+    NetworkTemplate,
+    TaskVMConfiguration,
+    TaskVMTemplate,
+    LabEnvironment,
+    VirtualMachine,
+)
+from .access import user_can_access_task_vm
+from .proxmox import NoVlanAvailableError, ProxmoxManager
+from .utils import AdvisoryLock
+
+
+class VMManagerModelsTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        # Basic user and catalog setup
+        cls.user = User.objects.create_student("student@example.com", "password123")
+
+        classroom = Classroom.objects.create(title="Test Classroom")
+        project = Project.objects.create(title="Test Project", classroom=classroom)
+        acceptance = AcceptanceCriteria.objects.create()
+
+        cls.task = Task.objects.create(
+            title="Test Task",
+            project=project,
+            description="Test description",
+            task_type=Task.TaskType.NEUTRAL,
+            difficulty=Task.Difficulty.BEGINNER,
+            acceptance_criteria=acceptance,
+        )
+
+        cls.network_template = NetworkTemplate.objects.create(
+            name="Test Network Template",
+            subnet="10.0.0.0/24",
+            description="Test network template",
+        )
+
+        cls.vm_template = VMTemplate.objects.create(
+            name="Test VM Template",
+            template_id=1,
+            description="Base VM template",
+            cpu_cores=2,
+            memory_mb=1024,
+            purpose="USER_SHELL",
+        )
+
+        cls.task_config = TaskVMConfiguration.objects.create(
+            task=cls.task,
+            network_template=cls.network_template
+        )
+
+        cls.task_vm_template = TaskVMTemplate.objects.create(
+            configuration=cls.task_config,
+            template=cls.vm_template,
+            planned_ip_address="10.0.0.10",
+        )
+
+        cls.network = Network.objects.create(
+            name="User Network",
+            subnet="10.0.0.0/24",
+            vlan_id=200,
+            template=cls.network_template,
+            user=cls.user,
+            task=cls.task,
+        )
+
+        cls.lab_environment = LabEnvironment.objects.create(
+            user=cls.user,
+            task=cls.task,
+            network=cls.network,
+        )
+
+        cls.virtual_machine = VirtualMachine.objects.create(
+            vmid=1000,
+            lab_environment=cls.lab_environment,
+            template=cls.vm_template,
+            name="Primary VM",
+            network=cls.network,
+        )
+
+    def test_network_str_representation(self):
+        expected = f"{self.network.name} ({self.network.subnet}) for {self.user} in {self.task}"
+        # Network string has correct format
+        self.assertEqual(str(self.network), expected)
+
+    def test_network_unique_per_user_and_task(self):
+        # Cannot create a second network for the same user and task combination
+        with self.assertRaises(IntegrityError):
+            Network.objects.create(
+                name="Duplicate Network",
+                subnet="10.0.1.0/24",
+                vlan_id=201,
+                template=self.network_template,
+                user=self.user,
+                task=self.task,
+            )
+
+    def test_lab_environment_unique_per_user_and_task(self):
+        # Cannot create a second lab environment for the same user, task and network combination
+        with self.assertRaises(IntegrityError):
+            LabEnvironment.objects.create(
+                user=self.user,
+                task=self.task,
+                network=self.network,
+            )
+
+    def test_virtual_machine_unique_vmid(self):
+        # Check that you cannot have two VMs with the same vmid
+        with self.assertRaises(IntegrityError):
+            VirtualMachine.objects.create(
+                vmid=self.virtual_machine.vmid,
+                lab_environment=self.lab_environment,
+                template=self.vm_template,
+                name="Duplicate VM",
+                network=self.network,
+            )
+
+    def test_task_vm_template_planned_ip_validation(self):
+        invalid_vm_template = TaskVMTemplate(
+            configuration=self.task_config,
+            template=self.vm_template,
+            planned_ip_address="999.999.999.999",
+        )
+        # Check if invalid ip address fails validation
+        with self.assertRaises(ValidationError):
+            invalid_vm_template.full_clean()
+
+    def test_user_can_access_task_vm_student_only_if_enrolled(self):
+        # Student is not enrolled by default
+        self.assertFalse(user_can_access_task_vm(self.user, self.task))
+
+        Enrollment.objects.create(classroom=self.task.project.classroom, student=self.user)
+        self.assertTrue(user_can_access_task_vm(self.user, self.task))
+
+
+class AdvisoryLockBehaviorTest(TestCase):
+    def test_advisory_lock_returns_false_after_timeout(self):
+        cursor = MagicMock()
+        cursor.fetchone.return_value = [False]
+        cursor_context = MagicMock()
+        cursor_context.__enter__.return_value = cursor
+        cursor_context.__exit__.return_value = False
+
+        with patch("vm_manager.utils.connection.cursor", return_value=cursor_context), \
+             patch("vm_manager.utils.time.monotonic", side_effect=[0.0, 0.0, 1.0]), \
+             patch("vm_manager.utils.time.sleep"):
+            with AdvisoryLock("busy-lock", timeout_seconds=0.1) as acquired:
+                self.assertFalse(acquired)
+
+
+@override_settings(SECURE_SSL_REDIRECT=False)
+class StartEnvironmentViewTest(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        cls.user = User.objects.create_student("student@example.com", "password123")
+
+        classroom = Classroom.objects.create(title="Test Classroom")
+        project = Project.objects.create(title="Test Project", classroom=classroom)
+        acceptance = AcceptanceCriteria.objects.create()
+
+        cls.task = Task.objects.create(
+            title="Test Task",
+            project=project,
+            description="Test description",
+            task_type=Task.TaskType.NEUTRAL,
+            difficulty=Task.Difficulty.BEGINNER,
+            acceptance_criteria=acceptance,
+        )
+
+        network_template = NetworkTemplate.objects.create(
+            name="Test Network Template",
+            subnet="10.0.0.0/24",
+        )
+        TaskVMConfiguration.objects.create(task=cls.task, network_template=network_template)
+        Enrollment.objects.create(classroom=classroom, student=cls.user)
+
+    def setUp(self):
+        self.client = APIClient()
+        self.client.force_authenticate(user=self.user)
+        self.url = reverse("start-environment", args=[self.task.id])
+
+    def test_no_vlan_available_returns_503_with_error_code(self):
+        with patch("vm_manager.views.ProxmoxManager") as manager_cls:
+            manager_cls.return_value.create_lab_environment.side_effect = NoVlanAvailableError()
+            response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_503_SERVICE_UNAVAILABLE)
+        self.assertEqual(response.data.get("error_code"), "NO_VLAN_AVAILABLE")
+
+    def test_unexpected_exception_returns_500(self):
+        with patch("vm_manager.views.ProxmoxManager") as manager_cls:
+            manager_cls.return_value.create_lab_environment.side_effect = RuntimeError("boom test")
+            response = self.client.post(self.url)
+
+        self.assertEqual(response.status_code, status.HTTP_500_INTERNAL_SERVER_ERROR)
+        self.assertNotEqual(response.data.get("error_code"), "NO_VLAN_AVAILABLE")
+
+    def test_vm_throttling(self):
+        cache.clear()
+        self.addCleanup(cache.clear)
+
+        with patch("vm_manager.views.ProxmoxManager") as manager_cls:
+            manager_cls.return_value.create_lab_environment.return_value = (SimpleNamespace(id=1), True)
+
+            for _ in range(5):
+                ok_response = self.client.post(self.url)
+                self.assertEqual(ok_response.status_code, status.HTTP_200_OK)
+
+            throttled_response = self.client.post(self.url)
+
+        self.assertEqual(throttled_response.status_code, status.HTTP_429_TOO_MANY_REQUESTS)
+        self.assertIn("throttled", throttled_response.data.get("detail", "").lower())
+
+
+class ProxmoxManagerLockingTest(TestCase):
+    def test_sync_vm_status_skips_when_environment_lock_is_busy(self):
+        manager = ProxmoxManager.__new__(ProxmoxManager)
+        manager.get_node = Mock(side_effect=AssertionError("get_node must not be called"))
+
+        lock_context = MagicMock()
+        lock_context.__enter__.return_value = False
+        lock_context.__exit__.return_value = False
+
+        with patch("vm_manager.proxmox.orchestrator.AdvisoryLock", return_value=lock_context) as lock_cls:
+            manager.sync_vm_status(SimpleNamespace(id=42))
+
+        lock_cls.assert_called_once_with("lab_env_operation_42", timeout_seconds=0)
+        manager.get_node.assert_not_called()

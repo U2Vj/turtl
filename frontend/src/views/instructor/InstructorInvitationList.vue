@@ -117,23 +117,23 @@ function isExpired(expiration_date: string): boolean {
           >
             <template #[`item.expiration_date`]="{ item }">
               <span
-                v-if="isExpired(item.raw.expiration_date)"
+                v-if="isExpired(item.expiration_date ?? '')"
                 style="color: red; font-weight: bold"
-                >{{ formatReadableDate(item.raw.expiration_date) }}</span
+                >{{ formatReadableDate(item.expiration_date ?? '') }}</span
               >
-              <span v-else>{{ formatReadableDate(item.raw.expiration_date) }}</span>
+              <span v-else>{{ formatReadableDate(item.expiration_date ?? '') }}</span>
             </template>
             <template #[`item.id`]="{ item }">
               <v-btn
                 icon="mdi-refresh"
                 variant="text"
-                @click="renewInvitation(item.columns.id)"
+                @click="item.id !== undefined && renewInvitation(item.id)"
                 :disabled="renewInvitationButtonDisabled"
               />&nbsp;
               <v-btn
                 icon="mdi-trash-can-outline"
                 variant="text"
-                @click="deleteInvitation(item.columns.id)"
+                @click="item.id !== undefined && deleteInvitation(item.id)"
                 :disabled="deleteInvitationButtonDisabled"
               />
             </template>
@@ -179,24 +179,24 @@ function isExpired(expiration_date: string): boolean {
           >
             <template #[`item.expiration_date`]="{ item }">
               <span
-                v-if="isExpired(item.raw.expiration_date)"
+                v-if="isExpired(item.expiration_date ?? '')"
                 style="color: red; font-weight: bold"
-                >{{ formatReadableDate(item.raw.expiration_date) }}</span
+                >{{ formatReadableDate(item.expiration_date ?? '') }}</span
               >
-              <span v-else>{{ formatReadableDate(item.raw.expiration_date) }}</span>
+              <span v-else>{{ formatReadableDate(item.expiration_date ?? '') }}</span>
             </template>
             <template #[`item.id`]="{ item }">
-              <span v-if="item.raw.issuer.id == userStore.user?.id || userStore.isAdministrator()">
+              <span v-if="item.issuer?.id == userStore.user?.id || userStore.isAdministrator()">
                 <v-btn
                   icon="mdi-refresh"
                   variant="text"
-                  @click="renewInvitation(item.columns.id)"
+                  @click="item.id !== undefined && renewInvitation(item.id)"
                   :disabled="renewInvitationButtonDisabled"
                 />&nbsp;
                 <v-btn
                   icon="mdi-trash-can-outline"
                   variant="text"
-                  @click="deleteInvitation(item.columns.id)"
+                  @click="item.id !== undefined && deleteInvitation(item.id)"
                   :disabled="deleteInvitationButtonDisabled"
                 />
               </span>

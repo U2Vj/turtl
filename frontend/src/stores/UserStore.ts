@@ -65,13 +65,26 @@ export const useUserStore = defineStore('user', () => {
     accessToken.value = response.data.access
   }
 
+  let refreshPromise: Promise<void> | null = null
   async function refreshLogin() {
-    const data = {
-      refresh: refreshToken.value
+    if (refreshPromise) return refreshPromise
+    // Snapshot the access token that triggered this refresh so we can detect if another tab rotated it
+    const accessAtStart = accessToken.value
+    const doRefresh = async () => {
+      if (accessToken.value && accessToken.value !== accessAtStart) return
+      const data = { refresh: refreshToken.value }
+      const response = await makeAPIRequest('/users/login/refresh', 'POST', false, false, data)
+      refreshToken.value = response.data.refresh
+      accessToken.value = response.data.access
     }
-    const response = await makeAPIRequest('/users/login/refresh', 'POST', false, false, data)
-    refreshToken.value = response.data.refresh
-    accessToken.value = response.data.access
+    refreshPromise = (async () => {
+      if (typeof navigator !== 'undefined' && 'locks' in navigator) {
+        await navigator.locks.request('turtl-refresh-token', doRefresh)
+      } else {
+        await doRefresh()
+      }
+    })().finally(() => { refreshPromise = null })
+    return refreshPromise
   }
 
   async function userIsSignedIn() {
@@ -83,7 +96,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function resetPasswordRequest(email: string) {
     return await axios
-      .post(import.meta.env.VITE_API_URL + '/users/request-reset-email', {
+      .post((import.meta.env.VITE_API_URL ?? '') + '/users/request-reset-email', {
         email: email
       })
       .then(() => {
@@ -124,7 +137,7 @@ export const useUserStore = defineStore('user', () => {
 
   async function resetPassword(email: string, newPassword: string) {
     return await axios
-      .post(import.meta.env.VITE_API_URL + '/users/reset-password', {
+      .post((import.meta.env.VITE_API_URL ?? '') + '/users/reset-password', {
         email: email,
         newPassword: newPassword
       })

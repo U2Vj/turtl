@@ -5,6 +5,7 @@ import NotFound from '@/views/general/NotFound.vue'
 import PrivacyPolicy from '@/views/general/PrivacyPolicy.vue'
 import SignIn from '@/views/general/SignIn.vue'
 import UserProfile from '@/views/general/UserProfile.vue'
+import ShellPopoutView from '@/views/shell/ShellPopoutView.vue'
 import { createRouter, createWebHistory } from 'vue-router'
 import { adminRoutes } from './AdminRoutes'
 import { instructorRoutes } from './InstructorRoutes'
@@ -62,6 +63,11 @@ const router = createRouter({
       path: '/imprint',
       name: 'Imprint',
       component: Imprint
+    },
+    {
+      path: '/shell/popout/:taskId',
+      name: 'ShellPopout',
+      component: ShellPopoutView
     },
     {
       path: '/:pathMatch(.*)*',
