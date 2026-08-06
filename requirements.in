@@ -1,10 +1,10 @@
 asgiref>=3.9.1
-Django>=5.2.8,<5.3
+Django>=5.2.15,<5.3
 djangorestframework>=3.15.2,<3.16
 djangorestframework-simplejwt>=5.5.1
 channels>=4.2.2
 channels-redis>=4.2
-daphne>=4.1
+daphne>=4.2.2
 django-cors-headers>=4.5
 django-extensions>=3.2
 drf-writable-nested>=0.7
